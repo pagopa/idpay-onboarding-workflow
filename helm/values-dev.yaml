@@ -1,0 +1,13 @@
+image:
+  repository: cstarcr.azurecr.io/idpayonboardinworkflow
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+configEnvSpecific:
+  JAVA_TOOL_OPTIONS: "-javaagent:/applicationinsights-agent.jar"
+  APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
