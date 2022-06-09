@@ -8,7 +8,7 @@
         <version>2.6.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>it.gov.pagopa</groupId>
+    <groupId>it.gov.pagopa.onboarding.workflow</groupId>
     <artifactId>idpay-onboarding-workflow</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>idpay-onboarding-workflow</name>
