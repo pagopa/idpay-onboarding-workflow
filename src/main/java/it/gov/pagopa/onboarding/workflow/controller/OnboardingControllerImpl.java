@@ -57,18 +57,22 @@ public class OnboardingControllerImpl implements OnboardingController {
 
   public ResponseEntity<?> onboardingCitizen(@RequestBody OnboardingPutDTO onBoardingPutDTO,
       @PathVariable("userId") String userId) {
-        return onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId);
+      if(onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId) == null){
+        return new ResponseEntity<>(new ErrorDto(404, "Iniziativa inesistente"),
+                HttpStatus.NOT_FOUND);
+      }
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
   }
 
-  public ResponseEntity<OnboardingStatusDTO> onboardingStatus(
+  public ResponseEntity<?> onboardingStatus(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId) {
     OnboardingStatusDTO onBoardingStatusDTO = onboardingService.getOnboardingStatus(initiativeId,
         userId);
     if (onBoardingStatusDTO == null) {
-      return new ResponseEntity(HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>(new ErrorDto(404, "Onbording inesistente"),
+              HttpStatus.NOT_FOUND);
     }
     System.out.println(onBoardingStatusDTO);
     return new ResponseEntity(onBoardingStatusDTO, HttpStatus.OK);
-
   }
 }

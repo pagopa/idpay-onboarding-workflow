@@ -35,6 +35,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public ResponseEntity<?> putTcConsent(String initiativeId, String userId) {
+    if(this.checkIniziativa(initiativeId)==false){
+      return null;
+    }
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId);
     if(onboarding == null){
       Onboarding newOnboarding = new Onboarding();
@@ -46,16 +49,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboardingRepository.save(newOnboarding);
 
 
-    }else{
-      if (!onboarding.isTc()) { //se non è flaggato tc
-        onboarding.setTc(true);
-        onboarding.setTcAcceptTimestamp(new Date());
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-        onboardingRepository.save(onboarding);
-      }
-
     }
-
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
   }
@@ -64,5 +58,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void setOnEvaluation(Onboarding onboarding) {
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboardingRepository.save(onboarding);
+  }
+
+  public boolean checkIniziativa(String idIniziativa){//controllo mock
+    return Math.random() < 0.5;
   }
 }

@@ -6,16 +6,12 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -64,7 +60,7 @@ public interface OnboardingController {
    * @return
    */
   @GetMapping("/{initiativeId}/{userId}/status")
-  ResponseEntity<OnboardingStatusDTO> onboardingStatus(
+  ResponseEntity<?> onboardingStatus(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
 }
