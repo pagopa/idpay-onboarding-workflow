@@ -1,23 +1,18 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ErrorDto;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfDeclarationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.jpa.OnboardingService;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class OnboardingControllerImpl implements OnboardingController {
@@ -62,10 +57,7 @@ public class OnboardingControllerImpl implements OnboardingController {
 
   public ResponseEntity<?> onboardingCitizen(@RequestBody OnboardingPutDTO onBoardingPutDTO,
       @PathVariable("userId") String userId) {
-    if (onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId) == null) {
-      return new ResponseEntity(HttpStatus.NOT_FOUND);
-    }
-    return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId);
   }
 
   public ResponseEntity<OnboardingStatusDTO> onboardingStatus(

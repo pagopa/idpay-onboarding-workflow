@@ -4,11 +4,12 @@ import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
@@ -35,17 +36,28 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public ResponseEntity<?> putTcConsent(String initiativeId, String userId) {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId);
-    if (onboarding != null) {
+    if(onboarding == null){
+      Onboarding newOnboarding = new Onboarding();
+      newOnboarding.setUserId(userId);
+      newOnboarding.setInitiativeId(initiativeId);
+      newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      newOnboarding.setTcAcceptTimestamp(new Date());
+      newOnboarding.setTc(true);
+      onboardingRepository.save(newOnboarding);
+
+
+    }else{
       if (!onboarding.isTc()) { //se non è flaggato tc
         onboarding.setTc(true);
-        Date dateCurrent = new Date(System.currentTimeMillis());
-        onboarding.setTcAcceptTimestamp(dateCurrent);
+        onboarding.setTcAcceptTimestamp(new Date());
         onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
         onboardingRepository.save(onboarding);
       }
-      return new ResponseEntity<>(HttpStatus.OK);
+
     }
-    return null;
+
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
   }
 
   @Override
