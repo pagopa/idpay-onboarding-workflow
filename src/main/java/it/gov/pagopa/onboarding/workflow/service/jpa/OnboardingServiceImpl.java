@@ -2,14 +2,18 @@ package it.gov.pagopa.onboarding.workflow.service.jpa;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
+import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfDeclarationDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
@@ -35,11 +39,11 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public ResponseEntity<?> putTcConsent(String initiativeId, String userId) {
-    if(this.checkIniziativa(initiativeId)==false){
+    if (this.checkIniziativa(initiativeId) == false) {
       return null;
     }
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId);
-    if(onboarding == null){
+    if (onboarding == null) {
       Onboarding newOnboarding = new Onboarding();
       newOnboarding.setUserId(userId);
       newOnboarding.setInitiativeId(initiativeId);
@@ -60,7 +64,27 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboardingRepository.save(onboarding);
   }
 
-  public boolean checkIniziativa(String idIniziativa){//controllo mock
+  @Override
+  public boolean checkPrerequisites(
+      String initiativeId) { //TODO Integrare con il sottosistema iniziativa
+    return Math.random() < 0.5;
+  }
+
+  @Override
+  public boolean checkCFWhitelist(String initiativeId,
+      String userId) { //TODO Integrare con il sottosistema iniziativa
+    return Math.random() < 0.5;
+  }
+
+  @Override
+  public RequiredCriteriaDTO getCriteriaLists(
+      String initiativeId) { //TODO Integrare con il sottosistema iniziativa
+    List<PDNDCriteriaDTO> pdndCriteria = new ArrayList<>();
+    List<SelfDeclarationDTO> selfDeclarationList = new ArrayList<>();
+    return new RequiredCriteriaDTO(pdndCriteria, selfDeclarationList);
+  }
+
+  public boolean checkIniziativa(String initiativeId) {//controllo mock
     return Math.random() < 0.5;
   }
 }
