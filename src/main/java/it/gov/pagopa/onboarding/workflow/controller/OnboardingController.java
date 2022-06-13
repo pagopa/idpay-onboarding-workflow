@@ -6,6 +6,8 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
+import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +31,7 @@ public interface OnboardingController {
    * @return
    */
   @PutMapping("/citizen/{userId}")
-  ResponseEntity<?> onboardingCitizen(@RequestBody OnboardingPutDTO body,
+  ResponseEntity<Void> onboardingCitizen(@RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId);
 
   /**
@@ -39,7 +41,7 @@ public interface OnboardingController {
    * @return
    */
   @PutMapping("/initiative/{userId}")
-  ResponseEntity<?> checkPrerequisites(@RequestBody OnboardingPutDTO body,
+  ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId);
 
   /**
@@ -49,7 +51,7 @@ public interface OnboardingController {
    * @return
    */
   @PutMapping("/consent/{userId}")
-  ResponseEntity<?> consentOnboarding(@RequestBody ConsentPutDTO body,
+  ResponseEntity<Void> consentOnboarding(@RequestBody ConsentPutDTO body,
       @PathVariable("userId") String userId);
 
   /**
@@ -60,7 +62,7 @@ public interface OnboardingController {
    * @return
    */
   @GetMapping("/{initiativeId}/{userId}/status")
-  ResponseEntity<?> onboardingStatus(
+  ResponseEntity<OnboardingStatusDTO> onboardingStatus(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
 }

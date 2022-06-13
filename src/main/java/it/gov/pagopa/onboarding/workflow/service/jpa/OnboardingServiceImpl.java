@@ -5,14 +5,15 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfDeclarationDTO;
+import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,38 +24,38 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
-    return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId);
+    return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+        .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+            String.format("Onboarding with initiativeId %s and userId % not found.", initiativeId,
+                userId)));
   }
 
   @Override
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
-    OnboardingStatusDTO onboardingStatusDTO = null;
-    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId);
-    if (onboarding != null) {
-      onboardingStatusDTO = new OnboardingStatusDTO(onboarding.getStatus());
-    }
-    //System.out.println(onboardingStatusDTO);
-    return onboardingStatusDTO;
+    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+        .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+            String.format("Onboarding with initiativeId %s and userId % not found.", initiativeId,
+                userId)));
+    return new OnboardingStatusDTO(onboarding.getStatus());
   }
 
   @Override
-  public ResponseEntity<?> putTcConsent(String initiativeId, String userId) {
-    if (this.checkIniziativa(initiativeId) == false) {
-      return null;
+  public void putTcConsent(String initiativeId, String userId) {
+    if (!this.checkIniziativa(initiativeId)) {
+      throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+          String.format("The initiative with id %s does not exist.", initiativeId));
     }
-    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId);
+    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+        .orElse(null);
     if (onboarding == null) {
       Onboarding newOnboarding = new Onboarding();
       newOnboarding.setUserId(userId);
       newOnboarding.setInitiativeId(initiativeId);
       newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-      newOnboarding.setTcAcceptTimestamp(new Date());
+      newOnboarding.setTcAcceptTimestamp(Date.from(Instant.now()));
       newOnboarding.setTc(true);
       onboardingRepository.save(newOnboarding);
-
-
     }
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
   }
 
@@ -65,26 +66,42 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public boolean checkPrerequisites(
-      String initiativeId) { //TODO Integrare con il sottosistema iniziativa
-    return Math.random() < 0.5;
+  public void checkPrerequisites(
+      String initiativeId) { // Integrare con il sottosistema iniziativa
+
+    boolean check = Math.random() < 0.5;
+    if (!check) {
+      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+          String.format("The initiative with id %s has not met the prerequisites.", initiativeId));
+    }
   }
 
   @Override
   public boolean checkCFWhitelist(String initiativeId,
-      String userId) { //TODO Integrare con il sottosistema iniziativa
+      String userId) { // Integrare con il sottosistema iniziativa
     return Math.random() < 0.5;
   }
 
   @Override
   public RequiredCriteriaDTO getCriteriaLists(
-      String initiativeId) { //TODO Integrare con il sottosistema iniziativa
+      String initiativeId) { // Integrare con il sottosistema iniziativa
     List<PDNDCriteriaDTO> pdndCriteria = new ArrayList<>();
     List<SelfDeclarationDTO> selfDeclarationList = new ArrayList<>();
     return new RequiredCriteriaDTO(pdndCriteria, selfDeclarationList);
   }
 
-  public boolean checkIniziativa(String initiativeId) {//controllo mock
+  @Override
+  public void checkTCStatus(Onboarding onboarding) {
+    if (!onboarding.isTc() || !onboarding.getStatus()
+        .equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
+      throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+          String.format("Terms and Conditions have been not accepted by user %s for initiative %s.",
+              onboarding.getUserId(), onboarding.getInitiativeId()));
+    }
+  }
+
+  public boolean checkIniziativa(
+      String initiativeId) { // Integrare con il sottosistema iniziativa
     return Math.random() < 0.5;
   }
 }
