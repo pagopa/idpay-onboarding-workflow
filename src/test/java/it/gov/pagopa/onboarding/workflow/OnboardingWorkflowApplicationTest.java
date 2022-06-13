@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.controller.OnboardingController;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -46,6 +48,39 @@ class OnboardingWorkflowApplicationTest {
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+
+  @Test
+  public void putTc_ok() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    Mockito.doNothing().when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("initiativeId", INITIATIVE_ID);
+
+    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isNoContent()).andReturn();
+  }
+
+  @Test
+  public void putTc_NotFound() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+            String.format("The initiative with id %s does not exist.", INITIATIVE_ID)))
+        .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("initiativeId", INITIATIVE_ID);
+
+    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isNotFound())
+        .andReturn();
+  }
 
   @Test
   void checkPrerequisitesTest_noTCAccepted() throws Exception {
@@ -156,6 +191,41 @@ class OnboardingWorkflowApplicationTest {
                 .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isForbidden()).andReturn();
 
+  }
+
+  @Test
+  public void getOnboardingStatus_ok() throws Exception {
+
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+
+    OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
+        OnboardingWorkflowConstants.ACCEPTED_TC);
+
+    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(onboarding);
+
+    Mockito.when(onboardingServiceMock.getOnboardingStatus(INITIATIVE_ID, USER_ID))
+        .thenReturn(onboardingStatusDTO);
+
+    mvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  }
+
+  @Test
+  public void getOnboardingStatus_ko() throws Exception {
+
+    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+            String.format("Onboarding with initiativeId %s and userId %s not found.", INITIATIVE_ID,
+                USER_ID)))
+        .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+    mvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
   }
 
 }

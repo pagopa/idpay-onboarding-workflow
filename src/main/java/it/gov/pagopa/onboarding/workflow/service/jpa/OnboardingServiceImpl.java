@@ -26,17 +26,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   public Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Onboarding with initiativeId %s and userId % not found.", initiativeId,
+            String.format("Onboarding with initiativeId %s and userId %s not found.", initiativeId,
                 userId)));
-  }
-
-  @Override
-  public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
-    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
-        .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Onboarding with initiativeId %s and userId % not found.", initiativeId,
-                userId)));
-    return new OnboardingStatusDTO(onboarding.getStatus());
   }
 
   @Override
@@ -104,4 +95,14 @@ public class OnboardingServiceImpl implements OnboardingService {
       String initiativeId) { // Integrare con il sottosistema iniziativa
     return Math.random() < 0.5;
   }
+
+  @Override
+  public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
+    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+        .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+            String.format("Onboarding with initiativeId %s and userId %s not found.", initiativeId,
+                userId)));
+    return new OnboardingStatusDTO(onboarding.getStatus());
+  }
+
 }
