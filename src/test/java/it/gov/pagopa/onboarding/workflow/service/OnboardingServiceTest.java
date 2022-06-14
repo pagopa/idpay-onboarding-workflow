@@ -56,8 +56,8 @@ class OnboardingServiceTest {
     }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
     onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
 
-    assertEquals(onboarding.getInitiativeId(), INITIATIVE_ID_OK);
-    assertEquals(onboarding.getUserId(), USER_ID);
+    assertEquals(INITIATIVE_ID_OK, onboarding.getInitiativeId());
+    assertEquals(USER_ID, onboarding.getUserId());
     assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
     assertTrue(onboarding.isTc());
   }
@@ -108,14 +108,54 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void findByInitiativeIdAndUserId() {
-    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(
-            Optional.of(onboarding));
-    Onboarding actual = onboardingService.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
-    assertNotNull(actual);
-    assertEquals(onboarding, actual);
+  void findByInitiativeIdAndUserId_ok() {
+    try {
+      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+      Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+          .thenReturn(
+              Optional.of(onboarding));
+      Onboarding actual = onboardingService.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+      assertNotNull(actual);
+      assertEquals(onboarding, actual);
+    } catch(OnboardingWorkflowException e){
+      Assertions.fail();
+    }
+  }
+
+  @Test
+  void findByInitiativeIdAndUserId_ko() {
+    try {
+      Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+          .thenReturn(
+              Optional.empty());
+      onboardingService.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+    } catch(OnboardingWorkflowException e){
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
+  }
+
+  @Test
+  void checkTCStatus_ok() {
+    try {
+      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTc(true);
+      onboardingService.checkTCStatus(onboarding);
+    } catch(OnboardingWorkflowException e){
+      Assertions.fail();
+    }
+  }
+
+  @Test
+  void checkTCStatus_ko() {
+    try {
+      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      onboarding.setTc(false);
+      onboardingService.checkTCStatus(onboarding);
+    } catch(OnboardingWorkflowException e){
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
   }
 
   @Test
