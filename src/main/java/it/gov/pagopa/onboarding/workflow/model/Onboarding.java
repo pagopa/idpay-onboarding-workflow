@@ -38,4 +38,12 @@ public class Onboarding {
 
   private Date criteriaConsensusTimestamp;
 
+
+//  public Onboarding(String initiativeId, String userId, boolean tc, String status, Date criteriaConsensusTimestamp) {
+//    this.userId = userId;
+//    this.initiativeId = initiativeId;
+//    this.status = status;
+//    this.tc = tc;
+//    this.criteriaConsensusTimestamp = criteriaConsensusTimestamp;
+//  }
 }

@@ -5,10 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,74 @@ class OnboardingServiceTest {
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private static final String USER_ID_OK = "123";
   private static final String INITIATIVE_ID_OK = "123";
+
+  @Test
+  void putTc_ok(){
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.empty());
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setTc(true);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTcAcceptTimestamp(Date.from(Instant.now()));
+      return null;
+    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+
+    assertEquals(onboarding.getInitiativeId(), INITIATIVE_ID_OK);
+    assertEquals(onboarding.getUserId(), USER_ID);
+    assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+    assertTrue(onboarding.isTc());
+  }
+
+
+  @Test
+  void putTC_ko() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.empty());
+    try {
+      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
+
+  }
+
+  @Test
+  void getOnboardingStatus_ok() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+
+    OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
+        OnboardingWorkflowConstants.ACCEPTED_TC);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+    onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+    assertEquals(onboardingStatusDTO.getStatus(), onboarding.getStatus());
+
+  }
+
+  @Test
+  void getOnboardingStatus_ko() {
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.empty());
+    try {
+
+      onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
+
+  }
 
   @Test
   void findByInitiativeIdAndUserId() {
