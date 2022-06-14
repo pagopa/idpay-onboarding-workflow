@@ -25,7 +25,8 @@ resources:
 
 variables:
 
-  vmImageNameDefault: 'ubuntu-latest'
+#  vmImageNameDefault: 'ubuntu-latest'
+  vmImageNameDefault: ubuntu-22.04
 
   imageRepository: '$(K8S_IMAGE_REPOSITORY_NAME)'
   deployNamespace: '$(DEPLOY_NAMESPACE)'
