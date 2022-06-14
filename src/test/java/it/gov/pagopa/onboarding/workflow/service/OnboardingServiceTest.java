@@ -1,0 +1,92 @@
+package it.gov.pagopa.onboarding.workflow.service;
+
+import static com.mongodb.assertions.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
+import it.gov.pagopa.onboarding.workflow.model.Onboarding;
+import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import java.util.Optional;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+
+@ExtendWith(MockitoExtension.class)
+@WebMvcTest(value = {
+    OnboardingService.class})
+class OnboardingServiceTest {
+
+  @MockBean
+  OnboardingRepository onboardingRepositoryMock;
+
+  @Autowired
+  OnboardingService onboardingService;
+
+  private static final String USER_ID = "TEST_USER_ID";
+  private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+  private static final String USER_ID_OK = "123";
+  private static final String INITIATIVE_ID_OK = "123";
+
+  @Test
+  void findByInitiativeIdAndUserId() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+    Onboarding actual = onboardingService.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+    assertNotNull(actual);
+    assertEquals(onboarding, actual);
+  }
+
+  @Test
+  void setOnEvaluation() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
+      return null;
+    }).when(onboardingRepositoryMock).save(onboarding);
+    onboardingService.setOnEvaluation(onboarding);
+    assertEquals(OnboardingWorkflowConstants.ON_EVALUATION, onboarding.getStatus());
+  }
+
+  @Test
+  void checkPrerequisites_ok() {
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID_OK);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
+
+  @Test
+  void checkPrerequisites_ko() {
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+    }
+  }
+
+  @Test
+  void checkCFWhitelist() {
+    boolean actual = onboardingService.checkCFWhitelist(INITIATIVE_ID_OK, USER_ID_OK);
+    assertTrue(actual);
+  }
+
+  @Test
+  void getCriteriaLists() {
+    RequiredCriteriaDTO dto = onboardingService.getCriteriaLists(INITIATIVE_ID);
+    assertNotNull(dto);
+  }
+
+}

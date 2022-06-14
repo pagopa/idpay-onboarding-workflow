@@ -1,16 +1,15 @@
-package it.gov.pagopa.onboarding.workflow;
+package it.gov.pagopa.onboarding.workflow.controller;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.controller.OnboardingController;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
-import it.gov.pagopa.onboarding.workflow.service.jpa.OnboardingService;
+import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = {
     OnboardingController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-class OnboardingWorkflowApplicationTest {
+class OnboardingControllerTest {
 
   @MockBean
   OnboardingService onboardingServiceMock;
@@ -43,14 +42,14 @@ class OnboardingWorkflowApplicationTest {
   protected MockMvc mvc;
 
   private static final Logger LOG = LoggerFactory.getLogger(
-      OnboardingWorkflowApplicationTest.class);
+      OnboardingControllerTest.class);
   private static final String BASE_URL = "http://localhost:8080/onboarding";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
 
   @Test
-  public void putTc_ok() throws Exception {
+  void putTc_ok() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Mockito.doNothing().when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
@@ -65,7 +64,7 @@ class OnboardingWorkflowApplicationTest {
   }
 
   @Test
-  public void putTc_NotFound() throws Exception {
+  void putTc_NotFound() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
@@ -194,7 +193,7 @@ class OnboardingWorkflowApplicationTest {
   }
 
   @Test
-  public void getOnboardingStatus_ok() throws Exception {
+  void getOnboardingStatus_ok() throws Exception {
 
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
@@ -215,7 +214,7 @@ class OnboardingWorkflowApplicationTest {
   }
 
   @Test
-  public void getOnboardingStatus_ko() throws Exception {
+  void getOnboardingStatus_ko() throws Exception {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
             String.format("Onboarding with initiativeId %s and userId %s not found.", INITIATIVE_ID,

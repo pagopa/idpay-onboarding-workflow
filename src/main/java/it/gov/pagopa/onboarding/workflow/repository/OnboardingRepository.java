@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OnboardingRepository extends MongoRepository<Onboarding, String> {
 
-  Optional<Onboarding> findByInitiativeIdAndUserId(String userId, String initiativeId);
+  Optional<Onboarding> findByInitiativeIdAndUserId(String initiativeId, String userId);
 
 }
