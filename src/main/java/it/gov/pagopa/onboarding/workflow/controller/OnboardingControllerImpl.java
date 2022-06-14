@@ -5,7 +5,7 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
-import it.gov.pagopa.onboarding.workflow.service.jpa.OnboardingService;
+import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

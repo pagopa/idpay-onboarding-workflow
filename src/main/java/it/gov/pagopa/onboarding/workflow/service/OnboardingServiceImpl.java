@@ -1,4 +1,4 @@
-package it.gov.pagopa.onboarding.workflow.service.jpa;
+package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
@@ -32,10 +32,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void putTcConsent(String initiativeId, String userId) {
-    if (!this.checkIniziativa(initiativeId)) {
-      throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-          String.format("The initiative with id %s does not exist.", initiativeId));
-    }
+    getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
     if (onboarding == null) {
@@ -60,7 +57,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void checkPrerequisites(
       String initiativeId) { // Integrare con il sottosistema iniziativa
 
-    boolean check = Math.random() < 0.5;
+    boolean check = initiativeId.equals("123");
     if (!check) {
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
           String.format("The initiative with id %s has not met the prerequisites.", initiativeId));
@@ -70,7 +67,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public boolean checkCFWhitelist(String initiativeId,
       String userId) { // Integrare con il sottosistema iniziativa
-    return Math.random() < 0.5;
+    return initiativeId.equals("123") && userId.equals("123");
   }
 
   @Override
@@ -83,7 +80,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void checkTCStatus(Onboarding onboarding) {
-    if (!onboarding.isTc() || !onboarding.getStatus()
+    if (!onboarding.isTc() && !onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
           String.format("Terms and Conditions have been not accepted by user %s for initiative %s.",
@@ -91,9 +88,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  public boolean checkIniziativa(
+  private void getInitiative(
       String initiativeId) { // Integrare con il sottosistema iniziativa
-    return Math.random() < 0.5;
+    boolean check = initiativeId.equals("123");
+    if (!check) {
+      throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+          String.format("The initiative with id %s does not exist.", initiativeId));
+    }
   }
 
   @Override

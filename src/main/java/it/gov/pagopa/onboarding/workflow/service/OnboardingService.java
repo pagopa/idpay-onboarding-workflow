@@ -1,4 +1,4 @@
-package it.gov.pagopa.onboarding.workflow.service.jpa;
+package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
