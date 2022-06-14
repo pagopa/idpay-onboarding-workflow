@@ -1,10 +1,10 @@
 package it.gov.pagopa.onboarding.workflow.exception;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 @AllArgsConstructor
-@Data
+@Getter
 public class OnboardingWorkflowException extends RuntimeException {
 
   private final int code;

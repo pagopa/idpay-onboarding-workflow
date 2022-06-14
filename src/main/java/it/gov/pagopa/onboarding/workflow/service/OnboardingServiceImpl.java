@@ -36,9 +36,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
     if (onboarding == null) {
-      Onboarding newOnboarding = new Onboarding();
-      newOnboarding.setUserId(userId);
-      newOnboarding.setInitiativeId(initiativeId);
+      Onboarding newOnboarding = new Onboarding(initiativeId, userId);
       newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
       newOnboarding.setTcAcceptTimestamp(Date.from(Instant.now()));
       newOnboarding.setTc(true);
