@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
 
   image:
-    repository: cstardcommonarc.azurecr.io/idpayonboardingworkflow
+    repository: cstardcommonacr.azurecr.io/devopsjavaspringbootcolor
     tag: latest
     pullPolicy: Always
 
