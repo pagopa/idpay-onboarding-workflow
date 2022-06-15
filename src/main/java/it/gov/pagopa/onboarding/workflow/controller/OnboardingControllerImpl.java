@@ -1,11 +1,11 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class OnboardingControllerImpl implements OnboardingController {
   @Autowired
   OnboardingService onboardingService;
 
-  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody OnboardingPutDTO body,
+  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@Valid @RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId) {
     String initiativeId = body.getInitiativeId();
     Onboarding onboarding;
@@ -39,12 +39,7 @@ public class OnboardingControllerImpl implements OnboardingController {
     }
   }
 
-  public ResponseEntity<Void> consentOnboarding(@RequestBody ConsentPutDTO body,
-      @PathVariable("userId") String userId) {
-    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-  }
-
-  public ResponseEntity<Void> onboardingCitizen(@RequestBody OnboardingPutDTO onBoardingPutDTO,
+  public ResponseEntity<Void> onboardingCitizen(@Valid @RequestBody OnboardingPutDTO onBoardingPutDTO,
       @PathVariable("userId") String userId) {
     onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);

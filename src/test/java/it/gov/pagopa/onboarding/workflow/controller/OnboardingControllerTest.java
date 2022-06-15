@@ -82,6 +82,19 @@ class OnboardingControllerTest {
   }
 
   @Test
+  void putTc_blankBody() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("initiativeId", "");
+
+    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+  }
+
+  @Test
   void checkPrerequisitesTest_noTCAccepted() throws Exception {
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -105,6 +118,21 @@ class OnboardingControllerTest {
                 .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
   }
+  @Test
+  void checkPrerequisitesTest_blankBody() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("initiativeId", "");
+
+    MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(body))
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+  }
+
 
   @Test
   void checkPrerequisitesTest_noCFInWhitelist() throws Exception {

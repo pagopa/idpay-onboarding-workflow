@@ -4,7 +4,6 @@
  */
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
@@ -44,15 +43,6 @@ public interface OnboardingController {
   ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId);
 
-  /**
-   * Save the consensus of both PDND and self-declaration
-   *
-   * @param body
-   * @return
-   */
-  @PutMapping("/consent/{userId}")
-  ResponseEntity<Void> consentOnboarding(@RequestBody ConsentPutDTO body,
-      @PathVariable("userId") String userId);
 
   /**
    * Returns the actual onboarding status

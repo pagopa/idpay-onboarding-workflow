@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
+import static com.mongodb.assertions.Assertions.assertFalse;
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -62,6 +63,24 @@ class OnboardingServiceTest {
     assertTrue(onboarding.isTc());
   }
 
+  @Test
+  void putTc_idemp(){
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID);
+    onboarding.setTc(true);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTcAcceptTimestamp(Date.from(Instant.now()));
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+    try {
+      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    } catch (OnboardingWorkflowException e){
+      Assertions.fail();
+    }
+
+  }
 
   @Test
   void putTC_ko() {
@@ -139,7 +158,6 @@ class OnboardingServiceTest {
     try {
       Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
       onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-      onboarding.setTc(true);
       onboardingService.checkTCStatus(onboarding);
     } catch(OnboardingWorkflowException e){
       Assertions.fail();
@@ -151,7 +169,6 @@ class OnboardingServiceTest {
     try {
       Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-      onboarding.setTc(false);
       onboardingService.checkTCStatus(onboarding);
     } catch(OnboardingWorkflowException e){
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
@@ -189,9 +206,15 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void checkCFWhitelist() {
-    boolean actual = onboardingService.checkCFWhitelist(INITIATIVE_ID_OK, USER_ID_OK);
+  void checkCFWhitelist_ok() {
+    boolean actual = onboardingService.checkCFWhitelist(INITIATIVE_ID, USER_ID_OK);
     assertTrue(actual);
+  }
+
+  @Test
+  void checkCFWhitelist_ko() {
+    boolean actual = onboardingService.checkCFWhitelist(INITIATIVE_ID, USER_ID);
+    assertFalse(actual);
   }
 
   @Test

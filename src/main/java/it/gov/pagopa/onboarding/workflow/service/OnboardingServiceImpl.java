@@ -65,7 +65,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public boolean checkCFWhitelist(String initiativeId,
       String userId) { // Integrare con il sottosistema iniziativa
-    return initiativeId.equals("123") && userId.equals("123");
+    return userId.equals("123");
   }
 
   @Override
@@ -78,7 +78,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void checkTCStatus(Onboarding onboarding) {
-    if (!onboarding.isTc() && !onboarding.getStatus()
+    if (!onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
           String.format("Terms and Conditions have been not accepted by user %s for initiative %s.",
