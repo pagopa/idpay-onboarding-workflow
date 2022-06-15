@@ -71,8 +71,12 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public RequiredCriteriaDTO getCriteriaLists(
       String initiativeId) { // Integrare con il sottosistema iniziativa
+    PDNDCriteriaDTO pdndCriteriaDTO = new PDNDCriteriaDTO("0","test_descrizione_pdnd","test_ente_pdnd");
+    SelfDeclarationDTO selfDeclarationDTO = new SelfDeclarationDTO("0","test_descrizione_selfDeclaration");
     List<PDNDCriteriaDTO> pdndCriteria = new ArrayList<>();
+    pdndCriteria.add(pdndCriteriaDTO);
     List<SelfDeclarationDTO> selfDeclarationList = new ArrayList<>();
+    selfDeclarationList.add(selfDeclarationDTO);
     return new RequiredCriteriaDTO(pdndCriteria, selfDeclarationList);
   }
 
