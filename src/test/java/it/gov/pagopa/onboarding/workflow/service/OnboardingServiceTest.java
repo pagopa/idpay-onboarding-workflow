@@ -71,11 +71,11 @@ class OnboardingServiceTest {
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTcAcceptTimestamp(Date.from(Instant.now()));
 
-    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID_OK, USER_ID))
         .thenReturn(
             Optional.of(onboarding));
     try {
-      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+      onboardingService.putTcConsent(INITIATIVE_ID_OK, USER_ID);
     } catch (OnboardingWorkflowException e){
       Assertions.fail();
     }
