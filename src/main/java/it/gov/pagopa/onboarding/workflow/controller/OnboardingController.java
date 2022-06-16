@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController
-@RequestMapping("/onboarding")
+@RequestMapping("/idpay/onboarding")
 public interface OnboardingController {
 
   /**
