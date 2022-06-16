@@ -43,7 +43,7 @@ class OnboardingControllerTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(
       OnboardingControllerTest.class);
-  private static final String BASE_URL = "http://localhost:8080/onboarding";
+  private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
