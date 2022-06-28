@@ -5,13 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,10 +60,12 @@ class OnboardingControllerTest {
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
 
-    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
+            .content(objectMapper.writeValueAsString(body))
+            .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isNoContent()).andReturn();
+
   }
 
   @Test
@@ -88,7 +93,7 @@ class OnboardingControllerTest {
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", "");
 
-    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
@@ -111,7 +116,7 @@ class OnboardingControllerTest {
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
 
-    MvcResult result = mvc.perform(
+    mvc.perform(
             MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(body))
@@ -125,7 +130,7 @@ class OnboardingControllerTest {
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", "");
 
-    MvcResult result = mvc.perform(
+    mvc.perform(
             MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(body))
@@ -185,7 +190,7 @@ class OnboardingControllerTest {
     body.put("initiativeId", INITIATIVE_ID);
 
     // when
-    MvcResult result = mvc.perform(
+    mvc.perform(
             MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(body))
@@ -211,7 +216,7 @@ class OnboardingControllerTest {
     body.put("initiativeId", INITIATIVE_ID);
 
     // when
-    MvcResult result = mvc.perform(
+    mvc.perform(
             MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(body))
@@ -253,6 +258,40 @@ class OnboardingControllerTest {
             MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+  }
+
+  @Test
+  void saveConsent_ok() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+    SelfConsentDTO selfConsentDTO = new SelfConsentDTO("1", true);
+    SelfConsentDTO selfConsentDTO1 = new SelfConsentDTO("2", true);
+
+    List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
+    selfConsentDTOList.add(selfConsentDTO);
+    selfConsentDTOList.add(selfConsentDTO1);
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
+
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+
+    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), USER_ID))
+        .thenReturn(onboarding);
+
+    Mockito.doNothing().when(onboardingServiceMock).checkTCStatus(onboarding);
+
+    Mockito.doNothing().when(onboardingServiceMock).saveConsent(consentPutDTO,USER_ID);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("initiativeId", consentPutDTO.getInitiativeId());
+    body.put("pdndAccept", consentPutDTO.isPdndAccept());
+    body.put("selfDeclarationList", consentPutDTO.getSelfDeclarationList());
+
+    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/consent/" + USER_ID)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .content(objectMapper.writeValueAsString(body))
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isAccepted()).andReturn();
+
   }
 
 }

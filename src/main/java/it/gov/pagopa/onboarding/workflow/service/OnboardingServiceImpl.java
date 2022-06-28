@@ -1,17 +1,21 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfDeclarationDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,14 +23,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
 
+  private static final String ID_S_NOT_FOUND = "Onboarding with initiativeId %s and userId %s not found.";
   @Autowired
   private OnboardingRepository onboardingRepository;
+
 
   @Override
   public Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Onboarding with initiativeId %s and userId %s not found.", initiativeId,
+            String.format(ID_S_NOT_FOUND, initiativeId,
                 userId)));
   }
 
@@ -38,7 +44,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboarding == null) {
       Onboarding newOnboarding = new Onboarding(initiativeId, userId);
       newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-      newOnboarding.setTcAcceptTimestamp(Date.from(Instant.now()));
+      newOnboarding.setTcAcceptTimestamp(LocalDateTime.now());
       newOnboarding.setTc(true);
       onboardingRepository.save(newOnboarding);
     }
@@ -52,8 +58,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void checkPrerequisites(
-      String initiativeId) { // Integrare con il sottosistema iniziativa
+  public void checkPrerequisites(String initiativeId) { // Integrare con il sottosistema iniziativa
 
     boolean check = initiativeId.equals("123");
     if (!check) {
@@ -69,14 +74,18 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public RequiredCriteriaDTO getCriteriaLists(
-      String initiativeId) { // Integrare con il sottosistema iniziativa
-    PDNDCriteriaDTO pdndCriteriaDTO = new PDNDCriteriaDTO("0","test_descrizione_pdnd","test_ente_pdnd");
-    SelfDeclarationDTO selfDeclarationDTO = new SelfDeclarationDTO("0","test_descrizione_selfDeclaration");
+  public RequiredCriteriaDTO getCriteriaLists(String initiativeId) { // Integrare con il sottosistema iniziativa
+    PDNDCriteriaDTO pdndCriteriaDTO = new PDNDCriteriaDTO("0", "test_descrizione_pdnd",
+        "test_ente_pdnd");
+    SelfDeclarationDTO selfDeclarationDTO = new SelfDeclarationDTO("0",
+        "test_descrizione_selfDeclaration");
+    SelfDeclarationDTO selfDeclarationDTO1 = new SelfDeclarationDTO("01",
+        "test_descrizione_selfDeclaration");
     List<PDNDCriteriaDTO> pdndCriteria = new ArrayList<>();
     pdndCriteria.add(pdndCriteriaDTO);
     List<SelfDeclarationDTO> selfDeclarationList = new ArrayList<>();
     selfDeclarationList.add(selfDeclarationDTO);
+    selfDeclarationList.add(selfDeclarationDTO1);
     return new RequiredCriteriaDTO(pdndCriteria, selfDeclarationList);
   }
 
@@ -90,8 +99,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private void getInitiative(
-      String initiativeId) { // Integrare con il sottosistema iniziativa
+  private void getInitiative(String initiativeId) { // Integrare con il sottosistema iniziativa
     boolean check = initiativeId.equals("123");
     if (!check) {
       throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
@@ -103,9 +111,63 @@ public class OnboardingServiceImpl implements OnboardingService {
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Onboarding with initiativeId %s and userId %s not found.", initiativeId,
+            String.format(ID_S_NOT_FOUND, initiativeId,
                 userId)));
     return new OnboardingStatusDTO(onboarding.getStatus());
   }
 
+
+  @Override
+  public void saveConsent(ConsentPutDTO consentPutDTO, String userId) {
+    Onboarding onboarding = findByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
+    InitiativeDTO initiativeDTO = new InitiativeDTO();
+    if (initiativeDTO.getPdndCriteria().isEmpty() || consentPutDTO.isPdndAccept()) {
+      onboarding.setSelfDeclarationList(selfDeclaration(consentPutDTO));
+      onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
+      onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
+      onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
+      checkPrerequisites(consentPutDTO.getInitiativeId());
+      onboardingRepository.save(onboarding);
+    } else {
+      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
+          String.format(
+              "The PDND consense was denied by the user %s for the initiative %s.",
+              userId, consentPutDTO.getInitiativeId()));
+    }
+  }
+
+  @Override
+  public List<Boolean> selfDeclaration(ConsentPutDTO consentPutDTO) {
+    List<Boolean> flagList = new ArrayList<>();
+    List<SelfConsentDTO> declarationList = consentPutDTO.getSelfDeclarationList();
+    InitiativeDTO initiativeDTO = new InitiativeDTO();
+
+    List<PDNDCriteriaDTO> pdndCriteriaDTOS = new ArrayList<>();
+    List<SelfDeclarationDTO> selfDeclarationDTOS = new ArrayList<>();
+    InitiativeDTO initiativeDTO1 = new InitiativeDTO(pdndCriteriaDTOS, selfDeclarationDTOS);
+
+    Map<String, Boolean> list = declarationList.stream()
+        .collect(Collectors.toMap(SelfConsentDTO::getCode, SelfConsentDTO::isAccepted));
+
+    if (initiativeDTO1.getSelfDeclarationList().isEmpty() && list.isEmpty()) {
+      return flagList;
+    }
+    if (list.size() != initiativeDTO.getSelfDeclarationList().size()) {
+      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(), "The amount of self declaration lists mismatch the amount of flags");
+    }
+
+    for (SelfDeclarationDTO consentDTO : initiativeDTO.getSelfDeclarationList()) {
+      Boolean flag = list.get(consentDTO.getCode());
+      if (flag != null && flag) {
+        flagList.add(true);
+      } else {
+        throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
+            String.format(
+                "The selfDeclarationList was denied by the user for the initiative %s.",
+                consentPutDTO.getInitiativeId()));
+      }
+    }
+
+    return flagList;
+  }
 }
