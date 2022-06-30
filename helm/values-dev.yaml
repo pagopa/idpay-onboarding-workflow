@@ -85,6 +85,7 @@ microservice-chart:
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
     MONGODB_URI: mongodb-connection-string
+    KAFKA_ONBOARDING_SASL_JAAS_CONFIG: evh-idpay-onboarding-request-producer-key
 
   keyvault:
     name: "cstar-d-idpay-kv"

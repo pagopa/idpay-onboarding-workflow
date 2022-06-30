@@ -8,6 +8,9 @@ import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfDeclarationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.dto.mapper.producerDto.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
@@ -24,8 +27,15 @@ import org.springframework.stereotype.Service;
 public class OnboardingServiceImpl implements OnboardingService {
 
   private static final String ID_S_NOT_FOUND = "Onboarding with initiativeId %s and userId %s not found.";
+
   @Autowired
   private OnboardingRepository onboardingRepository;
+
+  @Autowired
+  ConsentMapper consentMapper;
+
+  @Autowired
+  OnboardingProducer onboardingProducer;
 
 
   @Override
@@ -88,7 +98,6 @@ public class OnboardingServiceImpl implements OnboardingService {
     selfDeclarationList.add(selfDeclarationDTO1);
     return new RequiredCriteriaDTO(pdndCriteria, selfDeclarationList);
   }
-
   @Override
   public void checkTCStatus(Onboarding onboarding) {
     if (!onboarding.getStatus()
@@ -106,7 +115,6 @@ public class OnboardingServiceImpl implements OnboardingService {
           String.format("The initiative with id %s does not exist.", initiativeId));
     }
   }
-
   @Override
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
@@ -127,7 +135,10 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
       onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
       checkPrerequisites(consentPutDTO.getInitiativeId());
-      onboardingRepository.save(onboarding);
+      Onboarding onboarding1 = onboardingRepository.save(onboarding);
+
+      SaveConsentDTO saveConsentDTO = consentMapper.map(onboarding1);
+      onboardingProducer.sendSaveConsent(saveConsentDTO);
     } else {
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(
@@ -135,7 +146,6 @@ public class OnboardingServiceImpl implements OnboardingService {
               userId, consentPutDTO.getInitiativeId()));
     }
   }
-
   @Override
   public List<Boolean> selfDeclaration(ConsentPutDTO consentPutDTO) {
     List<Boolean> flagList = new ArrayList<>();
@@ -167,7 +177,6 @@ public class OnboardingServiceImpl implements OnboardingService {
                 consentPutDTO.getInitiativeId()));
       }
     }
-
     return flagList;
   }
 }

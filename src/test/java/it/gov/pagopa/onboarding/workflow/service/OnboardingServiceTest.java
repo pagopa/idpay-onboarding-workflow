@@ -10,6 +10,8 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
@@ -34,6 +36,12 @@ class OnboardingServiceTest {
 
   @MockBean
   OnboardingRepository onboardingRepositoryMock;
+
+  @MockBean
+  ConsentMapper consentMapper;
+
+  @MockBean
+  OnboardingProducer onboardingProducer;
 
   @Autowired
   OnboardingService onboardingService;
