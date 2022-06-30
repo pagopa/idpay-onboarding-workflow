@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ConsentPutDTO {
 
-  @NotBlank(message="Field initiativeId cannot be blank!")
+  @NotBlank(message="The field is mandatory!")
   String initiativeId = null;
 
   boolean pdndAccept;

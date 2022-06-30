@@ -11,6 +11,7 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.dto.mapper.producerDto.SaveConsentDTO;
 import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -323,9 +324,23 @@ class OnboardingServiceTest {
       onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
       onboardingService.checkPrerequisites(consentPutDTO.getInitiativeId());
       return null;
-    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    }).when(onboardingRepositoryMock).save(onboarding);
+    final SaveConsentDTO saveConsentDTO = new SaveConsentDTO();
+
+    Mockito.doAnswer(invocationOnMock -> {
+      saveConsentDTO.setInitiativeId(onboarding.getInitiativeId());
+      saveConsentDTO.setStatus(onboarding.getStatus());
+      saveConsentDTO.setCriteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp());
+      saveConsentDTO.setPdndAccept(onboarding.getPdndAccept());
+      saveConsentDTO.setSelfDeclarationList(onboarding.getSelfDeclarationList());
+      return null;
+    }).when(consentMapper).map(onboarding);
+
+    Mockito.doNothing().when(onboardingProducer).sendSaveConsent(saveConsentDTO);
+
     onboardingService.saveConsent(consentPutDTO, onboarding.getUserId());
     assertEquals(OnboardingWorkflowConstants.ON_EVALUATION, onboarding.getStatus());
+    assertNotNull(saveConsentDTO);
   }
 
   @Test
