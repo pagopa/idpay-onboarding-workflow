@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
@@ -50,6 +51,15 @@ public class OnboardingControllerImpl implements OnboardingController {
     OnboardingStatusDTO onBoardingStatusDTO = onboardingService.getOnboardingStatus(initiativeId,
         userId);
     return new ResponseEntity<>(onBoardingStatusDTO, HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<Void> saveConsent(@Valid @RequestBody ConsentPutDTO body,
+      @PathVariable("userId") String userId) {
+    Onboarding onboarding = onboardingService.findByInitiativeIdAndUserId(body.getInitiativeId(), userId);
+        onboardingService.checkTCStatus(onboarding);
+        onboardingService.saveConsent(body, userId);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
 }

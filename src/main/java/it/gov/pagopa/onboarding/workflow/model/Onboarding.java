@@ -1,6 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -30,12 +30,12 @@ public class Onboarding {
 
   private boolean tc;
 
-  private boolean pdndAccept;
+  private Boolean pdndAccept;
 
   private List<Boolean> selfDeclarationList;
 
-  private Date tcAcceptTimestamp;
+  private LocalDateTime tcAcceptTimestamp;
 
-  private Date criteriaConsensusTimestamp;
+  private LocalDateTime criteriaConsensusTimestamp;
 
 }

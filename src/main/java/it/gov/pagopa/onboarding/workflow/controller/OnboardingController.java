@@ -4,6 +4,7 @@
  */
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
@@ -54,5 +55,16 @@ public interface OnboardingController {
   @GetMapping("/{initiativeId}/{userId}/status")
   ResponseEntity<OnboardingStatusDTO> onboardingStatus(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+
+  /**
+   * Save the consents of PDND criteria and Self declaration list
+   *
+   * @param body
+   * @return
+   */
+  @PutMapping("/consent/{userId}")
+  ResponseEntity<Void> saveConsent(@RequestBody ConsentPutDTO body,
+      @PathVariable("userId") String userId);
 
 }
