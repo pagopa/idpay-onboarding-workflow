@@ -1,6 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.event;
 
-import it.gov.pagopa.onboarding.workflow.dto.mapper.producerDto.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;

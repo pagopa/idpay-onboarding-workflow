@@ -4,7 +4,7 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
-import java.util.List;
+import java.util.Map;
 
 public interface OnboardingService {
 
@@ -26,5 +26,5 @@ public interface OnboardingService {
 
   void saveConsent(ConsentPutDTO consentPutDTO, String userId);
 
-  List<Boolean> selfDeclaration(ConsentPutDTO consentPutDTO);
+  Map<String, Boolean> selfDeclaration(ConsentPutDTO consentPutDTO);
 }

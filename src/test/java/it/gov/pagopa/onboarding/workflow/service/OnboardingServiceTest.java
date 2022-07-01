@@ -11,7 +11,7 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
-import it.gov.pagopa.onboarding.workflow.dto.mapper.producerDto.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
 import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -19,6 +19,7 @@ import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -286,7 +287,7 @@ class OnboardingServiceTest {
     ConsentPutDTO consentPutDTO = new ConsentPutDTO();
     consentPutDTO.setSelfDeclarationList(selfConsentDTOList);
 
-    List<Boolean> list = onboardingService.selfDeclaration(consentPutDTO);
+    Map<String,Boolean> list = onboardingService.selfDeclaration(consentPutDTO);
     assertNotNull(list);
 
   }
@@ -297,7 +298,7 @@ class OnboardingServiceTest {
     ConsentPutDTO consentPutDTO = new ConsentPutDTO();
     consentPutDTO.setSelfDeclarationList(selfConsentDTOList);
 
-    List<Boolean> list = onboardingService.selfDeclaration(consentPutDTO);
+    Map<String,Boolean> list = onboardingService.selfDeclaration(consentPutDTO);
     assertNotNull(list);
 
   }
