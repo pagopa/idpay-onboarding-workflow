@@ -1,12 +1,10 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorDTO {
