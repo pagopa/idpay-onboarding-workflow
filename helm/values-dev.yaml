@@ -79,6 +79,12 @@ microservice-chart:
   #          metricAggregationType: Count
   #          targetValue: "30"
 
+  envConfig:
+    MONGODB_DBNAME: idpay
+    APPLICATIONINSIGHTS_ROLE_NAME: "idpayonboardingworkflow"
+    APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
+    APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
+
   envConfigMapExternals:
     idpay-common:
       TZ: tz
@@ -88,12 +94,6 @@ microservice-chart:
       KAFKA_ONBOARDING_SASL_MECHANISM: kafka_sasl_mechanism
       KAFKA_ONBOARDING_SECURITY_PROTOCOL: kafka_security_protocol
       KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic
-
-  envConfig:
-    MONGODB_DBNAME: idpay
-    APPLICATIONINSIGHTS_ROLE_NAME: "idpayonboardingworkflow"
-    APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
-    APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
