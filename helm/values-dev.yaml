@@ -81,6 +81,9 @@ microservice-chart:
 
   envConfig:
     MONGODB_DBNAME: idpay
+    APPLICATIONINSIGHTS_ROLE_NAME: "idpayonboardingworkflow"
+    APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
+    APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
