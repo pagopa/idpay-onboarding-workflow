@@ -9,13 +9,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class OnboardingProducer {
 
-  @Value("${kafka.topic.onboarding}")
-  private String topicOnboarding;
+  @Value("${spring.cloud.stream.bindings.onboardingQueue-out-0.binder}")
+  private String onboardingBinder;
+
   @Autowired
   StreamBridge streamBridge;
 
   public void sendSaveConsent(SaveConsentDTO saveConsentDTO){
-    streamBridge.send(topicOnboarding, saveConsentDTO);
+    streamBridge.send("onboardingQueue-out-0", onboardingBinder, saveConsentDTO);
   }
 
 }

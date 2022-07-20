@@ -1,6 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -14,7 +15,7 @@ public interface OnboardingService {
 
   void putTcConsent(String initiativeId, String userId);
 
-  void setOnEvaluation(Onboarding onboarding);
+  void setStatus(Onboarding onboarding, String status);
 
   void checkPrerequisites(String initiativeId);
 
@@ -27,4 +28,6 @@ public interface OnboardingService {
   void saveConsent(ConsentPutDTO consentPutDTO, String userId);
 
   Map<String, Boolean> selfDeclaration(ConsentPutDTO consentPutDTO);
+
+  void completeOnboarding(EvaluationDTO evaluationDTO);
 }

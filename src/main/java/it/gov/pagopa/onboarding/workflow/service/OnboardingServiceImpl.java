@@ -2,6 +2,7 @@ package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
@@ -63,8 +64,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void setOnEvaluation(Onboarding onboarding) {
-    onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
+  public void setStatus(Onboarding onboarding, String status) {
+    onboarding.setStatus(status);
     onboardingRepository.save(onboarding);
   }
 
@@ -175,19 +176,27 @@ public class OnboardingServiceImpl implements OnboardingService {
           "The amount of self declaration lists mismatch the amount of flags");
     }
 
-      for (SelfDeclarationDTO initiativeList : initiativeDTO.getSelfDeclarationList()) {
-        Boolean flag = selfDeclaration.get(initiativeList.getCode());
+    for (SelfDeclarationDTO initiativeList : initiativeDTO.getSelfDeclarationList()) {
+      Boolean flag = selfDeclaration.get(initiativeList.getCode());
       if (flag != null && flag) {
         selfDeclarationMap.put(initiativeList.getCode(), true);
-        } else {
-          throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-              String.format(
-                  "The selfDeclarationList was denied by the user for the initiative %s.",
-                  consentPutDTO.getInitiativeId()));
+      } else {
+        throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
+            String.format(
+                "The selfDeclarationList was denied by the user for the initiative %s.",
+                consentPutDTO.getInitiativeId()));
 
       }
     }
 
     return selfDeclarationMap;
+  }
+
+  @Override
+  public void completeOnboarding(EvaluationDTO evaluationDTO) {
+    onboardingRepository.findByInitiativeIdAndUserId(
+        evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
+          setStatus(onboarding, evaluationDTO.getStatus())
+    );
   }
 }
