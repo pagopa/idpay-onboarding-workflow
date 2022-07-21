@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
@@ -52,6 +53,12 @@ class OnboardingServiceTest {
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private static final String USER_ID_OK = "123";
   private static final String INITIATIVE_ID_OK = "123";
+  private static final LocalDateTime OPERATION_DATE = LocalDateTime.now();
+
+  private static final EvaluationDTO EVALUATION_DTO =
+      new EvaluationDTO(
+          USER_ID, INITIATIVE_ID, "ONBOARDING_OK", OPERATION_DATE, null);
+
 
   @Test
   void putTc_ok_OnboardingNull() {
@@ -370,5 +377,23 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
     }
+  }
+
+  @Test
+  void completeOnboarding_ok() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+    assertEquals("ONBOARDING_OK", onboarding.getStatus());
+  }
+
+  @Test
+  void completeOnboarding_ko() {
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.empty());
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
+        .findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
   }
 }
