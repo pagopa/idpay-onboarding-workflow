@@ -32,7 +32,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
     selfConsent.put("1",true);
     Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK,USER_ID_OK);
     onboarding.setPdndAccept(true);
-    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
     onboarding.setSelfDeclarationList(selfConsent);
     SaveConsentDTO saveConsentDTO = consentMapper.map(onboarding);
