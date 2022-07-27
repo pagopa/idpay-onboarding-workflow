@@ -28,13 +28,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(value = {
-    OnboardingService.class})
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
+@ContextConfiguration(classes = OnboardingServiceImpl.class)
 class OnboardingServiceTest {
 
   @MockBean
