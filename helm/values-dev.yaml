@@ -94,11 +94,14 @@ microservice-chart:
       KAFKA_ONBOARDING_SASL_MECHANISM: kafka_sasl_mechanism
       KAFKA_ONBOARDING_SECURITY_PROTOCOL: kafka_security_protocol
       KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic
+      KAFKA_TOPIC_OUTCOME: idpay_onboarding_outcome_topic
+      KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-consumer-group
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
     MONGODB_URI: mongodb-connection-string
     KAFKA_ONBOARDING_SASL_JAAS_CONFIG: evh-idpay-onboarding-request-idpay-onboarding-request-producer-jaas-config-idpay-00
+    KAFKA_OUTCOME_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-consumer-jaas-config-idpay-00
   #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
 
   keyvault:
