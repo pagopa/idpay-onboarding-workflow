@@ -11,6 +11,7 @@ public class EvaluationDTO {
 
   String userId;
   String initiativeId;
+  String authority;
   String status;
   LocalDateTime admissibilityCheckDate;
   List<String> onboardingRejectionReasons;
