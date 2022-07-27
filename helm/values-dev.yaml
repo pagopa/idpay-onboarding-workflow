@@ -95,7 +95,7 @@ microservice-chart:
       KAFKA_ONBOARDING_SECURITY_PROTOCOL: kafka_security_protocol
       KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic
       KAFKA_TOPIC_OUTCOME: idpay_onboarding_outcome_topic
-      KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-consumer-group
+      KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-onboarding-consumer-group
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
