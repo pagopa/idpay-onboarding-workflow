@@ -57,7 +57,7 @@ class OnboardingServiceTest {
 
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
-          USER_ID, INITIATIVE_ID, "TEST_AUTHORITY", "ONBOARDING_OK", OPERATION_DATE, null);
+          USER_ID, INITIATIVE_ID, "ONBOARDING_OK", OPERATION_DATE, null);
 
 
   @Test
