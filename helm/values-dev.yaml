@@ -87,8 +87,8 @@ microservice-chart:
 
   envConfigMapExternals:
     idpay-common:
-      TZ: tz
-      JAVA_TOOL_OPTIONS: java_tool_options
+      TZ: TZ
+      JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
     idpay-eventhub-00:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
       KAFKA_ONBOARDING_SASL_MECHANISM: kafka_sasl_mechanism
