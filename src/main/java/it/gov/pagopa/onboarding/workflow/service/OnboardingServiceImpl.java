@@ -191,6 +191,18 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
+  public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate) {
+    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(
+        initiativeId, userId).orElseThrow(
+        () -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+            OnboardingWorkflowConstants.ID_S_NOT_FOUND));
+
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    onboarding.setDeactivationDate(LocalDateTime.parse(deactivationDate));
+    onboardingRepository.save(onboarding);
+  }
+
+  @Override
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     onboardingRepository.findByInitiativeIdAndUserId(
         evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->

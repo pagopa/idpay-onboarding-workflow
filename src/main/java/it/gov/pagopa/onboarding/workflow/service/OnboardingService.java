@@ -30,4 +30,6 @@ public interface OnboardingService {
   Map<String, Boolean> selfDeclaration(ConsentPutDTO consentPutDTO);
 
   void completeOnboarding(EvaluationDTO evaluationDTO);
+
+  void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
 }

@@ -5,6 +5,7 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import javax.validation.Valid;
@@ -64,5 +65,11 @@ public class OnboardingControllerImpl implements OnboardingController {
     onboardingService.checkTCStatus(onboarding);
     onboardingService.saveConsent(body, userId);
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
+  @Override
+  public ResponseEntity<Void> disableOnboarding(UnsubscribeBodyDTO body) {
+    onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(), body.getUnsubscribeDate());
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 }

@@ -8,7 +8,10 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -66,5 +69,15 @@ public interface OnboardingController {
   @PutMapping("/consent/{userId}")
   ResponseEntity<Void> saveConsent(@RequestBody ConsentPutDTO body,
       @PathVariable("userId") String userId);
+
+  /**
+   * Deactivation onboarding
+   *
+   * @param body
+   * @return
+   */
+  @DeleteMapping("/disable")
+  ResponseEntity<Void> disableOnboarding(
+      @Valid @RequestBody UnsubscribeBodyDTO body);
 
 }

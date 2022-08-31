@@ -38,4 +38,6 @@ public class Onboarding {
 
   private LocalDateTime criteriaConsensusTimestamp;
 
+  private LocalDateTime deactivationDate;
+
 }
