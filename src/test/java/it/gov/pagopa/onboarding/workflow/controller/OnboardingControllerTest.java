@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -9,9 +10,11 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +50,7 @@ class OnboardingControllerTest {
   private static final Logger LOG = LoggerFactory.getLogger(
       OnboardingControllerTest.class);
   private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
+  private static final String DISABLE_URL = "/disable";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -292,6 +296,23 @@ class OnboardingControllerTest {
             .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isAccepted()).andReturn();
 
+  }
+
+  @Test
+  void disableOnboarding_ok() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+    UnsubscribeBodyDTO unsubscribeBodyDTO = new UnsubscribeBodyDTO(INITIATIVE_ID, USER_ID,
+        LocalDateTime.now().toString());
+
+    Mockito.doNothing().when(onboardingServiceMock).deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
+
+    mvc.perform(
+            MockMvcRequestBuilders.delete(BASE_URL + DISABLE_URL)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(unsubscribeBodyDTO))
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isNoContent())
+        .andReturn();
   }
 
 }

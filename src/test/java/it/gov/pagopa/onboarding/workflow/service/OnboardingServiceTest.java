@@ -11,6 +11,7 @@ import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
 import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
@@ -396,4 +397,37 @@ class OnboardingServiceTest {
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
         .findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
   }
+
+  @Test
+  void deactivateOnboarding_ok(){
+
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.doAnswer(
+            invocationOnMock -> {
+              onboarding.setDeactivationDate(LocalDateTime.now());
+              onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+              return null;
+            })
+        .when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+      onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
+      assertNotNull(onboarding.getDeactivationDate());
+      assertEquals(OnboardingWorkflowConstants.STATUS_INACTIVE, onboarding.getStatus());
+  }
+
+  @Test
+  void deactivateOnboarding_ko() {
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.empty());
+    String date = LocalDateTime.now().toString();
+    try {
+      onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID,date);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
+  }
+
 }
