@@ -13,7 +13,7 @@ public class OnboardingProducer {
   private String onboardingBinder;
 
   @Autowired
-  StreamBridge streamBridge;
+  private StreamBridge streamBridge;
 
   public void sendSaveConsent(SaveConsentDTO saveConsentDTO){
     streamBridge.send("onboardingQueue-out-0", onboardingBinder, saveConsentDTO);
