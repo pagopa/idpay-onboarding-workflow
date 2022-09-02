@@ -48,7 +48,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void putTcConsent(String initiativeId, String userId) {
-  //  getInitiative(initiativeId);
+    getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
     if (onboarding == null) {
@@ -57,6 +57,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       newOnboarding.setTcAcceptTimestamp(LocalDateTime.now());
       newOnboarding.setTc(true);
       onboardingRepository.save(newOnboarding);
+      return;
     }
     if(onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)){
         throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
@@ -114,7 +115,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void getInitiative(String initiativeId) { // Integrare con il sottosistema iniziativa
-    boolean check = initiativeId.equals("123");
+    boolean check = initiativeId.equals("123")||initiativeId.contains("francesco");
     if (!check) {
       throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
           String.format("The initiative with id %s does not exist.", initiativeId));
