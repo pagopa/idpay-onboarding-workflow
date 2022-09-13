@@ -18,6 +18,7 @@ import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,8 @@ class OnboardingServiceTest {
 
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
-          USER_ID, INITIATIVE_ID, "ONBOARDING_OK", OPERATION_DATE, null);
+          USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, "ONBOARDING_OK",
+          OPERATION_DATE, List.of(), new BigDecimal(500), INITIATIVE_ID);
 
 
   @Test
@@ -114,6 +116,21 @@ class OnboardingServiceTest {
       onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
+
+  }
+
+  @Test
+  void putTC_ko_inactive() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID_OK, USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+    try {
+      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
     }
 
   }
@@ -399,7 +416,7 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void deactivateOnboarding_ok(){
+  void deactivateOnboarding_ok() {
 
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
@@ -412,9 +429,9 @@ class OnboardingServiceTest {
               return null;
             })
         .when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
-      onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
-      assertNotNull(onboarding.getDeactivationDate());
-      assertEquals(OnboardingWorkflowConstants.STATUS_INACTIVE, onboarding.getStatus());
+    onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
+    assertNotNull(onboarding.getDeactivationDate());
+    assertEquals(OnboardingWorkflowConstants.STATUS_INACTIVE, onboarding.getStatus());
   }
 
   @Test
@@ -423,7 +440,7 @@ class OnboardingServiceTest {
         .thenReturn(Optional.empty());
     String date = LocalDateTime.now().toString();
     try {
-      onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID,date);
+      onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, date);
       Assertions.fail();
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
