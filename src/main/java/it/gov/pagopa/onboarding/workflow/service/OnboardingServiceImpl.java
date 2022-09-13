@@ -143,10 +143,9 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
       onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
       checkPrerequisites(consentPutDTO.getInitiativeId());
-      Onboarding onboarding1 = onboardingRepository.save(onboarding);
-
-      SaveConsentDTO saveConsentDTO = consentMapper.map(onboarding1);
+      SaveConsentDTO saveConsentDTO = consentMapper.map(onboarding);
       onboardingProducer.sendSaveConsent(saveConsentDTO);
+      onboardingRepository.save(onboarding);
     } else {
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(
