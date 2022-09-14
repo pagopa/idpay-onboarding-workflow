@@ -72,4 +72,10 @@ public class OnboardingControllerImpl implements OnboardingController {
     onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(), body.getUnsubscribeDate());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
+
+  @Override
+  public ResponseEntity<Void> rollback(String initiativeId, String userId) {
+    onboardingService.rollback(initiativeId,userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
 }

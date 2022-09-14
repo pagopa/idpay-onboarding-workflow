@@ -4,6 +4,7 @@ import static com.mongodb.assertions.Assertions.assertFalse;
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
@@ -446,5 +447,17 @@ class OnboardingServiceTest {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
   }
+
+  @Test
+  void rollback(){
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+    onboardingService.rollback(INITIATIVE_ID, USER_ID);
+    assertNull(onboarding.getDeactivationDate());
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+  }
+
 
 }

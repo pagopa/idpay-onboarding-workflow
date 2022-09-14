@@ -32,4 +32,5 @@ public interface OnboardingService {
   void completeOnboarding(EvaluationDTO evaluationDTO);
 
   void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
+  void rollback(String initiativeId, String userId);
 }

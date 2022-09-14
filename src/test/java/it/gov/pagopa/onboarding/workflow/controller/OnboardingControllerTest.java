@@ -51,6 +51,7 @@ class OnboardingControllerTest {
       OnboardingControllerTest.class);
   private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
   private static final String DISABLE_URL = "/disable";
+  private static final String ROLLBACK_URL = "/rollback";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -310,6 +311,17 @@ class OnboardingControllerTest {
             MockMvcRequestBuilders.delete(BASE_URL + DISABLE_URL)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(unsubscribeBodyDTO))
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isNoContent())
+        .andReturn();
+  }
+
+  @Test
+  void rollback() throws Exception {
+    Mockito.doNothing().when(onboardingServiceMock).rollback(INITIATIVE_ID, USER_ID);
+    mvc.perform(
+            MockMvcRequestBuilders.put(BASE_URL + ROLLBACK_URL+"/"+INITIATIVE_ID+"/"+USER_ID)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isNoContent())
         .andReturn();

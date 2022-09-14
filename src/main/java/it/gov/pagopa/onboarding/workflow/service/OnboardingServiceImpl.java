@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Autowired
   OnboardingProducer onboardingProducer;
+
+  private static final Logger LOG = LoggerFactory.getLogger(
+      OnboardingServiceImpl.class);
 
 
   @Override
@@ -59,8 +64,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboardingRepository.save(newOnboarding);
       return;
     }
-    if(onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)){
-        throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
+    if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
+      throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
     }
 
   }
@@ -115,7 +120,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void getInitiative(String initiativeId) { // Integrare con il sottosistema iniziativa
-    boolean check = initiativeId.equals("123")||initiativeId.contains("francesco");
+    boolean check = initiativeId.equals("123") || initiativeId.contains("francesco");
     if (!check) {
       throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
           String.format("The initiative with id %s does not exist.", initiativeId));
@@ -203,13 +208,29 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
     onboarding.setDeactivationDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
+    LOG.info("Onboarding disabled, date: {}", deactivationDate);
+  }
+
+  @Override
+  public void rollback(String initiativeId, String userId) {
+    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+        .orElse(null);
+    if (onboarding != null && onboarding.getStatus()
+        .equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
+      LOG.info("Onboarding before rollback: {}", onboarding);
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+      onboarding.setDeactivationDate(null);
+      onboardingRepository.save(onboarding);
+      LOG.info("Onboarding after rollback: {}", onboarding);
+    }
+
   }
 
   @Override
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     onboardingRepository.findByInitiativeIdAndUserId(
         evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
-          setStatus(onboarding, evaluationDTO.getStatus())
+        setStatus(onboarding, evaluationDTO.getStatus())
     );
   }
 }

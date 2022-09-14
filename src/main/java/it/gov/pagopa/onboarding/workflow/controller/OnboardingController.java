@@ -80,4 +80,16 @@ public interface OnboardingController {
   ResponseEntity<Void> disableOnboarding(
       @Valid @RequestBody UnsubscribeBodyDTO body);
 
+
+  /**
+   * rollback onboarding
+   *
+   * @param initiativeId
+   * @param userId
+   * @return
+   */
+  @PutMapping("/rollback/{initiativeId}/{userId}")
+  ResponseEntity<Void> rollback(
+      @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
 }
