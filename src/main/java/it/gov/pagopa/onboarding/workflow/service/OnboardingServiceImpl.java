@@ -206,7 +206,7 @@ public class OnboardingServiceImpl implements OnboardingService {
             OnboardingWorkflowConstants.ID_S_NOT_FOUND));
 
     onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
-    onboarding.setDeactivationDate(LocalDateTime.parse(deactivationDate));
+    onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
     LOG.info("Onboarding disabled, date: {}", deactivationDate);
   }
@@ -219,7 +219,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         .equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
       LOG.info("Onboarding before rollback: {}", onboarding);
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
-      onboarding.setDeactivationDate(null);
+      onboarding.setRequestDeactivationDate(null);
       onboardingRepository.save(onboarding);
       LOG.info("Onboarding after rollback: {}", onboarding);
     }
