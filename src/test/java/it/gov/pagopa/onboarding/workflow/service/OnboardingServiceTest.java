@@ -12,7 +12,6 @@ import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
-import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
 import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
@@ -425,13 +424,13 @@ class OnboardingServiceTest {
 
     Mockito.doAnswer(
             invocationOnMock -> {
-              onboarding.setDeactivationDate(LocalDateTime.now());
+              onboarding.setRequestDeactivationDate(LocalDateTime.now());
               onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
               return null;
             })
         .when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
     onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
-    assertNotNull(onboarding.getDeactivationDate());
+    assertNotNull(onboarding.getRequestDeactivationDate());
     assertEquals(OnboardingWorkflowConstants.STATUS_INACTIVE, onboarding.getStatus());
   }
 
@@ -455,7 +454,7 @@ class OnboardingServiceTest {
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(Optional.of(onboarding));
     onboardingService.rollback(INITIATIVE_ID, USER_ID);
-    assertNull(onboarding.getDeactivationDate());
+    assertNull(onboarding.getRequestDeactivationDate());
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
 
