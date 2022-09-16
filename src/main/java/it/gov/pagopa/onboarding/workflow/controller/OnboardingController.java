@@ -8,7 +8,10 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController
-@RequestMapping("/onboarding")
+@RequestMapping("/idpay/onboarding")
 public interface OnboardingController {
 
   /**
@@ -44,15 +47,6 @@ public interface OnboardingController {
   ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId);
 
-  /**
-   * Save the consensus of both PDND and self-declaration
-   *
-   * @param body
-   * @return
-   */
-  @PutMapping("/consent/{userId}")
-  ResponseEntity<Void> consentOnboarding(@RequestBody ConsentPutDTO body,
-      @PathVariable("userId") String userId);
 
   /**
    * Returns the actual onboarding status
@@ -63,6 +57,39 @@ public interface OnboardingController {
    */
   @GetMapping("/{initiativeId}/{userId}/status")
   ResponseEntity<OnboardingStatusDTO> onboardingStatus(
+      @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+
+  /**
+   * Save the consents of PDND criteria and Self declaration list
+   *
+   * @param body
+   * @return
+   */
+  @PutMapping("/consent/{userId}")
+  ResponseEntity<Void> saveConsent(@RequestBody ConsentPutDTO body,
+      @PathVariable("userId") String userId);
+
+  /**
+   * Deactivation onboarding
+   *
+   * @param body
+   * @return
+   */
+  @DeleteMapping("/disable")
+  ResponseEntity<Void> disableOnboarding(
+      @Valid @RequestBody UnsubscribeBodyDTO body);
+
+
+  /**
+   * rollback onboarding
+   *
+   * @param initiativeId
+   * @param userId
+   * @return
+   */
+  @PutMapping("/rollback/{initiativeId}/{userId}")
+  ResponseEntity<Void> rollback(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
 }

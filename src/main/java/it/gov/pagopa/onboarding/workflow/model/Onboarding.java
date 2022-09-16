@@ -1,16 +1,15 @@
 package it.gov.pagopa.onboarding.workflow.model;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Map;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@NoArgsConstructor
 @Document(collection = "onboarding_citizen")
+@CompoundIndex(name = "onboarding_unique_idx", def = "{'userId': 1, 'initiativeId': 1}", unique = true)
 public class Onboarding {
 
   public Onboarding(String initiativeId, String userId) {
@@ -31,12 +30,14 @@ public class Onboarding {
 
   private boolean tc;
 
-  private boolean pdndAccept;
+  private Boolean pdndAccept;
 
-  private List<Boolean> selfDeclarationList;
+  private Map<String, Boolean> selfDeclarationList;
 
-  private Date tcAcceptTimestamp;
+  private LocalDateTime tcAcceptTimestamp;
 
-  private Date criteriaConsensusTimestamp;
+  private LocalDateTime criteriaConsensusTimestamp;
+
+  private LocalDateTime requestDeactivationDate;
 
 }

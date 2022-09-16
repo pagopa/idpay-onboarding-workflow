@@ -1,15 +1,14 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
-import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import it.gov.pagopa.onboarding.workflow.service.jpa.OnboardingService;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,46 +22,60 @@ public class OnboardingControllerImpl implements OnboardingController {
   @Autowired
   OnboardingService onboardingService;
 
-  @Autowired
-  OnboardingRepository onboardingRepository;
-
-  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody OnboardingPutDTO body,
+  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
+      @Valid @RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId) {
-    Onboarding onboarding = new Onboarding(body.getInitiativeId(), userId);
-    onboarding.setStatus("TEST_STATUS");
-    onboarding.setCriteriaConsensusTimestamp(new Date());
-    onboarding.setTcAcceptTimestamp(new Date());
-    List<Boolean> testList = new ArrayList<>();
-    testList.add(true);
-    testList.add(true);
-    testList.add(true);
-    onboarding.setSelfDeclarationList(testList);
-    onboardingRepository.save(onboarding);
-    return new ResponseEntity<RequiredCriteriaDTO>(HttpStatus.OK);
-  }
+    String initiativeId = body.getInitiativeId();
+    Onboarding onboarding;
+    onboarding = onboardingService.findByInitiativeIdAndUserId(
+        initiativeId, userId);
 
-  public ResponseEntity<Void> consentOnboarding(@RequestBody ConsentPutDTO body,
-      @PathVariable("userId") String userId) {
-    return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
-  }
+    onboardingService.checkTCStatus(onboarding);
+    onboardingService.checkPrerequisites(initiativeId);
 
-  public ResponseEntity<Void> onboardingCitizen(@RequestBody OnboardingPutDTO onBoardingPutDTO, @PathVariable("userId") String userId) {
-    if (onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId) == null){
-      return new ResponseEntity(HttpStatus.NOT_FOUND);
+    if (onboardingService.checkCFWhitelist(initiativeId, userId)) {
+      onboardingService.setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION);
+      return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    } else {
+      RequiredCriteriaDTO dto = onboardingService.getCriteriaLists(initiativeId);
+      return new ResponseEntity<>(dto,
+          HttpStatus.OK);
     }
-    return new ResponseEntity(HttpStatus.NO_CONTENT);
+  }
+
+  public ResponseEntity<Void> onboardingCitizen(
+      @Valid @RequestBody OnboardingPutDTO onBoardingPutDTO,
+      @PathVariable("userId") String userId) {
+    onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   public ResponseEntity<OnboardingStatusDTO> onboardingStatus(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId) {
     OnboardingStatusDTO onBoardingStatusDTO = onboardingService.getOnboardingStatus(initiativeId,
         userId);
-    if (onBoardingStatusDTO == null) {
-      return new ResponseEntity(HttpStatus.NOT_FOUND);
-    }
-    System.out.println(onBoardingStatusDTO);
-    return new ResponseEntity(onBoardingStatusDTO, HttpStatus.OK);
-
+    return new ResponseEntity<>(onBoardingStatusDTO, HttpStatus.OK);
   }
 
+  @Override
+  public ResponseEntity<Void> saveConsent(@Valid @RequestBody ConsentPutDTO body,
+      @PathVariable("userId") String userId) {
+    Onboarding onboarding = onboardingService.findByInitiativeIdAndUserId(body.getInitiativeId(),
+        userId);
+    onboardingService.checkTCStatus(onboarding);
+    onboardingService.saveConsent(body, userId);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
+  @Override
+  public ResponseEntity<Void> disableOnboarding(UnsubscribeBodyDTO body) {
+    onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(), body.getUnsubscribeDate());
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  @Override
+  public ResponseEntity<Void> rollback(String initiativeId, String userId) {
+    onboardingService.rollback(initiativeId,userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
 }

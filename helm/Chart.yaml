@@ -1,0 +1,10 @@
+apiVersion: v2
+name: idpay-onboarding-workflow
+description: Onboarding Workflow for IdPay
+type: application
+version: 1.0.0
+appVersion: 1.0.0
+dependencies:
+  - name: microservice-chart
+    version: 1.20.0
+    repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"

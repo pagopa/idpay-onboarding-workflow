@@ -13,7 +13,7 @@ public class SelfConsentDTO {
 
   String code = null;
 
-  Boolean accepted = null;
+  boolean accepted;
 
 }
 
