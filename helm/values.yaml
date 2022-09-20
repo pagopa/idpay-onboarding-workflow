@@ -1,0 +1,75 @@
+microservice-chart:
+  namespace: "idpay"
+  nameOverride: ""
+  fullnameOverride: ""
+
+  livenessProbe:
+    httpGet:
+      path: /actuator/health
+      port: 8080
+    initialDelaySeconds: 60
+    failureThreshold: 6
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /actuator/health
+      port: 8080
+    initialDelaySeconds: 60
+    failureThreshold: 6
+    periodSeconds: 10
+
+  deployment:
+    create: true
+
+  service:
+    create: true
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    create: true
+    path: /idpayonboardingworkflow/(.*)
+
+  serviceAccount:
+    create: false
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  envConfig:
+    MONGODB_DBNAME: idpay
+    APPLICATIONINSIGHTS_ROLE_NAME: "idpayonboardingworkflow"
+    APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
+    APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
+
+  envConfigMapExternals:
+    idpay-common:
+      TZ: TZ
+    idpay-eventhub-00:
+      KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
+      KAFKA_ONBOARDING_SASL_MECHANISM: kafka_sasl_mechanism
+      KAFKA_ONBOARDING_SECURITY_PROTOCOL: kafka_security_protocol
+      KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic
+      KAFKA_TOPIC_OUTCOME: idpay_onboarding_outcome_topic
+      KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-onboarding-consumer-group
+
+  envSecret:
+    MONGODB_URI: mongodb-connection-string
+    KAFKA_OUTCOME_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-consumer-jaas-config-idpay-00
+    SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
+  #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
+
+  # nodeSelector: {}
+
+  # tolerations: []
+
+  # affinity: {}
