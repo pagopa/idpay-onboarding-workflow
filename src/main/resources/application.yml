@@ -3,51 +3,55 @@ spring:
     azure:
       servicebus:
         connection-string: ${SERVICEBUS_ONBOARDING_CONNECTION_STRING:}
-  stream:
-    binders:
-      kafka-outcome:
-        environment:
-          spring:
-            cloud:
-              stream:
-                kafka:
-                  binder:
-                    configuration.sasl.jaas.config: ${KAFKA_OUTCOME_SASL_JAAS_CONFIG:}
-        type: kafka
-      servicebus-onboarding.type: servicebus
-    bindings:
-      onboardingQueue-in-0:
-        binder: kafka-outcome
-        content-type: ${KAFKA_CONTENT_TYPE:application/json}
-        destination: ${KAFKA_TOPIC_OUTCOME:}
-        group: ${KAFKA_OUTCOME_GROUP_IN:}
-      onboardingQueue-out-0:
-        binder: servicebus-onboarding
-        content-type: ${KAFKA_CONTENT_TYPE:application/json}
-        destination: ${KAFKA_TOPIC_ONBOARDING:}
-    function:
-      definition: onboardingQueue
-    kafka:
-      binder:
-        auto-create-topics: false
-        brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
-        configuration:
-          heartbeat.interval.ms: 30000
-          sasl.mechanism: ${KAFKA_ONBOARDING_SASL_MECHANISM:}
-          security.protocol: ${KAFKA_ONBOARDING_SECURITY_PROTOCOL:}
-          session.timeout.ms: 60000
-        consumerProperties:
-          connections.max.idle.ms: 300000
-          key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          socket.connection.setup.timeout:
-            max.ms: 200000
-            ms: 100000
-          value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    servicebus:
+    stream:
+      binders:
+        kafka-outcome:
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      configuration:
+                        sasl.jaas.config: ${KAFKA_OUTCOME_SASL_JAAS_CONFIG:}
+          type: kafka
+        servicebus-onboarding:
+          type: servicebus
       bindings:
+        onboardingQueue-in-0:
+          binder: kafka-outcome
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_OUTCOME:}
+          group: ${KAFKA_OUTCOME_GROUP_IN:}
         onboardingQueue-out-0:
-          producer:
-            entity-type: queue
+          binder: servicebus-onboarding
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_ONBOARDING:}
+      function:
+        definition: onboardingQueue
+      kafka:
+        binder:
+          auto-create-topics: false
+          brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
+          configuration:
+            heartbeat.interval.ms: 30000
+            sasl.mechanism: ${KAFKA_ONBOARDING_SASL_MECHANISM:}
+            security.protocol: ${KAFKA_ONBOARDING_SECURITY_PROTOCOL:}
+            session.timeout.ms: 60000
+          consumerProperties:
+            connections.max.idle.ms: 300000
+            key:
+              deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            socket:
+              connection.setup.timeout:
+                max.ms: 200000
+                ms: 100000
+            value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      servicebus:
+        bindings:
+          onboardingQueue-out-0:
+            producer:
+              entity-type: queue
   data:
     mongodb:
       database: ${MONGODB_DBNAME:}
