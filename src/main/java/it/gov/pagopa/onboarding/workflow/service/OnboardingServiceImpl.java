@@ -11,7 +11,7 @@ import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfDeclarationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
-import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
+import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
@@ -21,12 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
 
@@ -39,8 +39,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Autowired
   OnboardingProducer onboardingProducer;
 
-  private static final Logger LOG = LoggerFactory.getLogger(
-      OnboardingServiceImpl.class);
 
 
   @Override
@@ -208,7 +206,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
     onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
-    LOG.info("Onboarding disabled, date: {}", deactivationDate);
+    log.info("Onboarding disabled, date: {}", deactivationDate);
   }
 
   @Override
@@ -217,11 +215,11 @@ public class OnboardingServiceImpl implements OnboardingService {
         .orElse(null);
     if (onboarding != null && onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
-      LOG.info("Onboarding before rollback: {}", onboarding);
+      log.info("Onboarding before rollback: {}", onboarding);
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
       onboarding.setRequestDeactivationDate(null);
       onboardingRepository.save(onboarding);
-      LOG.info("Onboarding after rollback: {}", onboarding);
+      log.info("Onboarding after rollback: {}", onboarding);
     }
 
   }

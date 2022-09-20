@@ -91,8 +91,6 @@ microservice-chart:
       JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
     idpay-eventhub-00:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
-      KAFKA_ONBOARDING_SASL_MECHANISM: kafka_sasl_mechanism
-      KAFKA_ONBOARDING_SECURITY_PROTOCOL: kafka_security_protocol
       KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic
       KAFKA_TOPIC_OUTCOME: idpay_onboarding_outcome_topic
       KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-onboarding-consumer-group

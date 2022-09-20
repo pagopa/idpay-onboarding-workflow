@@ -1,4 +1,4 @@
-package it.gov.pagopa.onboarding.workflow.event;
+package it.gov.pagopa.onboarding.workflow.event.producer;
 
 import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
