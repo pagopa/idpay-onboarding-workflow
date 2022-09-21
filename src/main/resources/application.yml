@@ -1,11 +1,16 @@
 spring:
+  application:
+    name: idpay-onboarding-workflow
   cloud:
     azure:
       servicebus:
         connection-string: ${SERVICEBUS_ONBOARDING_CONNECTION_STRING:}
     stream:
       binders:
+        servicebus-onboarding:
+          type: servicebus
         kafka-outcome:
+          type: kafka
           environment:
             spring:
               cloud:
@@ -13,10 +18,9 @@ spring:
                   kafka:
                     binder:
                       configuration:
-                        sasl.jaas.config: ${KAFKA_OUTCOME_SASL_JAAS_CONFIG:}
-          type: kafka
-        servicebus-onboarding:
-          type: servicebus
+                        sasl:
+                          jaas:
+                            config: ${KAFKA_OUTCOME_SASL_JAAS_CONFIG:}
       bindings:
         onboardingQueue-in-0:
           binder: kafka-outcome
@@ -34,19 +38,25 @@ spring:
           auto-create-topics: false
           brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
           configuration:
-            heartbeat.interval.ms: 30000
-            sasl.mechanism: ${KAFKA_ONBOARDING_SASL_MECHANISM:}
-            security.protocol: ${KAFKA_ONBOARDING_SECURITY_PROTOCOL:}
-            session.timeout.ms: 60000
-          consumerProperties:
-            connections.max.idle.ms: 300000
-            key:
-              deserializer: org.apache.kafka.common.serialization.StringDeserializer
-            socket:
-              connection.setup.timeout:
-                max.ms: 200000
-                ms: 100000
-            value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            heartbeat.interval.ms: ${KAFKA_CONFIG_HEARTBEAT_INTERVAL_MS:30000}
+            session.timeout.ms: ${KAFKA_CONFIG_SESSION_TIMEOUT_MS:60000}
+            request.timeout.ms: ${KAFKA_CONFIG_REQUEST_TIMEOUT_MS:60000}
+            sasl.mechanism: ${KAFKA_CONFIG_SASL_MECHANISM:PLAIN}
+            security.protocol: ${KAFKA_CONFIG_SECURITY_PROTOCOL:SASL_SSL}
+        bindings:
+          onboardingQueue-in-0:
+            consumer:
+              startOffset: ${KAFKA_ONBOARDING_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
+              autoCommitOffset: ${KAFKA_ONBOARDING_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
+              standardHeaders: ${KAFKA_ONBOARDING_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
+              configuration:
+                max.poll:
+                  records: ${KAFKA_ONBOARDING_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
+                  interval.ms: ${KAFKA_ONBOARDING_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
+                connections.max.idle.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:300000}}
+                socket.connection.setup.timeout:
+                  max.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
+                  ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
       servicebus:
         bindings:
           onboardingQueue-out-0:
@@ -56,3 +66,11 @@ spring:
     mongodb:
       database: ${MONGODB_DBNAME:}
       uri: ${MONGODB_URI:}
+      
+rest-client:
+  group:
+    serviceCode: ${IDPAY_GROUP_SERVICE_CODE:idpay-group}
+    baseUrl: ${IDPAY_GROUP_BASE_URL:}
+  initiative:
+    serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
+    baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}

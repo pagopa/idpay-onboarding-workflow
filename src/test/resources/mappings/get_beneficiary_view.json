@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/initiative/.*/beneficiary/view"
+  },
+  "response": {
+    "status": "200",
+    "jsonBody": {
+      "initiativeId": "INITIATIVE_ID"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

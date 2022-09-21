@@ -8,6 +8,7 @@ import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
@@ -22,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -45,9 +44,6 @@ class OnboardingControllerTest {
 
   @Autowired
   protected MockMvc mvc;
-
-  private static final Logger LOG = LoggerFactory.getLogger(
-      OnboardingControllerTest.class);
   private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
   private static final String DISABLE_URL = "/disable";
   private static final String ROLLBACK_URL = "/rollback";
@@ -110,12 +106,10 @@ class OnboardingControllerTest {
 
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
-    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(onboarding);
-
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-        String.format("Terms and Conditions have been not accepted by user %s for initiative %s.",
-            USER_ID, INITIATIVE_ID))).when(onboardingServiceMock).checkTCStatus(onboarding);
+            String.format("Terms and Conditions have been not accepted by user %s for initiative %s.",
+                USER_ID, INITIATIVE_ID))).when(onboardingServiceMock)
+        .checkPrerequisites(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
@@ -127,6 +121,7 @@ class OnboardingControllerTest {
                 .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
   }
+
   @Test
   void checkPrerequisitesTest_blankBody() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
@@ -148,13 +143,7 @@ class OnboardingControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-
-    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(onboarding);
-    Mockito.doNothing().when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID);
-    Mockito.when(onboardingServiceMock.checkCFWhitelist(INITIATIVE_ID, USER_ID)).thenReturn(false);
-    Mockito.when(onboardingServiceMock.getCriteriaLists(INITIATIVE_ID))
+    Mockito.when(onboardingServiceMock.checkPrerequisites(INITIATIVE_ID, USER_ID))
         .thenReturn(new RequiredCriteriaDTO(new ArrayList<>(), new ArrayList<>()));
 
     Map<String, Object> body = new HashMap<>();
@@ -183,12 +172,7 @@ class OnboardingControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-
-    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(onboarding);
-    Mockito.doNothing().when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID);
-    Mockito.when(onboardingServiceMock.checkCFWhitelist(INITIATIVE_ID, USER_ID)).thenReturn(true);
+    Mockito.when(onboardingServiceMock.checkPrerequisites(INITIATIVE_ID, USER_ID)).thenReturn(null);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
@@ -208,13 +192,9 @@ class OnboardingControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-
-    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(onboarding);
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             String.format("The initiative with id %s has not met the prerequisites.", INITIATIVE_ID)))
-        .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID);
+        .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
@@ -237,9 +217,6 @@ class OnboardingControllerTest {
 
     OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
         OnboardingWorkflowConstants.ACCEPTED_TC);
-
-    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(onboarding);
 
     Mockito.when(onboardingServiceMock.getOnboardingStatus(INITIATIVE_ID, USER_ID))
         .thenReturn(onboardingStatusDTO);
@@ -267,8 +244,8 @@ class OnboardingControllerTest {
   @Test
   void saveConsent_ok() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
-    SelfConsentDTO selfConsentDTO = new SelfConsentDTO("1", true);
-    SelfConsentDTO selfConsentDTO1 = new SelfConsentDTO("2", true);
+    SelfConsentDTO selfConsentDTO = new SelfConsentBoolDTO("boolean", "1", true);
+    SelfConsentDTO selfConsentDTO1 = new SelfConsentBoolDTO("boolean", "2", true);
 
     List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
     selfConsentDTOList.add(selfConsentDTO);
@@ -278,12 +255,7 @@ class OnboardingControllerTest {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
 
-    Mockito.when(onboardingServiceMock.findByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), USER_ID))
-        .thenReturn(onboarding);
-
-    Mockito.doNothing().when(onboardingServiceMock).checkTCStatus(onboarding);
-
-    Mockito.doNothing().when(onboardingServiceMock).saveConsent(consentPutDTO,USER_ID);
+    Mockito.doNothing().when(onboardingServiceMock).saveConsent(consentPutDTO, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", consentPutDTO.getInitiativeId());
@@ -304,7 +276,8 @@ class OnboardingControllerTest {
     UnsubscribeBodyDTO unsubscribeBodyDTO = new UnsubscribeBodyDTO(INITIATIVE_ID, USER_ID,
         LocalDateTime.now().toString());
 
-    Mockito.doNothing().when(onboardingServiceMock).deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
+    Mockito.doNothing().when(onboardingServiceMock)
+        .deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
 
     mvc.perform(
             MockMvcRequestBuilders.delete(BASE_URL + DISABLE_URL)
@@ -319,7 +292,7 @@ class OnboardingControllerTest {
   void rollback() throws Exception {
     Mockito.doNothing().when(onboardingServiceMock).rollback(INITIATIVE_ID, USER_ID);
     mvc.perform(
-            MockMvcRequestBuilders.put(BASE_URL + ROLLBACK_URL+"/"+INITIATIVE_ID+"/"+USER_ID)
+            MockMvcRequestBuilders.put(BASE_URL + ROLLBACK_URL + "/" + INITIATIVE_ID + "/" + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isNoContent())

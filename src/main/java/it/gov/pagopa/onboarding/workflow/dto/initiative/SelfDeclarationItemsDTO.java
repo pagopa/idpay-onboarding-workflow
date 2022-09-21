@@ -1,4 +1,4 @@
-package it.gov.pagopa.onboarding.workflow.dto;
+package it.gov.pagopa.onboarding.workflow.dto.initiative;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -9,10 +9,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     property = "_type",
     visible = true)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = SelfConsentMultiDTO.class, name = "multi"),
-    @JsonSubTypes.Type(value = SelfConsentBoolDTO.class, name = "boolean")
+    @JsonSubTypes.Type(value = SelfCriteriaMultiDTO.class, name = "multi"),
+    @JsonSubTypes.Type(value = SelfCriteriaBoolDTO.class, name = "boolean")
 })
-public interface SelfConsentDTO {
+public interface SelfDeclarationItemsDTO {
 
 }
-

@@ -1,15 +1,15 @@
-package it.gov.pagopa.onboarding.workflow.mapper;
+package it.gov.pagopa.onboarding.workflow.dto.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
-import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +26,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
   @Test
   void  map_ok(){
-    Map<String,Boolean> selfConsent = new HashMap<>();
-    selfConsent.put("1",true);
-    Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK,USER_ID_OK);
+    List<SelfDeclarationItemsDTO> selfConsent = List.of(new SelfCriteriaBoolDTO("boolean", "descr",true, "1"));
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK,USER_ID_OK);
     onboarding.setPdndAccept(true);
+    onboarding.setTc(true);
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
     onboarding.setSelfDeclarationList(selfConsent);
@@ -39,7 +39,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
     assertEquals(onboarding.getUserId(), saveConsentDTO.getUserId());
     assertEquals(onboarding.getStatus(), saveConsentDTO.getStatus());
     assertEquals(onboarding.getInitiativeId(), saveConsentDTO.getInitiativeId());
-    assertEquals(onboarding.isTc(), saveConsentDTO.isTc());
+    assertEquals(onboarding.getTc(), saveConsentDTO.isTc());
     assertEquals(onboarding.getTcAcceptTimestamp(), saveConsentDTO.getTcAcceptTimestamp());
     assertEquals(onboarding.getPdndAccept(), saveConsentDTO.getPdndAccept());
     assertEquals(onboarding.getSelfDeclarationList(), saveConsentDTO.getSelfDeclarationList());

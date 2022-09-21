@@ -1,32 +1,46 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
-import static com.mongodb.assertions.Assertions.assertFalse;
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
+import it.gov.pagopa.onboarding.workflow.connector.GroupRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.AutomatedCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
-import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
-import it.gov.pagopa.onboarding.workflow.event.OnboardingProducer;
+import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +65,14 @@ class OnboardingServiceTest {
   @Autowired
   OnboardingService onboardingService;
 
+  @MockBean
+  InitiativeRestConnector initiativeRestConnector;
+
+  @MockBean
+  GroupRestConnector groupRestConnector;
+
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final String USER_ID_OK = "123";
-  private static final String INITIATIVE_ID_OK = "123";
   private static final LocalDateTime OPERATION_DATE = LocalDateTime.now();
 
   private static final EvaluationDTO EVALUATION_DTO =
@@ -62,15 +80,64 @@ class OnboardingServiceTest {
           USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, "ONBOARDING_OK",
           OPERATION_DATE, List.of(), new BigDecimal(500), INITIATIVE_ID);
 
+  private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_WHITELIST = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_KO_DATES = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_KO = new InitiativeDTO();
+  private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO = new InitiativeBeneficiaryRuleDTO();
+  private static final InitiativeGeneralDTO GENERAL = new InitiativeGeneralDTO();
+  private static final InitiativeGeneralDTO GENERAL_WHITELIST = new InitiativeGeneralDTO();
+  private static final InitiativeGeneralDTO GENERAL_KO = new InitiativeGeneralDTO();
+  private static final CitizenStatusDTO CITIZEN_STATUS_DTO = new CitizenStatusDTO();
+
+  static {
+    CITIZEN_STATUS_DTO.setStatus(true);
+
+    GENERAL.setBeneficiaryKnown(false);
+    GENERAL.setStartDate(LocalDate.MIN);
+    GENERAL.setEndDate(LocalDate.MAX);
+    GENERAL.setRankingStartDate(LocalDate.MIN);
+    GENERAL.setRankingEndDate(LocalDate.MAX);
+
+    GENERAL_WHITELIST.setBeneficiaryKnown(true);
+    GENERAL_WHITELIST.setStartDate(LocalDate.MIN);
+    GENERAL_WHITELIST.setEndDate(LocalDate.MAX);
+
+    GENERAL_KO.setBeneficiaryKnown(false);
+    GENERAL_KO.setStartDate(LocalDate.MAX);
+    GENERAL_KO.setEndDate(LocalDate.MIN);
+    GENERAL_KO.setRankingStartDate(LocalDate.MAX);
+    GENERAL_KO.setRankingEndDate(LocalDate.MIN);
+
+    INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
+        List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
+    INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
+
+    INITIATIVE_DTO.setStatus("PUBLISHED");
+    INITIATIVE_DTO.setGeneral(GENERAL);
+    INITIATIVE_DTO.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
+
+    INITIATIVE_DTO_WHITELIST.setStatus("PUBLISHED");
+    INITIATIVE_DTO_WHITELIST.setGeneral(GENERAL_WHITELIST);
+
+    INITIATIVE_DTO_KO_DATES.setStatus("PUBLISHED");
+    INITIATIVE_DTO_KO_DATES.setGeneral(GENERAL_KO);
+
+    INITIATIVE_DTO_KO.setStatus("CLOSED");
+  }
+
 
   @Test
   void putTc_ok_OnboardingNull() {
 
-    final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID);
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(
             Optional.empty());
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
 
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setTc(true);
@@ -80,25 +147,29 @@ class OnboardingServiceTest {
     }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
     onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
 
-    assertEquals(INITIATIVE_ID_OK, onboarding.getInitiativeId());
+    assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
     assertEquals(USER_ID, onboarding.getUserId());
     assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
-    assertTrue(onboarding.isTc());
+    assertTrue(onboarding.getTc());
   }
 
   @Test
   void putTc_idemp() {
 
-    final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID);
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setTc(true);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTcAcceptTimestamp(LocalDateTime.now());
 
-    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID_OK, USER_ID))
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(
             Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
     try {
-      onboardingService.putTcConsent(INITIATIVE_ID_OK, USER_ID);
+      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
@@ -107,32 +178,50 @@ class OnboardingServiceTest {
 
 
   @Test
-  void putTC_ko() {
-    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+  void putTC_ko_initiative_closed() {
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(
             Optional.empty());
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_KO);
     try {
-      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
-
   }
 
   @Test
-  void putTC_ko_inactive() {
-    final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID);
+  void putTC_ko_initiative_not_found() {
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.empty());
+    Request request =
+        Request.create(
+            Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+    Mockito.doThrow(new FeignException.NotFound("", request, new byte[0], null))
+        .when(initiativeRestConnector).getInitiativeBeneficiaryView(INITIATIVE_ID);
+    try {
+      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
+  }
+
+  @Test
+  void putTC_ko_unsubscribed() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
-    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID_OK, USER_ID))
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(
             Optional.of(onboarding));
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
     try {
       onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
     }
-
   }
 
   @Test
@@ -166,228 +255,370 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void findByInitiativeIdAndUserId_ok() {
-    try {
-      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-      Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-          .thenReturn(
-              Optional.of(onboarding));
-      Onboarding actual = onboardingService.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
-      assertNotNull(actual);
-      assertEquals(onboarding, actual);
-    } catch (OnboardingWorkflowException e) {
-      Assertions.fail();
-    }
-  }
-
-  @Test
-  void findByInitiativeIdAndUserId_ko() {
-    try {
-      Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-          .thenReturn(
-              Optional.empty());
-      onboardingService.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
-    } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
-    }
-  }
-
-  @Test
-  void checkTCStatus_ok() {
-    try {
-      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-      onboardingService.checkTCStatus(onboarding);
-    } catch (OnboardingWorkflowException e) {
-      Assertions.fail();
-    }
-  }
-
-  @Test
-  void checkTCStatus_ko() {
-    try {
-      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-      onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
-      onboardingService.checkTCStatus(onboarding);
-    } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
-    }
-  }
-
-  @Test
-  void setOnEvaluation() {
+  void checkPrerequisites_ok_no_whitelist() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    Mockito.doAnswer(invocationOnMock -> {
-      onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
-      return null;
-    }).when(onboardingRepositoryMock).save(onboarding);
-    onboardingService.setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION);
-    assertEquals(OnboardingWorkflowConstants.ON_EVALUATION, onboarding.getStatus());
-  }
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
 
-  @Test
-  void checkPrerequisites_ok() {
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID_OK);
+      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      System.out.println(actual);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
   }
 
   @Test
-  void checkPrerequisites_ko() {
+  void checkPrerequisites_ok_whitelist() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_WHITELIST);
+
+    Mockito.when(groupRestConnector.getCitizenStatus(INITIATIVE_ID, USER_ID))
+        .thenReturn(CITIZEN_STATUS_DTO);
+
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
       Assertions.fail();
+    }
+
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).save(Mockito.any());
+
+  }
+
+  @Test
+  void checkPrerequisites_ko_dates() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_KO_DATES);
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
     }
   }
 
   @Test
-  void checkCFWhitelist_ok() {
-    boolean actual = onboardingService.checkCFWhitelist(INITIATIVE_ID, USER_ID_OK);
-    assertTrue(actual);
-  }
-
-  @Test
-  void checkCFWhitelist_ko() {
-    boolean actual = onboardingService.checkCFWhitelist(INITIATIVE_ID, USER_ID);
-    assertFalse(actual);
-  }
-
-  @Test
-  void getCriteriaLists() {
-    RequiredCriteriaDTO dto = onboardingService.getCriteriaLists(INITIATIVE_ID);
-    assertNotNull(dto);
-  }
-
-  @Test
-  void selDeclaration_Mismatch() {
-    SelfConsentDTO selfConsentDTO = new SelfConsentDTO("1", true);
-
-    List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
-    selfConsentDTOList.add(selfConsentDTO);
-
-    ConsentPutDTO consentPutDTO = new ConsentPutDTO();
-
-    consentPutDTO.setSelfDeclarationList(selfConsentDTOList);
+  void checkPrerequisites_ko_no_tc() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
     try {
-      onboardingService.selfDeclaration(consentPutDTO);
-      Assertions.fail();
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
     } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
   }
 
   @Test
-  void selDeclaration_Ko() {
-    SelfConsentDTO selfConsentDTO = new SelfConsentDTO("1", true);
-    SelfConsentDTO selfConsentDTO1 = new SelfConsentDTO("2", false);
-
-    List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
-    selfConsentDTOList.add(selfConsentDTO);
-    selfConsentDTOList.add(selfConsentDTO1);
-
-    ConsentPutDTO consentPutDTO = new ConsentPutDTO();
-
-    consentPutDTO.setSelfDeclarationList(selfConsentDTOList);
+  void checkPrerequisites_ko_initiative_closed() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.empty());
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_KO);
     try {
-      onboardingService.selfDeclaration(consentPutDTO);
-      Assertions.fail();
+      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId());
     } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
   }
 
   @Test
-  void selDeclaration_Ok() {
-
-    SelfConsentDTO selfConsentDTO = new SelfConsentDTO("1", true);
-    SelfConsentDTO selfConsentDTO1 = new SelfConsentDTO("2", true);
-
-    List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
-    selfConsentDTOList.add(selfConsentDTO);
-    selfConsentDTOList.add(selfConsentDTO1);
-
-    ConsentPutDTO consentPutDTO = new ConsentPutDTO();
-    consentPutDTO.setSelfDeclarationList(selfConsentDTOList);
-
-    Map<String, Boolean> list = onboardingService.selfDeclaration(consentPutDTO);
-    assertNotNull(list);
-
+  void checkPrerequisites_initiative_not_found() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.empty());
+    Request request =
+        Request.create(
+            Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+    Mockito.doThrow(new FeignException.NotFound("", request, new byte[0], null))
+        .when(initiativeRestConnector).getInitiativeBeneficiaryView(INITIATIVE_ID);
+    try {
+      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId());
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
   }
 
   @Test
-  void selDeclarationEmpty_Ok() {
-    List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
-
-    ConsentPutDTO consentPutDTO = new ConsentPutDTO();
-    consentPutDTO.setSelfDeclarationList(selfConsentDTOList);
-
-    Map<String, Boolean> list = onboardingService.selfDeclaration(consentPutDTO);
-    assertNotNull(list);
-
+  void checkPrerequisites_ko_whitelist_fail() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_WHITELIST);
+    Request request =
+        Request.create(
+            Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+    Mockito.doThrow(new FeignException.NotFound("", request, new byte[0], null))
+        .when(groupRestConnector).getCitizenStatus(INITIATIVE_ID, USER_ID);
+    try {
+      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId());
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+    }
   }
 
-  @Test
-  void saveConsent_Ok() {
-    SelfConsentDTO selfConsentDTO = new SelfConsentDTO("1", true);
-    SelfConsentDTO selfConsentDTO1 = new SelfConsentDTO("2", true);
+  @ParameterizedTest
+  @CsvSource({
+      "true, true, true",
+      "false, false, true",
+      "true, true, false",
+      "true, false, false"
+  })
+  void saveConsent_ok(boolean pdndAccept, boolean pdndCheck, boolean autocertificationCheck) {
 
-    List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
-    selfConsentDTOList.add(selfConsentDTO);
-    selfConsentDTOList.add(selfConsentDTO1);
-    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID_OK, true, selfConsentDTOList);
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
+        new SelfConsentMultiDTO("multi", "2", "Value"));
 
-    final Onboarding onboarding = new Onboarding(consentPutDTO.getInitiativeId(), USER_ID);
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, pdndAccept, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setPdndCheck(pdndCheck);
+    onboarding.setAutocertificationCheck(autocertificationCheck);
+    onboarding.setSelfDeclarationList(
+        List.of(new SelfCriteriaBoolDTO("boolean", "Descrizione booleano", true, "1"),
+            new SelfCriteriaMultiDTO("multi", "Descrizione Multi", List.of("Value"), "2")));
+
     Mockito.when(
             onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
         .thenReturn(
             Optional.of(onboarding));
 
-    Mockito.doAnswer(invocationOnMock -> {
-      onboarding.setSelfDeclarationList(onboardingService.selfDeclaration(consentPutDTO));
-      onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
-      onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
-      onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
-      onboardingService.checkPrerequisites(consentPutDTO.getInitiativeId());
-      return null;
-    }).when(onboardingRepositoryMock).save(onboarding);
-    final SaveConsentDTO saveConsentDTO = new SaveConsentDTO();
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
 
-    Mockito.doAnswer(invocationOnMock -> {
-      saveConsentDTO.setInitiativeId(onboarding.getInitiativeId());
-      saveConsentDTO.setStatus(onboarding.getStatus());
-      saveConsentDTO.setCriteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp());
-      saveConsentDTO.setPdndAccept(onboarding.getPdndAccept());
-      saveConsentDTO.setSelfDeclarationList(onboarding.getSelfDeclarationList());
-      return null;
-    }).when(consentMapper).map(onboarding);
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
 
-    Mockito.doNothing().when(onboardingProducer).sendSaveConsent(saveConsentDTO);
-
-    onboardingService.saveConsent(consentPutDTO, onboarding.getUserId());
-    assertEquals(OnboardingWorkflowConstants.ON_EVALUATION, onboarding.getStatus());
-    assertNotNull(saveConsentDTO);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).save(Mockito.any());
   }
 
   @Test
-  void saveConsent_Ko() {
-    onboardingService.getCriteriaLists(INITIATIVE_ID);
-    SelfConsentDTO selfConsentDTO = new SelfConsentDTO("1", true);
-    SelfConsentDTO selfConsentDTO1 = new SelfConsentDTO("2", true);
+  void saveConsent_ko_autocertification_size() {
 
-    List<SelfConsentDTO> selfConsentDTOList = new ArrayList<>();
-    selfConsentDTOList.add(selfConsentDTO);
-    selfConsentDTOList.add(selfConsentDTO1);
-    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID_OK, false, selfConsentDTOList);
+    List<SelfConsentDTO> selfConsentDTOList = List.of();
 
-    final Onboarding onboarding = new Onboarding(consentPutDTO.getInitiativeId(), USER_ID);
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setPdndCheck(true);
+    onboarding.setAutocertificationCheck(true);
+    onboarding.setSelfDeclarationList(
+        List.of(new SelfCriteriaBoolDTO("boolean", "Descrizione booleano", true, "1"),
+            new SelfCriteriaMultiDTO("multi", "Descrizione Multi", List.of("Value"), "2")));
+
     Mockito.when(
             onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
         .thenReturn(
             Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE, e.getMessage());
+    }
+  }
+
+  @Test
+  void saveConsent_ko_autocertification_bool_deny() {
+
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", false),
+        new SelfConsentMultiDTO("multi", "2", "Value"));
+
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setPdndCheck(true);
+    onboarding.setAutocertificationCheck(true);
+    onboarding.setSelfDeclarationList(
+        List.of(new SelfCriteriaBoolDTO("boolean", "Descrizione booleano", false, "1"),
+            new SelfCriteriaMultiDTO("multi", "Descrizione Multi", List.of("Value"), "2")));
+
+    Mockito.when(
+            onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(String.format(
+          OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
+          INITIATIVE_ID), e.getMessage());
+    }
+  }
+
+  @Test
+  void saveConsent_ko_autocertification_multi_invalid() {
+
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
+        new SelfConsentMultiDTO("multi", "2", "Value"));
+
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setPdndCheck(true);
+    onboarding.setAutocertificationCheck(true);
+    onboarding.setSelfDeclarationList(
+        List.of(new SelfCriteriaBoolDTO("boolean", "Descrizione booleano", true, "1"),
+            new SelfCriteriaMultiDTO("multi", "Descrizione Multi", List.of("Value Fail"), "2")));
+
+    Mockito.when(
+            onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(String.format(
+          OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
+          INITIATIVE_ID), e.getMessage());
+    }
+  }
+
+  @Test
+  void saveConsent_ko_autocertification_bool_mismatch() {
+
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "3", true),
+        new SelfConsentMultiDTO("multi", "2", "Value"));
+
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setPdndCheck(true);
+    onboarding.setAutocertificationCheck(true);
+    onboarding.setSelfDeclarationList(
+        List.of(new SelfCriteriaBoolDTO("boolean", "Descrizione booleano", false, "1"),
+            new SelfCriteriaMultiDTO("multi", "Descrizione Multi", List.of("Value"), "2")));
+
+    Mockito.when(
+            onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(String.format(
+          OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
+          INITIATIVE_ID), e.getMessage());
+    }
+  }
+
+  @Test
+  void saveConsent_ko_autocertification_multi_mismatch() {
+
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
+        new SelfConsentMultiDTO("multi", "3", "Value"));
+
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setPdndCheck(true);
+    onboarding.setAutocertificationCheck(true);
+    onboarding.setSelfDeclarationList(
+        List.of(new SelfCriteriaBoolDTO("boolean", "Descrizione booleano", false, "1"),
+            new SelfCriteriaMultiDTO("multi", "Descrizione Multi", List.of("Value"), "2")));
+
+    Mockito.when(
+            onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(String.format(
+          OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
+          INITIATIVE_ID), e.getMessage());
+    }
+  }
+
+  @Test
+  void saveConsent_ko_pdnd() {
+
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
+        new SelfConsentBoolDTO("boolean", "2", true));
+
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, false, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setPdndCheck(true);
+
+    Mockito.when(
+            onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
 
     try {
       onboardingService.saveConsent(consentPutDTO, USER_ID);
@@ -448,7 +679,7 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void rollback(){
+  void rollback() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))

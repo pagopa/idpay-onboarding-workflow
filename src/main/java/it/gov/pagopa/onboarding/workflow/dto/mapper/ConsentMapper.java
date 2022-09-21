@@ -1,30 +1,25 @@
 package it.gov.pagopa.onboarding.workflow.dto.mapper;
 
-import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SaveConsentDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ConsentMapper {
 
-  public SaveConsentDTO map(Onboarding onboarding){
+  public SaveConsentDTO map(Onboarding onboarding) {
 
-    SaveConsentDTO saveConsentDTO = null;
+    return SaveConsentDTO.builder()
+        .userId(onboarding.getUserId())
+        .initiativeId(onboarding.getInitiativeId())
+        .status(onboarding.getStatus())
+        .pdndAccept(onboarding.getPdndAccept())
+        .selfDeclarationList(onboarding.getSelfDeclarationList())
+        .criteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp())
+        .tc(onboarding.getTc())
+        .tcAcceptTimestamp(onboarding.getTcAcceptTimestamp())
+        .build();
 
-    if(onboarding!=null){
-      saveConsentDTO = SaveConsentDTO.builder().build();
-      saveConsentDTO.setUserId(onboarding.getUserId());
-      saveConsentDTO.setInitiativeId(onboarding.getInitiativeId());
-      saveConsentDTO.setStatus(onboarding.getStatus());
-      saveConsentDTO.setPdndAccept(onboarding.getPdndAccept());
-      saveConsentDTO.setSelfDeclarationList(onboarding.getSelfDeclarationList());
-      saveConsentDTO.setCriteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp());
-      saveConsentDTO.setTc(onboarding.isTc());
-      saveConsentDTO.setTcAcceptTimestamp(onboarding.getTcAcceptTimestamp());
-
-    }
-
-    return saveConsentDTO;
   }
 
 }
