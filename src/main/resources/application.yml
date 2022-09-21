@@ -6,6 +6,8 @@ spring:
       servicebus:
         connection-string: ${SERVICEBUS_ONBOARDING_CONNECTION_STRING:}
     stream:
+      function:
+        definition: onboardingProducer;outcomeProducer;onboardingOutcomeConsumer
       binders:
         servicebus-onboarding:
           type: servicebus
@@ -17,26 +19,41 @@ spring:
                 stream:
                   kafka:
                     binder:
+                      broker: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
                       configuration:
                         sasl:
                           jaas:
                             config: ${KAFKA_OUTCOME_SASL_JAAS_CONFIG:}
+        kafka-outcome-out:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      broker: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
+                      configuration:
+                        sasl:
+                          jaas:
+                            config: ${KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG:}
       bindings:
-        onboardingQueue-in-0:
+        onboardingOutcomeConsumer-in-0:
           binder: kafka-outcome
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_OUTCOME:}
           group: ${KAFKA_OUTCOME_GROUP_IN:}
-        onboardingQueue-out-0:
+        outcomeProducer-out-0:
+          binder: kafka-outcome-out
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_OUTCOME}
+        onboardingProducer-out-0:
           binder: servicebus-onboarding
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_ONBOARDING:}
-      function:
-        definition: onboardingQueue
       kafka:
         binder:
           auto-create-topics: false
-          brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
           configuration:
             heartbeat.interval.ms: ${KAFKA_CONFIG_HEARTBEAT_INTERVAL_MS:30000}
             session.timeout.ms: ${KAFKA_CONFIG_SESSION_TIMEOUT_MS:60000}
@@ -44,7 +61,7 @@ spring:
             sasl.mechanism: ${KAFKA_CONFIG_SASL_MECHANISM:PLAIN}
             security.protocol: ${KAFKA_CONFIG_SECURITY_PROTOCOL:SASL_SSL}
         bindings:
-          onboardingQueue-in-0:
+          onboardingOutcomeConsumer-in-0:
             consumer:
               startOffset: ${KAFKA_ONBOARDING_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
               autoCommitOffset: ${KAFKA_ONBOARDING_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
@@ -59,14 +76,14 @@ spring:
                   ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
       servicebus:
         bindings:
-          onboardingQueue-out-0:
+          onboardingProducer-out-0:
             producer:
               entity-type: queue
   data:
     mongodb:
       database: ${MONGODB_DBNAME:}
       uri: ${MONGODB_URI:}
-      
+
 rest-client:
   group:
     serviceCode: ${IDPAY_GROUP_SERVICE_CODE:idpay-group}

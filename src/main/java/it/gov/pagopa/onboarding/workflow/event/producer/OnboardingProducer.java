@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class OnboardingProducer {
 
-  @Value("${spring.cloud.stream.bindings.onboardingQueue-out-0.binder}")
+  @Value("${spring.cloud.stream.bindings.onboardingProducer-out-0.binder}")
   private String onboardingBinder;
 
   @Autowired
   private StreamBridge streamBridge;
 
   public void sendSaveConsent(SaveConsentDTO saveConsentDTO){
-    streamBridge.send("onboardingQueue-out-0", onboardingBinder, saveConsentDTO);
+    streamBridge.send("onboardingProducer-out-0", onboardingBinder, saveConsentDTO);
   }
 
 }
