@@ -1,62 +1,18 @@
 microservice-chart:
-  namespace: "idpay"
-  nameOverride: ""
-  fullnameOverride: ""
-
   image:
     repository: cstardcommonacr.azurecr.io/idpayonboardingworkflow
     tag: latest
     pullPolicy: Always
 
-  livenessProbe:
-    httpGet:
-      path: /actuator/health
-      port: 8080
-    initialDelaySeconds: 60
-    failureThreshold: 6
-    periodSeconds: 10
-
-  readinessProbe:
-    httpGet:
-      path: /actuator/health
-      port: 8080
-    initialDelaySeconds: 60
-    failureThreshold: 6
-    periodSeconds: 10
-
-  deployment:
-    create: true
-
-  service:
-    create: true
-    type: ClusterIP
-    port: 8080
-
   ingress:
-    create: true
     host: "dev01.idpay.internal.dev.cstar.pagopa.it"
-    path: /idpayonboardingworkflow/(.*)
-
-  serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
-
-  podAnnotations: {}
-
-  podSecurityContext:
-    seccompProfile:
-      type: RuntimeDefault
-
-  securityContext:
-    allowPrivilegeEscalation: false
 
   resources:
     requests:
       memory: "256Mi"
       cpu: "40m"
     limits:
-      memory: "2Gi"
+      memory: "4Gi"
       cpu: "300m"
 
   #  autoscaling:
@@ -100,17 +56,7 @@ microservice-chart:
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
-    MONGODB_URI: mongodb-connection-string
-    KAFKA_OUTCOME_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-consumer-jaas-config-idpay-00
-    SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
-  #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
 
   keyvault:
     name: "cstar-d-idpay-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-
-  # nodeSelector: {}
-
-  # tolerations: []
-
-  # affinity: {}
