@@ -1,16 +1,13 @@
-package it.gov.pagopa.onboarding.workflow.dto.mapper.producer;
+package it.gov.pagopa.onboarding.workflow.dto;
 
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import java.time.LocalDateTime;
-import java.util.Map;
-import lombok.AllArgsConstructor;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class SaveConsentDTO {
 
   String userId;
@@ -23,7 +20,7 @@ public class SaveConsentDTO {
 
   Boolean pdndAccept;
 
-  Map<String, Boolean> selfDeclarationList;
+  List<SelfDeclarationItemsDTO> selfDeclarationList;
 
   LocalDateTime tcAcceptTimestamp;
 

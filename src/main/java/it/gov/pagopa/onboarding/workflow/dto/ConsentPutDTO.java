@@ -14,11 +14,11 @@ import lombok.NoArgsConstructor;
 public class ConsentPutDTO {
 
   @NotBlank(message="The field is mandatory!")
-  String initiativeId = null;
+  String initiativeId;
 
   boolean pdndAccept;
 
-  List<SelfConsentDTO> selfDeclarationList = null;
+  List<SelfConsentDTO> selfDeclarationList;
 
 }
 

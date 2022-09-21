@@ -89,6 +89,9 @@ microservice-chart:
     idpay-common:
       TZ: TZ
       JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
+    rest-client:
+      IDPAY_INITIATIVE_BASE_URL: idpay_initiative_base_url
+      IDPAY_GROUP_BASE_URL: idpay_group_base_url
     idpay-eventhub-00:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
       KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic

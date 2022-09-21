@@ -66,3 +66,11 @@ spring:
     mongodb:
       database: ${MONGODB_DBNAME:}
       uri: ${MONGODB_URI:}
+
+rest-client:
+  group:
+    serviceCode: ${IDPAY_GROUP_SERVICE_CODE:idpay-group}
+    baseUrl: ${IDPAY_GROUP_BASE_URL:}
+  initiative:
+    serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
+    baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}

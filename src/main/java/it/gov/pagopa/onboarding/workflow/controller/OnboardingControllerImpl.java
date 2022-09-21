@@ -1,12 +1,10 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
-import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,22 +23,13 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
       @Valid @RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId) {
-    String initiativeId = body.getInitiativeId();
-    Onboarding onboarding;
-    onboarding = onboardingService.findByInitiativeIdAndUserId(
-        initiativeId, userId);
 
-    onboardingService.checkTCStatus(onboarding);
-    onboardingService.checkPrerequisites(initiativeId);
+      RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId);
 
-    if (onboardingService.checkCFWhitelist(initiativeId, userId)) {
-      onboardingService.setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION);
-      return new ResponseEntity<>(HttpStatus.ACCEPTED);
-    } else {
-      RequiredCriteriaDTO dto = onboardingService.getCriteriaLists(initiativeId);
-      return new ResponseEntity<>(dto,
-          HttpStatus.OK);
-    }
+      if(dto == null){
+        return ResponseEntity.accepted().build();
+      }
+      return ResponseEntity.ok(dto);
   }
 
   public ResponseEntity<Void> onboardingCitizen(
@@ -60,9 +49,6 @@ public class OnboardingControllerImpl implements OnboardingController {
   @Override
   public ResponseEntity<Void> saveConsent(@Valid @RequestBody ConsentPutDTO body,
       @PathVariable("userId") String userId) {
-    Onboarding onboarding = onboardingService.findByInitiativeIdAndUserId(body.getInitiativeId(),
-        userId);
-    onboardingService.checkTCStatus(onboarding);
     onboardingService.saveConsent(body, userId);
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }

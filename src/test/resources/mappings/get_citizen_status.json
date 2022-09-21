@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/group/initiative/.*/citizen/.*"
+  },
+  "response": {
+    "status": "200",
+    "jsonBody": {
+      "status": true
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
