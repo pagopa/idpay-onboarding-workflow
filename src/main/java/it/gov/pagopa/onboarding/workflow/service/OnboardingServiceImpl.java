@@ -111,7 +111,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       CitizenStatusDTO citizenStatus = groupRestConnector.getCitizenStatus(
           onboarding.getInitiativeId(), onboarding.getUserId());
       if (!citizenStatus.isStatus()) {
-        return false;
+        throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+            OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION);
       return true;
