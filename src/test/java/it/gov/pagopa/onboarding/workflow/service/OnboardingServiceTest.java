@@ -89,9 +89,12 @@ class OnboardingServiceTest {
   private static final InitiativeGeneralDTO GENERAL_WHITELIST = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_KO = new InitiativeGeneralDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO = new CitizenStatusDTO();
+  private static final CitizenStatusDTO CITIZEN_STATUS_DTO_KO = new CitizenStatusDTO();
 
   static {
     CITIZEN_STATUS_DTO.setStatus(true);
+
+    CITIZEN_STATUS_DTO_KO.setStatus(false);
 
     GENERAL.setBeneficiaryKnown(false);
     GENERAL.setStartDate(LocalDate.MIN);
@@ -296,6 +299,31 @@ class OnboardingServiceTest {
     }
 
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).save(Mockito.any());
+
+  }
+
+  @Test
+  void checkPrerequisites_ko_whitelist() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_WHITELIST);
+
+    Mockito.when(groupRestConnector.getCitizenStatus(INITIATIVE_ID, USER_ID))
+        .thenReturn(CITIZEN_STATUS_DTO_KO);
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_WHITELIST, e.getMessage());
+    }
 
   }
 
