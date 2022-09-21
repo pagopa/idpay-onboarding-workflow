@@ -33,6 +33,7 @@ import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -81,13 +82,19 @@ class OnboardingServiceTest {
           OPERATION_DATE, List.of(), new BigDecimal(500), INITIATIVE_ID);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_NO_SELF = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_WHITELIST = new InitiativeDTO();
-  private static final InitiativeDTO INITIATIVE_DTO_KO_DATES = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_KO_START_DATE = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_KO_END_DATE = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_KO = new InitiativeDTO();
   private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO = new InitiativeBeneficiaryRuleDTO();
+  private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND = new InitiativeBeneficiaryRuleDTO();
+  private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF = new InitiativeBeneficiaryRuleDTO();
   private static final InitiativeGeneralDTO GENERAL = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_WHITELIST = new InitiativeGeneralDTO();
-  private static final InitiativeGeneralDTO GENERAL_KO = new InitiativeGeneralDTO();
+  private static final InitiativeGeneralDTO GENERAL_KO_START_DATE = new InitiativeGeneralDTO();
+  private static final InitiativeGeneralDTO GENERAL_KO_END_DATE = new InitiativeGeneralDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO = new CitizenStatusDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO_KO = new CitizenStatusDTO();
 
@@ -99,32 +106,49 @@ class OnboardingServiceTest {
     GENERAL.setBeneficiaryKnown(false);
     GENERAL.setStartDate(LocalDate.MIN);
     GENERAL.setEndDate(LocalDate.MAX);
-    GENERAL.setRankingStartDate(LocalDate.MIN);
-    GENERAL.setRankingEndDate(LocalDate.MAX);
 
     GENERAL_WHITELIST.setBeneficiaryKnown(true);
     GENERAL_WHITELIST.setStartDate(LocalDate.MIN);
     GENERAL_WHITELIST.setEndDate(LocalDate.MAX);
 
-    GENERAL_KO.setBeneficiaryKnown(false);
-    GENERAL_KO.setStartDate(LocalDate.MAX);
-    GENERAL_KO.setEndDate(LocalDate.MIN);
-    GENERAL_KO.setRankingStartDate(LocalDate.MAX);
-    GENERAL_KO.setRankingEndDate(LocalDate.MIN);
+    GENERAL_KO_START_DATE.setBeneficiaryKnown(false);
+    GENERAL_KO_START_DATE.setStartDate(LocalDate.MAX);
+    GENERAL_KO_START_DATE.setEndDate(LocalDate.MAX);
+
+    GENERAL_KO_END_DATE.setBeneficiaryKnown(false);
+    GENERAL_KO_END_DATE.setStartDate(LocalDate.MIN);
+    GENERAL_KO_END_DATE.setEndDate(LocalDate.MIN);
 
     INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
         List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
     INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
 
+    INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
+    INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setAutomatedCriteria(List.of());
+
+    INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setSelfDeclarationCriteria(List.of());
+    INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
+
     INITIATIVE_DTO.setStatus("PUBLISHED");
     INITIATIVE_DTO.setGeneral(GENERAL);
     INITIATIVE_DTO.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
 
+    INITIATIVE_DTO_NO_PDND.setStatus("PUBLISHED");
+    INITIATIVE_DTO_NO_PDND.setGeneral(GENERAL);
+    INITIATIVE_DTO_NO_PDND.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND);
+
+    INITIATIVE_DTO_NO_SELF.setStatus("PUBLISHED");
+    INITIATIVE_DTO_NO_SELF.setGeneral(GENERAL);
+    INITIATIVE_DTO_NO_SELF.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF);
+
     INITIATIVE_DTO_WHITELIST.setStatus("PUBLISHED");
     INITIATIVE_DTO_WHITELIST.setGeneral(GENERAL_WHITELIST);
 
-    INITIATIVE_DTO_KO_DATES.setStatus("PUBLISHED");
-    INITIATIVE_DTO_KO_DATES.setGeneral(GENERAL_KO);
+    INITIATIVE_DTO_KO_START_DATE.setStatus("PUBLISHED");
+    INITIATIVE_DTO_KO_START_DATE.setGeneral(GENERAL_KO_START_DATE);
+
+    INITIATIVE_DTO_KO_END_DATE.setStatus("PUBLISHED");
+    INITIATIVE_DTO_KO_END_DATE.setGeneral(GENERAL_KO_END_DATE);
 
     INITIATIVE_DTO_KO.setStatus("CLOSED");
   }
@@ -271,7 +295,44 @@ class OnboardingServiceTest {
 
     try {
       RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
-      System.out.println(actual);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
+
+  @Test
+  void checkPrerequisites_ok_no_whitelist_no_pdnd() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_NO_PDND);
+
+    try {
+      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
+
+  @Test
+  void checkPrerequisites_ok_no_whitelist_no_self() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_NO_SELF);
+
+    try {
+      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
@@ -328,7 +389,7 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void checkPrerequisites_ko_dates() {
+  void checkPrerequisites_ko_start_date() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTc(true);
@@ -337,7 +398,27 @@ class OnboardingServiceTest {
         .thenReturn(Optional.of(onboarding));
 
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_DTO_KO_DATES);
+        .thenReturn(INITIATIVE_DTO_KO_START_DATE);
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
+    }
+  }
+
+  @Test
+  void checkPrerequisites_ko_end_date() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_KO_END_DATE);
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
@@ -717,5 +798,12 @@ class OnboardingServiceTest {
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
 
+  @Test
+  void rollback_null() {
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.empty());
+    onboardingService.rollback(INITIATIVE_ID, USER_ID);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any());
+  }
 
 }

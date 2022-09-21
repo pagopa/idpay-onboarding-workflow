@@ -22,17 +22,11 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ContextConfiguration(
-    initializers = GroupRestClientTest.WireMockInitializer.class,
-    classes = {
-        GroupRestConnectorImpl.class,
-        OnboardingWorkflowConfig.class,
-        FeignAutoConfiguration.class,
-        HttpMessageConvertersAutoConfiguration.class
-    })
-@TestPropertySource(
-    locations = "classpath:application.yml",
-    properties = {"spring.application.name=idpay-group-integration-rest"})
+@ContextConfiguration(initializers = GroupRestClientTest.WireMockInitializer.class, classes = {
+    GroupRestConnectorImpl.class, OnboardingWorkflowConfig.class, FeignAutoConfiguration.class,
+    HttpMessageConvertersAutoConfiguration.class})
+@TestPropertySource(locations = "classpath:application.yml", properties = {
+    "spring.application.name=idpay-group-integration-rest"})
 class GroupRestClientTest {
 
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
@@ -54,8 +48,8 @@ class GroupRestClientTest {
   }
 
 
-  public static class WireMockInitializer
-      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+  public static class WireMockInitializer implements
+      ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -64,17 +58,14 @@ class GroupRestClientTest {
 
       applicationContext.getBeanFactory().registerSingleton("wireMockServer", wireMockServer);
 
-      applicationContext.addApplicationListener(
-          applicationEvent -> {
-            if (applicationEvent instanceof ContextClosedEvent) {
-              wireMockServer.stop();
-            }
-          });
+      applicationContext.addApplicationListener(applicationEvent -> {
+        if (applicationEvent instanceof ContextClosedEvent) {
+          wireMockServer.stop();
+        }
+      });
 
-      TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-          applicationContext,
-          String.format(
-              "rest-client.group.baseUrl=http://%s:%d",
+      TestPropertySourceUtils.addInlinedPropertiesToEnvironment(applicationContext,
+          String.format("rest-client.group.baseUrl=http://%s:%d",
               wireMockServer.getOptions().bindAddress(), wireMockServer.port()));
     }
   }
