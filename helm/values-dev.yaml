@@ -36,23 +36,7 @@ microservice-chart:
   #          targetValue: "30"
 
   envConfig:
-    MONGODB_DBNAME: idpay
-    APPLICATIONINSIGHTS_ROLE_NAME: "idpayonboardingworkflow"
-    APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
-    APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
-
-  envConfigMapExternals:
-    idpay-common:
-      TZ: TZ
-      JAVA_TOOL_OPTIONS: JAVA_TOOL_OPTIONS
-    rest-client:
-      IDPAY_INITIATIVE_BASE_URL: idpay_initiative_base_url
-      IDPAY_GROUP_BASE_URL: idpay_group_base_url
-    idpay-eventhub-00:
-      KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
-      KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic
-      KAFKA_TOPIC_OUTCOME: idpay_onboarding_outcome_topic
-      KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-onboarding-consumer-group
+    JAVA_TOOL_OPTIONS: '-Xms128m -Xmx4g -javaagent:/app/applicationinsights-agent.jar'
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
