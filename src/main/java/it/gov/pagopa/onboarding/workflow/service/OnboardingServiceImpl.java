@@ -127,7 +127,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     boolean dateCheckFail =
         requestDate.isBefore(initiativeDTO.getGeneral()
-            .getStartDate()) && requestDate.isAfter(initiativeDTO.getGeneral().getEndDate());
+            .getStartDate()) || requestDate.isAfter(initiativeDTO.getGeneral().getEndDate());
 
     if (dateCheckFail) {
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -146,7 +146,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().forEach(item -> {
       if (item instanceof SelfCriteriaBoolDTO bool) {
         selfDeclarationList.add(new SelfDeclarationDTO(bool.getCode(), bool.getDescription()));
-      } else if (item instanceof SelfCriteriaMultiDTO multi) {
+      }
+      if (item instanceof SelfCriteriaMultiDTO multi) {
         selfDeclarationList.add(
             new SelfDeclarationDTO(multi.getCode(), multi.getDescription()));
       }
