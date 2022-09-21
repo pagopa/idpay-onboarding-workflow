@@ -806,4 +806,14 @@ class OnboardingServiceTest {
     Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any());
   }
 
+  @Test
+  void rollback_status_ko() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+    onboardingService.rollback(INITIATIVE_ID, USER_ID);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any());
+  }
+
 }
