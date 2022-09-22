@@ -222,7 +222,7 @@ class OnboardingServiceTest {
     try {
       onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
     } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
     }
   }
 
@@ -463,7 +463,7 @@ class OnboardingServiceTest {
     try {
       onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId());
     } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
     }
   }
 

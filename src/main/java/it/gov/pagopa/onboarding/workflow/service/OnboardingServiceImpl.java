@@ -181,7 +181,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(
           initiativeId);
       if (!initiativeDTO.getStatus().equals("PUBLISHED")) {
-        throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
+        throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             "The initiative is not active!");
       }
       return initiativeDTO;
