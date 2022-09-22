@@ -1,7 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.event.producer;
 
 import it.gov.pagopa.onboarding.workflow.dto.SaveConsentDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Component;
@@ -9,14 +8,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class OnboardingProducer {
 
-  @Value("${spring.cloud.stream.bindings.onboardingProducer-out-0.binder}")
-  private String onboardingBinder;
+  private final String binder;
 
-  @Autowired
-  private StreamBridge streamBridge;
+  private final StreamBridge streamBridge;
 
-  public void sendSaveConsent(SaveConsentDTO saveConsentDTO){
-    streamBridge.send("onboardingProducer-out-0", onboardingBinder, saveConsentDTO);
+  public OnboardingProducer(StreamBridge streamBridge,
+      @Value("${spring.cloud.stream.bindings.onboarding-out-1.binder}") String binder) {
+    this.streamBridge = streamBridge;
+    this.binder = binder;
+  }
+
+  public void sendSaveConsent(SaveConsentDTO saveConsentDTO) {
+    streamBridge.send("onboarding-out-1", binder, saveConsentDTO);
   }
 
 }

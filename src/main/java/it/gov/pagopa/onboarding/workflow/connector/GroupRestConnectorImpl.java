@@ -1,7 +1,9 @@
 package it.gov.pagopa.onboarding.workflow.connector;
 
 import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GroupRestConnectorImpl implements
     GroupRestConnector {
 

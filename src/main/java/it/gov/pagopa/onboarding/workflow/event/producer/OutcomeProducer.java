@@ -8,17 +8,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class OutcomeProducer {
 
-  @Value("${spring.cloud.stream.bindings.outcomeProducer-out-0.binder}")
-  private String binder;
+  private final String binder;
 
   private final StreamBridge streamBridge;
 
-  public OutcomeProducer(StreamBridge streamBridge){
+  public OutcomeProducer(StreamBridge streamBridge,
+      @Value("${spring.cloud.stream.bindings.onboarding-out-0.binder}") String binder) {
     this.streamBridge = streamBridge;
+    this.binder = binder;
   }
 
-  public void sendOutcome(EvaluationDTO evaluationDTO){
-    streamBridge.send("outcomeProducer-out-0", binder, evaluationDTO);
+  public void sendOutcome(EvaluationDTO evaluationDTO) {
+    streamBridge.send("onboarding-out-0", binder, evaluationDTO);
   }
 
 }
