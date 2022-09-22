@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
@@ -46,19 +46,19 @@ class ConsentMapperTest {
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
     onboarding.setSelfDeclarationList(selfConsent);
-    SaveConsentDTO saveConsentDTO = consentMapper.map(onboarding);
+    OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
 
-    assertNotNull(saveConsentDTO);
-    assertEquals(onboarding.getUserId(), saveConsentDTO.getUserId());
-    assertEquals(onboarding.getStatus(), saveConsentDTO.getStatus());
-    assertEquals(onboarding.getInitiativeId(), saveConsentDTO.getInitiativeId());
-    assertEquals(onboarding.getTc(), saveConsentDTO.getTc());
-    assertEquals(onboarding.getTcAcceptTimestamp(), saveConsentDTO.getTcAcceptTimestamp());
-    assertEquals(onboarding.getPdndAccept(), saveConsentDTO.getPdndAccept());
-    assertEquals(SELF_BOOL, saveConsentDTO.getSelfDeclarationBool());
-    assertEquals(SELF_MULTI, saveConsentDTO.getSelfDeclarationMulti());
+    assertNotNull(onboardingDTO);
+    assertEquals(onboarding.getUserId(), onboardingDTO.getUserId());
+    assertEquals(onboarding.getStatus(), onboardingDTO.getStatus());
+    assertEquals(onboarding.getInitiativeId(), onboardingDTO.getInitiativeId());
+    assertEquals(onboarding.getTc(), onboardingDTO.getTc());
+    assertEquals(onboarding.getTcAcceptTimestamp(), onboardingDTO.getTcAcceptTimestamp());
+    assertEquals(onboarding.getPdndAccept(), onboardingDTO.getPdndAccept());
+    assertEquals(SELF_BOOL, onboardingDTO.getSelfDeclarationBool());
+    assertEquals(SELF_MULTI, onboardingDTO.getSelfDeclarationMulti());
     assertEquals(onboarding.getCriteriaConsensusTimestamp(),
-        saveConsentDTO.getCriteriaConsensusTimestamp());
+        onboardingDTO.getCriteriaConsensusTimestamp());
 
   }
 

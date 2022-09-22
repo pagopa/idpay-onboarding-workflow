@@ -9,7 +9,7 @@ import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
@@ -215,8 +215,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
     InitiativeDTO initiativeDTO = getInitiative(consentPutDTO.getInitiativeId());
     checkDates(initiativeDTO);
-    SaveConsentDTO saveConsentDTO = consentMapper.map(onboarding);
-    onboardingProducer.sendSaveConsent(saveConsentDTO);
+    OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
+    onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
   }
 

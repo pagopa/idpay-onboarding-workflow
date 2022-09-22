@@ -1,6 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.dto.mapper;
 
-import it.gov.pagopa.onboarding.workflow.dto.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsentMapper {
 
-  public SaveConsentDTO map(Onboarding onboarding) {
+  public OnboardingDTO map(Onboarding onboarding) {
 
-    return SaveConsentDTO.builder()
+    return OnboardingDTO.builder()
         .userId(onboarding.getUserId())
         .initiativeId(onboarding.getInitiativeId())
         .status(onboarding.getStatus())

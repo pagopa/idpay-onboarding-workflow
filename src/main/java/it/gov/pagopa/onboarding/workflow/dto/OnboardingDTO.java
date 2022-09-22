@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class SaveConsentDTO {
+public class OnboardingDTO {
 
   String userId;
 
