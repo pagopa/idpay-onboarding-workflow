@@ -97,7 +97,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     checkDates(initiativeDTO);
     RequiredCriteriaDTO dto = null;
 
-    if (!checkWhitelist(onboarding, initiativeDTO.getGeneral().getBeneficiaryKnown())) {
+    if (!checkWhitelist(onboarding, initiativeDTO)) {
       dto = getCriteriaLists(onboarding, initiativeDTO);
       onboarding.setPdndCheck(!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty());
       onboarding.setAutocertificationCheck(
@@ -107,8 +107,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     return dto;
   }
 
-  private boolean checkWhitelist(Onboarding onboarding, boolean beneficiaryKnown) {
-    if (!beneficiaryKnown) {
+  private boolean checkWhitelist(Onboarding onboarding, InitiativeDTO initiativeDTO) {
+    if (Boolean.FALSE.equals(initiativeDTO.getGeneral().getBeneficiaryKnown())) {
       return false;
     }
     try {
@@ -122,10 +122,15 @@ public class OnboardingServiceImpl implements OnboardingService {
       outcomeProducer.sendOutcome(
           EvaluationDTO.builder()
               .initiativeId(onboarding.getInitiativeId())
+              .initiativeName(initiativeDTO.getInitiativeName())
+              .initiativeEndDate(initiativeDTO.getGeneral().getEndDate().atStartOfDay())
               .userId(onboarding.getUserId())
+              .organizationId(initiativeDTO.getOrganizationId())
               .admissibilityCheckDate(LocalDateTime.now())
               .status(OnboardingWorkflowConstants.ONBOARDING_OK)
               .onboardingRejectionReasons(List.of())
+              .beneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget())
+              .serviceId(initiativeDTO.getAdditionalInfo().getServiceId())
               .build());
       return true;
     } catch (FeignException e) {
