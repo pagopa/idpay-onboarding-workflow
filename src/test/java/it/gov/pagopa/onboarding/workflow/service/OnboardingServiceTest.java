@@ -20,6 +20,7 @@ import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.AutomatedCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
@@ -98,6 +99,7 @@ class OnboardingServiceTest {
   private static final InitiativeGeneralDTO GENERAL_WHITELIST = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_KO_START_DATE = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_KO_END_DATE = new InitiativeGeneralDTO();
+  private static final InitiativeAdditionalDTO ADDITIONAL_DTO_WHITELIST = new InitiativeAdditionalDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO = new CitizenStatusDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO_KO = new CitizenStatusDTO();
 
@@ -117,6 +119,8 @@ class OnboardingServiceTest {
     GENERAL_KO_START_DATE.setBeneficiaryKnown(false);
     GENERAL_KO_START_DATE.setStartDate(LocalDate.MAX);
     GENERAL_KO_START_DATE.setEndDate(LocalDate.MAX);
+
+    ADDITIONAL_DTO_WHITELIST.setServiceId(INITIATIVE_ID);
 
     GENERAL_KO_END_DATE.setBeneficiaryKnown(false);
     GENERAL_KO_END_DATE.setStartDate(LocalDate.MIN);
@@ -146,6 +150,7 @@ class OnboardingServiceTest {
 
     INITIATIVE_DTO_WHITELIST.setStatus("PUBLISHED");
     INITIATIVE_DTO_WHITELIST.setGeneral(GENERAL_WHITELIST);
+    INITIATIVE_DTO_WHITELIST.setAdditionalInfo(ADDITIONAL_DTO_WHITELIST);
 
     INITIATIVE_DTO_KO_START_DATE.setStatus("PUBLISHED");
     INITIATIVE_DTO_KO_START_DATE.setGeneral(GENERAL_KO_START_DATE);

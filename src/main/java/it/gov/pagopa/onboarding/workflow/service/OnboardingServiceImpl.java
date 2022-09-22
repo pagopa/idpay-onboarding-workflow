@@ -12,15 +12,14 @@ import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SaveConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfDeclarationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
-import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
+import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
@@ -97,7 +96,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     checkDates(initiativeDTO);
     RequiredCriteriaDTO dto = null;
 
-    if (!checkWhitelist(onboarding, initiativeDTO.getGeneral().getBeneficiaryKnown())) {
+    if (!checkWhitelist(onboarding, initiativeDTO)) {
       dto = getCriteriaLists(onboarding, initiativeDTO);
       onboarding.setPdndCheck(!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty());
       onboarding.setAutocertificationCheck(
@@ -107,8 +106,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     return dto;
   }
 
-  private boolean checkWhitelist(Onboarding onboarding, boolean beneficiaryKnown) {
-    if (!beneficiaryKnown) {
+  private boolean checkWhitelist(Onboarding onboarding, InitiativeDTO initiativeDTO) {
+    if (Boolean.FALSE.equals(initiativeDTO.getGeneral().getBeneficiaryKnown())) {
       return false;
     }
     try {
@@ -122,10 +121,15 @@ public class OnboardingServiceImpl implements OnboardingService {
       outcomeProducer.sendOutcome(
           EvaluationDTO.builder()
               .initiativeId(onboarding.getInitiativeId())
+              .initiativeName(initiativeDTO.getInitiativeName())
+              .initiativeEndDate(initiativeDTO.getGeneral().getEndDate().atStartOfDay())
               .userId(onboarding.getUserId())
+              .organizationId(initiativeDTO.getOrganizationId())
               .admissibilityCheckDate(LocalDateTime.now())
               .status(OnboardingWorkflowConstants.ONBOARDING_OK)
               .onboardingRejectionReasons(List.of())
+              .beneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget())
+              .serviceId(initiativeDTO.getAdditionalInfo().getServiceId())
               .build());
       return true;
     } catch (FeignException e) {
@@ -151,27 +155,14 @@ public class OnboardingServiceImpl implements OnboardingService {
       Onboarding onboarding, InitiativeDTO initiativeDTO) {
 
     RequiredCriteriaDTO requiredCriteriaDTO = new RequiredCriteriaDTO();
-    List<SelfDeclarationDTO> selfDeclarationList = new ArrayList<>();
     List<PDNDCriteriaDTO> pdndCriteria = new ArrayList<>();
-    List<SelfDeclarationItemsDTO> selfDeclarationListDB = new ArrayList<>();
-
-    initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().forEach(item -> {
-      if (item instanceof SelfCriteriaBoolDTO bool) {
-        selfDeclarationList.add(new SelfDeclarationDTO(bool.getCode(), bool.getDescription()));
-      }
-      if (item instanceof SelfCriteriaMultiDTO multi) {
-        selfDeclarationList.add(
-            new SelfDeclarationDTO(multi.getCode(), multi.getDescription()));
-      }
-      selfDeclarationListDB.add(item);
-    });
 
     initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().forEach(item ->
         pdndCriteria.add(new PDNDCriteriaDTO(item.getCode(), item.getField(), item.getAuthority()))
     );
 
-    onboarding.setSelfDeclarationList(selfDeclarationListDB);
-    requiredCriteriaDTO.setSelfDeclarationList(selfDeclarationList);
+    onboarding.setSelfDeclarationList(initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
+    requiredCriteriaDTO.setSelfDeclarationList(initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
     requiredCriteriaDTO.setPdndCriteria(pdndCriteria);
     return requiredCriteriaDTO;
   }
