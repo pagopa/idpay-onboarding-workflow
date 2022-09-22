@@ -119,7 +119,14 @@ public class OnboardingServiceImpl implements OnboardingService {
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION);
-      //onboardingOutcomeProducer.sendOutcome(new EvaluationDTO());
+      outcomeProducer.sendOutcome(
+          EvaluationDTO.builder()
+              .initiativeId(onboarding.getInitiativeId())
+              .userId(onboarding.getUserId())
+              .admissibilityCheckDate(LocalDateTime.now())
+              .status(OnboardingWorkflowConstants.ONBOARDING_OK)
+              .onboardingRejectionReasons(List.of())
+              .build());
       return true;
     } catch (FeignException e) {
       throw new OnboardingWorkflowException(e.status(), e.contentUTF8());
