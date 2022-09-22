@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.dto.initiative;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class SelfCriteriaMultiDTO implements SelfDeclarationItemsDTO {
   @JsonProperty("code")
   private String code;
 
+  @JsonIgnore
   public String getFirst(){
     return value.get(0);
   }
