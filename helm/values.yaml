@@ -68,6 +68,7 @@ microservice-chart:
   envSecret:
     MONGODB_URI: mongodb-connection-string
     KAFKA_OUTCOME_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-consumer-jaas-config-idpay-00
+    KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-producer-jaas-config-idpay-00
     SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
   #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
 

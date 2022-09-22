@@ -19,6 +19,7 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -46,6 +47,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Autowired
   OnboardingProducer onboardingProducer;
+
+  @Autowired
+  OutcomeProducer outcomeProducer;
 
   @Autowired
   InitiativeRestConnector initiativeRestConnector;
@@ -115,6 +119,14 @@ public class OnboardingServiceImpl implements OnboardingService {
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION);
+      outcomeProducer.sendOutcome(
+          EvaluationDTO.builder()
+              .initiativeId(onboarding.getInitiativeId())
+              .userId(onboarding.getUserId())
+              .admissibilityCheckDate(LocalDateTime.now())
+              .status(OnboardingWorkflowConstants.ONBOARDING_OK)
+              .onboardingRejectionReasons(List.of())
+              .build());
       return true;
     } catch (FeignException e) {
       throw new OnboardingWorkflowException(e.status(), e.contentUTF8());

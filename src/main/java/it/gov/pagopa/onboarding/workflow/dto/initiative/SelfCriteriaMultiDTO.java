@@ -23,4 +23,8 @@ public class SelfCriteriaMultiDTO implements SelfDeclarationItemsDTO {
   @JsonProperty("code")
   private String code;
 
+  public String getFirst(){
+    return value.get(0);
+  }
+
 }

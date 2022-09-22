@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class OutcomeConsumer {
 
   @Bean
-  public Consumer<EvaluationDTO> consumerTimeline(OnboardingService onboardingService) {
+  public Consumer<EvaluationDTO> consumerOutcome(OnboardingService onboardingService) {
     return onboardingService::completeOnboarding;
   }
 
