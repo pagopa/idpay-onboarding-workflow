@@ -60,7 +60,7 @@ class OnboardingControllerTest {
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
 
-    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(body))
             .accept(MediaType.APPLICATION_JSON_VALUE))
@@ -79,7 +79,7 @@ class OnboardingControllerTest {
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
 
-    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -93,7 +93,7 @@ class OnboardingControllerTest {
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", "");
 
-    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/citizen/" + USER_ID)
+    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();

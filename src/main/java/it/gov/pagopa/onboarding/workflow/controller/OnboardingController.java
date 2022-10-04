@@ -33,7 +33,7 @@ public interface OnboardingController {
    * @param body
    * @return
    */
-  @PutMapping("/citizen/{userId}")
+  @PutMapping("/{userId}")
   ResponseEntity<Void> onboardingCitizen(@RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId);
 
