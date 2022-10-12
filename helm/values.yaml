@@ -55,7 +55,7 @@ microservice-chart:
     idpay-common:
       TZ: TZ
     rest-client:
-      IDPAY_INITIATIVE_BASE_URL: idpay_initiative_host
+      IDPAY_INITIATIVE_BASE_URL: initiative_ms_base_url
       IDPAY_GROUP_BASE_URL: idpay_group_host
     idpay-eventhub-00:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
