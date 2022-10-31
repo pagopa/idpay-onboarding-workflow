@@ -1,0 +1,736 @@
+{
+	"info": {
+		"_postman_id": "315fa1d1-d5af-4673-997f-f8b312380a52",
+		"name": "Onboarding Workflow - e2e [to automation]",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21721440"
+	},
+	"item": [
+		{
+			"name": "Whitelisted Initiative",
+			"item": [
+				{
+					"name": "Generate Token IO - Whitelisted CF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Retrieve Token', () => {\r",
+									"    //verify response HTTP status \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "",
+								"type": "default"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode=AAAAAA00A00A000A",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bpd",
+								"pagopa",
+								"api",
+								"v1",
+								"login"
+							],
+							"query": [
+								{
+									"key": "fiscalCode",
+									"value": "AAAAAA00A00A000A"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get initiative ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Retrieve Initiative ID', () => {\r",
+									"    //verify response HTTP status \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.set(\"initiativeId\", pm.response.json().initiativeId);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								"service",
+								"{{serviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accept T&C [Onboarding Creation]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Accept T&C [Onboarding Creation]\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accept T&C [Idemp]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Accept T&C [Idemp]\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Onboarding Status - ACCEPTED_TC",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Onboarding Status - ACCEPTED_TC\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Onboarding Status - ACCEPTED_TC\", function () {\r",
+									"    let jsonStatus = pm.response.json()\r",
+									"    pm.expect(jsonStatus.status).equals(\"ACCEPTED_TC\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								"{{initiativeId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Prerequisites Check - Onboarding OK if in Whitelist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Prerequisites Check - Onboarding OK if in Whitelist\", function () {\r",
+									"    pm.response.to.have.status(202);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								"initiative"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Onboarding Status - ONBOARDING_OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Onboarding Status - ONBOARDING_OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"OOnboarding Status - ONBOARDING_OK\", function () {\r",
+									"    let jsonStatus = pm.response.json()\r",
+									"    pm.expect(jsonStatus.status).equals(\"ONBOARDING_OK\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								"{{initiativeId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PDND + Autocertification [KO -> Onboarding already completed]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"PDND + Autocertification [KO -> Onboarding already completed]\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\",\r\n    \"pdndAccept\": true,\r\n    \"selfDeclarationList\": [\r\n    {\r\n      \"_type\": \"boolean\",\r\n      \"code\": \"1\",\r\n      \"accepted\": true\r\n    },\r\n    {\r\n      \"_type\": \"boolean\",\r\n      \"code\": \"2\",\r\n      \"accepted\": true\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/consent",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								"consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Token IO - Not Whitelisted CF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Retrieve Token', () => {\r",
+									"    //verify response HTTP status \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "",
+								"type": "default"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode=AAAAAA00A00A000B",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bpd",
+								"pagopa",
+								"api",
+								"v1",
+								"login"
+							],
+							"query": [
+								{
+									"key": "fiscalCode",
+									"value": "AAAAAA00A00A000B"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accept T&C [Onboarding Creation]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Accept T&C [Onboarding Creation]\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Prerequisites Check - Onboarding KO - CF not in Whitelist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Prerequisites Check - Onboarding KO - CF not in Whitelist\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tokenIO}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{apimSubscriptionKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"idpay",
+								"onboarding",
+								"initiative"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "initiativeId",
+			"value": "6336fda7b68def326213b416",
+			"type": "string"
+		},
+		{
+			"key": "tokenIO",
+			"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBQUFBQUEwMEEwMEEwMDBCIiwiaWF0IjoxNjY2MDc4NDEyLCJleHAiOjE2NjYwODIwMTJ9.49Ge1DoWk6V5urEZUkHCms1rx9vwWsBfdQZ2rb1KgLM"
+		},
+		{
+			"key": "serviceId",
+			"value": "01GFJJ9QJ9ZFH46CNXX66XR9N6",
+			"type": "string"
+		}
+	]
+}

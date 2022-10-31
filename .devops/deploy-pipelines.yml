@@ -10,13 +10,14 @@ parameters:
 trigger:
   branches:
     include:
-      - release-dev
-      - release-uat
-      - release-prod
+      - release-*
+      - main
   paths:
     include:
       - src/*
+      - helm/*
       - pom.xml
+      - Dockerfile
 
 pr: none
 
@@ -42,6 +43,7 @@ variables:
     kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
     containerRegistry: '$(DEV_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(DEV_AGENT_POOL)
+    postmanEnvFile: idpay_dev.postman_environment.json
 
   ${{ elseif startsWith(variables['Build.SourceBranch'], 'refs/heads/release-uat') }}:
     environment: 'UAT'
@@ -49,13 +51,16 @@ variables:
     kubernetesServiceConnection: '$(UAT_KUBERNETES_SERVICE_CONN)'
     containerRegistry: '$(UAT_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(UAT_AGENT_POOL)
+    postmanEnvFile: idpay_uat.postman_environment.json
 
-  ${{ elseif startsWith(variables['Build.SourceBranch'], 'refs/heads/release-prod') }}:
+  ${{ elseif or(eq(variables['Build.SourceBranch'], 'refs/heads/main'),eq(variables['Build.SourceBranch'], 'refs/heads/release-prod')) }}:
     environment: 'PROD'
     dockerRegistryServiceConnection: '$(PROD_CONTAINER_REGISTRY_SERVICE_CONN)'
     kubernetesServiceConnection: '$(PROD_KUBERNETES_SERVICE_CONN)'
     containerRegistry: '$(PROD_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(PROD_AGENT_POOL)
+    # postman environment secure file - not used in prod
+    postmanEnvFile: idpay_uat.postman_environment.json
 
   ${{ else }}:
     environment: 'DEV'
@@ -63,6 +68,7 @@ variables:
     kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
     containerRegistry: '$(DEV_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(DEV_AGENT_POOL)
+    postmanEnvFile: idpay_dev.postman_environment.json
 
 stages:
   - stage: 'pom_version'
@@ -188,3 +194,38 @@ stages:
                     name: '$(helmReleaseName)-microservice-chart'
                     mergeStrategy: strategic
                     patch: '{"spec":{"template":{"metadata":{"annotations":{"buildNumber":"$(Build.BuildNumber)"}}}}}'
+  - stage: Test_e2e
+    displayName: 'Test_e2e_on_${{ variables.environment }}'
+    # TODO: before merging into release-dev modify the following condition
+    #       to depend on previous stages exit status
+    condition: eq(variables.environment, 'DEV')
+    jobs:
+      - job: 'Run_Postman_collection_on_${{ variables.environment }}'
+        displayName: 'Run_Postman_collection_on_${{ variables.environment }}'
+        pool:
+          name: $(selfHostedAgentPool)
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '14.x'
+          - task: Npm@1
+            displayName: Install newman
+            inputs:
+              command: custom
+              customCommand: install -g newman
+          - task: DownloadSecureFile@1
+            displayName: 'download postman environment'
+            name: postman_env
+            inputs:
+              secureFile: $(postmanEnvFile)
+          - task: CmdLine@2
+            displayName: Run newman
+            continueOnError: true # Useful to avoid the skipping of result publishing task
+            inputs:
+              script: newman run postman/idpay-onboarding-workflow-e2e.postman_collection.json -e $(postman_env.secureFilePath) --reporters cli,junit --reporter-junit-export result/test-result.xml
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/test-*.xml'
+              searchFolder: '$(System.DefaultWorkingDirectory)/result/'
+              testRunTitle: 'Publish Newman Test Results'                    

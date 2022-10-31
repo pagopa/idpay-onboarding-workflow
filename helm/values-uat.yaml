@@ -1,18 +1,18 @@
 microservice-chart:
   image:
-    repository: cstardcommonacr.azurecr.io/idpayonboardingworkflow
+    repository: cstarucommonacr.azurecr.io/idpayonboardingworkflow
     tag: latest
     pullPolicy: Always
 
   ingress:
-    host: "dev01.idpay.internal.dev.cstar.pagopa.it"
+    host: "uat01.idpay.internal.uat.cstar.pagopa.it"
 
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "40m"
+      memory: "512Mi"
+      cpu: "100m"
     limits:
-      memory: "4Gi"
+      memory: "2Gi"
       cpu: "300m"
 
   #  autoscaling:
@@ -39,8 +39,8 @@ microservice-chart:
     JAVA_TOOL_OPTIONS: '-Xms128m -Xmx4g -javaagent:/app/applicationinsights-agent.jar'
 
   envSecret:
-    aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
+    aks-api-url: cstar-u-weu-uat01-aks-apiserver-url
 
   keyvault:
-    name: "cstar-d-idpay-kv"
+    name: "cstar-u-idpay-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"

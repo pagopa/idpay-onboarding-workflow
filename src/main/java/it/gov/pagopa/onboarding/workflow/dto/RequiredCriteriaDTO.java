@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ public class RequiredCriteriaDTO {
 
   List<PDNDCriteriaDTO> pdndCriteria = null;
 
-  List<SelfDeclarationDTO> selfDeclarationList = null;
+  List<SelfDeclarationItemsDTO> selfDeclarationList = null;
 
 }
 

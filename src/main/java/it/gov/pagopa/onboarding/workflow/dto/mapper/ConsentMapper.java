@@ -1,30 +1,33 @@
 package it.gov.pagopa.onboarding.workflow.dto.mapper;
 
-import it.gov.pagopa.onboarding.workflow.dto.mapper.producer.SaveConsentDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ConsentMapper {
 
-  public SaveConsentDTO map(Onboarding onboarding){
+  public OnboardingDTO map(Onboarding onboarding) {
 
-    SaveConsentDTO saveConsentDTO = null;
+    return OnboardingDTO.builder()
+        .userId(onboarding.getUserId())
+        .initiativeId(onboarding.getInitiativeId())
+        .status(onboarding.getStatus())
+        .pdndAccept(onboarding.getPdndAccept())
+        .selfDeclarationBool(onboarding.getSelfDeclarationList().stream().filter(item -> item.getClass().equals(
+            SelfCriteriaBoolDTO.class)).map(SelfCriteriaBoolDTO.class::cast).collect(
+            Collectors.toMap(SelfCriteriaBoolDTO::getCode, SelfCriteriaBoolDTO::getValue)))
+        .selfDeclarationMulti(onboarding.getSelfDeclarationList().stream().filter(item -> item.getClass().equals(
+            SelfCriteriaMultiDTO.class)).map(SelfCriteriaMultiDTO.class::cast).collect(
+            Collectors.toMap(SelfCriteriaMultiDTO::getCode, SelfCriteriaMultiDTO::getFirst)))
+        .criteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp())
+        .tc(onboarding.getTc())
+        .tcAcceptTimestamp(onboarding.getTcAcceptTimestamp())
+        .build();
 
-    if(onboarding!=null){
-      saveConsentDTO = SaveConsentDTO.builder().build();
-      saveConsentDTO.setUserId(onboarding.getUserId());
-      saveConsentDTO.setInitiativeId(onboarding.getInitiativeId());
-      saveConsentDTO.setStatus(onboarding.getStatus());
-      saveConsentDTO.setPdndAccept(onboarding.getPdndAccept());
-      saveConsentDTO.setSelfDeclarationList(onboarding.getSelfDeclarationList());
-      saveConsentDTO.setCriteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp());
-      saveConsentDTO.setTc(onboarding.isTc());
-      saveConsentDTO.setTcAcceptTimestamp(onboarding.getTcAcceptTimestamp());
-
-    }
-
-    return saveConsentDTO;
   }
 
 }
