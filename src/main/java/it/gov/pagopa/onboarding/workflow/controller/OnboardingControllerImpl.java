@@ -7,6 +7,8 @@ import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import javax.validation.Valid;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class OnboardingControllerImpl implements OnboardingController {
 
   @Autowired
@@ -35,6 +38,7 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<Void> onboardingCitizen(
       @Valid @RequestBody OnboardingPutDTO onBoardingPutDTO,
       @PathVariable("userId") String userId) {
+    log.info("CEF:0|Kemp|LM|1.0|5|Connection failed|3|vs=172.16.151.21:80 event=Connection failed srcip=192.168.10.67 srcport=17548 dstip=172.16.128.37 dstport=82");
     onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
