@@ -2,10 +2,13 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenFilterDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,9 +26,7 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
       @Valid @RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId) {
-
       RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId);
-
       if(dto == null){
         return ResponseEntity.accepted().build();
       }
@@ -44,6 +45,12 @@ public class OnboardingControllerImpl implements OnboardingController {
     OnboardingStatusDTO onBoardingStatusDTO = onboardingService.getOnboardingStatus(initiativeId,
         userId);
     return new ResponseEntity<>(onBoardingStatusDTO, HttpStatus.OK);
+  }
+
+  @Override
+  public List<OnboardingStatusCitizenDTO> onboardingStatusList(
+      OnboardingStatusCitizenFilterDTO body) {
+    return onboardingService.getOnboardingStatusList(body.getInitiativeId(),body.getUserId(),body.getStartDate(),body.getEndDate(),body.getStatus(),body.getPageable());
   }
 
   @Override

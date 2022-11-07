@@ -6,9 +6,12 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenFilterDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,6 +61,16 @@ public interface OnboardingController {
   @GetMapping("/{initiativeId}/{userId}/status")
   ResponseEntity<OnboardingStatusDTO> onboardingStatus(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+  /**
+   * Returns the onboarding status list
+   *
+   * @param body
+   * @return
+   */
+  @GetMapping("/statusList")
+  List<OnboardingStatusCitizenDTO> onboardingStatusList(
+      @RequestBody OnboardingStatusCitizenFilterDTO body);
 
 
   /**

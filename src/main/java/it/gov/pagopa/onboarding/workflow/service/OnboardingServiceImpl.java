@@ -6,6 +6,7 @@ import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
@@ -22,7 +23,10 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
+import it.gov.pagopa.onboarding.workflow.model.Onboarding.Fields;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepositoryReactive;
+import it.gov.pagopa.onboarding.workflow.repository.OnboardingSpecificRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,8 +35,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @Service
@@ -40,6 +49,10 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Autowired
   private OnboardingRepository onboardingRepository;
+
+
+  @Autowired
+  private OnboardingRepositoryReactive onboardingRepositoryReactive;
 
   @Autowired
   ConsentMapper consentMapper;
@@ -55,6 +68,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Autowired
   GroupRestConnector groupRestConnector;
+
 
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
@@ -72,6 +86,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       Onboarding newOnboarding = new Onboarding(initiativeId, userId);
       newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
       newOnboarding.setTcAcceptTimestamp(LocalDateTime.now());
+      onboarding.setLastUpdate(LocalDateTime.now());
       newOnboarding.setTc(true);
       onboardingRepository.save(newOnboarding);
       return;
@@ -82,8 +97,12 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   }
 
-  private void setStatus(Onboarding onboarding, String status) {
+  private void setStatus(Onboarding onboarding, String status, LocalDateTime date) {
     onboarding.setStatus(status);
+    if(status.equals(OnboardingWorkflowConstants.ONBOARDING_OK)){
+      onboarding.setOnboardingOkDate(date);
+    }
+    onboarding.setLastUpdate(date);
     onboardingRepository.save(onboarding);
   }
 
@@ -117,7 +136,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
-      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION);
+      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION,LocalDateTime.now());
       outcomeProducer.sendOutcome(
           EvaluationDTO.builder()
               .initiativeId(onboarding.getInitiativeId())
@@ -196,6 +215,40 @@ public class OnboardingServiceImpl implements OnboardingService {
     return new OnboardingStatusDTO(onboarding.getStatus());
   }
 
+@Override
+  public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String initiativeId, String userId, String startDate, String endDate, String status, Pageable pageable) {
+    log.trace("Find with filter");
+    log.debug("findAll initiativeId= {} , userId = {},start date={}, end date={},status={}, pageable = {}", initiativeId,userId,startDate,endDate,status, pageable);
+    LocalDateTime startDateTime=null;
+    LocalDateTime endDateTime=null;
+    if(startDate!=null){
+      startDateTime=LocalDateTime.parse(startDate);
+    }
+  if(endDate!=null){
+    endDateTime=LocalDateTime.parse(endDate);
+  }
+    Flux<Onboarding> onboardingFlux = onboardingRepositoryReactive.findByFilter(initiativeId,userId,status,startDateTime,endDateTime,pageable);
+    return onboardingFlux.map(o -> new OnboardingStatusCitizenDTO(o.getUserId(),o.getStatus(),this.getSelectedDate(o))).collectList().block();
+  }
+
+  public String getSelectedDate(Onboarding onboarding){
+    switch (onboarding.getStatus()) {
+      case OnboardingWorkflowConstants.ONBOARDING_OK:
+        return onboarding.getOnboardingOkDate().toString();
+      case OnboardingWorkflowConstants.ACCEPTED_TC:
+        return onboarding.getTcAcceptTimestamp().toString();
+      case OnboardingWorkflowConstants.ON_EVALUATION:
+        return onboarding.getCriteriaConsensusTimestamp().toString();
+      case OnboardingWorkflowConstants.STATUS_INACTIVE:
+        return onboarding.getRequestDeactivationDate().toString();
+      case OnboardingWorkflowConstants.INVITED:
+        return onboarding.getInvitationTimestamp().toString();
+    }
+    return null;
+  }
+
+
+
 
   @Override
   public void saveConsent(ConsentPutDTO consentPutDTO, String userId) {
@@ -213,6 +266,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
     onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
+    onboarding.setLastUpdate(LocalDateTime.now());
     InitiativeDTO initiativeDTO = getInitiative(consentPutDTO.getInitiativeId());
     checkDates(initiativeDTO);
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
@@ -274,6 +328,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
     onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
+    onboarding.setLastUpdate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
     log.info("Onboarding disabled, date: {}", deactivationDate);
   }
@@ -287,6 +342,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       log.info("Onboarding before rollback: {}", onboarding);
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
       onboarding.setRequestDeactivationDate(null);
+      onboarding.setLastUpdate(onboarding.getOnboardingOkDate());
       onboardingRepository.save(onboarding);
       log.info("Onboarding after rollback: {}", onboarding);
     }
@@ -297,7 +353,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     onboardingRepository.findByInitiativeIdAndUserId(
         evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
-        setStatus(onboarding, evaluationDTO.getStatus())
+        setStatus(onboarding, evaluationDTO.getStatus(), evaluationDTO.getAdmissibilityCheckDate())
     );
   }
 }
