@@ -217,8 +217,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
 @Override
   public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String initiativeId, String userId, String startDate, String endDate, String status, Pageable pageable) {
-    log.trace("Find with filter");
-    log.debug("findAll initiativeId= {} , userId = {},start date={}, end date={},status={}, pageable = {}", initiativeId,userId,startDate,endDate,status, pageable);
+   if(pageable.getPageSize()>15){
+     throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(), "Max number for page allowed: 15");
+   }
     LocalDateTime startDateTime=null;
     LocalDateTime endDateTime=null;
     if(startDate!=null){
