@@ -141,9 +141,18 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     LocalDate requestDate = LocalDate.now();
 
+    LocalDate startDate =
+        (initiativeDTO.getGeneral().getRankingStartDate() != null) ? initiativeDTO.getGeneral()
+            .getRankingStartDate() : initiativeDTO.getGeneral()
+            .getStartDate();
+
+    LocalDate endDate = (initiativeDTO.getGeneral().getRankingEndDate() != null) ? initiativeDTO.getGeneral()
+        .getRankingEndDate() : initiativeDTO.getGeneral()
+        .getEndDate();
+
     boolean dateCheckFail =
-        requestDate.isBefore(initiativeDTO.getGeneral()
-            .getStartDate()) || requestDate.isAfter(initiativeDTO.getGeneral().getEndDate());
+        requestDate.isBefore(startDate) || requestDate.isAfter(
+            endDate);
 
     if (dateCheckFail) {
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -161,8 +170,10 @@ public class OnboardingServiceImpl implements OnboardingService {
         pdndCriteria.add(new PDNDCriteriaDTO(item.getCode(), item.getField(), item.getAuthority()))
     );
 
-    onboarding.setSelfDeclarationList(initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
-    requiredCriteriaDTO.setSelfDeclarationList(initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
+    onboarding.setSelfDeclarationList(
+        initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
+    requiredCriteriaDTO.setSelfDeclarationList(
+        initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
     requiredCriteriaDTO.setPdndCriteria(pdndCriteria);
     return requiredCriteriaDTO;
   }

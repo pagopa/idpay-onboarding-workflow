@@ -5,7 +5,7 @@ microservice-chart:
     pullPolicy: Always
 
   ingress:
-    host: "prod01.idpay.internal.prod.cstar.pagopa.it"
+    host: "prod01.idpay.internal.cstar.pagopa.it"
 
   resources:
     requests:

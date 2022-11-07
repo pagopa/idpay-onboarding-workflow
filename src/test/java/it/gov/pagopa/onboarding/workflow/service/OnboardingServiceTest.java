@@ -90,7 +90,9 @@ class OnboardingServiceTest {
   private static final InitiativeDTO INITIATIVE_DTO_NO_SELF = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_WHITELIST = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_KO_START_DATE = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_KO_RANKING_START_DATE = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_KO_END_DATE = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_KO_RANKING_END_DATE = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_KO = new InitiativeDTO();
   private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO = new InitiativeBeneficiaryRuleDTO();
   private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND = new InitiativeBeneficiaryRuleDTO();
@@ -98,7 +100,9 @@ class OnboardingServiceTest {
   private static final InitiativeGeneralDTO GENERAL = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_WHITELIST = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_KO_START_DATE = new InitiativeGeneralDTO();
+  private static final InitiativeGeneralDTO GENERAL_KO_RANKING_START_DATE = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_KO_END_DATE = new InitiativeGeneralDTO();
+  private static final InitiativeGeneralDTO GENERAL_KO_RANKING_END_DATE = new InitiativeGeneralDTO();
   private static final InitiativeAdditionalDTO ADDITIONAL_DTO_WHITELIST = new InitiativeAdditionalDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO = new CitizenStatusDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO_KO = new CitizenStatusDTO();
@@ -120,11 +124,19 @@ class OnboardingServiceTest {
     GENERAL_KO_START_DATE.setStartDate(LocalDate.MAX);
     GENERAL_KO_START_DATE.setEndDate(LocalDate.MAX);
 
+    GENERAL_KO_RANKING_START_DATE.setBeneficiaryKnown(false);
+    GENERAL_KO_RANKING_START_DATE.setRankingStartDate(LocalDate.MAX);
+    GENERAL_KO_RANKING_START_DATE.setRankingEndDate(LocalDate.MAX);
+
     ADDITIONAL_DTO_WHITELIST.setServiceId(INITIATIVE_ID);
 
     GENERAL_KO_END_DATE.setBeneficiaryKnown(false);
     GENERAL_KO_END_DATE.setStartDate(LocalDate.MIN);
     GENERAL_KO_END_DATE.setEndDate(LocalDate.MIN);
+
+    GENERAL_KO_RANKING_END_DATE.setBeneficiaryKnown(false);
+    GENERAL_KO_RANKING_END_DATE.setRankingStartDate(LocalDate.MIN);
+    GENERAL_KO_RANKING_END_DATE.setRankingEndDate(LocalDate.MIN);
 
     INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
         List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
@@ -155,8 +167,14 @@ class OnboardingServiceTest {
     INITIATIVE_DTO_KO_START_DATE.setStatus("PUBLISHED");
     INITIATIVE_DTO_KO_START_DATE.setGeneral(GENERAL_KO_START_DATE);
 
+    INITIATIVE_DTO_KO_RANKING_START_DATE.setStatus("PUBLISHED");
+    INITIATIVE_DTO_KO_RANKING_START_DATE.setGeneral(GENERAL_KO_RANKING_START_DATE);
+
     INITIATIVE_DTO_KO_END_DATE.setStatus("PUBLISHED");
     INITIATIVE_DTO_KO_END_DATE.setGeneral(GENERAL_KO_END_DATE);
+
+    INITIATIVE_DTO_KO_RANKING_END_DATE.setStatus("PUBLISHED");
+    INITIATIVE_DTO_KO_RANKING_END_DATE.setGeneral(GENERAL_KO_RANKING_END_DATE);
 
     INITIATIVE_DTO_KO.setStatus("CLOSED");
   }
@@ -416,6 +434,25 @@ class OnboardingServiceTest {
     }
   }
 
+  void checkPrerequisites_ko_ranking_start_date() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_KO_RANKING_START_DATE);
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
+    }
+  }
+
   @Test
   void checkPrerequisites_ko_end_date() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -427,6 +464,26 @@ class OnboardingServiceTest {
 
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_KO_END_DATE);
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
+    }
+  }
+
+  @Test
+  void checkPrerequisites_ko_ranking_end_date() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO_KO_RANKING_END_DATE);
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
