@@ -73,13 +73,16 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
     if (onboarding == null || onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
-      Onboarding newOnboarding = new Onboarding(initiativeId, userId);
-      newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding = new Onboarding(initiativeId, userId);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTc(true);
       LocalDateTime localDateTime = LocalDateTime.now();
-      newOnboarding.setTcAcceptTimestamp(localDateTime);
-      newOnboarding.setUpdateDate(localDateTime);
-      newOnboarding.setTc(true);
-      onboardingRepository.save(newOnboarding);
+      onboarding.setTcAcceptTimestamp(localDateTime);
+      onboarding.setUpdateDate(localDateTime);
+      if(onboarding.getCreationDate()==null){
+        onboarding.setCreationDate(localDateTime);
+      }
+      onboardingRepository.save(onboarding);
       return;
     }
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
@@ -352,7 +355,10 @@ public class OnboardingServiceImpl implements OnboardingService {
         log.info("new onbording with status invited");
         Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(), onboardingNotificationDTO.getUserId());
         newOnboarding.setStatus(OnboardingWorkflowConstants.INVITED);
-        newOnboarding.setInvitationDate(LocalDateTime.now());
+        LocalDateTime localDateTime = LocalDateTime.now();
+        newOnboarding.setInvitationDate(localDateTime);
+        newOnboarding.setUpdateDate(localDateTime);
+        newOnboarding.setCreationDate(localDateTime);
         onboardingRepository.save(newOnboarding);
       }
     }
