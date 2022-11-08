@@ -52,7 +52,6 @@
             <artifactId>spring-cloud-stream-test-support</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!--3rd party library-->
         <dependency>
             <groupId>org.projectlombok</groupId>

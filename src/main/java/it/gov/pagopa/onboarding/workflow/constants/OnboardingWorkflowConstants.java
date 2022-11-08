@@ -5,6 +5,7 @@ public final class OnboardingWorkflowConstants {
   public static final String ACCEPTED_TC = "ACCEPTED_TC";
   public static final String STATUS_INACTIVE = "INACTIVE";
   public static final String ON_EVALUATION = "ON_EVALUATION";
+  public static final String INVITED = "INVITED";
   public static final String ONBOARDING_OK = "ONBOARDING_OK";
   public static final String INVITED = "INVITED";
   public static final String ALLOWED_CITIZEN_PUBLISH = "ALLOWED_CITIZEN_PUBLISH";
