@@ -64,11 +64,14 @@ microservice-chart:
       KAFKA_TOPIC_ONBOARDING: idpay_onboarding_request_topic
       KAFKA_TOPIC_OUTCOME: idpay_onboarding_outcome_topic
       KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-onboarding-consumer-group
+      KAFKA_TOPIC_ONBOARDING_NOTIFICATION: idpay_onboarding_notification_topic
+      KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN: idpay-onboarding-notification-consumer-group
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
     KAFKA_OUTCOME_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-consumer-jaas-config-idpay-00
     KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-producer-jaas-config-idpay-00
+    KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-producer-jaas-config-idpay-00
     SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
   #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
 
