@@ -10,13 +10,14 @@ parameters:
 trigger:
   branches:
     include:
-      - release-dev
-      - release-uat
-      - release-prod
+      - release-*
+      - main
   paths:
     include:
       - src/*
+      - helm/*
       - pom.xml
+      - Dockerfile
 
 pr: none
 
@@ -52,12 +53,14 @@ variables:
     selfHostedAgentPool: $(UAT_AGENT_POOL)
     postmanEnvFile: idpay_uat.postman_environment.json
 
-  ${{ elseif startsWith(variables['Build.SourceBranch'], 'refs/heads/release-prod') }}:
+  ${{ elseif or(eq(variables['Build.SourceBranch'], 'refs/heads/main'),eq(variables['Build.SourceBranch'], 'refs/heads/release-prod')) }}:
     environment: 'PROD'
     dockerRegistryServiceConnection: '$(PROD_CONTAINER_REGISTRY_SERVICE_CONN)'
     kubernetesServiceConnection: '$(PROD_KUBERNETES_SERVICE_CONN)'
     containerRegistry: '$(PROD_CONTAINER_REGISTRY_NAME)'
     selfHostedAgentPool: $(PROD_AGENT_POOL)
+    # postman environment secure file - not used in prod
+    postmanEnvFile: idpay_uat.postman_environment.json
 
   ${{ else }}:
     environment: 'DEV'

@@ -7,6 +7,7 @@ import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
@@ -71,7 +72,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
-    if (onboarding == null) {
+    if (onboarding == null || onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
       Onboarding newOnboarding = new Onboarding(initiativeId, userId);
       newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
       LocalDateTime localDateTime = LocalDateTime.now();
@@ -152,9 +153,18 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     LocalDate requestDate = LocalDate.now();
 
+    LocalDate startDate =
+        (initiativeDTO.getGeneral().getRankingStartDate() != null) ? initiativeDTO.getGeneral()
+            .getRankingStartDate() : initiativeDTO.getGeneral()
+            .getStartDate();
+
+    LocalDate endDate = (initiativeDTO.getGeneral().getRankingEndDate() != null) ? initiativeDTO.getGeneral()
+        .getRankingEndDate() : initiativeDTO.getGeneral()
+        .getEndDate();
+
     boolean dateCheckFail =
-        requestDate.isBefore(initiativeDTO.getGeneral()
-            .getStartDate()) || requestDate.isAfter(initiativeDTO.getGeneral().getEndDate());
+        requestDate.isBefore(startDate) || requestDate.isAfter(
+            endDate);
 
     if (dateCheckFail) {
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -172,8 +182,10 @@ public class OnboardingServiceImpl implements OnboardingService {
         pdndCriteria.add(new PDNDCriteriaDTO(item.getCode(), item.getField(), item.getAuthority()))
     );
 
-    onboarding.setSelfDeclarationList(initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
-    requiredCriteriaDTO.setSelfDeclarationList(initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
+    onboarding.setSelfDeclarationList(
+        initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
+    requiredCriteriaDTO.setSelfDeclarationList(
+        initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
     requiredCriteriaDTO.setPdndCriteria(pdndCriteria);
     return requiredCriteriaDTO;
   }
@@ -327,5 +339,22 @@ public class OnboardingServiceImpl implements OnboardingService {
         evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
         setStatus(onboarding, evaluationDTO.getStatus(), evaluationDTO.getAdmissibilityCheckDate())
     );
+  }
+
+  @Override
+  public void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO) {
+    log.info("consumer onboarding notification");
+    if(onboardingNotificationDTO.getOperationType().equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)){
+      log.info("allowed citizen");
+      Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(onboardingNotificationDTO.getInitiativeId(),
+              onboardingNotificationDTO.getUserId()).orElse(null);
+      if (onboarding == null) {
+        log.info("new onbording with status invited");
+        Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(), onboardingNotificationDTO.getUserId());
+        newOnboarding.setStatus(OnboardingWorkflowConstants.INVITED);
+        newOnboarding.setInvitationDate(LocalDateTime.now());
+        onboardingRepository.save(newOnboarding);
+      }
+    }
   }
 }

@@ -10,7 +10,7 @@ spring:
         connection-string: ${SERVICEBUS_ONBOARDING_CONNECTION_STRING:}
     stream:
       function:
-        definition: onboarding
+        definition: consumerOutcome;consumerOnboarding
       binders:
         servicebus-onboarding:
           type: servicebus
@@ -21,6 +21,13 @@ spring:
               binder:
                 brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
                 configuration.sasl.jaas.config: ${KAFKA_OUTCOME_SASL_JAAS_CONFIG:}
+        onboarding-notification:
+          type: kafka
+          environment:
+            spring.cloud.stream.kafka:
+              binder:
+                brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
+                configuration.sasl.jaas.config: ${KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG:}
         kafka-outcome-out:
           type: kafka
           environment:
@@ -29,11 +36,16 @@ spring:
                 brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
                 configuration.sasl.jaas.config: ${KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG:}
       bindings:
-        onboarding-in-0:
+        consumerOutcome-in-0:
           binder: kafka-outcome
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_OUTCOME:}
           group: ${KAFKA_OUTCOME_GROUP_IN:}
+        consumerOnboarding-in-0:
+          binder: onboarding-notification
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_ONBOARDING_NOTIFICATION:}
+          group: ${KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN:}
         onboarding-out-0:
           binder: kafka-outcome-out
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
@@ -46,13 +58,13 @@ spring:
         binder:
           auto-create-topics: false
           configuration:
-            heartbeat.interval.ms: ${KAFKA_CONFIG_HEARTBEAT_INTERVAL_MS:30000}
-            session.timeout.ms: ${KAFKA_CONFIG_SESSION_TIMEOUT_MS:60000}
+            heartbeat.interval.ms: ${KAFKA_CONFIG_HEARTBEAT_INTERVAL_MS:3000}
+            session.timeout.ms: ${KAFKA_CONFIG_SESSION_TIMEOUT_MS:30000}
             request.timeout.ms: ${KAFKA_CONFIG_REQUEST_TIMEOUT_MS:60000}
             sasl.mechanism: ${KAFKA_CONFIG_SASL_MECHANISM:PLAIN}
             security.protocol: ${KAFKA_CONFIG_SECURITY_PROTOCOL:SASL_SSL}
         bindings:
-          onboarding-in-0:
+          consumerOutcome-in-0:
             consumer:
               startOffset: ${KAFKA_ONBOARDING_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
               autoCommitOffset: ${KAFKA_ONBOARDING_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
@@ -61,7 +73,20 @@ spring:
                 max.poll:
                   records: ${KAFKA_ONBOARDING_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
                   interval.ms: ${KAFKA_ONBOARDING_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
-                connections.max.idle.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:300000}}
+                connections.max.idle.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:180000}}
+                socket.connection.setup.timeout:
+                  max.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
+                  ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
+          consumerOnboarding-in-0:
+            consumer:
+              startOffset: ${KAFKA_ONBOARDING_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
+              autoCommitOffset: ${KAFKA_ONBOARDING_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
+              standardHeaders: ${KAFKA_ONBOARDING_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
+              configuration:
+                max.poll:
+                  records: ${KAFKA_ONBOARDING_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
+                  interval.ms: ${KAFKA_ONBOARDING_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
+                connections.max.idle.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:180000}}
                 socket.connection.setup.timeout:
                   max.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
                   ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
@@ -74,6 +99,15 @@ spring:
     mongodb:
       database: ${MONGODB_DBNAME:}
       uri: ${MONGODB_URI:}
+      # custom configured properties
+      config:
+        connectionPool:
+          maxSize: ${MONGODB_CONNECTIONPOOL_MAX_SIZE:100}
+          minSize: ${MONGODB_CONNECTIONPOOL_MIN_SIZE:0}
+          maxWaitTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_WAIT_MS:120000}
+          maxConnectionLifeTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_LIFE_MS:0}
+          maxConnectionIdleTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_IDLE_MS:120000}
+          maxConnecting: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTING:2}
 
 logging:
   level:

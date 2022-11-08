@@ -48,6 +48,7 @@ public class Onboarding {
   private LocalDateTime invitationTimestamp;
 
   private LocalDateTime requestDeactivationDate;
+  private LocalDateTime invitationDate;
 
   private LocalDateTime onboardingOkDate;
 
