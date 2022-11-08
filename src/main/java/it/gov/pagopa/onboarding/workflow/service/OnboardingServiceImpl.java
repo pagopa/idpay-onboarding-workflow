@@ -315,10 +315,13 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO) {
+    log.info("consumer onboarding notification");
     if(onboardingNotificationDTO.getOperationType().equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)){
+      log.info("allowed citizen");
       Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(onboardingNotificationDTO.getInitiativeId(),
               onboardingNotificationDTO.getUserId()).orElse(null);
       if (onboarding == null) {
+        log.info("new onbording with status invited");
         Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(), onboardingNotificationDTO.getUserId());
         newOnboarding.setStatus(OnboardingWorkflowConstants.INVITED);
         newOnboarding.setInvitationDate(LocalDateTime.now());
