@@ -49,8 +49,9 @@ public class Onboarding {
 
   private LocalDateTime requestDeactivationDate;
 
-  private LocalDateTime OnboardingOkDate;
+  private LocalDateTime onboardingOkDate;
 
-  private LocalDateTime lastUpdate;
+  private LocalDateTime updateDate;
+  private LocalDateTime creationDate;
 
 }

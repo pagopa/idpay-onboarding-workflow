@@ -32,7 +32,6 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepositoryReactive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,9 +57,6 @@ class OnboardingServiceTest {
 
   @MockBean
   OnboardingRepository onboardingRepositoryMock;
-
-  @MockBean
-  OnboardingRepositoryReactive onboardingRepositoryReactive;
 
   @MockBean
   ConsentMapper consentMapper;

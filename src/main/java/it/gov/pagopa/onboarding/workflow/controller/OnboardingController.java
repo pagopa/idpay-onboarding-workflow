@@ -7,12 +7,14 @@ package it.gov.pagopa.onboarding.workflow.controller;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenFilterDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -65,12 +68,17 @@ public interface OnboardingController {
   /**
    * Returns the onboarding status list
    *
-   * @param body
+   * @param initiativeId
    * @return
    */
-  @GetMapping("/statusList")
+  @GetMapping("/{initiativeId}")
   List<OnboardingStatusCitizenDTO> onboardingStatusList(
-      @RequestBody OnboardingStatusCitizenFilterDTO body);
+      @PathVariable("initiativeId") String initiativeId,
+      @RequestParam(required = false) Pageable pageable,
+      @RequestParam(required = false) String userId,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+      @RequestParam(required = false) String status);
 
 
   /**

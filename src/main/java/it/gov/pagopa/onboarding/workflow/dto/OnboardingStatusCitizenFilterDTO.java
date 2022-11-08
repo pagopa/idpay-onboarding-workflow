@@ -1,10 +1,12 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @Data
 @Builder
@@ -12,13 +14,11 @@ import org.springframework.data.domain.Pageable;
 @AllArgsConstructor
 public class OnboardingStatusCitizenFilterDTO {
 
-  private String initiativeId;
   private String userId;
-  private String startDate;
-  private String endDate;
+  @DateTimeFormat(iso = ISO.DATE_TIME)
+  private LocalDateTime startDate;
+  private LocalDateTime endDate;
   private String status;
-  private String onboardingDate;
-  private Pageable pageable;
 
 }
 

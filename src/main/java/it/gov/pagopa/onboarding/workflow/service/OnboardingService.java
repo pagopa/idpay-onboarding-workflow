@@ -5,6 +5,7 @@ import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
@@ -23,5 +24,5 @@ public interface OnboardingService {
   void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
 
   void rollback(String initiativeId, String userId);
-  List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String initiativeId, String userId, String startDate, String endDate, String status, Pageable pageable);
+  List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String initiativeId, String userId, LocalDateTime startDate, LocalDateTime endDate, String status, Pageable pageable);
 }

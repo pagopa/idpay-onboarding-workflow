@@ -3,14 +3,15 @@ package it.gov.pagopa.onboarding.workflow.controller;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenFilterDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,11 +27,11 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
       @Valid @RequestBody OnboardingPutDTO body,
       @PathVariable("userId") String userId) {
-      RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId);
-      if(dto == null){
-        return ResponseEntity.accepted().build();
-      }
-      return ResponseEntity.ok(dto);
+    RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId);
+    if (dto == null) {
+      return ResponseEntity.accepted().build();
+    }
+    return ResponseEntity.ok(dto);
   }
 
   public ResponseEntity<Void> onboardingCitizen(
@@ -48,9 +49,14 @@ public class OnboardingControllerImpl implements OnboardingController {
   }
 
   @Override
-  public List<OnboardingStatusCitizenDTO> onboardingStatusList(
-      OnboardingStatusCitizenFilterDTO body) {
-    return onboardingService.getOnboardingStatusList(body.getInitiativeId(),body.getUserId(),body.getStartDate(),body.getEndDate(),body.getStatus(),body.getPageable());
+  public List<OnboardingStatusCitizenDTO> onboardingStatusList(String initiativeId,
+      Pageable pageable,
+      String userId,
+      LocalDateTime startDate,
+      LocalDateTime endDate,
+      String status) {
+    return onboardingService.getOnboardingStatusList(initiativeId, userId, startDate, endDate,
+        status, pageable);
   }
 
   @Override
@@ -62,13 +68,14 @@ public class OnboardingControllerImpl implements OnboardingController {
 
   @Override
   public ResponseEntity<Void> disableOnboarding(UnsubscribeBodyDTO body) {
-    onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(), body.getUnsubscribeDate());
+    onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(),
+        body.getUnsubscribeDate());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
   public ResponseEntity<Void> rollback(String initiativeId, String userId) {
-    onboardingService.rollback(initiativeId,userId);
+    onboardingService.rollback(initiativeId, userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 }
