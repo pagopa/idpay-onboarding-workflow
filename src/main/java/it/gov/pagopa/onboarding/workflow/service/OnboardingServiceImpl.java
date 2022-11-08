@@ -6,6 +6,7 @@ import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
@@ -68,7 +69,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
-    if (onboarding == null) {
+    if (onboarding == null || onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
       Onboarding newOnboarding = new Onboarding(initiativeId, userId);
       newOnboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
       newOnboarding.setTcAcceptTimestamp(LocalDateTime.now());
@@ -310,5 +311,19 @@ public class OnboardingServiceImpl implements OnboardingService {
         evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
         setStatus(onboarding, evaluationDTO.getStatus())
     );
+  }
+
+  @Override
+  public void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO) {
+    if(onboardingNotificationDTO.getOperationType().equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)){
+      Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(onboardingNotificationDTO.getInitiativeId(),
+              onboardingNotificationDTO.getUserId()).orElse(null);
+      if (onboarding == null) {
+        Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(), onboardingNotificationDTO.getUserId());
+        newOnboarding.setStatus(OnboardingWorkflowConstants.INVITED);
+        newOnboarding.setInvitationDate(LocalDateTime.now());
+        onboardingRepository.save(newOnboarding);
+      }
+    }
   }
 }
