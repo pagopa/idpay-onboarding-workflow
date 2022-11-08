@@ -73,6 +73,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
     if (onboarding == null || onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
+
       onboarding = new Onboarding(initiativeId, userId);
       onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
       onboarding.setTc(true);
@@ -129,6 +130,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       CitizenStatusDTO citizenStatus = groupRestConnector.getCitizenStatus(
           onboarding.getInitiativeId(), onboarding.getUserId());
       if (!citizenStatus.isStatus()) {
+        onboardingRepository.delete(onboarding);
         throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
