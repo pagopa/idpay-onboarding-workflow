@@ -13,6 +13,8 @@ import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,7 +75,7 @@ public interface OnboardingController {
   @GetMapping("/{initiativeId}")
   ResponseInitiativeOnboardingDTO onboardingStatusList(
       @PathVariable("initiativeId") String initiativeId,
-      @RequestParam(required = false) Pageable pageable,
+      @PageableDefault(size = 15,sort = "updateDate",direction= Sort.Direction.DESC) Pageable pageable,
       @RequestParam(required = false) String userId,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
