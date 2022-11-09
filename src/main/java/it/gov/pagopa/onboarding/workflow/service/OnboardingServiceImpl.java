@@ -87,6 +87,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboarding.setCreationDate(localDateTime);
       }
       onboardingRepository.save(onboarding);
+      utilities.logTC();
       return;
     }
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
