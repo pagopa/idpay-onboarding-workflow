@@ -6,12 +6,12 @@ import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
@@ -25,6 +25,7 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -59,6 +60,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Autowired
   GroupRestConnector groupRestConnector;
 
+  @Autowired
+  Utilities utilities;
 
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
@@ -118,6 +121,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setAutocertificationCheck(
           !initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty());
       onboardingRepository.save(onboarding);
+      utilities.logPDND();
     }
     return dto;
   }
@@ -344,6 +348,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
         setStatus(onboarding, evaluationDTO.getStatus(), evaluationDTO.getAdmissibilityCheckDate())
     );
+    utilities.logOnboardingOk();
   }
 
   @Override
