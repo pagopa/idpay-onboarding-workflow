@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Data
-public final class Utilities {
+public class Utilities {
   private static final String PRODUCT = "product=IDPAY|";
   private static final String EVENT = "event=Onboarding|";
 
