@@ -18,9 +18,23 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     this.mongoTemplate = mongoTemplate;
   }
 
+@Override
+  public List<Onboarding> findByFilter(Criteria criteria, Pageable pageable) {
+    return mongoTemplate.find(
+        Query.query(criteria)
+            .with(this.getPageable(pageable)),
+        Onboarding.class);
+  }
+
   @Override
-  public List<Onboarding> findByFilter(String initiativeId, String userId, String status,
-      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+  public long getCount(Criteria criteria){
+    Query query = new Query();
+    query.addCriteria(criteria);
+    return mongoTemplate.count(query, Onboarding.class);
+  }
+
+  public Criteria getCriteria(String initiativeId, String userId, String status,
+      LocalDateTime startDate, LocalDateTime endDate) {
     Criteria criteria = Criteria.where(Onboarding.Fields.initiativeId).is(initiativeId);
     if (userId != null) {
       criteria.and(Onboarding.Fields.userId).is(userId);
@@ -39,12 +53,10 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
       criteria.and(Onboarding.Fields.updateDate)
           .lte(endDate);
     }
-
-    return mongoTemplate.find(
-        Query.query(criteria)
-            .with(this.getPageable(pageable)),
-        Onboarding.class);
+    return criteria;
   }
+
+
 
   private Pageable getPageable(Pageable pageable) {
     if (pageable == null) {

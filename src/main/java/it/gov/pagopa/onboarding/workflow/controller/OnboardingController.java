@@ -6,12 +6,11 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
 import java.time.LocalDateTime;
-import java.util.List;
 import javax.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -72,7 +71,7 @@ public interface OnboardingController {
    * @return
    */
   @GetMapping("/{initiativeId}")
-  List<OnboardingStatusCitizenDTO> onboardingStatusList(
+  ResponseInitiativeOnboardingDTO onboardingStatusList(
       @PathVariable("initiativeId") String initiativeId,
       @RequestParam(required = false) Pageable pageable,
       @RequestParam(required = false) String userId,

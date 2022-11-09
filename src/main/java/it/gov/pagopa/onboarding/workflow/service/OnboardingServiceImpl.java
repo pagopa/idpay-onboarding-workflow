@@ -6,13 +6,14 @@ import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
@@ -33,7 +34,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -80,7 +86,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       LocalDateTime localDateTime = LocalDateTime.now();
       onboarding.setTcAcceptTimestamp(localDateTime);
       onboarding.setUpdateDate(localDateTime);
-      if(onboarding.getCreationDate()==null){
+      if (onboarding.getCreationDate() == null) {
         onboarding.setCreationDate(localDateTime);
       }
       onboardingRepository.save(onboarding);
@@ -93,10 +99,10 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date) {
     onboarding.setStatus(status);
-    if(status.equals(OnboardingWorkflowConstants.ONBOARDING_OK)){
+    if (status.equals(OnboardingWorkflowConstants.ONBOARDING_OK)) {
       onboarding.setOnboardingOkDate(date);
     }
-    if(status.equals(OnboardingWorkflowConstants.ON_EVALUATION)){
+    if (status.equals(OnboardingWorkflowConstants.ON_EVALUATION)) {
       onboarding.setCriteriaConsensusTimestamp(date);
     }
     onboarding.setUpdateDate(date);
@@ -134,7 +140,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
-      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION,LocalDateTime.now());
+      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now());
       outcomeProducer.sendOutcome(
           EvaluationDTO.builder()
               .initiativeId(onboarding.getInitiativeId())
@@ -163,9 +169,10 @@ public class OnboardingServiceImpl implements OnboardingService {
             .getRankingStartDate() : initiativeDTO.getGeneral()
             .getStartDate();
 
-    LocalDate endDate = (initiativeDTO.getGeneral().getRankingEndDate() != null) ? initiativeDTO.getGeneral()
-        .getRankingEndDate() : initiativeDTO.getGeneral()
-        .getEndDate();
+    LocalDate endDate =
+        (initiativeDTO.getGeneral().getRankingEndDate() != null) ? initiativeDTO.getGeneral()
+            .getRankingEndDate() : initiativeDTO.getGeneral()
+            .getEndDate();
 
     boolean dateCheckFail =
         requestDate.isBefore(startDate) || requestDate.isAfter(
@@ -224,18 +231,28 @@ public class OnboardingServiceImpl implements OnboardingService {
     return new OnboardingStatusDTO(onboarding.getStatus());
   }
 
-@Override
-  public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String initiativeId, String userId, LocalDateTime startDate, LocalDateTime endDate, String status, Pageable pageable) {
-   if(pageable!=null && pageable.getPageSize()>15){
-     throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(), "Max number for page allowed: 15");
-   }
-    List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS= new ArrayList<>();
-    List<Onboarding> onboardinglist = onboardingRepository.findByFilter(initiativeId,userId,status,startDate,endDate,pageable);
-  for(Onboarding o:onboardinglist){
-    OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(o.getUserId(),o.getStatus(),o.getUpdateDate().toString());
-    onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
-  }
-  return onboardingStatusCitizenDTOS;
+  @Override
+  public ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId,
+      String userId, LocalDateTime startDate, LocalDateTime endDate, String status,
+      Pageable pageable) {
+    if (pageable != null && pageable.getPageSize() > 15) {
+      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
+          "Max number for page allowed: 15");
+    }
+    List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS = new ArrayList<>();
+    Criteria criteria = onboardingRepository.getCriteria(initiativeId, userId, status, startDate,
+        endDate);
+    List<Onboarding> onboardinglist = onboardingRepository.findByFilter(criteria,pageable);
+    long count = onboardingRepository.getCount(criteria);
+    final Page<Onboarding> result = PageableExecutionUtils.getPage(onboardinglist, this.getPageable(pageable),
+        () -> count);
+    for (Onboarding o : onboardinglist) {
+      OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
+          o.getUserId(), o.getStatus(), o.getUpdateDate().toString());
+      onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
+    }
+    return new ResponseInitiativeOnboardingDTO(onboardingStatusCitizenDTOS, result.getNumber(),
+        result.getSize(), result.getNumberOfElements(), result.getTotalPages());
   }
 
   @Override
@@ -349,13 +366,16 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO) {
     log.info("consumer onboarding notification");
-    if(onboardingNotificationDTO.getOperationType().equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)){
+    if (onboardingNotificationDTO.getOperationType()
+        .equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)) {
       log.info("allowed citizen");
-      Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(onboardingNotificationDTO.getInitiativeId(),
-              onboardingNotificationDTO.getUserId()).orElse(null);
+      Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(
+          onboardingNotificationDTO.getInitiativeId(),
+          onboardingNotificationDTO.getUserId()).orElse(null);
       if (onboarding == null) {
         log.info("new onbording with status invited");
-        Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(), onboardingNotificationDTO.getUserId());
+        Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(),
+            onboardingNotificationDTO.getUserId());
         newOnboarding.setStatus(OnboardingWorkflowConstants.INVITED);
         LocalDateTime localDateTime = LocalDateTime.now();
         newOnboarding.setInvitationDate(localDateTime);
@@ -364,5 +384,11 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboardingRepository.save(newOnboarding);
       }
     }
+  }
+  private Pageable getPageable(Pageable pageable) {
+    if (pageable == null) {
+      return PageRequest.of(0, 15, Sort.by("lastUpdate"));
+    }
+    return pageable;
   }
 }
