@@ -8,7 +8,6 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
@@ -258,7 +257,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
     return new ResponseInitiativeOnboardingDTO(onboardingStatusCitizenDTOS, result.getNumber(),
-        result.getSize(), result.getNumberOfElements(), result.getTotalPages());
+        result.getSize(), (int)result.getTotalElements(), result.getTotalPages());
   }
 
   @Override
