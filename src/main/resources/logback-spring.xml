@@ -58,7 +58,7 @@
         </then>
     </if>
 
-    <logger name="AUDIT">
+    <logger name="AUDIT" additivity="false">
         <appender-ref ref="AUDIT"/>
     </logger>
 
