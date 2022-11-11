@@ -6,8 +6,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
@@ -50,6 +52,15 @@ class OnboardingControllerTest {
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+  private static final LocalDateTime START_DATE = LocalDateTime.now();
+  private static final LocalDateTime END_DATE = LocalDateTime.now();
+  private static final String STATUS = "STATUS";
+  private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO = new OnboardingStatusCitizenDTO(
+      USER_ID, STATUS, STATUS);
+  static List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOList = List.of(
+      ONBOARDING_STATUS_CITIZEN_DTO);
+  private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(
+      onboardingStatusCitizenDTOList, 15, 20, 100, 15);
 
   @Test
   void putTc_ok() throws Exception {
@@ -299,4 +310,27 @@ class OnboardingControllerTest {
         .andReturn();
   }
 
+  @Test
+  void onboarding_status_list_ok() throws Exception {
+    Mockito.when(
+        onboardingServiceMock.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
+            STATUS, null)).thenReturn(ONBOARDING_DTO);
+
+    mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  }
+  @Test
+  void onboarding_status_list_ko() throws Exception {
+    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
+        "Max number for page allowed: 15")).when(
+        onboardingServiceMock).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
+            STATUS, null);
+
+    mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  }
 }
