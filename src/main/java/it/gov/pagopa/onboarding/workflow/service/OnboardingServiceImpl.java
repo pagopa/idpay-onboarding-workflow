@@ -12,8 +12,8 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
@@ -93,7 +93,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboarding.setCreationDate(localDateTime);
       }
       onboardingRepository.save(onboarding);
-      utilities.logTC();
+      utilities.logTC(userId, initiativeId);
       return;
     }
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
@@ -128,7 +128,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setAutocertificationCheck(
           !initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty());
       onboardingRepository.save(onboarding);
-      utilities.logPDND();
+      utilities.logPDND(userId,initiativeId);
     }
     return dto;
   }
@@ -366,7 +366,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
         setStatus(onboarding, evaluationDTO.getStatus(), evaluationDTO.getAdmissibilityCheckDate())
     );
-    utilities.logOnboardingOk();
+    utilities.logOnboardingOk(evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
   }
 
   @Override
