@@ -81,24 +81,30 @@ public class OnboardingServiceImpl implements OnboardingService {
     getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
-    if (onboarding == null || onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
 
-      onboarding = new Onboarding(initiativeId, userId);
-      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-      onboarding.setTc(true);
-      LocalDateTime localDateTime = LocalDateTime.now();
-      onboarding.setTcAcceptTimestamp(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
-      if (onboarding.getCreationDate() == null) {
-        onboarding.setCreationDate(localDateTime);
+    if(onboarding != null && !onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)){
+
+      if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
+        throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
       }
-      onboardingRepository.save(onboarding);
-      utilities.logTC(userId, initiativeId);
+
+      log.info("[PUT_TC_CONSENT] User has already accepted T&C");
       return;
     }
-    if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
-      throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
+
+    LocalDateTime localDateTime = LocalDateTime.now();
+
+    if(onboarding == null){
+      onboarding = new Onboarding(initiativeId, userId);
+      onboarding.setCreationDate(localDateTime);
     }
+
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+    onboarding.setTcAcceptTimestamp(localDateTime);
+    onboarding.setUpdateDate(localDateTime);
+    onboardingRepository.save(onboarding);
+    utilities.logTC(userId, initiativeId);
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date) {

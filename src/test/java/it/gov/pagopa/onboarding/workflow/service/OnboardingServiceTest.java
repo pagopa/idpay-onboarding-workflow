@@ -129,6 +129,14 @@ class OnboardingServiceTest {
       .initiativeName(INITIATIVE_NAME)
       .build();
 
+  private static final OnboardingNotificationDTO ONBOARDING_NOTIFICATION_DTO_IBAN = OnboardingNotificationDTO.builder()
+      .initiativeId(INITIATIVE_ID)
+      .serviceId(SERVICE_ID)
+      .operationType("CHECKIBAN")
+      .userId(USER_ID)
+      .initiativeName(INITIATIVE_NAME)
+      .build();
+
   static {
     CITIZEN_STATUS_DTO.setStatus(true);
 
@@ -212,6 +220,33 @@ class OnboardingServiceTest {
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(
             Optional.empty());
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setTc(true);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+      return null;
+    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+
+    assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
+    assertEquals(USER_ID, onboarding.getUserId());
+    assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+    assertTrue(onboarding.getTc());
+  }
+
+  @Test
+  void putTc_ok_invited() {
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.INVITED);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
 
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO);
@@ -935,7 +970,7 @@ class OnboardingServiceTest {
 
   @Test
   void getOnboardingStatusList_ok_page_null() {
-    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setUpdateDate(LocalDateTime.now());
     List<Onboarding> onboardingList = List.of(onboarding);
@@ -999,6 +1034,17 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       fail();
     }
+  }
+
+  @Test
+  void allowedInitiative_ignore() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID,USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO_IBAN);
+
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any(Onboarding.class));
   }
   @Test
   void allowedInitiative_ok_null() {
