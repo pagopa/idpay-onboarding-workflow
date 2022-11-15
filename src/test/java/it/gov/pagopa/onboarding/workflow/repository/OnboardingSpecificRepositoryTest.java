@@ -1,6 +1,9 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.LocalDateTime;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -55,7 +59,6 @@ class OnboardingSpecificRepositoryTest {
   @Test
   void getCount(){
     Criteria criteria = new Criteria();
-
     onboardingSpecificRepository.getCount(criteria);
     Mockito.verify(mongoTemplate, Mockito.times(1)).count((Query) Mockito.any(),
         (Class<?>) Mockito.any());
@@ -63,12 +66,19 @@ class OnboardingSpecificRepositoryTest {
 
   @Test
   void getCriteria(){
-    Criteria criteria = new Criteria();
+    Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,USER_ID,STATUS,START_DATE,END_DATE);
+    assertEquals(4,criteria.getCriteriaObject().size());
+  }
 
+  @Test
+  void getCriteriaOnlyStartdate(){
+    Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,USER_ID,STATUS,START_DATE,null);
+    assertEquals(4,criteria.getCriteriaObject().size());
+  }
 
-    onboardingSpecificRepository.getCriteria(INITIATIVE_ID,USER_ID,STATUS,START_DATE,END_DATE);
-
-
-
+  @Test
+  void getCriteriaOnlyEndDate(){
+    Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,USER_ID,STATUS,null,END_DATE);
+    assertEquals(4,criteria.getCriteriaObject().size());
   }
 }
