@@ -81,4 +81,9 @@ class OnboardingSpecificRepositoryTest {
     Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,USER_ID,STATUS,null,END_DATE);
     assertEquals(4,criteria.getCriteriaObject().size());
   }
+  @Test
+  void getCriteriaOnlyInitiativeId(){
+    Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,null,null,null,null);
+    assertEquals(1,criteria.getCriteriaObject().size());
+  }
 }
