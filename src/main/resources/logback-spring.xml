@@ -9,8 +9,6 @@
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [${appName:-}] %-5level [%15.15t] [%-40.40logger{39}] - %msg%n"/>
     <property name="FILE_LOG_PATTERN"
               value="${CONSOLE_LOG_PATTERN}"/>
-    <property name="AUDIT_LOG_PATTERN"
-              value="%msg"/>
 
     <appender name="STDOUT"
               class="ch.qos.logback.core.ConsoleAppender">
@@ -20,28 +18,6 @@
         </encoder>
     </appender>
 
-    <appender name="AUDIT"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 'LOGS' here is a value to be read from the application's environment variable -->
-        <file>/tmp/blob/audit/${HOSTNAME}.log</file>
-        <!-- please feel free to customize the log layout pattern -->
-        <encoder
-                class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%m</Pattern>
-        </encoder>
-
-        <rollingPolicy
-                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rollover daily and when the file reaches 10 MegaBytes -->
-            <fileNamePattern>/tmp/blob/audit/archived/${HOSTNAME}-%d{yyyy-MM-dd}.%i.log
-            </fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-        </rollingPolicy>
-    </appender>
-
     <appender name="ASYNC_STDOUT"
               class="ch.qos.logback.classic.AsyncAppender">
         <neverBlock>true</neverBlock>
@@ -49,6 +25,44 @@
         <discardingThreshold>0</discardingThreshold>
         <appender-ref ref="STDOUT"/>
     </appender>
+
+    <if condition='"TRUE".equalsIgnoreCase("${ENABLE_AUDIT_APPENDER}")'>
+        <then>
+            <appender name="AUDIT"
+                      class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <!-- 'LOGS' here is a value to be read from the application's environment variable -->
+                <file>${AUDIT_LOG_PATH:-/tmp/blob/audit}/${HOSTNAME}.log</file>
+                <!-- please feel free to customize the log layout pattern -->
+                <encoder
+                        class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                    <Pattern>%m%n</Pattern>
+                </encoder>
+
+                <rollingPolicy
+                        class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <!-- rollover daily and when the file reaches 10 MegaBytes -->
+                    <fileNamePattern>${AUDIT_LOG_PATH:-/tmp/blob/audit}/archived/${HOSTNAME}-%d{yyyy-MM-dd}.%i.log
+                    </fileNamePattern>
+                    <timeBasedFileNamingAndTriggeringPolicy
+                            class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                        <maxFileSize>10MB</maxFileSize>
+                    </timeBasedFileNamingAndTriggeringPolicy>
+                </rollingPolicy>
+            </appender>
+
+            <appender name="AUDIT_ASYNC_FILE"
+                      class="ch.qos.logback.classic.AsyncAppender">
+                <neverBlock>true</neverBlock>
+                <queueSize>20000</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="AUDIT"/>
+            </appender>
+
+            <logger name="AUDIT" additivity="false">
+                <appender-ref ref="AUDIT_ASYNC_FILE"/>
+            </logger>
+        </then>
+    </if>
 
     <if condition='"TRUE".equalsIgnoreCase("${ENABLE_FILE_APPENDER}")'>
         <then>
@@ -64,15 +78,11 @@
                 <appender-ref ref="FILE"/>
             </appender>
 
-            <root level="INFO">
+            <root name="INFO">
                 <appender-ref ref="ASYNC_FILE"/>
             </root>
         </then>
     </if>
-
-    <logger name="AUDIT" additivity="false">
-        <appender-ref ref="AUDIT"/>
-    </logger>
 
     <root level="INFO">
         <appender-ref ref="ASYNC_STDOUT"/>
