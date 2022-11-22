@@ -128,7 +128,7 @@ class OnboardingServiceTest {
       .userId(USER_ID)
       .initiativeName(INITIATIVE_NAME)
       .build();
-
+  private static final AutomatedCriteriaDTO AUTOMATED_CRITERIA_DTO = new AutomatedCriteriaDTO();
   private static final OnboardingNotificationDTO ONBOARDING_NOTIFICATION_DTO_IBAN = OnboardingNotificationDTO.builder()
       .initiativeId(INITIATIVE_ID)
       .serviceId(SERVICE_ID)
@@ -138,6 +138,8 @@ class OnboardingServiceTest {
       .build();
 
   static {
+    AUTOMATED_CRITERIA_DTO.setCode("BIRTHDATE");
+
     CITIZEN_STATUS_DTO.setStatus(true);
 
     CITIZEN_STATUS_DTO_KO.setStatus(false);
@@ -170,7 +172,7 @@ class OnboardingServiceTest {
 
     INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
         List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
-    INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
+    INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(AUTOMATED_CRITERIA_DTO));
 
     INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(
         List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
@@ -178,7 +180,7 @@ class OnboardingServiceTest {
 
     INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setSelfDeclarationCriteria(List.of());
     INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setAutomatedCriteria(
-        List.of(new AutomatedCriteriaDTO()));
+        List.of(AUTOMATED_CRITERIA_DTO));
 
     INITIATIVE_DTO.setStatus("PUBLISHED");
     INITIATIVE_DTO.setGeneral(GENERAL);
