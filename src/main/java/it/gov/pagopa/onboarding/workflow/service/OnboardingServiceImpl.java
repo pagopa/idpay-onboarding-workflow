@@ -73,8 +73,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND, initiativeId,
-                userId)));
+            String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND, initiativeId)));
   }
 
   @Override

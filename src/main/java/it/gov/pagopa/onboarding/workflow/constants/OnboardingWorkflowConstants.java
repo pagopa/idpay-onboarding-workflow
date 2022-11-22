@@ -8,7 +8,7 @@ public final class OnboardingWorkflowConstants {
   public static final String INVITED = "INVITED";
   public static final String ONBOARDING_OK = "ONBOARDING_OK";
   public static final String ALLOWED_CITIZEN_PUBLISH = "ALLOWED_CITIZEN_PUBLISH";
-  public static final String ID_S_NOT_FOUND = "Onboarding with initiativeId %s and userId %s not found.";
+  public static final String ID_S_NOT_FOUND = "Onboarding with initiativeId %s and current userId not found.";
   public static final String ERROR_PREREQUISITES = "The initiative has not met the prerequisites.";
   public static final String ERROR_SELF_DECLARATION_SIZE = "The amount of self declaration lists mismatch the amount of flags";
   public static final String ERROR_SELF_DECLARATION_DENY = "The selfDeclarationList was denied by the user for the initiative %s.";

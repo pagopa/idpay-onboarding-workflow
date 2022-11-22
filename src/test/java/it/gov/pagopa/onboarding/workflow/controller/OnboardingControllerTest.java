@@ -242,8 +242,7 @@ class OnboardingControllerTest {
   void getOnboardingStatus_ko() throws Exception {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Onboarding with initiativeId %s and userId %s not found.", INITIATIVE_ID,
-                USER_ID)))
+            String.format("Onboarding with initiativeId %s and current userId not found.", INITIATIVE_ID)))
         .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
     mvc.perform(
