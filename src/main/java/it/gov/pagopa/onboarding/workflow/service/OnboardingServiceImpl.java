@@ -21,6 +21,7 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
@@ -82,7 +83,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
 
-    if(onboarding != null && !onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)){
+    if (onboarding != null && !onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
 
       if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
         throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
@@ -94,7 +95,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     LocalDateTime localDateTime = LocalDateTime.now();
 
-    if(onboarding == null){
+    if (onboarding == null) {
       onboarding = new Onboarding(initiativeId, userId);
       onboarding.setCreationDate(localDateTime);
     }
@@ -134,7 +135,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setAutocertificationCheck(
           !initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty());
       onboardingRepository.save(onboarding);
-      utilities.logPDND(userId,initiativeId);
+      utilities.logPDND(userId, initiativeId);
     }
     return dto;
   }
@@ -202,7 +203,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     List<PDNDCriteriaDTO> pdndCriteria = new ArrayList<>();
 
     initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().forEach(item ->
-        pdndCriteria.add(new PDNDCriteriaDTO(item.getCode(), item.getField(), item.getAuthority()))
+        pdndCriteria.add(new PDNDCriteriaDTO(item.getCode(),
+            AutomatedCriteria.valueOf(item.getCode()).getDescription(), item.getAuthority(),
+            item.getValue(), item.getOperator(), item.getValue2()))
     );
 
     onboarding.setSelfDeclarationList(
@@ -253,9 +256,10 @@ public class OnboardingServiceImpl implements OnboardingService {
     List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS = new ArrayList<>();
     Criteria criteria = onboardingRepository.getCriteria(initiativeId, userId, status, startDate,
         endDate);
-    List<Onboarding> onboardinglist = onboardingRepository.findByFilter(criteria,pageable);
+    List<Onboarding> onboardinglist = onboardingRepository.findByFilter(criteria, pageable);
     long count = onboardingRepository.getCount(criteria);
-    final Page<Onboarding> result = PageableExecutionUtils.getPage(onboardinglist, this.getPageable(pageable),
+    final Page<Onboarding> result = PageableExecutionUtils.getPage(onboardinglist,
+        this.getPageable(pageable),
         () -> count);
     for (Onboarding o : onboardinglist) {
       OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
@@ -263,7 +267,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
     return new ResponseInitiativeOnboardingDTO(onboardingStatusCitizenDTOS, result.getNumber(),
-        result.getSize(), (int)result.getTotalElements(), result.getTotalPages());
+        result.getSize(), (int) result.getTotalElements(), result.getTotalPages());
   }
 
   @Override
@@ -397,6 +401,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
     }
   }
+
   private Pageable getPageable(Pageable pageable) {
     if (pageable == null) {
       return PageRequest.of(0, 15, Sort.by("lastUpdate"));

@@ -17,5 +17,11 @@ public class PDNDCriteriaDTO {
 
   String authority = null;
 
+  String value = null;
+
+  String operator = null;
+
+  String value2 = null;
+
 }
 
