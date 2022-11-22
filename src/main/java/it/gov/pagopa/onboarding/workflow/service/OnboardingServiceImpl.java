@@ -153,23 +153,26 @@ public class OnboardingServiceImpl implements OnboardingService {
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now());
-      outcomeProducer.sendOutcome(
-          EvaluationDTO.builder()
-              .initiativeId(onboarding.getInitiativeId())
-              .initiativeName(initiativeDTO.getInitiativeName())
-              .initiativeEndDate(initiativeDTO.getGeneral().getEndDate().atStartOfDay())
-              .userId(onboarding.getUserId())
-              .organizationId(initiativeDTO.getOrganizationId())
-              .admissibilityCheckDate(LocalDateTime.now())
-              .status(OnboardingWorkflowConstants.ONBOARDING_OK)
-              .onboardingRejectionReasons(List.of())
-              .beneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget())
-              .serviceId(initiativeDTO.getAdditionalInfo().getServiceId())
-              .build());
+      outcomeProducer.sendOutcome(createEvaluationDto(onboarding.getInitiativeId(),
+          onboarding.getUserId(), initiativeDTO));
       return true;
     } catch (FeignException e) {
       throw new OnboardingWorkflowException(e.status(), e.contentUTF8());
     }
+  }
+
+  private EvaluationDTO createEvaluationDto(String initiativeId, String userId, InitiativeDTO initiativeDTO) {
+    EvaluationDTO dto = new EvaluationDTO();
+        dto.setInitiativeId(initiativeId);
+        dto.setInitiativeName(initiativeDTO.getInitiativeName());
+        dto.setInitiativeEndDate(initiativeDTO.getGeneral().getEndDate());
+        dto.setUserId(userId);
+        dto.setOrganizationId(initiativeDTO.getOrganizationId());
+        dto.setAdmissibilityCheckDate(LocalDateTime.now());
+        dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        dto.setOnboardingRejectionReasons(List.of());
+        dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
+        return dto;
   }
 
   private void checkDates(InitiativeDTO initiativeDTO) {

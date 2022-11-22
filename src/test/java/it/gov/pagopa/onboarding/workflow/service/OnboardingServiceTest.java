@@ -88,7 +88,7 @@ class OnboardingServiceTest {
 
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final LocalDateTime OPERATION_DATE = LocalDateTime.now();
+  private static final LocalDate OPERATION_DATE = LocalDate.now();
   private static final LocalDateTime START_DATE = LocalDateTime.now();
   private static final LocalDateTime END_DATE = LocalDateTime.now();
   private static final String STATUS = "STATUS";
@@ -98,7 +98,7 @@ class OnboardingServiceTest {
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, "ONBOARDING_OK",
-          OPERATION_DATE, List.of(), new BigDecimal(500), INITIATIVE_ID);
+          OPERATION_DATE.atStartOfDay(), List.of(), new BigDecimal(500));
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
