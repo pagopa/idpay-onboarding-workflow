@@ -45,14 +45,16 @@ public class Onboarding {
 
   private LocalDateTime criteriaConsensusTimestamp;
 
-  private LocalDateTime invitationTimestamp;
-
   private LocalDateTime requestDeactivationDate;
+
   private LocalDateTime invitationDate;
 
   private LocalDateTime onboardingOkDate;
 
+  private LocalDateTime onboardingKODate;
+
   private LocalDateTime updateDate;
+
   private LocalDateTime creationDate;
 
 }

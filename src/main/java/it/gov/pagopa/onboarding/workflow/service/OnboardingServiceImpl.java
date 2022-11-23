@@ -115,6 +115,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (status.equals(OnboardingWorkflowConstants.ON_EVALUATION)) {
       onboarding.setCriteriaConsensusTimestamp(date);
     }
+    if (status.equals(OnboardingWorkflowConstants.ONBOARDING_KO)) {
+      onboarding.setOnboardingKODate(date);
+    }
     onboarding.setUpdateDate(date);
     onboardingRepository.save(onboarding);
   }
@@ -147,7 +150,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       CitizenStatusDTO citizenStatus = groupRestConnector.getCitizenStatus(
           onboarding.getInitiativeId(), onboarding.getUserId());
       if (!citizenStatus.isStatus()) {
-        onboardingRepository.delete(onboarding);
+        this.setStatus(onboarding,OnboardingWorkflowConstants.ONBOARDING_KO, LocalDateTime.now());
         throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
