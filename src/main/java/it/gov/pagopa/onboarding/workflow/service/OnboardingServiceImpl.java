@@ -163,18 +163,19 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private EvaluationDTO createEvaluationDto(String initiativeId, String userId, InitiativeDTO initiativeDTO) {
+  private EvaluationDTO createEvaluationDto(String initiativeId, String userId,
+      InitiativeDTO initiativeDTO) {
     EvaluationDTO dto = new EvaluationDTO();
-        dto.setInitiativeId(initiativeId);
-        dto.setInitiativeName(initiativeDTO.getInitiativeName());
-        dto.setInitiativeEndDate(initiativeDTO.getGeneral().getEndDate());
-        dto.setUserId(userId);
-        dto.setOrganizationId(initiativeDTO.getOrganizationId());
-        dto.setAdmissibilityCheckDate(LocalDateTime.now());
-        dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
-        dto.setOnboardingRejectionReasons(List.of());
-        dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
-        return dto;
+    dto.setInitiativeId(initiativeId);
+    dto.setInitiativeName(initiativeDTO.getInitiativeName());
+    dto.setInitiativeEndDate(initiativeDTO.getGeneral().getEndDate());
+    dto.setUserId(userId);
+    dto.setOrganizationId(initiativeDTO.getOrganizationId());
+    dto.setAdmissibilityCheckDate(LocalDateTime.now());
+    dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    dto.setOnboardingRejectionReasons(List.of());
+    dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
+    return dto;
   }
 
   private void checkDates(InitiativeDTO initiativeDTO) {
@@ -225,8 +226,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (!onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-          String.format("Terms and Conditions have been not accepted by user %s for initiative %s.",
-              onboarding.getUserId(), onboarding.getInitiativeId()));
+          String.format(
+              "Terms and Conditions have been not accepted by the current user for initiative %s.",
+              onboarding.getInitiativeId()));
     }
   }
 
@@ -283,8 +285,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (Boolean.TRUE.equals(onboarding.getPdndCheck()) && !consentPutDTO.isPdndAccept()) {
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(
-              "The PDND consense was denied by the user %s for the initiative %s.",
-              userId, consentPutDTO.getInitiativeId()));
+              "The PDND consense was denied by the user for the initiative %s.",
+              consentPutDTO.getInitiativeId()));
     }
 
     selfDeclaration(onboarding, consentPutDTO);
