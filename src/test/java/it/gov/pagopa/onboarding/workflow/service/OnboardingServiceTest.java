@@ -1,6 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import static com.mongodb.assertions.Assertions.assertTrue;
+import static com.mongodb.assertions.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -13,6 +14,7 @@ import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
@@ -32,6 +34,7 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,6 +50,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -76,14 +83,22 @@ class OnboardingServiceTest {
   @MockBean
   GroupRestConnector groupRestConnector;
 
+  @MockBean
+  Utilities utilities;
+
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final LocalDateTime OPERATION_DATE = LocalDateTime.now();
+  private static final LocalDate OPERATION_DATE = LocalDate.now();
+  private static final LocalDateTime START_DATE = LocalDateTime.now();
+  private static final LocalDateTime END_DATE = LocalDateTime.now();
+  private static final String STATUS = "STATUS";
+  private static final String SERVICE_ID = "SERVICE_ID";
+  private static final String INITIATIVE_NAME = "INITIATIVE_NAME";
 
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, "ONBOARDING_OK",
-          OPERATION_DATE, List.of(), new BigDecimal(500), INITIATIVE_ID);
+          OPERATION_DATE.atStartOfDay(), List.of(), new BigDecimal(500));
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
@@ -106,8 +121,25 @@ class OnboardingServiceTest {
   private static final InitiativeAdditionalDTO ADDITIONAL_DTO_WHITELIST = new InitiativeAdditionalDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO = new CitizenStatusDTO();
   private static final CitizenStatusDTO CITIZEN_STATUS_DTO_KO = new CitizenStatusDTO();
+  private static final OnboardingNotificationDTO ONBOARDING_NOTIFICATION_DTO = OnboardingNotificationDTO.builder()
+      .initiativeId(INITIATIVE_ID)
+      .serviceId(SERVICE_ID)
+      .operationType(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)
+      .userId(USER_ID)
+      .initiativeName(INITIATIVE_NAME)
+      .build();
+  private static final AutomatedCriteriaDTO AUTOMATED_CRITERIA_DTO = new AutomatedCriteriaDTO();
+  private static final OnboardingNotificationDTO ONBOARDING_NOTIFICATION_DTO_IBAN = OnboardingNotificationDTO.builder()
+      .initiativeId(INITIATIVE_ID)
+      .serviceId(SERVICE_ID)
+      .operationType("CHECKIBAN")
+      .userId(USER_ID)
+      .initiativeName(INITIATIVE_NAME)
+      .build();
 
   static {
+    AUTOMATED_CRITERIA_DTO.setCode("BIRTHDATE");
+
     CITIZEN_STATUS_DTO.setStatus(true);
 
     CITIZEN_STATUS_DTO_KO.setStatus(false);
@@ -140,13 +172,15 @@ class OnboardingServiceTest {
 
     INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
         List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
-    INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
+    INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(AUTOMATED_CRITERIA_DTO));
 
-    INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
+    INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(
+        List.of(new SelfCriteriaBoolDTO(), new SelfCriteriaMultiDTO()));
     INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setAutomatedCriteria(List.of());
 
     INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setSelfDeclarationCriteria(List.of());
-    INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
+    INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setAutomatedCriteria(
+        List.of(AUTOMATED_CRITERIA_DTO));
 
     INITIATIVE_DTO.setStatus("PUBLISHED");
     INITIATIVE_DTO.setGeneral(GENERAL);
@@ -207,6 +241,33 @@ class OnboardingServiceTest {
   }
 
   @Test
+  void putTc_ok_invited() {
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.INVITED);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(
+            Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+        .thenReturn(INITIATIVE_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setTc(true);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+      return null;
+    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+
+    assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
+    assertEquals(USER_ID, onboarding.getUserId());
+    assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+    assertTrue(onboarding.getTc());
+  }
+
+  @Test
   void putTc_idemp() {
 
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -228,7 +289,6 @@ class OnboardingServiceTest {
     }
 
   }
-
 
   @Test
   void putTC_ko_initiative_closed() {
@@ -434,6 +494,7 @@ class OnboardingServiceTest {
     }
   }
 
+  @Test
   void checkPrerequisites_ko_ranking_start_date() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
@@ -881,4 +942,132 @@ class OnboardingServiceTest {
     Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any());
   }
 
+  @Test
+  void getOnboardingStatusList_ok() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setUpdateDate(LocalDateTime.now());
+    List<Onboarding> onboardingList = List.of(onboarding);
+    Criteria criteria = new Criteria();
+    Long count = 15L;
+    Pageable paging = PageRequest.of(0, 15, Sort.by("lastUpdate"));
+
+    Mockito.when(
+            onboardingRepositoryMock.getCriteria(INITIATIVE_ID, USER_ID, STATUS, START_DATE, END_DATE))
+        .thenReturn(criteria);
+
+    Mockito.when(onboardingRepositoryMock.findByFilter(criteria, paging))
+        .thenReturn(onboardingList);
+
+    Mockito.when(onboardingRepositoryMock.getCount(criteria)).thenReturn(count);
+
+    try {
+      onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
+          STATUS,
+          paging);
+    } catch (OnboardingWorkflowException e) {
+      fail();
+    }
+  }
+
+  @Test
+  void getOnboardingStatusList_ok_page_null() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setUpdateDate(LocalDateTime.now());
+    List<Onboarding> onboardingList = List.of(onboarding);
+    Criteria criteria = new Criteria();
+    Long count = 15L;
+
+    Mockito.when(
+            onboardingRepositoryMock.getCriteria(INITIATIVE_ID, USER_ID, STATUS, START_DATE, END_DATE))
+        .thenReturn(criteria);
+
+    Mockito.when(onboardingRepositoryMock.findByFilter(criteria, null))
+        .thenReturn(onboardingList);
+
+    Mockito.when(onboardingRepositoryMock.getCount(criteria)).thenReturn(count);
+
+    try {
+      onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
+          STATUS,
+          null);
+    } catch (OnboardingWorkflowException e) {
+      fail();
+    }
+  }
+
+  @Test
+  void getOnboardingStatusList_ko() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setUpdateDate(LocalDateTime.now());
+    List<Onboarding> onboardingList = List.of(onboarding);
+    Criteria criteria = new Criteria();
+    Long count = 15L;
+    Pageable paging = PageRequest.of(0, 20, Sort.by("lastUpdate"));
+
+    Mockito.when(
+            onboardingRepositoryMock.getCriteria(INITIATIVE_ID, USER_ID, STATUS, START_DATE, END_DATE))
+        .thenReturn(criteria);
+
+    Mockito.when(onboardingRepositoryMock.findByFilter(criteria, paging))
+        .thenReturn(onboardingList);
+
+    Mockito.when(onboardingRepositoryMock.getCount(criteria)).thenReturn(count);
+
+    try {
+      onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
+          STATUS, paging);
+      fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+    }
+  }
+
+  @Test
+  void allowedInitiative_ok() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID,USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    try {
+      onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO);
+    } catch (OnboardingWorkflowException e) {
+      fail();
+    }
+  }
+
+  @Test
+  void allowedInitiative_ignore() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID,USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.of(onboarding));
+
+    onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO_IBAN);
+
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any(Onboarding.class));
+  }
+  @Test
+  void allowedInitiative_ok_null() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID,USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+        .thenReturn(Optional.empty());
+
+    Mockito.doAnswer(
+        invocationOnMock -> {
+          onboarding.setStatus(Mockito.anyString());
+          onboarding.setInvitationDate(LocalDateTime.now());
+          onboarding.setUpdateDate(LocalDateTime.now());
+          onboarding.setCreationDate(LocalDateTime.now());
+          return null;
+        }
+    ).when(onboardingRepositoryMock).save(onboarding);
+
+    try {
+      onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO);
+    } catch (OnboardingWorkflowException e) {
+      fail();
+    }
+  }
 }

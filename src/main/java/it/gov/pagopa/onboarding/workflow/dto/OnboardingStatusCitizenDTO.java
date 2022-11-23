@@ -9,19 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PDNDCriteriaDTO {
+public class OnboardingStatusCitizenDTO {
 
-  String code = null;
-
-  String description = null;
-
-  String authority = null;
-
-  String value = null;
-
-  String operator = null;
-
-  String value2 = null;
+  private String userId;
+  private String status;
+  private String statusDate;
 
 }
 
