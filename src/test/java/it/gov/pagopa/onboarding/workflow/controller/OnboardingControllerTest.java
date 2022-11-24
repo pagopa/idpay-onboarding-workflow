@@ -118,8 +118,9 @@ class OnboardingControllerTest {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Terms and Conditions have been not accepted by user %s for initiative %s.",
-                USER_ID, INITIATIVE_ID))).when(onboardingServiceMock)
+            String.format(
+                "Terms and Conditions have been not accepted by the current user for initiative %s.",
+                INITIATIVE_ID))).when(onboardingServiceMock)
         .checkPrerequisites(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
@@ -242,7 +243,8 @@ class OnboardingControllerTest {
   void getOnboardingStatus_ko() throws Exception {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Onboarding with initiativeId %s and current userId not found.", INITIATIVE_ID)))
+            String.format("Onboarding with initiativeId %s and current userId not found.",
+                INITIATIVE_ID)))
         .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
     mvc.perform(
@@ -320,12 +322,13 @@ class OnboardingControllerTest {
             .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
   }
+
   @Test
   void onboarding_status_list_ko() throws Exception {
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
         "Max number for page allowed: 15")).when(
         onboardingServiceMock).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
-            STATUS, null);
+        STATUS, null);
 
     mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
