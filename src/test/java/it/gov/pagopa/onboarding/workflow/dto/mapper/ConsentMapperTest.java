@@ -25,15 +25,8 @@ class ConsentMapperTest {
 
   private static final String USER_ID_OK = "USER_ID";
   private static final String INITIATIVE_ID_OK = "INITIATIVE_ID";
-  private static final Map<String, Boolean> SELF_BOOL = new HashMap<>();
-  private static final Map<String, String> SELF_MULTI = new HashMap<>();
   @Autowired
   ConsentMapper consentMapper;
-
-  static {
-    SELF_BOOL.put("1", true);
-    SELF_MULTI.put("2", "Value");
-  }
 
   @Test
   void map_ok() {
@@ -55,8 +48,6 @@ class ConsentMapperTest {
     assertEquals(onboarding.getTc(), onboardingDTO.getTc());
     assertEquals(onboarding.getTcAcceptTimestamp(), onboardingDTO.getTcAcceptTimestamp());
     assertEquals(onboarding.getPdndAccept(), onboardingDTO.getPdndAccept());
-    assertEquals(SELF_BOOL, onboardingDTO.getSelfDeclarationBool());
-    assertEquals(SELF_MULTI, onboardingDTO.getSelfDeclarationMulti());
     assertEquals(onboarding.getCriteriaConsensusTimestamp(),
         onboardingDTO.getCriteriaConsensusTimestamp());
 
