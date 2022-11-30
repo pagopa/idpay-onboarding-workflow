@@ -77,7 +77,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void putTcConsent(String initiativeId, String channel, String userId) {
+  public void putTcConsent(String initiativeId, String userId) {
     getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
@@ -89,7 +89,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
-      utilities.logTCIdemp(userId, initiativeId, channel);
+      utilities.logTCIdemp(userId, initiativeId);
       return;
     }
 
@@ -104,9 +104,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setTc(true);
     onboarding.setTcAcceptTimestamp(localDateTime);
     onboarding.setUpdateDate(localDateTime);
-    onboarding.setChannel(channel);
     onboardingRepository.save(onboarding);
-    utilities.logTC(userId, initiativeId, channel);
+    utilities.logTC(userId, initiativeId);
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date) {
@@ -127,22 +126,23 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId) {
+  public RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId, String channel) {
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     checkTCStatus(onboarding);
-
     checkDates(initiativeDTO);
+
     RequiredCriteriaDTO dto = null;
+    onboarding.setChannel(channel);
 
     if (!checkWhitelist(onboarding, initiativeDTO)) {
       dto = getCriteriaLists(onboarding, initiativeDTO);
       onboarding.setPdndCheck(!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty());
       onboarding.setAutocertificationCheck(
           !initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty());
-      onboardingRepository.save(onboarding);
-      utilities.logPDND(userId, initiativeId, onboarding.getChannel());
     }
+    onboardingRepository.save(onboarding);
+    utilities.logPDND(userId, initiativeId, onboarding.getChannel());
     return dto;
   }
 

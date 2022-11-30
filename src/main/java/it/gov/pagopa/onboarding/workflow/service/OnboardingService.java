@@ -13,9 +13,9 @@ public interface OnboardingService {
 
   OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId);
 
-  void putTcConsent(String initiativeId, String channel, String userId);
+  void putTcConsent(String initiativeId, String userId);
 
-  RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId);
+  RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId, String channel);
 
   void saveConsent(ConsentPutDTO consentPutDTO, String userId);
 

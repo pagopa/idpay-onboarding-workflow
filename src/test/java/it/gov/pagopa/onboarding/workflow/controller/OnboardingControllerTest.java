@@ -68,11 +68,10 @@ class OnboardingControllerTest {
   void putTc_ok() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Mockito.doNothing().when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, CHANNEL, USER_ID);
+    Mockito.doNothing().when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
-    body.put("channel", CHANNEL);
 
     mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -88,11 +87,10 @@ class OnboardingControllerTest {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
             String.format("The initiative with id %s does not exist.", INITIATIVE_ID)))
-        .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID,CHANNEL, USER_ID);
+        .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
-    body.put("channel", CHANNEL);
 
     mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -122,10 +120,11 @@ class OnboardingControllerTest {
             String.format(
                 "Terms and Conditions have been not accepted by the current user for initiative %s.",
                 INITIATIVE_ID))).when(onboardingServiceMock)
-        .checkPrerequisites(INITIATIVE_ID, USER_ID);
+        .checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
+    body.put("channel", CHANNEL);
 
     mvc.perform(
             MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
@@ -141,6 +140,7 @@ class OnboardingControllerTest {
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", "");
+    body.put("channel", CHANNEL);
 
     mvc.perform(
             MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
@@ -156,11 +156,12 @@ class OnboardingControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Mockito.when(onboardingServiceMock.checkPrerequisites(INITIATIVE_ID, USER_ID))
+    Mockito.when(onboardingServiceMock.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL))
         .thenReturn(new RequiredCriteriaDTO(new ArrayList<>(), new ArrayList<>()));
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
+    body.put("channel", CHANNEL);
 
     // when
     MvcResult result = mvc.perform(
@@ -185,10 +186,11 @@ class OnboardingControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Mockito.when(onboardingServiceMock.checkPrerequisites(INITIATIVE_ID, USER_ID)).thenReturn(null);
+    Mockito.when(onboardingServiceMock.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL)).thenReturn(null);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
+    body.put("channel", CHANNEL);
 
     // when
     mvc.perform(
@@ -207,10 +209,11 @@ class OnboardingControllerTest {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             String.format("The initiative with id %s has not met the prerequisites.", INITIATIVE_ID)))
-        .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID, USER_ID);
+        .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
+    body.put("channel", CHANNEL);
 
     // when
     mvc.perform(

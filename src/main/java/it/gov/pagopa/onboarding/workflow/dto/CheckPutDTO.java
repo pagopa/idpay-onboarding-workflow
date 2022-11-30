@@ -15,4 +15,7 @@ public class CheckPutDTO {
   @NotBlank(message="The field is mandatory!")
   String initiativeId;
 
+  @NotBlank (message="The field is mandatory!")
+  String channel;
+
 }

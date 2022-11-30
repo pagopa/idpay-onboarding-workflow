@@ -15,8 +15,6 @@ public class OnboardingPutDTO {
   @NotBlank (message="The field is mandatory!")
   String initiativeId;
 
-  @NotBlank (message="The field is mandatory!")
-  String channel;
 
 }
 

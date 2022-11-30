@@ -65,14 +65,14 @@ class UtilitiesTest {
 
   @Test
   void logTC_ok(){
-    utilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
+    utilities.logTC(USER_ID,INITIATIVE_ID);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logTC_ko() {
     Mockito.doThrow(new OnboardingWorkflowException(400,"")).when(inetAddress).getHostAddress();
-    utilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
+    utilities.logTC(USER_ID,INITIATIVE_ID);
   }
 
   @Test

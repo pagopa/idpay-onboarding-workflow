@@ -27,7 +27,8 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
       @Valid @RequestBody CheckPutDTO body,
       @PathVariable("userId") String userId) {
-    RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId);
+    RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId,
+        body.getChannel());
     if (dto == null) {
       return ResponseEntity.accepted().build();
     }
@@ -37,7 +38,7 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<Void> onboardingCitizen(
       @Valid @RequestBody OnboardingPutDTO onBoardingPutDTO,
       @PathVariable("userId") String userId) {
-    onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(),onBoardingPutDTO.getChannel(), userId);
+    onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(),userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
