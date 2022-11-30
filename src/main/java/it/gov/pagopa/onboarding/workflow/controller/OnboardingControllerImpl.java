@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import it.gov.pagopa.onboarding.workflow.dto.CheckPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
@@ -24,7 +25,7 @@ public class OnboardingControllerImpl implements OnboardingController {
   OnboardingService onboardingService;
 
   public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
-      @Valid @RequestBody OnboardingPutDTO body,
+      @Valid @RequestBody CheckPutDTO body,
       @PathVariable("userId") String userId) {
     RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId);
     if (dto == null) {
@@ -36,7 +37,7 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<Void> onboardingCitizen(
       @Valid @RequestBody OnboardingPutDTO onBoardingPutDTO,
       @PathVariable("userId") String userId) {
-    onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(), userId);
+    onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(),onBoardingPutDTO.getChannel(), userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 

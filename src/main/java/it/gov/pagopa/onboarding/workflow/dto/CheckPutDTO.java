@@ -10,13 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnboardingPutDTO {
+public class CheckPutDTO {
 
-  @NotBlank (message="The field is mandatory!")
+  @NotBlank(message="The field is mandatory!")
   String initiativeId;
 
-  @NotBlank (message="The field is mandatory!")
-  String channel;
-
 }
-

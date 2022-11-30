@@ -26,26 +26,43 @@ public class Utilities {
   private static final String MSG = " msg=";
   private static final String USER = "suser=";
   private static final String CS1 = "cs1Label=iniziativeId cs1=";
+  private static final String CS2 = "cs2Label=channel cs2=";
   final Logger logger = Logger.getLogger("AUDIT");
 
 
-  private String buildLog(String eventLog, String userId, String initiativeId) {
-    return CEF + MSG + eventLog + " " + USER + userId + " " + CS1 + initiativeId;
+  private String buildLog(String eventLog, String userId, String initiativeId, String channel) {
+    return CEF + MSG + eventLog + " " + USER + userId + " " + CS1 + initiativeId + " " + CS2 + channel;
   }
 
-  public void logTC(String userId, String initiativeId) {
+  public void logTC(String userId, String initiativeId, String channel) {
     String testLog = this.buildLog("Terms and conditions accepted by the citizen ", userId,
-        initiativeId);
+        initiativeId,channel);
     logger.info(testLog);
   }
 
-  public void logPDND(String userId, String initiativeId) {
-    String testLog = this.buildLog("Prerequisites required passed ", userId, initiativeId);
+  public void logTCIdemp(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Terms and conditions already accepted by the citizen ", userId,
+        initiativeId, channel);
     logger.info(testLog);
   }
 
-  public void logOnboardingOk(String userId, String initiativeId) {
-    String testLog = this.buildLog("Onboarding of the citizen complete", userId, initiativeId);
+  public void logPDND(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Prerequisites required passed ", userId, initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logOnboardingComplete(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Onboarding of the citizen complete", userId, initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logRollback(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Onboarding rollback complete", userId, initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logDeactivate(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Onboarding disabled", userId, initiativeId, channel);
     logger.info(testLog);
   }
 

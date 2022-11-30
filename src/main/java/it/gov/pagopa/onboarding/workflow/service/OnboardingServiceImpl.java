@@ -77,7 +77,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void putTcConsent(String initiativeId, String userId) {
+  public void putTcConsent(String initiativeId, String channel, String userId) {
     getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
@@ -89,6 +89,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
+      utilities.logTCIdemp(userId, initiativeId, channel);
       return;
     }
 
@@ -103,8 +104,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setTc(true);
     onboarding.setTcAcceptTimestamp(localDateTime);
     onboarding.setUpdateDate(localDateTime);
+    onboarding.setChannel(channel);
     onboardingRepository.save(onboarding);
-    utilities.logTC(userId, initiativeId);
+    utilities.logTC(userId, initiativeId, channel);
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date) {
@@ -120,6 +122,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     onboarding.setUpdateDate(date);
     onboardingRepository.save(onboarding);
+    utilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel());
+
   }
 
   @Override
@@ -137,7 +141,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setAutocertificationCheck(
           !initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty());
       onboardingRepository.save(onboarding);
-      utilities.logPDND(userId, initiativeId);
+      utilities.logPDND(userId, initiativeId, onboarding.getChannel());
     }
     return dto;
   }
@@ -359,6 +363,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setUpdateDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
     log.info("Onboarding disabled, date: {}", deactivationDate);
+    utilities.logDeactivate(userId,initiativeId,onboarding.getChannel());
   }
 
   @Override
@@ -373,17 +378,17 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setUpdateDate(onboarding.getOnboardingOkDate());
       onboardingRepository.save(onboarding);
       log.info("Onboarding after rollback: {}", onboarding);
+      utilities.logRollback(userId,initiativeId,onboarding.getChannel());
     }
 
   }
 
   @Override
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
-    onboardingRepository.findByInitiativeIdAndUserId(
-        evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()).ifPresent(onboarding ->
+    onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId())
+        .ifPresent(onboarding ->
         setStatus(onboarding, evaluationDTO.getStatus(), evaluationDTO.getAdmissibilityCheckDate())
     );
-    utilities.logOnboardingOk(evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
   }
 
   @Override

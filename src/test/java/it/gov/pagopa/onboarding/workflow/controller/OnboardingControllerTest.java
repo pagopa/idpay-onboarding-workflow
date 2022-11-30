@@ -55,6 +55,8 @@ class OnboardingControllerTest {
   private static final LocalDateTime START_DATE = LocalDateTime.now();
   private static final LocalDateTime END_DATE = LocalDateTime.now();
   private static final String STATUS = "STATUS";
+  private static final String CHANNEL = "CHANNEL";
+
   private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO = new OnboardingStatusCitizenDTO(
       USER_ID, STATUS, STATUS);
   static List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOList = List.of(
@@ -66,10 +68,11 @@ class OnboardingControllerTest {
   void putTc_ok() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Mockito.doNothing().when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
+    Mockito.doNothing().when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, CHANNEL, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
+    body.put("channel", CHANNEL);
 
     mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -85,12 +88,13 @@ class OnboardingControllerTest {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
             String.format("The initiative with id %s does not exist.", INITIATIVE_ID)))
-        .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
+        .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID,CHANNEL, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
+    body.put("channel", CHANNEL);
 
-    MvcResult result = mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
+    mvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/" + USER_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -112,10 +116,7 @@ class OnboardingControllerTest {
 
   @Test
   void checkPrerequisitesTest_noTCAccepted() throws Exception {
-
     ObjectMapper objectMapper = new ObjectMapper();
-
-    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
             String.format(

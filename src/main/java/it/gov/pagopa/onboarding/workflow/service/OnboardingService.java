@@ -13,7 +13,7 @@ public interface OnboardingService {
 
   OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId);
 
-  void putTcConsent(String initiativeId, String userId);
+  void putTcConsent(String initiativeId, String channel, String userId);
 
   RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId);
 

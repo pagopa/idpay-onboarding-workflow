@@ -94,6 +94,7 @@ class OnboardingServiceTest {
   private static final String STATUS = "STATUS";
   private static final String SERVICE_ID = "SERVICE_ID";
   private static final String INITIATIVE_NAME = "INITIATIVE_NAME";
+  private static final String CHANNEL = "CHANNEL";
 
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
@@ -229,10 +230,11 @@ class OnboardingServiceTest {
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setTc(true);
       onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setChannel(CHANNEL);
       onboarding.setTcAcceptTimestamp(LocalDateTime.now());
       return null;
     }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
-    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    onboardingService.putTcConsent(onboarding.getInitiativeId(),CHANNEL, onboarding.getUserId());
 
     assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
     assertEquals(USER_ID, onboarding.getUserId());
@@ -256,10 +258,11 @@ class OnboardingServiceTest {
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setTc(true);
       onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setChannel(CHANNEL);
       onboarding.setTcAcceptTimestamp(LocalDateTime.now());
       return null;
     }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
-    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    onboardingService.putTcConsent(onboarding.getInitiativeId(),CHANNEL, onboarding.getUserId());
 
     assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
     assertEquals(USER_ID, onboarding.getUserId());
@@ -273,6 +276,7 @@ class OnboardingServiceTest {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setTc(true);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setChannel(CHANNEL);
     onboarding.setTcAcceptTimestamp(LocalDateTime.now());
 
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
@@ -283,7 +287,7 @@ class OnboardingServiceTest {
         .thenReturn(INITIATIVE_DTO);
 
     try {
-      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
+      onboardingService.putTcConsent(INITIATIVE_ID, CHANNEL, USER_ID);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
@@ -298,7 +302,7 @@ class OnboardingServiceTest {
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_KO);
     try {
-      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
+      onboardingService.putTcConsent(INITIATIVE_ID, CHANNEL, USER_ID);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
     }
@@ -315,7 +319,7 @@ class OnboardingServiceTest {
     Mockito.doThrow(new FeignException.NotFound("", request, new byte[0], null))
         .when(initiativeRestConnector).getInitiativeBeneficiaryView(INITIATIVE_ID);
     try {
-      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
+      onboardingService.putTcConsent(INITIATIVE_ID, CHANNEL, USER_ID);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
@@ -331,7 +335,7 @@ class OnboardingServiceTest {
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO);
     try {
-      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+      onboardingService.putTcConsent(onboarding.getInitiativeId(),CHANNEL, onboarding.getUserId());
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
     }
