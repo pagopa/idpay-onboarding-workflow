@@ -24,12 +24,12 @@ public class Onboarding {
 
   @Id
   private String id;
-
   private String userId;
-
   private String initiativeId;
 
   private String status;
+
+  private String channel;
 
   private Boolean pdndCheck;
 

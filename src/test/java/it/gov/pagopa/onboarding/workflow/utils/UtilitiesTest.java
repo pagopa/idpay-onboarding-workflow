@@ -40,21 +40,16 @@ class UtilitiesTest {
 
   private static final String CEF = String.format("CEF:0 srcip=%s ", SRCIP);
   private static final String MSG = " TEST_MSG";
-  private static final String USER = "TEST_SUSER";
-  private static final String CS1 = "TEST_CS1";
-
-  @MockBean
-  Logger logger;
+  private static final String CHANNEL = "CHANNEL";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
 
+  @MockBean
+  Logger logger;
   @Autowired
   Utilities utilities;
-
-
   @MockBean
   InetAddress inetAddress;
-
   MemoryAppender memoryAppender;
 
   @BeforeEach
@@ -70,35 +65,41 @@ class UtilitiesTest {
 
   @Test
   void logTC_ok(){
-
     utilities.logTC(USER_ID,INITIATIVE_ID);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
-
   }
 
   @Test
   void logTC_ko() {
     Mockito.doThrow(new OnboardingWorkflowException(400,"")).when(inetAddress).getHostAddress();
-
     utilities.logTC(USER_ID,INITIATIVE_ID);
-
   }
 
   @Test
   void logPDND_ok(){
-
-    utilities.logPDND(USER_ID,INITIATIVE_ID);
+    utilities.logPDND(USER_ID,INITIATIVE_ID, CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
-
   }
 
   @Test
   void logOnboardingOk_ok(){
-
-    utilities.logOnboardingOk(USER_ID,INITIATIVE_ID);
+    utilities.logOnboardingComplete(USER_ID,INITIATIVE_ID,CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
-
   }
+
+  @Test
+  void logRollback_ok(){
+    utilities.logRollback(USER_ID,INITIATIVE_ID,CHANNEL);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  }
+
+  @Test
+  void logDeactivate_ok(){
+    utilities.logDeactivate(USER_ID,INITIATIVE_ID,CHANNEL);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  }
+
+
   public static class MemoryAppender extends ListAppender<ILoggingEvent> {
     public void reset() {
       this.list.clear();

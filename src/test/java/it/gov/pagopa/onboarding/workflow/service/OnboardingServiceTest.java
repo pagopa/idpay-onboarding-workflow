@@ -94,6 +94,7 @@ class OnboardingServiceTest {
   private static final String STATUS = "STATUS";
   private static final String SERVICE_ID = "SERVICE_ID";
   private static final String INITIATIVE_NAME = "INITIATIVE_NAME";
+  private static final String CHANNEL = "CHANNEL";
 
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
@@ -232,7 +233,7 @@ class OnboardingServiceTest {
       onboarding.setTcAcceptTimestamp(LocalDateTime.now());
       return null;
     }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
-    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    onboardingService.putTcConsent(onboarding.getInitiativeId(),onboarding.getUserId());
 
     assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
     assertEquals(USER_ID, onboarding.getUserId());
@@ -259,7 +260,7 @@ class OnboardingServiceTest {
       onboarding.setTcAcceptTimestamp(LocalDateTime.now());
       return null;
     }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
-    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    onboardingService.putTcConsent(onboarding.getInitiativeId(),onboarding.getUserId());
 
     assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
     assertEquals(USER_ID, onboarding.getUserId());
@@ -379,8 +380,13 @@ class OnboardingServiceTest {
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO);
 
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+
     try {
-      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
@@ -399,7 +405,7 @@ class OnboardingServiceTest {
         .thenReturn(INITIATIVE_DTO_NO_PDND);
 
     try {
-      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
@@ -418,7 +424,7 @@ class OnboardingServiceTest {
         .thenReturn(INITIATIVE_DTO_NO_SELF);
 
     try {
-      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      RequiredCriteriaDTO actual = onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
@@ -439,13 +445,16 @@ class OnboardingServiceTest {
     Mockito.when(groupRestConnector.getCitizenStatus(INITIATIVE_ID, USER_ID))
         .thenReturn(CITIZEN_STATUS_DTO);
 
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
-
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).save(Mockito.any());
 
   }
 
@@ -465,7 +474,7 @@ class OnboardingServiceTest {
         .thenReturn(CITIZEN_STATUS_DTO_KO);
 
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
       Assertions.fail();
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
@@ -487,7 +496,7 @@ class OnboardingServiceTest {
         .thenReturn(INITIATIVE_DTO_KO_START_DATE);
 
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
@@ -507,7 +516,7 @@ class OnboardingServiceTest {
         .thenReturn(INITIATIVE_DTO_KO_RANKING_START_DATE);
 
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
@@ -527,7 +536,7 @@ class OnboardingServiceTest {
         .thenReturn(INITIATIVE_DTO_KO_END_DATE);
 
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
@@ -547,7 +556,7 @@ class OnboardingServiceTest {
         .thenReturn(INITIATIVE_DTO_KO_RANKING_END_DATE);
 
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_PREREQUISITES, e.getMessage());
@@ -564,7 +573,7 @@ class OnboardingServiceTest {
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO);
     try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID);
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
@@ -579,7 +588,7 @@ class OnboardingServiceTest {
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_KO);
     try {
-      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId());
+      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(),CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
     }
@@ -597,7 +606,7 @@ class OnboardingServiceTest {
     Mockito.doThrow(new FeignException.NotFound("", request, new byte[0], null))
         .when(initiativeRestConnector).getInitiativeBeneficiaryView(INITIATIVE_ID);
     try {
-      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId());
+      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(),CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
@@ -618,7 +627,7 @@ class OnboardingServiceTest {
     Mockito.doThrow(new FeignException.NotFound("", request, new byte[0], null))
         .when(groupRestConnector).getCitizenStatus(INITIATIVE_ID, USER_ID);
     try {
-      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId());
+      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(),CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
     }
