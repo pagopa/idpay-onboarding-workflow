@@ -26,8 +26,13 @@ public class Utilities {
   private static final String MSG = " msg=";
   private static final String USER = "suser=";
   private static final String CS1 = "cs1Label=iniziativeId cs1=";
+  private static final String CS2 = "cs2Label=channel cs2=";
   final Logger logger = Logger.getLogger("AUDIT");
 
+
+  private String buildLogWithChannel(String eventLog, String userId, String initiativeId, String channel) {
+    return CEF + MSG + eventLog + " " + USER + userId + " " + CS1 + initiativeId + " " + CS2 + channel;
+  }
 
   private String buildLog(String eventLog, String userId, String initiativeId) {
     return CEF + MSG + eventLog + " " + USER + userId + " " + CS1 + initiativeId;
@@ -39,13 +44,29 @@ public class Utilities {
     logger.info(testLog);
   }
 
-  public void logPDND(String userId, String initiativeId) {
-    String testLog = this.buildLog("Prerequisites required passed ", userId, initiativeId);
+  public void logTCIdemp(String userId, String initiativeId) {
+    String testLog = this.buildLog("Terms and conditions already accepted by the citizen ", userId,
+        initiativeId);
     logger.info(testLog);
   }
 
-  public void logOnboardingOk(String userId, String initiativeId) {
-    String testLog = this.buildLog("Onboarding of the citizen complete", userId, initiativeId);
+  public void logPDND(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLogWithChannel("Prerequisites required passed ", userId, initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logOnboardingComplete(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLogWithChannel("Onboarding of the citizen complete", userId, initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logRollback(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLogWithChannel("Onboarding rollback complete", userId, initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logDeactivate(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLogWithChannel("Onboarding disabled", userId, initiativeId, channel);
     logger.info(testLog);
   }
 

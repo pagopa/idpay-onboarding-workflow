@@ -35,6 +35,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
 
   public Criteria getCriteria(String initiativeId, String userId, String status,
       LocalDateTime startDate, LocalDateTime endDate) {
+
     Criteria criteria = Criteria.where(Onboarding.Fields.initiativeId).is(initiativeId);
     if (userId != null) {
       criteria.and(Onboarding.Fields.userId).is(userId);
@@ -43,15 +44,19 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
       criteria.and(Onboarding.Fields.status).is(status);
     }
     if (startDate != null && endDate != null) {
+      LocalDateTime newStartDate = startDate.plusDays(1);
+      LocalDateTime newEndDate = endDate.plusDays(-1);
       criteria.and(Onboarding.Fields.updateDate)
-          .gte(startDate)
-          .lte(endDate);
+          .gte(newStartDate)
+          .lte(newEndDate);
     } else if (startDate != null) {
+      LocalDateTime newStartDate = startDate.plusDays(1);
       criteria.and(Onboarding.Fields.updateDate)
-          .gte(startDate);
+          .gte(newStartDate);
     } else if (endDate != null) {
+      LocalDateTime newEndDate = endDate.plusDays(-1);
       criteria.and(Onboarding.Fields.updateDate)
-          .lte(endDate);
+          .lte(newEndDate);
     }
     return criteria;
   }
