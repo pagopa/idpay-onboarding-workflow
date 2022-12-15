@@ -325,7 +325,7 @@ class OnboardingServiceTest {
   @Test
   void putTC_ko_unsubscribed() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(
             Optional.of(onboarding));
@@ -566,7 +566,7 @@ class OnboardingServiceTest {
   @Test
   void checkPrerequisites_ko_no_tc() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(
             Optional.of(onboarding));
@@ -900,13 +900,13 @@ class OnboardingServiceTest {
     Mockito.doAnswer(
             invocationOnMock -> {
               onboarding.setRequestDeactivationDate(LocalDateTime.now());
-              onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+              onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
               return null;
             })
         .when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
     onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
     assertNotNull(onboarding.getRequestDeactivationDate());
-    assertEquals(OnboardingWorkflowConstants.STATUS_INACTIVE, onboarding.getStatus());
+    assertEquals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED, onboarding.getStatus());
   }
 
   @Test
@@ -925,7 +925,7 @@ class OnboardingServiceTest {
   @Test
   void rollback() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(Optional.of(onboarding));
     onboardingService.rollback(INITIATIVE_ID, USER_ID);

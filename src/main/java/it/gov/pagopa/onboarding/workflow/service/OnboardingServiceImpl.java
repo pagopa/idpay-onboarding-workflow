@@ -84,7 +84,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (onboarding != null && !onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
 
-      if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
+      if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
         throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
       }
 
@@ -358,7 +358,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate) {
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
 
-    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_INACTIVE);
+    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
     onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
     onboarding.setUpdateDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
@@ -371,7 +371,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
     if (onboarding != null && onboarding.getStatus()
-        .equals(OnboardingWorkflowConstants.STATUS_INACTIVE)) {
+        .equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
       log.info("Onboarding before rollback: {}", onboarding);
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
       onboarding.setRequestDeactivationDate(null);
