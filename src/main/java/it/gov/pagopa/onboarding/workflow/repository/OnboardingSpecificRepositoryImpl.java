@@ -44,19 +44,19 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
       criteria.and(Onboarding.Fields.status).is(status);
     }
     if (startDate != null && endDate != null) {
-      startDate = startDate.plusDays(1);
-      endDate = endDate.plusDays(-1);
+      LocalDateTime newStartDate = startDate.plusDays(1);
+      LocalDateTime newEndDate = endDate.plusDays(-1);
       criteria.and(Onboarding.Fields.updateDate)
-          .gte(startDate)
-          .lte(endDate);
+          .gte(newStartDate)
+          .lte(newEndDate);
     } else if (startDate != null) {
-      startDate = startDate.plusDays(1);
+      LocalDateTime newStartDate = startDate.plusDays(1);
       criteria.and(Onboarding.Fields.updateDate)
-          .gte(startDate);
+          .gte(newStartDate);
     } else if (endDate != null) {
-      endDate = endDate.plusDays(-1);
+      LocalDateTime newEndDate = endDate.plusDays(-1);
       criteria.and(Onboarding.Fields.updateDate)
-          .lte(endDate);
+          .lte(newEndDate);
     }
     return criteria;
   }
