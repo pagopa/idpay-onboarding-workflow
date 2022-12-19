@@ -2,8 +2,12 @@ package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
+import java.time.LocalDateTime;
+import org.springframework.data.domain.Pageable;
 
 public interface OnboardingService {
 
@@ -11,13 +15,17 @@ public interface OnboardingService {
 
   void putTcConsent(String initiativeId, String userId);
 
-  RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId);
+  RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId, String channel);
 
   void saveConsent(ConsentPutDTO consentPutDTO, String userId);
 
   void completeOnboarding(EvaluationDTO evaluationDTO);
+  
+  void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO);
 
   void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
 
   void rollback(String initiativeId, String userId);
+
+  ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId, String userId, LocalDateTime startDate, LocalDateTime endDate, String status, Pageable pageable);
 }

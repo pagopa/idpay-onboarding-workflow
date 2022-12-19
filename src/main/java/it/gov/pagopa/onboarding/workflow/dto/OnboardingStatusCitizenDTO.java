@@ -1,6 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnboardingPutDTO {
+public class OnboardingStatusCitizenDTO {
 
-  @NotBlank (message="The field is mandatory!")
-  String initiativeId;
-
+  private String userId;
+  private String status;
+  private String statusDate;
 
 }
 

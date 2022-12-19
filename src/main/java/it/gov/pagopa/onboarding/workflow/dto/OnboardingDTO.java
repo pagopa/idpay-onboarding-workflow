@@ -1,7 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,10 +17,6 @@ public class OnboardingDTO {
   String status;
 
   Boolean pdndAccept;
-
-  Map<String, Boolean> selfDeclarationBool;
-
-  Map<String, String> selfDeclarationMulti;
 
   LocalDateTime tcAcceptTimestamp;
 

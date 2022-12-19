@@ -4,12 +4,19 @@
  */
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import it.gov.pagopa.onboarding.workflow.dto.CheckPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import java.time.LocalDateTime;
 import javax.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -44,7 +52,7 @@ public interface OnboardingController {
    * @return
    */
   @PutMapping("/initiative/{userId}")
-  ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody OnboardingPutDTO body,
+  ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody CheckPutDTO body,
       @PathVariable("userId") String userId);
 
 
@@ -58,6 +66,21 @@ public interface OnboardingController {
   @GetMapping("/{initiativeId}/{userId}/status")
   ResponseEntity<OnboardingStatusDTO> onboardingStatus(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+  /**
+   * Returns the onboarding status list
+   *
+   * @param initiativeId
+   * @return
+   */
+  @GetMapping("/{initiativeId}")
+  ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
+      @PathVariable("initiativeId") String initiativeId,
+      @PageableDefault(size = 15,sort = "updateDate",direction= Sort.Direction.DESC) Pageable pageable,
+      @RequestParam(required = false) String userId,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+      @RequestParam(required = false) String status);
 
 
   /**
