@@ -421,7 +421,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     for(OnboardingRejectionReason onboardingRejectionReason: onboardingRejectionReasonList){
       if(onboardingRejectionReason.getType() != null && onboardingRejectionReason.getType().equals(OnboardingWorkflowConstants.OUT_OF_RANKING)){
         log.info("Onboarding rejection reason: "+onboardingRejectionReason.getType());
-        onboarding.setStatus(OnboardingWorkflowConstants.ELEGIBILE_KO);
+        onboarding.setStatus(OnboardingWorkflowConstants.ELIGIBLE_KO);
       }
     }
     return onboarding;
