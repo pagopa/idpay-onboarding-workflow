@@ -4,7 +4,6 @@ import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,9 +45,9 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     if (status != null) {
       if (status.equals(OnboardingWorkflowConstants.ACCEPTED_TC) || status.equals(
               OnboardingWorkflowConstants.INVITED) || status.equals(OnboardingWorkflowConstants.ON_EVALUATION)) {
-        criteria.and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.ACCEPTED_TC)
-                .and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.INVITED)
-                .and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.ON_EVALUATION);
+        criteria.and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.ACCEPTED_TC);
+        criteria.and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.INVITED);
+        criteria.and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.ON_EVALUATION);
       } else {
       criteria.and(Onboarding.Fields.status).is(status);
       }

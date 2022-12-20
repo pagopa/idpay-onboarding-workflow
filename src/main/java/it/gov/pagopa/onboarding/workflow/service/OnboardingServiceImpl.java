@@ -419,8 +419,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private Onboarding checkElegibileKO(Onboarding onboarding, List<OnboardingRejectionReason> onboardingRejectionReasonList){
     for(OnboardingRejectionReason onboardingRejectionReason: onboardingRejectionReasonList){
-      log.info("Onboarding rejection reason: "+onboardingRejectionReason.getType());
-      if(onboardingRejectionReason.getType().equals(OnboardingWorkflowConstants.OUT_OF_RANKING)){
+      if(onboardingRejectionReason.getType() != null && onboardingRejectionReason.getType().equals(OnboardingWorkflowConstants.OUT_OF_RANKING)){
+        log.info("Onboarding rejection reason: "+onboardingRejectionReason.getType());
         onboarding.setStatus(OnboardingWorkflowConstants.ELEGIBILE_KO);
       }
     }
