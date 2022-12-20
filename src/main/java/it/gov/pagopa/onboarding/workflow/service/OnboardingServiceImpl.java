@@ -8,6 +8,7 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingRejectionReason;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
@@ -108,7 +109,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     utilities.logTC(userId, initiativeId);
   }
 
-  private void setStatus(Onboarding onboarding, String status, LocalDateTime date) {
+  private void setStatus(Onboarding onboarding, String status, LocalDateTime date, List<OnboardingRejectionReason> onboardingRejectionReasons) {
     onboarding.setStatus(status);
     if (status.equals(OnboardingWorkflowConstants.ONBOARDING_OK)) {
       onboarding.setOnboardingOkDate(date);
@@ -118,11 +119,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     if (status.equals(OnboardingWorkflowConstants.ONBOARDING_KO)) {
       onboarding.setOnboardingKODate(date);
+      if(onboardingRejectionReasons!=null){
+        onboarding = checkElegibileKO(onboarding, onboardingRejectionReasons);
+      }
     }
     onboarding.setUpdateDate(date);
     onboardingRepository.save(onboarding);
     utilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel());
-
   }
 
   @Override
@@ -154,11 +157,11 @@ public class OnboardingServiceImpl implements OnboardingService {
       CitizenStatusDTO citizenStatus = groupRestConnector.getCitizenStatus(
           onboarding.getInitiativeId(), onboarding.getUserId());
       if (!citizenStatus.isStatus()) {
-        this.setStatus(onboarding,OnboardingWorkflowConstants.ONBOARDING_KO, LocalDateTime.now());
+        this.setStatus(onboarding,OnboardingWorkflowConstants.ONBOARDING_KO, LocalDateTime.now(),null);
         throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             OnboardingWorkflowConstants.ERROR_WHITELIST);
       }
-      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now());
+      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(),null);
       outcomeProducer.sendOutcome(createEvaluationDto(onboarding.getInitiativeId(),
           onboarding.getUserId(), initiativeDTO));
       return true;
@@ -387,7 +390,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId())
         .ifPresent(onboarding ->
-        setStatus(onboarding, evaluationDTO.getStatus(), evaluationDTO.getAdmissibilityCheckDate())
+        setStatus(onboarding, evaluationDTO.getStatus(), evaluationDTO.getAdmissibilityCheckDate(), evaluationDTO.getOnboardingRejectionReasons())
     );
   }
 
@@ -412,6 +415,16 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboardingRepository.save(newOnboarding);
       }
     }
+  }
+
+  private Onboarding checkElegibileKO(Onboarding onboarding, List<OnboardingRejectionReason> onboardingRejectionReasonList){
+    for(OnboardingRejectionReason onboardingRejectionReason: onboardingRejectionReasonList){
+      if(onboardingRejectionReason.getType() != null && onboardingRejectionReason.getType().equals(OnboardingWorkflowConstants.OUT_OF_RANKING)){
+        log.info("Onboarding rejection reason: "+onboardingRejectionReason.getType());
+        onboarding.setStatus(OnboardingWorkflowConstants.ELIGIBLE_KO);
+      }
+    }
+    return onboarding;
   }
 
   private Pageable getPageable(Pageable pageable) {
