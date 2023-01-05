@@ -1,8 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.model;
 
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
@@ -31,15 +29,9 @@ public class Onboarding {
 
   private String channel;
 
-  private Boolean pdndCheck;
-
-  private Boolean autocertificationCheck;
-
   private Boolean tc;
 
   private Boolean pdndAccept;
-
-  private List<SelfDeclarationItemsDTO> selfDeclarationList;
 
   private LocalDateTime tcAcceptTimestamp;
 
