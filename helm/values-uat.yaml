@@ -37,7 +37,6 @@ microservice-chart:
 
   envConfig:
     JAVA_TOOL_OPTIONS: '-Xms128m -Xmx4g -javaagent:/app/applicationinsights-agent.jar'
-    REDIS_CACHE_ENABLED: "true"
 
   envSecret:
     aks-api-url: cstar-u-weu-uat01-aks-apiserver-url

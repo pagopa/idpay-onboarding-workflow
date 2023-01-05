@@ -4,6 +4,10 @@ spring:
   config:
     activate:
       on-profile: default
+  cache:
+    type: redis
+  redis:
+    url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
   cloud:
     azure:
       servicebus:
@@ -118,9 +122,6 @@ spring:
           maxConnectionLifeTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_LIFE_MS:0}
           maxConnectionIdleTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_IDLE_MS:120000}
           maxConnecting: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTING:2}
-  redis:
-    enabled: ${REDIS_CACHE_ENABLED:false}
-    url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
 
 logging:
   level:
