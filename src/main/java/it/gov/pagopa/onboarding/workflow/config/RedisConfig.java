@@ -2,7 +2,6 @@ package it.gov.pagopa.onboarding.workflow.config;
 
 import java.time.Duration;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -10,7 +9,6 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
 
 @Configuration
-@ConditionalOnProperty(prefix = "spring.redis", name = "enabled", havingValue = "true")
 public class RedisConfig {
 
   @Bean
@@ -24,8 +22,7 @@ public class RedisConfig {
   @Bean
   public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
     return builder -> builder
-        .withCacheConfiguration("initiativeCache",
+        .withCacheConfiguration("initiativeBeneficiaryView",
             RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(1)));
   }
-
 }
