@@ -38,7 +38,6 @@ class ConsentMapperTest {
     onboarding.setTc(true);
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
-    onboarding.setSelfDeclarationList(selfConsent);
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
 
     assertNotNull(onboardingDTO);
