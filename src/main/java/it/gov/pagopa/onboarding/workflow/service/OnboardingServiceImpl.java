@@ -238,7 +238,6 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  @Cacheable(value = "initiativeCache")
   private InitiativeDTO getInitiative(String initiativeId) {
     try {
       log.info("[GET_INITIATIVE] Retrieving information for initiative {}", initiativeId);
@@ -427,7 +426,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private Onboarding checkElegibileKO(Onboarding onboarding,
+  private void checkElegibileKO(Onboarding onboarding,
       List<OnboardingRejectionReason> onboardingRejectionReasonList) {
     for (OnboardingRejectionReason onboardingRejectionReason : onboardingRejectionReasonList) {
       if (onboardingRejectionReason.getType() != null && onboardingRejectionReason.getType()
@@ -436,7 +435,6 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboarding.setStatus(OnboardingWorkflowConstants.ELIGIBLE_KO);
       }
     }
-    return onboarding;
   }
 
   private Pageable getPageable(Pageable pageable) {
