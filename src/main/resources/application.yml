@@ -1,6 +1,6 @@
 spring:
   application:
-    name: idpay-onboarding-workflow
+    name: "@project.artifactId@"
   config:
     activate:
       on-profile: default
@@ -134,6 +134,10 @@ logging:
     it:
       gov:
         pagopa: ${LOG_LEVEL_PAGOPA:INFO}
+
+management.endpoints:
+  web:
+    exposure.include: info, health
 
 rest-client:
   group:
