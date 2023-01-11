@@ -67,6 +67,11 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.azure.spring</groupId>
             <artifactId>spring-cloud-azure-stream-binder-servicebus</artifactId>
             <version>4.3.0</version>

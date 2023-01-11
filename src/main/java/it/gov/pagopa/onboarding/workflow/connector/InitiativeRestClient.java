@@ -1,7 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.connector;
 
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,6 @@ public interface InitiativeRestClient {
       value = "/idpay/initiative/{initiativeId}/beneficiary/view",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  @Cacheable(value = "initiativeBeneficiaryView", key = "#initiativeId")
   InitiativeDTO getInitiativeBeneficiaryView(
       @PathVariable("initiativeId") String initiativeId);
 }
