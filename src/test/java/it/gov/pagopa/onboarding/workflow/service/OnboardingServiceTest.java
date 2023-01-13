@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
-import it.gov.pagopa.onboarding.workflow.connector.GroupRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
@@ -78,9 +77,6 @@ class OnboardingServiceTest {
 
   @MockBean
   InitiativeRestConnector initiativeRestConnector;
-
-  @MockBean
-  GroupRestConnector groupRestConnector;
 
   @MockBean
   Utilities utilities;
@@ -449,15 +445,13 @@ class OnboardingServiceTest {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTc(true);
+    onboarding.setInvitationDate(LocalDateTime.now());
 
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(Optional.of(onboarding));
 
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_WHITELIST);
-
-    Mockito.when(groupRestConnector.getCitizenStatus(INITIATIVE_ID, USER_ID))
-        .thenReturn(CITIZEN_STATUS_DTO);
 
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setChannel(CHANNEL);
@@ -483,9 +477,6 @@ class OnboardingServiceTest {
 
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_WHITELIST);
-
-    Mockito.when(groupRestConnector.getCitizenStatus(INITIATIVE_ID, USER_ID))
-        .thenReturn(CITIZEN_STATUS_DTO_KO);
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
@@ -637,16 +628,11 @@ class OnboardingServiceTest {
             Optional.of(onboarding));
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_WHITELIST);
-    Request request =
-        Request.create(
-            Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
-    Mockito.doThrow(new FeignException.NotFound("", request, new byte[0], null))
-        .when(groupRestConnector).getCitizenStatus(INITIATIVE_ID, USER_ID);
     try {
       onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(),
           CHANNEL);
     } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
     }
   }
 
