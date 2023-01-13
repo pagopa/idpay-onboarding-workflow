@@ -1,7 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import feign.FeignException;
-import it.gov.pagopa.onboarding.workflow.connector.GroupRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
@@ -16,7 +15,6 @@ import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
 import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.CitizenStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
@@ -63,9 +61,6 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Autowired
   InitiativeRestConnector initiativeRestConnector;
-
-  @Autowired
-  GroupRestConnector groupRestConnector;
 
   @Autowired
   Utilities utilities;
@@ -152,22 +147,16 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (Boolean.FALSE.equals(initiativeDTO.getGeneral().getBeneficiaryKnown())) {
       return false;
     }
-    try {
-      CitizenStatusDTO citizenStatus = groupRestConnector.getCitizenStatus(
-          onboarding.getInitiativeId(), onboarding.getUserId());
-      if (!citizenStatus.isStatus()) {
-        this.setStatus(onboarding, OnboardingWorkflowConstants.ONBOARDING_KO, LocalDateTime.now(),
-            null);
-        throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-            OnboardingWorkflowConstants.ERROR_WHITELIST);
-      }
-      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
-      outcomeProducer.sendOutcome(createEvaluationDto(onboarding.getInitiativeId(),
-          onboarding.getUserId(), initiativeDTO));
-      return true;
-    } catch (FeignException e) {
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8());
+    if (onboarding.getInvitationDate() == null) {
+      setStatus(onboarding, OnboardingWorkflowConstants.ONBOARDING_KO, LocalDateTime.now(),
+              null);
+      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+              OnboardingWorkflowConstants.ERROR_WHITELIST);
     }
+    setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
+    outcomeProducer.sendOutcome(createEvaluationDto(onboarding.getInitiativeId(),
+        onboarding.getUserId(), initiativeDTO));
+    return true;
   }
 
   private EvaluationDTO createEvaluationDto(String initiativeId, String userId,
