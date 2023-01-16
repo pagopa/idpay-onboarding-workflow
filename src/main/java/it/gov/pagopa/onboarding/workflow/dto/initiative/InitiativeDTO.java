@@ -22,9 +22,6 @@ public class InitiativeDTO   {
   @JsonProperty("organizationId")
   private String organizationId;
 
-  @JsonProperty("pdndToken")
-  private String pdndToken;
-
   @JsonProperty("status")
   private String status;
 
