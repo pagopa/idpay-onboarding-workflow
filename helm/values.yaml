@@ -75,7 +75,6 @@ microservice-chart:
     KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG: evh-idpay-onboarding-notification-idpay-onboarding-notification-consumer-jaas-config-idpay-00
     SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
     REDIS_CONNECTION_URL: idpay-redis-00-primary-connection-url
-  #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
 
   # nodeSelector: {}
 
