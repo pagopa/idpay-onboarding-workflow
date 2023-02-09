@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
 
+  public static final String PUT_TC_CONSENT = "PUT_TC_CONSENT";
   @Autowired
   private OnboardingRepository onboardingRepository;
 
@@ -73,6 +74,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void putTcConsent(String initiativeId, String userId) {
+    long startTime = System.currentTimeMillis();
+
     getInitiative(initiativeId);
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
@@ -80,11 +83,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboarding != null && !onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
 
       if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
+        performanceLog(startTime, PUT_TC_CONSENT);
         throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
       }
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
       utilities.logTCIdemp(userId, initiativeId);
+      performanceLog(startTime, PUT_TC_CONSENT);
       return;
     }
 
@@ -101,6 +106,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setUpdateDate(localDateTime);
     onboardingRepository.save(onboarding);
     utilities.logTC(userId, initiativeId);
+    performanceLog(startTime, PUT_TC_CONSENT);
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date,
@@ -127,6 +133,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId,
       String channel) {
+    long startTime = System.currentTimeMillis();
+
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     checkTCStatus(onboarding);
@@ -140,6 +148,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     onboardingRepository.save(onboarding);
     utilities.logPDND(userId, initiativeId, onboarding.getChannel());
+    performanceLog(startTime, "CHECK_PREREQUISITES");
     return dto;
   }
 
@@ -248,7 +257,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
+    long startTime = System.currentTimeMillis();
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    performanceLog(startTime, "GET_ONBOARDING_STATUS");
     return new OnboardingStatusDTO(onboarding.getStatus());
   }
 
@@ -256,6 +267,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   public ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId,
       String userId, LocalDateTime startDate, LocalDateTime endDate, String status,
       Pageable pageable) {
+    long startTime = System.currentTimeMillis();
+
     if (pageable != null && pageable.getPageSize() > 15) {
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           "Max number for page allowed: 15");
@@ -273,12 +286,15 @@ public class OnboardingServiceImpl implements OnboardingService {
           o.getUserId(), o.getStatus(), o.getUpdateDate().toString());
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
+    performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST");
     return new ResponseInitiativeOnboardingDTO(onboardingStatusCitizenDTOS, result.getNumber(),
         result.getSize(), (int) result.getTotalElements(), result.getTotalPages());
   }
 
   @Override
   public void saveConsent(ConsentPutDTO consentPutDTO, String userId) {
+    long startTime = System.currentTimeMillis();
+
     Onboarding onboarding = findByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
     checkTCStatus(onboarding);
 
@@ -286,6 +302,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
         && !consentPutDTO.isPdndAccept()) {
+      performanceLog(startTime, "SAVE_CONSENT");
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(
               "The PDND consense was denied by the user for the initiative %s.",
@@ -302,6 +319,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
+    performanceLog(startTime, "SAVE_CONSENT");
   }
 
   private void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
@@ -353,14 +371,18 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate) {
+    long startTime = System.currentTimeMillis();
+
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
 
     onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
     onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
     onboarding.setUpdateDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
-    log.info("Onboarding disabled, date: {}", deactivationDate);
+    log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", deactivationDate);
     utilities.logDeactivate(userId, initiativeId, onboarding.getChannel());
+
+    performanceLog(startTime, "DEACTIVATE_ONBOARDING");
   }
 
   @Override
@@ -369,12 +391,12 @@ public class OnboardingServiceImpl implements OnboardingService {
         .orElse(null);
     if (onboarding != null && onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
-      log.info("Onboarding before rollback: {}", onboarding);
+      log.info("[ROLLBACK] Onboarding before rollback: {}", onboarding);
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
       onboarding.setRequestDeactivationDate(null);
       onboarding.setUpdateDate(onboarding.getOnboardingOkDate());
       onboardingRepository.save(onboarding);
-      log.info("Onboarding after rollback: {}", onboarding);
+      log.info("[ROLLBACK] Onboarding after rollback: {}", onboarding);
       utilities.logRollback(userId, initiativeId, onboarding.getChannel());
     }
 
@@ -382,6 +404,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
+    long startTime = System.currentTimeMillis();
     onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(),
             evaluationDTO.getUserId())
         .ifPresent(onboarding ->
@@ -389,19 +412,22 @@ public class OnboardingServiceImpl implements OnboardingService {
                 evaluationDTO.getAdmissibilityCheckDate(),
                 evaluationDTO.getOnboardingRejectionReasons())
         );
+    performanceLog(startTime, "COMPLETE_ONBOARDING");
   }
 
   @Override
   public void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO) {
-    log.info("consumer onboarding notification");
+    long startTime = System.currentTimeMillis();
+
+    log.info("[ALLOWED_INITIATIVE] Consumer onboarding notification");
     if (onboardingNotificationDTO.getOperationType()
         .equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)) {
-      log.info("allowed citizen");
+      log.info("[ALLOWED_INITIATIVE] Allowed citizen");
       Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(
           onboardingNotificationDTO.getInitiativeId(),
           onboardingNotificationDTO.getUserId()).orElse(null);
       if (onboarding == null) {
-        log.info("new onbording with status invited");
+        log.info("[ALLOWED_INITIATIVE] New onbording with status INVITED");
         Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(),
             onboardingNotificationDTO.getUserId());
         newOnboarding.setStatus(OnboardingWorkflowConstants.INVITED);
@@ -412,6 +438,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboardingRepository.save(newOnboarding);
       }
     }
+    performanceLog(startTime, "ALLOWED_INITIAIVE");
   }
 
   private void checkElegibileKO(Onboarding onboarding,
@@ -430,5 +457,12 @@ public class OnboardingServiceImpl implements OnboardingService {
       return PageRequest.of(0, 15, Sort.by("lastUpdate"));
     }
     return pageable;
+  }
+
+  private void performanceLog(long startTime, String service){
+    log.info(
+        "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms",
+        service,
+        System.currentTimeMillis() - startTime);
   }
 }
