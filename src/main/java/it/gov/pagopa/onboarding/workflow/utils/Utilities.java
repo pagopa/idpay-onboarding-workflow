@@ -3,6 +3,7 @@ package it.gov.pagopa.onboarding.workflow.utils;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 import java.util.logging.Logger;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,46 +28,68 @@ public class Utilities {
   private static final String USER = "suser=";
   private static final String CS1 = "cs1Label=iniziativeId cs1=";
   private static final String CS2 = "cs2Label=channel cs2=";
+  private static final String DATE = "date=";
   final Logger logger = Logger.getLogger("AUDIT");
 
 
-  private String buildLogWithChannel(String eventLog, String userId, String initiativeId, String channel) {
+  private String buildLog(String eventLog, String userId, String initiativeId, String channel) {
     return CEF + MSG + eventLog + " " + USER + userId + " " + CS1 + initiativeId + " " + CS2 + channel;
   }
 
-  private String buildLog(String eventLog, String userId, String initiativeId) {
-    return CEF + MSG + eventLog + " " + USER + userId + " " + CS1 + initiativeId;
+  private String buildLogWithDate(String eventLog, String userId, String initiativeId, String channel, LocalDateTime date){
+    return buildLog(eventLog, userId, initiativeId, channel) + " " + DATE + date;
   }
 
-  public void logTC(String userId, String initiativeId) {
-    String testLog = this.buildLog("Terms and conditions accepted by the citizen ", userId,
-        initiativeId);
+  public void logTC(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Terms and conditions accepted by the citizen", userId,
+        initiativeId, channel);
     logger.info(testLog);
   }
 
-  public void logTCIdemp(String userId, String initiativeId) {
-    String testLog = this.buildLog("Terms and conditions already accepted by the citizen ", userId,
-        initiativeId);
+  public void logTCIdemp(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Terms and conditions already accepted by the citizen", userId,
+        initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logTCNotAccepted(String userId, String initiativeId, String channel) {
+    String testLog = this.buildLog("Terms and conditions not accepted by the citizen", userId,
+            initiativeId, channel);
     logger.info(testLog);
   }
 
   public void logPDND(String userId, String initiativeId, String channel) {
-    String testLog = this.buildLogWithChannel("Prerequisites required passed ", userId, initiativeId, channel);
+    String testLog = this.buildLog("Prerequisites required passed", userId, initiativeId, channel);
     logger.info(testLog);
   }
 
-  public void logOnboardingComplete(String userId, String initiativeId, String channel) {
-    String testLog = this.buildLogWithChannel("Onboarding of the citizen complete", userId, initiativeId, channel);
+  public void logOnboardingComplete(String userId, String initiativeId, String channel, LocalDateTime date) {
+    String testLog = this.buildLogWithDate("Onboarding of the citizen complete", userId, initiativeId, channel, date);
+    logger.info(testLog);
+  }
+
+  public void logOnboardingOnEvaluation(String userId, String initiativeId, String channel, LocalDateTime date){
+    String testLog = this.buildLogWithDate("Onboarding of the citizen on evaluation", userId, initiativeId, channel, date);
+    logger.info(testLog);
+  }
+
+  public void logOnboardingKOWithReason(String userId, String initiativeId, String channel, String reasonKO){
+    String testLog = this.buildLog("Onboarding of the citizen failed", userId, initiativeId, channel) + " reasonType:" + reasonKO;
+    logger.severe(testLog);
+  }
+
+  public void logOnboardingKOWhiteList(String userId, String initiativeId, String channel, LocalDateTime date){
+    String testLog = this.buildLogWithDate("Onboarding failed because the citizen is not allowed to participate to this initiative", userId, initiativeId, channel, date);
     logger.info(testLog);
   }
 
   public void logRollback(String userId, String initiativeId, String channel) {
-    String testLog = this.buildLogWithChannel("Onboarding rollback complete", userId, initiativeId, channel);
+    String testLog = this.buildLog("Onboarding rollback complete", userId, initiativeId, channel);
     logger.info(testLog);
   }
 
-  public void logDeactivate(String userId, String initiativeId, String channel) {
-    String testLog = this.buildLogWithChannel("Onboarding disabled", userId, initiativeId, channel);
+  public void logDeactivate(String userId, String initiativeId, String channel, LocalDateTime date) {
+    String testLog = this.buildLogWithDate("Onboarding disabled", userId, initiativeId, channel, date);
     logger.info(testLog);
   }
 

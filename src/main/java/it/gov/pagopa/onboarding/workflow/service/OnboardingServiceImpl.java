@@ -88,7 +88,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
-      utilities.logTCIdemp(userId, initiativeId);
+      utilities.logTCIdemp(userId, initiativeId, onboarding.getChannel());
       performanceLog(startTime, PUT_TC_CONSENT);
       return;
     }
@@ -105,7 +105,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setTcAcceptTimestamp(localDateTime);
     onboarding.setUpdateDate(localDateTime);
     onboardingRepository.save(onboarding);
-    utilities.logTC(userId, initiativeId);
+    utilities.logTC(userId, initiativeId, onboarding.getChannel());
     performanceLog(startTime, PUT_TC_CONSENT);
   }
 
@@ -114,9 +114,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setStatus(status);
     if (status.equals(OnboardingWorkflowConstants.ONBOARDING_OK)) {
       onboarding.setOnboardingOkDate(date);
+      utilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
     if (status.equals(OnboardingWorkflowConstants.ON_EVALUATION)) {
       onboarding.setCriteriaConsensusTimestamp(date);
+      utilities.logOnboardingOnEvaluation(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
     if (status.equals(OnboardingWorkflowConstants.ONBOARDING_KO)) {
       onboarding.setOnboardingKODate(date);
@@ -124,10 +126,10 @@ public class OnboardingServiceImpl implements OnboardingService {
         checkElegibileKO(onboarding, onboardingRejectionReasons);
       }
     }
-    onboarding.setUpdateDate(date);
+    onboarding.setUpdateDate(LocalDateTime.now());
     onboardingRepository.save(onboarding);
     utilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(),
-        onboarding.getChannel());
+        onboarding.getChannel(), date);
   }
 
   @Override
@@ -159,6 +161,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboarding.getInvitationDate() == null) {
       setStatus(onboarding, OnboardingWorkflowConstants.ONBOARDING_KO, LocalDateTime.now(),
               null);
+      utilities.logOnboardingKOWhiteList(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), LocalDateTime.now());
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
               OnboardingWorkflowConstants.ERROR_WHITELIST);
     }
@@ -227,6 +230,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private void checkTCStatus(Onboarding onboarding) {
     if (!onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
+      utilities.logTCNotAccepted(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel());
       throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
           String.format(
               "Terms and Conditions have been not accepted by the current user for initiative %s.",
@@ -305,7 +309,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, "SAVE_CONSENT");
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(
-              "The PDND consense was denied by the user for the initiative %s.",
+              "The PDND consent was denied by the user for the initiative %s.",
               consentPutDTO.getInitiativeId()));
     }
 
@@ -380,8 +384,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setUpdateDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
     log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", deactivationDate);
-    utilities.logDeactivate(userId, initiativeId, onboarding.getChannel());
-
+    utilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
     performanceLog(startTime, "DEACTIVATE_ONBOARDING");
   }
 
@@ -447,6 +450,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       if (onboardingRejectionReason.getType() != null && onboardingRejectionReason.getType()
           .equals(OnboardingWorkflowConstants.OUT_OF_RANKING)) {
         log.info("Onboarding rejection reason: " + onboardingRejectionReason.getType());
+        utilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), onboardingRejectionReason.getType());
         onboarding.setStatus(OnboardingWorkflowConstants.ELIGIBLE_KO);
       }
     }
