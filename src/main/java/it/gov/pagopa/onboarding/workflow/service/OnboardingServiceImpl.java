@@ -84,6 +84,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
       if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
         performanceLog(startTime, PUT_TC_CONSENT);
+        utilities.logOnboardingKOWithReason(userId, initiativeId, onboarding.getChannel(), "Unsubscribed to initiative");
         throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
       }
 
@@ -205,6 +206,7 @@ public class OnboardingServiceImpl implements OnboardingService {
             endDate);
 
     if (dateCheckFail) {
+      utilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The initiative has not met the dates prerequisites");
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
           OnboardingWorkflowConstants.ERROR_PREREQUISITES);
     }
@@ -307,6 +309,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
         && !consentPutDTO.isPdndAccept()) {
       performanceLog(startTime, "SAVE_CONSENT");
+      utilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(), "The PDND consent was denied by the user for the initiative");
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(
               "The PDND consent was denied by the user for the initiative %s.",
@@ -343,6 +346,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (selfDeclarationBool.size() + selfDeclarationMulti.size()
         != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size()) {
+      utilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The amount of self declaration lists mismatch the amount of flags");
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE);
     }
@@ -351,6 +355,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       if (item instanceof SelfCriteriaBoolDTO bool) {
         Boolean flag = selfDeclarationBool.get(bool.getCode());
         if (flag == null || !flag) {
+          utilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The selfDeclarationList was denied by the user for the initiative");
           throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
               String.format(
                   OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
@@ -362,6 +367,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       if (item instanceof SelfCriteriaMultiDTO multi) {
         String value = selfDeclarationMulti.get(multi.getCode());
         if (value == null || !multi.getValue().contains(value)) {
+          utilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The selfDeclarationList was denied by the user for the initiative");
           throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
               String.format(
                   OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,

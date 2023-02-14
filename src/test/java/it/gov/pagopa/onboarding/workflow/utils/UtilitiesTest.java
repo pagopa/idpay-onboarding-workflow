@@ -122,6 +122,12 @@ class UtilitiesTest {
   }
 
   @Test
+  void logOnboardingKOInitiativeId_ok(){
+    utilities.logOnboardingKOInitiativeId(INITIATIVE_ID, REASON_KO);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
+  }
+
+  @Test
   void logRollback_ok(){
     utilities.logRollback(USER_ID,INITIATIVE_ID,CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();

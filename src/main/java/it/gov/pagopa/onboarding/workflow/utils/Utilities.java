@@ -22,18 +22,17 @@ public class Utilities {
     }
   }
 
-  private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2|vs=172.16.151.21:80 event=Onboarding srcip=%s srcport=17548 dstip=172.16.128.37 dstport=82",
-      SRCIP);
+  private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s", SRCIP);
   private static final String MSG = " msg=";
   private static final String USER = "suser=";
-  private static final String CS1 = "cs1Label=iniziativeId cs1=";
-  private static final String CS2 = "cs2Label=channel cs2=";
+  private static final String INITIATIVE_ID = "initiativeId=";
+  private static final String CHANNEL = "channel=";
   private static final String DATE = "date=";
   final Logger logger = Logger.getLogger("AUDIT");
 
 
   private String buildLog(String eventLog, String userId, String initiativeId, String channel) {
-    return CEF + MSG + eventLog + " " + USER + userId + " " + CS1 + initiativeId + " " + CS2 + channel;
+    return CEF + MSG + eventLog + " " + USER + userId + " " + INITIATIVE_ID + initiativeId + " " + CHANNEL + channel;
   }
 
   private String buildLogWithDate(String eventLog, String userId, String initiativeId, String channel, LocalDateTime date){
@@ -73,9 +72,14 @@ public class Utilities {
     logger.info(testLog);
   }
 
-  public void logOnboardingKOWithReason(String userId, String initiativeId, String channel, String reasonKO){
-    String testLog = this.buildLog("Onboarding of the citizen failed", userId, initiativeId, channel) + " reasonType:" + reasonKO;
-    logger.severe(testLog);
+  public void logOnboardingKOWithReason(String userId, String initiativeId, String channel, String msg){
+    String testLog = this.buildLog("Onboarding of the citizen failed: " + msg, userId, initiativeId, channel);
+    logger.info(testLog);
+  }
+
+  public void logOnboardingKOInitiativeId(String initiativeId, String msg){
+    String testLog = CEF + MSG + "Onboarding failed: " + msg + INITIATIVE_ID + initiativeId;
+    logger.info(testLog);
   }
 
   public void logOnboardingKOWhiteList(String userId, String initiativeId, String channel, LocalDateTime date){
