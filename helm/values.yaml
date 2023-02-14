@@ -7,16 +7,16 @@ microservice-chart:
     httpGet:
       path: /actuator/health
       port: 8080
-    initialDelaySeconds: 60
-    failureThreshold: 6
+    initialDelaySeconds: 120
+    failureThreshold: 15
     periodSeconds: 10
 
   readinessProbe:
     httpGet:
       path: /actuator/health
       port: 8080
-    initialDelaySeconds: 60
-    failureThreshold: 6
+    initialDelaySeconds: 120
+    failureThreshold: 15
     periodSeconds: 10
 
   deployment:
@@ -50,6 +50,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_ROLE_NAME: "idpayonboardingworkflow"
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: "OFF"
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
+    APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED: "false"
     ENABLE_AUDIT_APPENDER: "TRUE"
 
   envConfigMapExternals:
@@ -74,7 +75,7 @@ microservice-chart:
     KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-producer-jaas-config-idpay-00
     KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG: evh-idpay-onboarding-notification-idpay-onboarding-notification-consumer-jaas-config-idpay-00
     SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
-  #    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
+    REDIS_CONNECTION_URL: idpay-redis-00-primary-connection-url
 
   # nodeSelector: {}
 

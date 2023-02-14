@@ -10,9 +10,7 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +36,6 @@ class ConsentMapperTest {
     onboarding.setTc(true);
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
-    onboarding.setSelfDeclarationList(selfConsent);
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
 
     assertNotNull(onboardingDTO);

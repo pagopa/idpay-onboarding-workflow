@@ -13,4 +13,14 @@ public class InitiativeBeneficiaryRuleDTO   {
   @JsonProperty("automatedCriteria")
   private List<AutomatedCriteriaDTO> automatedCriteria;
 
+  /**
+   * PDND Key/Token Id
+   */
+  private String apiKeyClientId;
+
+  /**
+   * PDND Key/Token Assertion
+   */
+  private String apiKeyClientAssertion;
+
 }
