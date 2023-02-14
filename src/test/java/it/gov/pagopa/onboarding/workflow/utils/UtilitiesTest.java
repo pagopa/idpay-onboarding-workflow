@@ -8,6 +8,7 @@ import ch.qos.logback.core.read.ListAppender;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -43,6 +44,8 @@ class UtilitiesTest {
   private static final String CHANNEL = "CHANNEL";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+  private static final String REASON_KO = "TEST_REASON_KO";
+  private static final LocalDateTime DATE = LocalDateTime.now();
 
   @MockBean
   Logger logger;
@@ -65,14 +68,27 @@ class UtilitiesTest {
 
   @Test
   void logTC_ok(){
-    utilities.logTC(USER_ID,INITIATIVE_ID);
+    utilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logTC_ko() {
     Mockito.doThrow(new OnboardingWorkflowException(400,"")).when(inetAddress).getHostAddress();
-    utilities.logTC(USER_ID,INITIATIVE_ID);
+    utilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  }
+
+  @Test
+  void logTCIdemp_ok(){
+    utilities.logTCIdemp(USER_ID,INITIATIVE_ID, CHANNEL);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  }
+
+  @Test
+  void logTCNotAccepted_ok(){
+    utilities.logTCNotAccepted(USER_ID,INITIATIVE_ID, CHANNEL);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
@@ -83,8 +99,32 @@ class UtilitiesTest {
 
   @Test
   void logOnboardingOk_ok(){
-    utilities.logOnboardingComplete(USER_ID,INITIATIVE_ID,CHANNEL);
+    utilities.logOnboardingComplete(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  }
+
+  @Test
+  void logOnboardingOnEvaluation_ok(){
+    utilities.logOnboardingOnEvaluation(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
+  }
+
+  @Test
+  void logOnboardingKOWithReason_ok(){
+    utilities.logOnboardingKOWithReason(USER_ID, INITIATIVE_ID, CHANNEL, REASON_KO);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
+  }
+
+  @Test
+  void logOnboardingKOWhiteList_ok(){
+    utilities.logOnboardingKOWhiteList(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
+  }
+
+  @Test
+  void logOnboardingKOInitiativeId_ok(){
+    utilities.logOnboardingKOInitiativeId(INITIATIVE_ID, REASON_KO);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
   }
 
   @Test
@@ -95,7 +135,7 @@ class UtilitiesTest {
 
   @Test
   void logDeactivate_ok(){
-    utilities.logDeactivate(USER_ID,INITIATIVE_ID,CHANNEL);
+    utilities.logDeactivate(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
