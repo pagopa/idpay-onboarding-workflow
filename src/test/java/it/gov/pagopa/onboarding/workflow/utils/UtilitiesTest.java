@@ -98,6 +98,12 @@ class UtilitiesTest {
   }
 
   @Test
+  void logGetListPDND_ok(){
+    utilities.logGetListPDND(INITIATIVE_ID);
+    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  }
+
+  @Test
   void logOnboardingOk_ok(){
     utilities.logOnboardingComplete(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();

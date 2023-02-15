@@ -226,6 +226,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     requiredCriteriaDTO.setSelfDeclarationList(
         initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria());
     requiredCriteriaDTO.setPdndCriteria(pdndCriteria);
+    utilities.logGetListPDND(initiativeDTO.getInitiativeId());
     return requiredCriteriaDTO;
   }
 

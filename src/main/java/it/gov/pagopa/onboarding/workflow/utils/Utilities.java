@@ -62,6 +62,11 @@ public class Utilities {
     logger.info(testLog);
   }
 
+  public void logGetListPDND(String initiativeId) {
+    String testLog = CEF + MSG + String.format("Retrieved PDND data about %s", initiativeId);
+    logger.info(testLog);
+  }
+
   public void logOnboardingComplete(String userId, String initiativeId, String channel, LocalDateTime date) {
     String testLog = this.buildLogWithDate("Onboarding of the citizen complete", userId, initiativeId, channel, date);
     logger.info(testLog);
