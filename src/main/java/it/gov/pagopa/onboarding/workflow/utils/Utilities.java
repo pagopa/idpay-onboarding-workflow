@@ -25,9 +25,9 @@ public class Utilities {
   private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s", SRCIP);
   private static final String MSG = " msg=";
   private static final String USER = "suser=";
-  private static final String INITIATIVE_ID = "initiativeId=";
-  private static final String CHANNEL = "channel=";
-  private static final String DATE = "date=";
+  private static final String INITIATIVE_ID = "cs1Label=initiativeId cs1=";
+  private static final String CHANNEL = "cs2Label=channel cs2=";
+  private static final String DATE = "cs3Label=date cs3=";
   final Logger logger = Logger.getLogger("AUDIT");
 
 
