@@ -27,8 +27,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ContextConfiguration(classes = {Utilities.class,InetAddress.class})
-class UtilitiesTest {
+@ContextConfiguration(classes = {AuditUtilities.class,InetAddress.class})
+class AuditUtilitiesTest {
   private static final String SRCIP;
 
   static {
@@ -39,7 +39,6 @@ class UtilitiesTest {
     }
   }
 
-  private static final String CEF = String.format("CEF:0 srcip=%s ", SRCIP);
   private static final String MSG = " TEST_MSG";
   private static final String CHANNEL = "CHANNEL";
   private static final String USER_ID = "TEST_USER_ID";
@@ -50,7 +49,7 @@ class UtilitiesTest {
   @MockBean
   Logger logger;
   @Autowired
-  Utilities utilities;
+  AuditUtilities auditUtilities;
   @MockBean
   InetAddress inetAddress;
   MemoryAppender memoryAppender;
@@ -68,80 +67,80 @@ class UtilitiesTest {
 
   @Test
   void logTC_ok(){
-    utilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
+    auditUtilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logTC_ko() {
     Mockito.doThrow(new OnboardingWorkflowException(400,"")).when(inetAddress).getHostAddress();
-    utilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
+    auditUtilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logTCIdemp_ok(){
-    utilities.logTCIdemp(USER_ID,INITIATIVE_ID, CHANNEL);
+    auditUtilities.logTCIdemp(USER_ID,INITIATIVE_ID, CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logTCNotAccepted_ok(){
-    utilities.logTCNotAccepted(USER_ID,INITIATIVE_ID, CHANNEL);
+    auditUtilities.logTCNotAccepted(USER_ID,INITIATIVE_ID, CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logPDND_ok(){
-    utilities.logPDND(USER_ID,INITIATIVE_ID, CHANNEL);
+    auditUtilities.logPDND(USER_ID,INITIATIVE_ID, CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logGetListPDND_ok(){
-    utilities.logGetListPDND(INITIATIVE_ID);
+    auditUtilities.logGetListPDND(INITIATIVE_ID);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logOnboardingOk_ok(){
-    utilities.logOnboardingComplete(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
+    auditUtilities.logOnboardingComplete(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logOnboardingOnEvaluation_ok(){
-    utilities.logOnboardingOnEvaluation(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
+    auditUtilities.logOnboardingOnEvaluation(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
   }
 
   @Test
   void logOnboardingKOWithReason_ok(){
-    utilities.logOnboardingKOWithReason(USER_ID, INITIATIVE_ID, CHANNEL, REASON_KO);
+    auditUtilities.logOnboardingKOWithReason(USER_ID, INITIATIVE_ID, CHANNEL, REASON_KO);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
   }
 
   @Test
   void logOnboardingKOWhiteList_ok(){
-    utilities.logOnboardingKOWhiteList(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
+    auditUtilities.logOnboardingKOWhiteList(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
   }
 
   @Test
   void logOnboardingKOInitiativeId_ok(){
-    utilities.logOnboardingKOInitiativeId(INITIATIVE_ID, REASON_KO);
+    auditUtilities.logOnboardingKOInitiativeId(INITIATIVE_ID, REASON_KO);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
   }
 
   @Test
   void logRollback_ok(){
-    utilities.logRollback(USER_ID,INITIATIVE_ID,CHANNEL);
+    auditUtilities.logRollback(USER_ID,INITIATIVE_ID,CHANNEL);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
   @Test
   void logDeactivate_ok(){
-    utilities.logDeactivate(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
+    auditUtilities.logDeactivate(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
     assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
   }
 
