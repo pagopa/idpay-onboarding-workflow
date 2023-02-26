@@ -422,6 +422,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                 evaluationDTO.getAdmissibilityCheckDate(),
                 evaluationDTO.getOnboardingRejectionReasons())
         );
+    log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding's status is: {}", evaluationDTO.getStatus());
     performanceLog(startTime, "COMPLETE_ONBOARDING");
   }
 
