@@ -17,5 +17,6 @@ public interface OnboardingRepository extends MongoRepository<Onboarding, String
   Criteria getCriteria(String initiativeId, String userId, String status,
       LocalDateTime startDate, LocalDateTime endDate);
   long getCount(Criteria criteria);
+  long getCountOnboardedCitizen(String initiativeId);
 
 }

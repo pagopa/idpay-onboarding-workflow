@@ -1,58 +1,23 @@
 package it.gov.pagopa.onboarding.workflow.utils;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ContextConfiguration(classes = {AuditUtilities.class,InetAddress.class})
+import java.time.LocalDateTime;
+
 class AuditUtilitiesTest {
-  private static final String SRCIP;
 
-  static {
-    try {
-      SRCIP = InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException e) {
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-    }
-  }
-
-  private static final String MSG = " TEST_MSG";
+  private static final String MSG = "TEST_MSG";
   private static final String CHANNEL = "CHANNEL";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final String REASON_KO = "TEST_REASON_KO";
   private static final LocalDateTime DATE = LocalDateTime.now();
 
-  @MockBean
-  Logger logger;
-  @Autowired
-  AuditUtilities auditUtilities;
-  @MockBean
-  InetAddress inetAddress;
-  MemoryAppender memoryAppender;
+  private final AuditUtilities auditUtilities = new AuditUtilities();
+  private MemoryAppender memoryAppender;
 
   @BeforeEach
   public void setup() {
@@ -63,125 +28,213 @@ class AuditUtilitiesTest {
     logger.addAppender(memoryAppender);
     memoryAppender.start();
   }
+  private void checkCommonFields() {
+    Assertions.assertTrue(memoryAppender.contains(ch.qos.logback.classic.Level.INFO,USER_ID));
+    Assertions.assertTrue(memoryAppender.contains(ch.qos.logback.classic.Level.INFO,CHANNEL));
+    Assertions.assertTrue(memoryAppender.contains(ch.qos.logback.classic.Level.INFO,INITIATIVE_ID));
 
-
-  @Test
-  void logTC_ok(){
-    auditUtilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+    Assertions.assertEquals(1, memoryAppender.getLoggedEvents().size());
   }
 
   @Test
-  void logTC_ko() {
-    Mockito.doThrow(new OnboardingWorkflowException(400,"")).when(inetAddress).getHostAddress();
-    auditUtilities.logTC(USER_ID,INITIATIVE_ID, CHANNEL);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
-  }
+  void logTC_ok() {
+    auditUtilities.logTC(USER_ID, INITIATIVE_ID, CHANNEL);
+    checkCommonFields();
 
-  @Test
-  void logTCIdemp_ok(){
-    auditUtilities.logTCIdemp(USER_ID,INITIATIVE_ID, CHANNEL);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Terms and conditions accepted by the citizen" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
   }
-
   @Test
-  void logTCNotAccepted_ok(){
-    auditUtilities.logTCNotAccepted(USER_ID,INITIATIVE_ID, CHANNEL);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  void logTCIdemp_ok() {
+    auditUtilities.logTCIdemp(USER_ID, INITIATIVE_ID, CHANNEL);
+    checkCommonFields();
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Terms and conditions already accepted by the citizen" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
   }
-
   @Test
-  void logPDND_ok(){
-    auditUtilities.logPDND(USER_ID,INITIATIVE_ID, CHANNEL);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+  void logTCNotAccepted_ok() {
+    auditUtilities.logTCNotAccepted(USER_ID, INITIATIVE_ID, CHANNEL);
+    checkCommonFields();
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Terms and conditions not accepted by the citizen" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
   }
-
   @Test
-  void logGetListPDND_ok(){
+  void logPDND_ok() {
+    auditUtilities.logPDND(USER_ID, INITIATIVE_ID, CHANNEL);
+    checkCommonFields();
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Prerequisites required passed" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
+  }
+  @Test
+  void logGetListPDND_ok() {
     auditUtilities.logGetListPDND(INITIATIVE_ID);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
-  }
 
-  @Test
-  void logOnboardingOk_ok(){
-    auditUtilities.logOnboardingComplete(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Retrieved PDND data about %s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            INITIATIVE_ID
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
   }
-
   @Test
-  void logOnboardingOnEvaluation_ok(){
+  void logOnboardingComplete_ok() {
+    auditUtilities.logOnboardingComplete(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
+    checkCommonFields();
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Onboarding of the citizen complete" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s cs3Label=date cs3=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL,
+                            DATE
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
+  }
+  @Test
+  void logOnboardingOnEvaluation_ok() {
     auditUtilities.logOnboardingOnEvaluation(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
-  }
+    checkCommonFields();
 
-  @Test
-  void logOnboardingKOWithReason_ok(){
-    auditUtilities.logOnboardingKOWithReason(USER_ID, INITIATIVE_ID, CHANNEL, REASON_KO);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Onboarding of the citizen on evaluation" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s cs3Label=date cs3=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL,
+                            DATE
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
   }
-
   @Test
-  void logOnboardingKOWhiteList_ok(){
+  void logOnboardingKOWithReason_ok() {
+    auditUtilities.logOnboardingKOWithReason(USER_ID, INITIATIVE_ID, CHANNEL, MSG);
+    checkCommonFields();
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Onboarding of the citizen failed: %s" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            MSG,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
+  }
+  @Test
+  void logOnboardingKOInitiativeId_ok() {
+    auditUtilities.logOnboardingKOInitiativeId(INITIATIVE_ID, MSG);
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Onboarding failed for initiative %s: %s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            INITIATIVE_ID,
+                            MSG
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
+  }
+  @Test
+  void logOnboardingKOWhiteList_ok() {
     auditUtilities.logOnboardingKOWhiteList(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
-  }
+    checkCommonFields();
 
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Onboarding failed because the citizen is not allowed " +
+                    "to participate to this initiative suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s cs3Label=date cs3=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL,
+                            DATE
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
+  }
   @Test
-  void logOnboardingKOInitiativeId_ok(){
-    auditUtilities.logOnboardingKOInitiativeId(INITIATIVE_ID, REASON_KO);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG, MSG)).isFalse();
+  void logRollback_ok() {
+    auditUtilities.logRollback(USER_ID, INITIATIVE_ID, CHANNEL);
+    checkCommonFields();
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Onboarding rollback complete" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
+  }@Test
+  void logDeactivate_ok() {
+    auditUtilities.logDeactivate(USER_ID, INITIATIVE_ID, CHANNEL, DATE);
+    checkCommonFields();
+
+    Assertions.assertEquals(
+            ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s msg=Onboarding disabled" +
+                    " suser=%s cs1Label=initiativeId cs1=%s cs2Label=channel cs2=%s cs3Label=date cs3=%s")
+                    .formatted(
+                            AuditUtilities.SRCIP,
+                            USER_ID,
+                            INITIATIVE_ID,
+                            CHANNEL,
+                            DATE
+                    ),
+            memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+    );
   }
-
-  @Test
-  void logRollback_ok(){
-    auditUtilities.logRollback(USER_ID,INITIATIVE_ID,CHANNEL);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
-  }
-
-  @Test
-  void logDeactivate_ok(){
-    auditUtilities.logDeactivate(USER_ID,INITIATIVE_ID,CHANNEL, DATE);
-    assertThat(memoryAppender.contains(ch.qos.logback.classic.Level.DEBUG,MSG)).isFalse();
-  }
-
-
-  public static class MemoryAppender extends ListAppender<ILoggingEvent> {
-    public void reset() {
-      this.list.clear();
-    }
-
-    public boolean contains(ch.qos.logback.classic.Level level, String string) {
-      return this.list.stream()
-          .anyMatch(event -> event.toString().contains(string)
-              && event.getLevel().equals(level));
-    }
-
-    public int countEventsForLogger(String loggerName) {
-      return (int) this.list.stream()
-          .filter(event -> event.getLoggerName().contains(loggerName))
-          .count();
-    }
-
-    public List<ILoggingEvent> search() {
-      return this.list.stream()
-          .filter(event -> event.toString().contains(MSG))
-          .collect(Collectors.toList());
-    }
-
-    public List<ILoggingEvent> search(Level level) {
-      return this.list.stream()
-          .filter(event -> event.toString().contains(MSG)
-              && event.getLevel().equals(level))
-          .collect(Collectors.toList());
-    }
-
-    public int getSize() {
-      return this.list.size();
-    }
-
-    public List<ILoggingEvent> getLoggedEvents() {
-      return Collections.unmodifiableList(this.list);
-    }
-  }
-
 }

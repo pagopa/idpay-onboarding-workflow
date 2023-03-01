@@ -8,7 +8,7 @@ import lombok.Getter;
 public class OnboardingWorkflowException extends RuntimeException {
 
   private final int code;
-
   private final String message;
+  private final String detail;
 
 }

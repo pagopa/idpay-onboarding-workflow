@@ -64,12 +64,19 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     return criteria;
   }
 
-
-
   private Pageable getPageable(Pageable pageable) {
     if (pageable == null) {
       return PageRequest.of(0, 15, Sort.by("lastUpdate"));
     }
     return pageable;
   }
+
+  public long getCountOnboardedCitizen(String initiativeId){
+    Criteria criteria = Criteria.where(Onboarding.Fields.initiativeId).is(initiativeId);
+    criteria.and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.ONBOARDING_OK);
+    Query query = new Query();
+    query.addCriteria(criteria);
+    return mongoTemplate.count(query, Onboarding.class);
+  }
+
 }

@@ -16,6 +16,7 @@ import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
@@ -26,6 +27,8 @@ import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -69,7 +72,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND, initiativeId)));
+            String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND, initiativeId), OnboardingWorkflowConstants.GENERIC_ERROR));
   }
 
   @Override
@@ -84,8 +87,10 @@ public class OnboardingServiceImpl implements OnboardingService {
 
       if (onboarding.getStatus().equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
         performanceLog(startTime, PUT_TC_CONSENT);
-        auditUtilities.logOnboardingKOWithReason(userId, initiativeId, onboarding.getChannel(), "Unsubscribed to initiative");
-        throw new OnboardingWorkflowException(400, "Unsubscribed to initiative");
+        auditUtilities.logOnboardingKOWithReason(userId, initiativeId, onboarding.getChannel(),
+                OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE);
+        throw new OnboardingWorkflowException(400, OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE,
+                OnboardingWorkflowConstants.GENERIC_ERROR);
       }
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
@@ -142,6 +147,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     checkTCStatus(onboarding);
     checkDates(initiativeDTO);
+    checkBudget(initiativeDTO);
 
     RequiredCriteriaDTO dto = null;
     onboarding.setChannel(channel);
@@ -164,7 +170,7 @@ public class OnboardingServiceImpl implements OnboardingService {
               null);
       auditUtilities.logOnboardingKOWhiteList(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), LocalDateTime.now());
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-              OnboardingWorkflowConstants.ERROR_WHITELIST);
+              OnboardingWorkflowConstants.ERROR_WHITELIST, OnboardingWorkflowConstants.GENERIC_ERROR);
     }
     setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
     outcomeProducer.sendOutcome(createEvaluationDto(onboarding.getInitiativeId(),
@@ -188,7 +194,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void checkDates(InitiativeDTO initiativeDTO) {
-
     LocalDate requestDate = LocalDate.now();
 
     LocalDate startDate =
@@ -201,14 +206,36 @@ public class OnboardingServiceImpl implements OnboardingService {
             .getRankingEndDate() : initiativeDTO.getGeneral()
             .getEndDate();
 
-    boolean dateCheckFail =
-        requestDate.isBefore(startDate) || requestDate.isAfter(
-            endDate);
-
-    if (dateCheckFail) {
-      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The initiative has not met the dates prerequisites");
+    if (requestDate.isBefore(startDate)){
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED_MSG);
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-          OnboardingWorkflowConstants.ERROR_PREREQUISITES);
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED_MSG,
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED);
+    }
+
+    if (requestDate.isAfter(endDate)){
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
+      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG,
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
+    }
+  }
+
+  private void checkBudget(InitiativeDTO initiativeDTO) {
+    InitiativeGeneralDTO generalInfo = initiativeDTO.getGeneral();
+    BigDecimal totalBudget = generalInfo.getBudget();
+    BigDecimal beneficiaryBudget = generalInfo.getBeneficiaryBudget();
+    long onboardedCitizen = onboardingRepository.getCountOnboardedCitizen(initiativeDTO.getInitiativeId());
+
+    BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
+    if (budgetUsed.compareTo(totalBudget) > 0){
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+              OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
+      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+              OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
+              OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
     }
   }
 
@@ -234,10 +261,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (!onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       auditUtilities.logTCNotAccepted(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel());
-      throw new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-          String.format(
-              "Terms and Conditions have been not accepted by the current user for initiative %s.",
-              onboarding.getInitiativeId()));
+      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+              String.format(OnboardingWorkflowConstants.ERROR_TC, onboarding.getInitiativeId()),
+              OnboardingWorkflowConstants.GENERIC_ERROR);
     }
   }
 
@@ -247,18 +273,18 @@ public class OnboardingServiceImpl implements OnboardingService {
       InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(
           initiativeId);
       log.info(initiativeDTO.toString());
-      if (!initiativeDTO.getStatus().equals("PUBLISHED")) {
+      if (!initiativeDTO.getStatus().equals(OnboardingWorkflowConstants.PUBLISHED)) {
         log.info("[GET_INITIATIVE] Initiative {} is not active PUBLISHED! Status: {}", initiativeId,
             initiativeDTO.getStatus());
         throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-            "The initiative is not active!");
+            OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_ACTIVE, OnboardingWorkflowConstants.GENERIC_ERROR);
       }
       log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", initiativeId);
       return initiativeDTO;
     } catch (FeignException e) {
       log.error("[GET_INITIATIVE] Initiative {}: something went wrong when invoking the API.",
           initiativeId);
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8());
+      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR);
     }
   }
 
@@ -278,7 +304,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (pageable != null && pageable.getPageSize() > 15) {
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-          "Max number for page allowed: 15");
+          OnboardingWorkflowConstants.ERROR_MAX_NUMBER_FOR_PAGE, OnboardingWorkflowConstants.GENERIC_ERROR);
     }
     List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS = new ArrayList<>();
     Criteria criteria = onboardingRepository.getCriteria(initiativeId, userId, status, startDate,
@@ -310,11 +336,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
         && !consentPutDTO.isPdndAccept()) {
       performanceLog(startTime, "SAVE_CONSENT");
-      auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(), "The PDND consent was denied by the user for the initiative");
+      auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
+              String.format(OnboardingWorkflowConstants.ERROR_PDND, consentPutDTO.getInitiativeId()));
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-          String.format(
-              "The PDND consent was denied by the user for the initiative %s.",
-              consentPutDTO.getInitiativeId()));
+          String.format(OnboardingWorkflowConstants.ERROR_PDND,
+              consentPutDTO.getInitiativeId()), OnboardingWorkflowConstants.GENERIC_ERROR);
     }
 
     selfDeclaration(initiativeDTO, consentPutDTO);
@@ -347,20 +373,20 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (selfDeclarationBool.size() + selfDeclarationMulti.size()
         != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size()) {
-      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The amount of self declaration lists mismatch the amount of flags");
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE);
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-          OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE);
+          OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE, OnboardingWorkflowConstants.GENERIC_ERROR);
     }
 
     initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().forEach(item -> {
       if (item instanceof SelfCriteriaBoolDTO bool) {
         Boolean flag = selfDeclarationBool.get(bool.getCode());
         if (flag == null || !flag) {
-          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The selfDeclarationList was denied by the user for the initiative");
+          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+                  String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, consentPutDTO.getInitiativeId()));
           throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-              String.format(
-                  OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
-                  consentPutDTO.getInitiativeId()));
+              String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
+                  consentPutDTO.getInitiativeId()), OnboardingWorkflowConstants.GENERIC_ERROR);
 
         }
         bool.setValue(true);
@@ -368,11 +394,12 @@ public class OnboardingServiceImpl implements OnboardingService {
       if (item instanceof SelfCriteriaMultiDTO multi) {
         String value = selfDeclarationMulti.get(multi.getCode());
         if (value == null || !multi.getValue().contains(value)) {
-          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), "The selfDeclarationList was denied by the user for the initiative");
+          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+                  String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, consentPutDTO.getInitiativeId()));
           throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
               String.format(
                   OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
-                  consentPutDTO.getInitiativeId()));
+                  consentPutDTO.getInitiativeId()), OnboardingWorkflowConstants.GENERIC_ERROR);
 
         }
         multi.setValue(List.of(value));

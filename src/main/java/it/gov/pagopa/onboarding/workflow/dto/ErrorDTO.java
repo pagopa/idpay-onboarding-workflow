@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 public class ErrorDTO {
 
   Integer code = null;
-
   String message = null;
+  String details = null;
 
 }
 
