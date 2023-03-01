@@ -89,7 +89,7 @@ class OnboardingServiceTest {
 
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
-          USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, "ONBOARDING_OK",
+          USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
           new BigDecimal(500));
 
@@ -373,7 +373,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND,INITIATIVE_ID), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
 
   }
@@ -670,6 +669,35 @@ class OnboardingServiceTest {
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
+  @Test
+  void checkPrerequisites_onboardingKO() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO);
+
+    try {
+      onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
+    }
+  }
+  @Test
+  void checkPrerequisites_onboardingOK() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO);
+
+    RequiredCriteriaDTO res = onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
+    assertNull(res);
+  }
 
   @ParameterizedTest
   @CsvSource({
@@ -739,7 +767,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE, e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
@@ -768,7 +795,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, INITIATIVE_ID), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
@@ -797,7 +823,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, INITIATIVE_ID), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
@@ -826,7 +851,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, INITIATIVE_ID), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
@@ -855,7 +879,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, INITIATIVE_ID), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
@@ -884,6 +907,41 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ERROR_PDND,INITIATIVE_ID), e.getMessage());
+    }
+  }
+  @Test
+  void saveConsent_onboardingOK() {
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
+            new SelfConsentBoolDTO("boolean", "2", true));
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, false, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
+  @Test
+  void saveConsent_onboardingKO() {
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
+            new SelfConsentBoolDTO("boolean", "2", true));
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, false, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, e.getMessage());
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
@@ -936,7 +994,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND,INITIATIVE_ID), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
@@ -1050,7 +1107,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ERROR_MAX_NUMBER_FOR_PAGE), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
