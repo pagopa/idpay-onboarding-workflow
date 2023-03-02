@@ -79,7 +79,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void putTcConsent(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
 
-    getInitiative(initiativeId);
+    InitiativeDTO initiativeDTO = getInitiative(initiativeId);
+
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
 
@@ -105,6 +106,9 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding = new Onboarding(initiativeId, userId);
       onboarding.setCreationDate(localDateTime);
     }
+
+    checkDates(initiativeDTO, onboarding);
+    checkBudget(initiativeDTO, onboarding);
 
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTc(true);
@@ -151,8 +155,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     checkStatusKO(onboarding);
     checkTCStatus(onboarding);
-    checkDates(initiativeDTO);
-    checkBudget(initiativeDTO);
+    checkDates(initiativeDTO, onboarding);
+    checkBudget(initiativeDTO, onboarding);
 
     onboarding.setChannel(channel);
     RequiredCriteriaDTO dto = null;
@@ -198,7 +202,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     return dto;
   }
 
-  private void checkDates(InitiativeDTO initiativeDTO) {
+  private void checkDates(InitiativeDTO initiativeDTO, Onboarding onboarding) {
     LocalDate requestDate = LocalDate.now();
 
     LocalDate startDate =
@@ -220,6 +224,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     if (requestDate.isAfter(endDate)){
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
               OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -228,7 +234,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private void checkBudget(InitiativeDTO initiativeDTO) {
+  private void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding) {
     InitiativeGeneralDTO generalInfo = initiativeDTO.getGeneral();
     BigDecimal totalBudget = generalInfo.getBudget();
     BigDecimal beneficiaryBudget = generalInfo.getBeneficiaryBudget();
@@ -237,6 +243,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
     if (budgetUsed.compareTo(totalBudget) >= 0){
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
               OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -274,7 +282,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
   private void checkStatusKO(Onboarding onboarding) {
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ONBOARDING_KO)) {
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(), OnboardingWorkflowConstants.ONBOARDING_KO, null);
+      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(), OnboardingWorkflowConstants.ONBOARDING_KO,
+              OnboardingWorkflowConstants.GENERIC_ERROR);
     }
   }
 
@@ -349,6 +358,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     InitiativeDTO initiativeDTO = getInitiative(consentPutDTO.getInitiativeId());
 
+    checkDates(initiativeDTO, onboarding);
+    checkBudget(initiativeDTO, onboarding);
+
     if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
         && !consentPutDTO.isPdndAccept()) {
       performanceLog(startTime, "SAVE_CONSENT");
@@ -365,7 +377,6 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDateTime localDateTime = LocalDateTime.now();
     onboarding.setCriteriaConsensusTimestamp(localDateTime);
     onboarding.setUpdateDate(localDateTime);
-    checkDates(initiativeDTO);
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);

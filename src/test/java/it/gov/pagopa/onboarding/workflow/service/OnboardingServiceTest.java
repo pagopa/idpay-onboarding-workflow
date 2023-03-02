@@ -681,8 +681,10 @@ class OnboardingServiceTest {
     try {
       onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
     } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
+
     }
   }
   @Test
@@ -939,7 +941,7 @@ class OnboardingServiceTest {
     try {
       onboardingService.saveConsent(consentPutDTO, USER_ID);
     } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, e.getMessage());
     }
   }
