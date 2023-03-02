@@ -51,6 +51,7 @@ import org.springframework.stereotype.Service;
 public class OnboardingServiceImpl implements OnboardingService {
 
   public static final String PUT_TC_CONSENT = "PUT_TC_CONSENT";
+  public static final String EMPTY = "";
   @Autowired
   private OnboardingRepository onboardingRepository;
 
@@ -105,6 +106,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboarding == null) {
       onboarding = new Onboarding(initiativeId, userId);
       onboarding.setCreationDate(localDateTime);
+      onboarding.setUpdateDate(localDateTime);
     }
 
     checkDates(initiativeDTO, onboarding);
@@ -225,6 +227,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (requestDate.isAfter(endDate)){
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      onboarding.setUpdateDate(LocalDateTime.now());
       onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
               OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
@@ -244,6 +247,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
     if (budgetUsed.compareTo(totalBudget) >= 0){
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      onboarding.setUpdateDate(LocalDateTime.now());
       onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
               OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
@@ -336,7 +340,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         () -> count);
     for (Onboarding o : onboardinglist) {
       OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
-          o.getUserId(), o.getStatus(), o.getUpdateDate().toString());
+          o.getUserId(), o.getStatus(), o.getUpdateDate()!=null?o.getUpdateDate().toString(): EMPTY);
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
     performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST");
