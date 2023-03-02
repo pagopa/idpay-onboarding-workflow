@@ -232,7 +232,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     InitiativeGeneralDTO generalInfo = initiativeDTO.getGeneral();
     BigDecimal totalBudget = generalInfo.getBudget();
     BigDecimal beneficiaryBudget = generalInfo.getBeneficiaryBudget();
-    long onboardedCitizen = onboardingRepository.getCountOnboardedCitizen(initiativeDTO.getInitiativeId(),
+    int onboardedCitizen = onboardingRepository.countByInitiativeIdAndStatus(initiativeDTO.getInitiativeId(),
             OnboardingWorkflowConstants.ONBOARDING_OK);
 
     BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
