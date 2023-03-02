@@ -242,7 +242,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     BigDecimal totalBudget = generalInfo.getBudget();
     BigDecimal beneficiaryBudget = generalInfo.getBeneficiaryBudget();
     int onboardedCitizen = onboardingRepository.countByInitiativeIdAndStatus(initiativeDTO.getInitiativeId(),
-            OnboardingWorkflowConstants.ONBOARDING_OK);
+            OnboardingWorkflowConstants.ONBOARDING_OK) + 1;
 
     BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
     if (budgetUsed.compareTo(totalBudget) >= 0){
