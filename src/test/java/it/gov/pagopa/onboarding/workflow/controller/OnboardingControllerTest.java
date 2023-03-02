@@ -86,7 +86,7 @@ class OnboardingControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("The initiative with id %s does not exist.", INITIATIVE_ID)))
+            String.format("The initiative with id %s does not exist.", INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR))
         .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
@@ -117,9 +117,8 @@ class OnboardingControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format(
-                "Terms and Conditions have been not accepted by the current user for initiative %s.",
-                INITIATIVE_ID))).when(onboardingServiceMock)
+            String.format(OnboardingWorkflowConstants.ERROR_TC,
+                INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR)).when(onboardingServiceMock)
         .checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
 
     Map<String, Object> body = new HashMap<>();
@@ -208,7 +207,8 @@ class OnboardingControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-            String.format("The initiative with id %s has not met the prerequisites.", INITIATIVE_ID)))
+                    OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
+                    OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED))
         .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
 
     Map<String, Object> body = new HashMap<>();
@@ -248,7 +248,7 @@ class OnboardingControllerTest {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
             String.format("Onboarding with initiativeId %s and current userId not found.",
-                INITIATIVE_ID)))
+                INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR))
         .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
     mvc.perform(
@@ -330,7 +330,7 @@ class OnboardingControllerTest {
   @Test
   void onboarding_status_list_ko() throws Exception {
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-        "Max number for page allowed: 15")).when(
+        OnboardingWorkflowConstants.ERROR_MAX_NUMBER_FOR_PAGE, OnboardingWorkflowConstants.GENERIC_ERROR)).when(
         onboardingServiceMock).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
         STATUS, null);
 

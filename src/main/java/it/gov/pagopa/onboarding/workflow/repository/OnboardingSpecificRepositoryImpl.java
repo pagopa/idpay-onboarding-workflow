@@ -64,8 +64,6 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     return criteria;
   }
 
-
-
   private Pageable getPageable(Pageable pageable) {
     if (pageable == null) {
       return PageRequest.of(0, 15, Sort.by("lastUpdate"));
