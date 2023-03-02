@@ -584,7 +584,7 @@ class OnboardingServiceTest {
             .thenReturn(Optional.of(onboarding));
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
             .thenReturn(INITIATIVE_DTO);
-    Mockito.when(onboardingRepositoryMock.getCountOnboardedCitizen(Mockito.anyString(),Mockito.anyString())).thenReturn(15L);
+    Mockito.when(onboardingRepositoryMock.countByInitiativeIdAndStatus(Mockito.anyString(),Mockito.anyString())).thenReturn(15);
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);

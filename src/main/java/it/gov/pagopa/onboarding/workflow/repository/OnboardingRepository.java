@@ -11,6 +11,6 @@ public interface OnboardingRepository extends MongoRepository<Onboarding, String
 
   Optional<Onboarding> findByInitiativeIdAndUserId(String initiativeId, String userId);
 
-  Long getCountOnboardedCitizen(String initiativeId, String status);
+  int countByInitiativeIdAndStatus(String initiativeId, String status);
 
 }
