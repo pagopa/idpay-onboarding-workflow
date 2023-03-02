@@ -154,8 +154,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     checkDates(initiativeDTO);
     checkBudget(initiativeDTO);
 
-    RequiredCriteriaDTO dto = null;
     onboarding.setChannel(channel);
+    RequiredCriteriaDTO dto = null;
 
     if (!checkWhitelist(onboarding, initiativeDTO)) {
       dto = getCriteriaLists(initiativeDTO);
@@ -232,10 +232,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     InitiativeGeneralDTO generalInfo = initiativeDTO.getGeneral();
     BigDecimal totalBudget = generalInfo.getBudget();
     BigDecimal beneficiaryBudget = generalInfo.getBeneficiaryBudget();
-    long onboardedCitizen = onboardingRepository.getCountOnboardedCitizen(initiativeDTO.getInitiativeId());
+    long onboardedCitizen = onboardingRepository.getCountOnboardedCitizen(initiativeDTO.getInitiativeId(),
+            OnboardingWorkflowConstants.ONBOARDING_OK);
 
     BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
-    if (budgetUsed.compareTo(totalBudget) > 0){
+    if (budgetUsed.compareTo(totalBudget) >= 0){
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
               OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -273,8 +274,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
   private void checkStatusKO(Onboarding onboarding) {
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ONBOARDING_KO)) {
-      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(), OnboardingWorkflowConstants.ONBOARDING_KO,
-              OnboardingWorkflowConstants.GENERIC_ERROR);
+      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(), OnboardingWorkflowConstants.ONBOARDING_KO, null);
     }
   }
 

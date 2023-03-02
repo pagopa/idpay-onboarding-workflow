@@ -84,11 +84,4 @@ class OnboardingSpecificRepositoryTest {
     Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,null,null,null,null);
     assertEquals(1,criteria.getCriteriaObject().size());
   }
-
-  @Test
-  void getCountOnboardedCitizen(){
-    onboardingSpecificRepository.getCountOnboardedCitizen(INITIATIVE_ID);
-    Mockito.verify(mongoTemplate, Mockito.times(1)).count(Mockito.any(),
-            (Class<?>) Mockito.any());
-  }
 }

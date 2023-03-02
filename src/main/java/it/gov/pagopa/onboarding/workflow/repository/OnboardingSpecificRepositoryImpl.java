@@ -70,13 +70,4 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     }
     return pageable;
   }
-
-  public long getCountOnboardedCitizen(String initiativeId){
-    Criteria criteria = Criteria.where(Onboarding.Fields.initiativeId).is(initiativeId)
-            .and(Onboarding.Fields.status).is(OnboardingWorkflowConstants.ONBOARDING_OK);
-    Query query = new Query();
-    query.addCriteria(criteria);
-    return mongoTemplate.count(query, Onboarding.class);
-  }
-
 }
