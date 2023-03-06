@@ -1,7 +1,9 @@
 package it.gov.pagopa.onboarding.workflow.utils;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Utilities {
 
     public String getMessageOnbordingKO(String detail){
