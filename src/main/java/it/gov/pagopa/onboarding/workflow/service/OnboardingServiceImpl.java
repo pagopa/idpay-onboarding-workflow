@@ -28,6 +28,7 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 
+import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,6 +71,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Autowired
   AuditUtilities auditUtilities;
 
+  @Autowired
+  Utilities utilities;
+
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
@@ -93,6 +97,13 @@ public class OnboardingServiceImpl implements OnboardingService {
                 OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE);
         throw new OnboardingWorkflowException(400, OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE,
                 OnboardingWorkflowConstants.GENERIC_ERROR);
+      }
+
+      if(onboarding.getStatus().equals(OnboardingWorkflowConstants.ONBOARDING_KO)){
+        auditUtilities.logOnboardingKOWithReason(userId, initiativeId, onboarding.getChannel(),
+                utilities.getMessageOnbordingKO(onboarding.getDatailKO()));
+        throw new OnboardingWorkflowException(403, utilities.getMessageOnbordingKO(onboarding.getDatailKO()),
+                onboarding.getDatailKO());
       }
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
@@ -155,8 +166,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ONBOARDING_OK)) {
       return null;
     }
-    checkStatusKO(onboarding);
     checkTCStatus(onboarding);
+    checkStatusKO(onboarding);
     checkDates(initiativeDTO, onboarding);
     checkBudget(initiativeDTO, onboarding);
 
@@ -218,7 +229,7 @@ public class OnboardingServiceImpl implements OnboardingService {
             .getEndDate();
 
     if (requestDate.isBefore(startDate)){
-      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+      auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
               OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED_MSG);
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
               OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED_MSG,
@@ -226,10 +237,12 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     if (requestDate.isAfter(endDate)){
+      LocalDateTime localDateTime = LocalDateTime.now();
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-      onboarding.setUpdateDate(LocalDateTime.now());
+      onboarding.setOnboardingKODate(localDateTime);
+      onboarding.setUpdateDate(localDateTime);
       onboardingRepository.save(onboarding);
-      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+      auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
               OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG,
@@ -246,10 +259,12 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
     if (budgetUsed.compareTo(totalBudget) >= 0){
+      LocalDateTime localDateTime = LocalDateTime.now();
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-      onboarding.setUpdateDate(LocalDateTime.now());
+      onboarding.setOnboardingKODate(localDateTime);
+      onboarding.setUpdateDate(localDateTime);
       onboardingRepository.save(onboarding);
-      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
+      auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
               OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
               OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
@@ -285,6 +300,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
   private void checkStatusKO(Onboarding onboarding) {
+    auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
+            OnboardingWorkflowConstants.GENERIC_ERROR_MSG);
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ONBOARDING_KO)) {
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(), OnboardingWorkflowConstants.ONBOARDING_KO,
               OnboardingWorkflowConstants.GENERIC_ERROR);

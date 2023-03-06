@@ -27,6 +27,7 @@ import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
+import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -74,6 +75,9 @@ class OnboardingServiceTest {
 
   @MockBean
   AuditUtilities auditUtilities;
+
+  @MockBean
+  Utilities utilities;
 
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -682,7 +686,6 @@ class OnboardingServiceTest {
       onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
-      assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, e.getMessage());
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
 
     }

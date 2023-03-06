@@ -30,6 +30,7 @@ public final class OnboardingWorkflowConstants {
   public static final String ERROR_INITIATIVE_SUSPENDED = "INITIATIVE_SUSPENDED";
   public static final String ERROR_INITIATIVE_SUSPENDED_MSG = "The initiative is suspended";
   public static final String GENERIC_ERROR = "GENERIC_ERROR";
+  public static final String GENERIC_ERROR_MSG = "Onbording to initiative failed";
 
   private OnboardingWorkflowConstants() {
   }
