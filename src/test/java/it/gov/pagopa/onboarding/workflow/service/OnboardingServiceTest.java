@@ -351,6 +351,26 @@ class OnboardingServiceTest {
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
+  @Test
+  void putTC_onboardingKO() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setDatailKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(
+                    Optional.of(onboarding));
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO);
+    Mockito.when(utilities.getMessageOnboardingKO(Mockito.anyString())).thenReturn(OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
+
+    try {
+      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.ERROR_INITIATIVE_END, e.getDetail());
+    }
+  }
 
   @Test
   void getOnboardingStatus_ok() {

@@ -6,16 +6,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class Utilities {
 
-    public String getMessageOnbordingKO(String detail){
-        switch(detail){
-            case OnboardingWorkflowConstants.ERROR_INITIATIVE_END:
-                return OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG;
-            case OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED:
-                return OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG;
-            case OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED:
-                return OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED_MSG;
-            default:
-                return OnboardingWorkflowConstants.GENERIC_ERROR_MSG;
-        }
+    public String getMessageOnboardingKO(String detail){
+         return switch (detail) {
+            case OnboardingWorkflowConstants.ERROR_INITIATIVE_END ->
+                    OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG;
+            case OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED ->
+                    OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG;
+            case OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED ->
+                    OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED_MSG;
+            default -> OnboardingWorkflowConstants.GENERIC_ERROR_MSG;
+        };
     }
 }

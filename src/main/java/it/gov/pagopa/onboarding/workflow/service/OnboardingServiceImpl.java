@@ -101,8 +101,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
       if(onboarding.getStatus().equals(OnboardingWorkflowConstants.ONBOARDING_KO)){
         auditUtilities.logOnboardingKOWithReason(userId, initiativeId, onboarding.getChannel(),
-                utilities.getMessageOnbordingKO(onboarding.getDatailKO()));
-        throw new OnboardingWorkflowException(403, utilities.getMessageOnbordingKO(onboarding.getDatailKO()),
+                utilities.getMessageOnboardingKO(onboarding.getDatailKO()));
+        throw new OnboardingWorkflowException(403, utilities.getMessageOnboardingKO(onboarding.getDatailKO()),
                 onboarding.getDatailKO());
       }
 
