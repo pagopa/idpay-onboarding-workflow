@@ -30,7 +30,7 @@ class UtilitiesTest {
 
     @Test
     void detailGenericError(){
-        String message = utilities.getMessageOnboardingKO(Mockito.anyString());
+        String message = utilities.getMessageOnboardingKO("Generic error");
         assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR_MSG, message);
     }
 
