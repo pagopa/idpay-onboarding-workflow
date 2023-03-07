@@ -60,7 +60,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_IUR}}",
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -74,7 +74,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_IUR}}"
+													"value": "{{CF_1}}"
 												}
 											]
 										}
@@ -1114,7 +1114,7 @@
 											},
 											{
 												"key": "Fiscal-Code",
-												"value": "{{CF_IUR}}",
+												"value": "{{CF_1}}",
 												"type": "text"
 											}
 										],
@@ -1189,7 +1189,7 @@
 											},
 											{
 												"key": "Fiscal-Code",
-												"value": "{{CF_IUR}}",
+												"value": "{{CF_1}}",
 												"type": "text"
 											}
 										],
@@ -1260,7 +1260,7 @@
 											},
 											{
 												"key": "Fiscal-Code",
-												"value": "{{CF_IUR}}",
+												"value": "{{CF_1}}",
 												"type": "text"
 											}
 										],
@@ -1709,7 +1709,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_GAM}}",
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -1723,7 +1723,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_GAM}}"
+													"value": "{{CF_2}}"
 												}
 											]
 										}
@@ -3522,7 +3522,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_GAM}}",
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -3536,7 +3536,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_GAM}}"
+													"value": "{{CF_2}}"
 												}
 											]
 										}
@@ -3967,7 +3967,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_GAM}}",
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -3981,7 +3981,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_GAM}}"
+													"value": "{{CF_2}}"
 												}
 											]
 										}
@@ -4096,7 +4096,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_IUR}}",
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -4110,7 +4110,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_IUR}}"
+													"value": "{{CF_1}}"
 												}
 											]
 										}
@@ -4343,7 +4343,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_IUR}}",
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -4357,7 +4357,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_IUR}}"
+													"value": "{{CF_1}}"
 												}
 											]
 										}
@@ -4595,7 +4595,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_GAM}}",
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -4609,7 +4609,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_GAM}}"
+													"value": "{{CF_2}}"
 												}
 											]
 										}
@@ -5250,7 +5250,7 @@
 													"\r",
 													"pm.test(\"Onboarding status test\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.status).equals('ONBOARDING_KO');\r",
+													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -5885,14 +5885,6 @@
 		{
 			"key": "serviceId - unsubscribed user",
 			"value": "MOCKdevX21DC1KCY68H15SHEQZEMAZAOK"
-		},
-		{
-			"key": "CF_GAM",
-			"value": "GMMMRA79L13H703E"
-		},
-		{
-			"key": "CF_IUR",
-			"value": "RLLCLD92M08A662O"
 		}
 	]
 }
