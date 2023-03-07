@@ -27,6 +27,8 @@ public class Onboarding {
 
   private String status;
 
+  private String datailKO;
+
   private String channel;
 
   private Boolean tc;
