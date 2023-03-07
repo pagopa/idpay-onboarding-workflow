@@ -145,6 +145,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     if (status.equals(OnboardingWorkflowConstants.ONBOARDING_KO)) {
       onboarding.setOnboardingKODate(date);
+      onboarding.setDatailKO(OnboardingWorkflowConstants.GENERIC_ERROR);
       if (onboardingRejectionReasons != null) {
         checkElegibileKO(onboarding, onboardingRejectionReasons);
       }
@@ -241,6 +242,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
       onboarding.setOnboardingKODate(localDateTime);
       onboarding.setUpdateDate(localDateTime);
+      onboarding.setDatailKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
       onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
@@ -263,6 +265,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
       onboarding.setOnboardingKODate(localDateTime);
       onboarding.setUpdateDate(localDateTime);
+      onboarding.setDatailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
       onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
               OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
