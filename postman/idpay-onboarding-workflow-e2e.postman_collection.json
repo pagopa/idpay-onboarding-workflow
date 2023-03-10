@@ -3,7 +3,7 @@
 		"_postman_id": "23d35277-3d82-4298-8829-c3a7224ab170",
 		"name": "Onboarding - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036736"
+		"_exporter_id": "26036679"
 	},
 	"item": [
 		{
@@ -111,18 +111,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - initiative with whitelist}}",
 											"host": [
@@ -294,20 +283,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -424,18 +400,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - initiative with criteria}}",
 											"host": [
@@ -661,20 +626,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -791,18 +743,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - self declaration}}",
 											"host": [
@@ -1028,20 +969,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -1244,6 +1172,11 @@
 										"method": "GET",
 										"header": [
 											{
+												"key": "Fiscal-Code",
+												"value": "{{CF_1}}",
+												"type": "text"
+											},
+											{
 												"key": "Ocp-Apim-Subscription-Key",
 												"value": "{{issuerSubscriptionKey}}",
 												"type": "text"
@@ -1256,11 +1189,6 @@
 											{
 												"key": "Accept-Language",
 												"value": "it_IT",
-												"type": "text"
-											},
-											{
-												"key": "Fiscal-Code",
-												"value": "{{CF_1}}",
 												"type": "text"
 											}
 										],
@@ -1391,18 +1319,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - self declaration}}",
 											"host": [
@@ -1630,20 +1547,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -1760,18 +1664,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - self declaration}}",
 											"host": [
@@ -1942,20 +1835,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -2072,18 +1952,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - initiative with criteria}}",
 											"host": [
@@ -2311,20 +2180,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -2441,18 +2297,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - self declaration}}",
 											"host": [
@@ -2680,20 +2525,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -2810,18 +2642,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - initiative with whitelist}}",
 											"host": [
@@ -3248,20 +3069,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{NoCriteriaInitiativeId}}/status",
 											"host": [
@@ -3378,18 +3186,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - endDate}}",
 											"host": [
@@ -3573,18 +3370,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - startDate}}",
 											"host": [
@@ -3835,18 +3621,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - no budget}}",
 											"host": [
@@ -4147,18 +3922,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - unsubscribed user}}",
 											"host": [
@@ -4273,20 +4037,7 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "d86278b76cc044a78d4dc9619f74ff63"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT"
-											}
-										],
+										"header": [],
 										"url": {
 											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
 											"host": [
@@ -5100,7 +4851,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													""
+													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
 												"type": "text/javascript"
 											}
@@ -5180,7 +4931,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													""
+													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
 												],
 												"type": "text/javascript"
 											}
@@ -5209,7 +4960,7 @@
 											},
 											{
 												"key": "Fiscal-Code",
-												"value": "{{fiscalCode}}",
+												"value": "{{same_fiscalCode}}",
 												"type": "text"
 											}
 										],
@@ -5255,6 +5006,15 @@
 												],
 												"type": "text/javascript"
 											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
+												],
+												"type": "text/javascript"
+											}
 										}
 									],
 									"request": {
@@ -5280,7 +5040,7 @@
 											},
 											{
 												"key": "Fiscal-Code",
-												"value": "{{fiscalCode}}",
+												"value": "{{same_fiscalCode}}",
 												"type": "text"
 											}
 										],
