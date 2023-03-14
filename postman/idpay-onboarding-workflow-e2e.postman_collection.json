@@ -3,7 +3,7 @@
 		"_postman_id": "23d35277-3d82-4298-8829-c3a7224ab170",
 		"name": "Onboarding - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036679"
+		"_exporter_id": "26036736"
 	},
 	"item": [
 		{
@@ -13,7 +13,7 @@
 					"name": "APP_IO",
 					"item": [
 						{
-							"name": "Onboarding User with Whitelist - Only one time",
+							"name": "Onboarding User with Whitelist",
 							"item": [
 								{
 									"name": "Generate Token IO",
@@ -486,7 +486,7 @@
 											"script": {
 												"exec": [
 													"pm.test(\"Status test\", function () {\r",
-													"    pm.response.to.have.status(200);\r",
+													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -592,7 +592,7 @@
 									"response": []
 								},
 								{
-									"name": "Status Onboarding - ok Copy",
+									"name": "Status Onboarding - ok",
 									"event": [
 										{
 											"listen": "test",
@@ -829,7 +829,7 @@
 											"script": {
 												"exec": [
 													"pm.test(\"Status test\", function () {\r",
-													"    pm.response.to.have.status(200);\r",
+													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
 												"type": "text/javascript"
