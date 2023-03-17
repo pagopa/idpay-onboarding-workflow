@@ -310,7 +310,7 @@
 														{
 															"key": "file",
 															"type": "file",
-															"src": "NJxWOA-Ni/example_fiscal_code.csv"
+															"src": "./postman/example_fiscal_code.csv"
 														}
 													]
 												},
