@@ -260,7 +260,7 @@ public class OnboardingServiceImpl implements OnboardingService {
             OnboardingWorkflowConstants.ONBOARDING_OK) + 1;
 
     BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
-    if (budgetUsed.compareTo(totalBudget) >= 0){
+    if (budgetUsed.compareTo(totalBudget) > 0){
       LocalDateTime localDateTime = LocalDateTime.now();
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
       onboarding.setOnboardingKODate(localDateTime);
