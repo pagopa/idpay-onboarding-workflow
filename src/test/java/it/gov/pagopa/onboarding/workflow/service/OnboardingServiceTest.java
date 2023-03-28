@@ -5,6 +5,8 @@ import static com.mongodb.assertions.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import feign.FeignException;
 import feign.Request;
@@ -90,12 +92,20 @@ class OnboardingServiceTest {
   private static final String CHANNEL = "CHANNEL";
   private static final BigDecimal BUDGET = BigDecimal.valueOf(1000);
   private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
-
+  private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
+  private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
           new BigDecimal(500));
+  private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
+          new EvaluationDTO(
+                  USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
+                  OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
+                  List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, null, null, null, null),
+                          new OnboardingRejectionReason(OUT_OF_RANKING, null, null, null, null)),
+                  new BigDecimal(500));
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
@@ -244,7 +254,7 @@ class OnboardingServiceTest {
       onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
       onboarding.setTcAcceptTimestamp(LocalDateTime.now());
       return null;
-    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
     onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
 
     assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
@@ -271,7 +281,7 @@ class OnboardingServiceTest {
       onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
       onboarding.setTcAcceptTimestamp(LocalDateTime.now());
       return null;
-    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
     onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
 
     assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
@@ -354,14 +364,14 @@ class OnboardingServiceTest {
   @Test
   void putTC_onboardingKO() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setDatailKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
+    onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
     onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
             .thenReturn(
                     Optional.of(onboarding));
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
             .thenReturn(INITIATIVE_DTO);
-    Mockito.when(utilities.getMessageOnboardingKO(Mockito.anyString())).thenReturn(OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
+    Mockito.when(utilities.getMessageOnboardingKO(anyString())).thenReturn(OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
 
     try {
       onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
@@ -416,7 +426,7 @@ class OnboardingServiceTest {
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setChannel(CHANNEL);
       return null;
-    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,
@@ -482,7 +492,7 @@ class OnboardingServiceTest {
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setChannel(CHANNEL);
       return null;
-    }).when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
@@ -509,7 +519,7 @@ class OnboardingServiceTest {
       Assertions.fail();
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
-      assertEquals(OnboardingWorkflowConstants.ERROR_WHITELIST, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.ERROR_WHITELIST_MSG, e.getMessage());
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
 
@@ -608,7 +618,7 @@ class OnboardingServiceTest {
             .thenReturn(Optional.of(onboarding));
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
             .thenReturn(INITIATIVE_DTO);
-    Mockito.when(onboardingRepositoryMock.countByInitiativeIdAndStatus(Mockito.anyString(),Mockito.anyString())).thenReturn(15);
+    Mockito.when(onboardingRepositoryMock.countByInitiativeIdAndStatus(anyString(), anyString())).thenReturn(15);
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
@@ -616,24 +626,6 @@ class OnboardingServiceTest {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG, e.getMessage());
       assertEquals(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED, e.getDetail());
-    }
-  }
-
-  @Test
-  void checkPrerequisites_ko_no_tc() {
-    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
-    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(Optional.of(onboarding));
-    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_DTO);
-
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-    } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
-      assertEquals(String.format(OnboardingWorkflowConstants.ERROR_TC, INITIATIVE_ID), e.getMessage());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 
@@ -689,7 +681,7 @@ class OnboardingServiceTest {
           CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
-      assertEquals(OnboardingWorkflowConstants.ERROR_WHITELIST, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.ERROR_WHITELIST_MSG, e.getMessage());
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
@@ -697,6 +689,9 @@ class OnboardingServiceTest {
   void checkPrerequisites_onboardingKO() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+    Mockito.when(utilities.getMessageOnboardingKO(anyString())).thenReturn(
+            OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
             .thenReturn(Optional.of(onboarding));
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
@@ -706,18 +701,31 @@ class OnboardingServiceTest {
       onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
-      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
-
+      assertEquals(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED, e.getDetail());
+      assertEquals(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG, e.getMessage());
     }
   }
   @Test
-  void checkPrerequisites_onboardingOK() {
+  void checkPrerequisites_onboardingOK_noWhitelist() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
             .thenReturn(Optional.of(onboarding));
     Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
             .thenReturn(INITIATIVE_DTO);
+
+    RequiredCriteriaDTO res = onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
+    assertEquals(INITIATIVE_BENEFICIARY_RULE_DTO.getSelfDeclarationCriteria(), res.getSelfDeclarationList());
+  }
+
+  @Test
+  void checkPrerequisites_onboardingOK_whitelist() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO_WHITELIST);
 
     RequiredCriteriaDTO res = onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
     assertNull(res);
@@ -764,7 +772,7 @@ class OnboardingServiceTest {
       Assertions.fail();
     }
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).save(Mockito.any());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).save(any());
   }
 
   @Test
@@ -958,6 +966,9 @@ class OnboardingServiceTest {
 
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED);
+    Mockito.when(utilities.getMessageOnboardingKO(anyString())).thenReturn(
+            OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED_MSG);
 
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(onboarding.getInitiativeId(), USER_ID))
             .thenReturn(Optional.of(onboarding));
@@ -965,7 +976,8 @@ class OnboardingServiceTest {
       onboardingService.saveConsent(consentPutDTO, USER_ID);
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.FORBIDDEN.value(), e.getCode());
-      assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED, e.getDetail());
+      assertEquals(OnboardingWorkflowConstants.ERROR_INITIATIVE_SUSPENDED_MSG, e.getMessage());
     }
   }
 
@@ -975,18 +987,26 @@ class OnboardingServiceTest {
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(Optional.of(onboarding));
     onboardingService.completeOnboarding(EVALUATION_DTO);
-    assertEquals("ONBOARDING_OK", onboarding.getStatus());
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
 
   @Test
-  void completeOnboarding_ko() {
+  void completeOnboarding_noOnboardingFound() {
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(Optional.empty());
     onboardingService.completeOnboarding(EVALUATION_DTO);
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
         .findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
   }
-
+  @Test
+  void completeOnboarding_ko(){
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
+    assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
+    assertEquals(OUT_OF_RANKING + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
+  }
   @Test
   void deactivateOnboarding_ok() {
 
@@ -1000,7 +1020,7 @@ class OnboardingServiceTest {
               onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
               return null;
             })
-        .when(onboardingRepositoryMock).save(Mockito.any(Onboarding.class));
+        .when(onboardingRepositoryMock).save(any(Onboarding.class));
     onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
     assertNotNull(onboarding.getRequestDeactivationDate());
     assertEquals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED, onboarding.getStatus());
@@ -1036,7 +1056,7 @@ class OnboardingServiceTest {
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(Optional.empty());
     onboardingService.rollback(INITIATIVE_ID, USER_ID);
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(any());
   }
 
   @Test
@@ -1046,7 +1066,7 @@ class OnboardingServiceTest {
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
         .thenReturn(Optional.of(onboarding));
     onboardingService.rollback(INITIATIVE_ID, USER_ID);
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(any());
   }
 
   @Test
@@ -1154,7 +1174,7 @@ class OnboardingServiceTest {
 
     onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO_IBAN);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(Mockito.any(Onboarding.class));
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).save(any(Onboarding.class));
   }
 
   @Test
@@ -1165,7 +1185,7 @@ class OnboardingServiceTest {
 
     Mockito.doAnswer(
         invocationOnMock -> {
-          onboarding.setStatus(Mockito.anyString());
+          onboarding.setStatus(anyString());
           onboarding.setInvitationDate(LocalDateTime.now());
           onboarding.setUpdateDate(LocalDateTime.now());
           onboarding.setCreationDate(LocalDateTime.now());
@@ -1177,6 +1197,46 @@ class OnboardingServiceTest {
       onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO);
     } catch (OnboardingWorkflowException e) {
       fail();
+    }
+  }
+  @Test
+  void suspend_ok() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    onboardingService.suspend(INITIATIVE_ID, USER_ID);
+    assertEquals(OnboardingWorkflowConstants.SUSPENDED, onboarding.getStatus());
+  }
+  @Test
+  void suspend_wrongStatus() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    try {
+      onboardingService.suspend(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_SUSPENSION_STATUS, e.getMessage());
+    }
+  }
+  @Test
+  void suspend_ko() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    Mockito.doThrow(new OnboardingWorkflowException(500, "", "")).when(onboardingRepositoryMock).save(any());
+
+    try {
+      onboardingService.suspend(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_SUSPENSION, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
 }

@@ -26,8 +26,9 @@ public class AuditUtilities {
 
   private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Onboarding dstip=%s", SRCIP);
 
-  private static final String CEF_PATTERN_BASE = CEF + " msg={}";
-  private static final String CEF_PATTERN = CEF_PATTERN_BASE + " suser={} cs1Label=initiativeId cs1={} cs2Label=channel cs2={}";
+  private static final String CEF_PATTERN_MSG = CEF + " msg={}";
+  private static final String CEF_PATTERN_BASE = CEF_PATTERN_MSG + " suser={} cs1Label=initiativeId cs1={}";
+  private static final String CEF_PATTERN = CEF_PATTERN_BASE + " cs2Label=channel cs2={}";
   private static final String CEF_DATE_PATTERN = CEF_PATTERN + " cs3Label=date cs3={}";
 
   private void logAuditString(String pattern, String... parameters) {
@@ -64,7 +65,7 @@ public class AuditUtilities {
 
   public void logGetListPDND(String initiativeId) {
     logAuditString(
-            CEF_PATTERN_BASE,
+            CEF_PATTERN_MSG,
             String.format("Retrieved PDND data about %s", initiativeId)
     );
   }
@@ -92,7 +93,7 @@ public class AuditUtilities {
 
   public void logOnboardingKOInitiativeId(String initiativeId, String msg){
     logAuditString(
-            CEF_PATTERN_BASE,
+            CEF_PATTERN_MSG,
             String.format("Onboarding failed for initiative %s: %s", initiativeId, msg)
     );
   }
@@ -116,6 +117,18 @@ public class AuditUtilities {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding disabled", userId, initiativeId, channel, date.toString()
+    );
+  }
+  public void logSuspension(String userId, String initiativeId) {
+    logAuditString(
+            CEF_PATTERN_BASE,
+            "Onboarding suspended", userId, initiativeId
+    );
+  }
+  public void logSuspensionKO(String userId, String initiativeId) {
+    logAuditString(
+            CEF_PATTERN_BASE,
+            "Onboarding suspension failed", userId, initiativeId
     );
   }
 }

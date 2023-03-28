@@ -115,4 +115,7 @@ public interface OnboardingController {
   ResponseEntity<Void> rollback(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
+  @PutMapping("/{initiativeId}/{userId}/suspend")
+  ResponseEntity<Void> suspend(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
 }
