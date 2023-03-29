@@ -477,17 +477,20 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     long startTime = System.currentTimeMillis();
-    Set<String> onboardingRejectionReasonsType = evaluationDTO.getOnboardingRejectionReasons().stream()
+
+    Set<String> onboardingRejectionReasonsType = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
+            .orElseGet(Collections::emptyList)
+            .stream()
             .map(OnboardingRejectionReason::getType)
-            .filter(Objects::nonNull).collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsType);
 
     onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(),
-            evaluationDTO.getUserId())
-        .ifPresent(onboarding ->
-            setStatus(onboarding, evaluationDTO.getStatus(),
-                evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons)
-        );
+                    evaluationDTO.getUserId())
+            .ifPresent(onboarding ->
+                    setStatus(onboarding, evaluationDTO.getStatus(),
+                            evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons)
+            );
     log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding's status is: {}", evaluationDTO.getStatus());
     performanceLog(startTime, "COMPLETE_ONBOARDING");
   }
