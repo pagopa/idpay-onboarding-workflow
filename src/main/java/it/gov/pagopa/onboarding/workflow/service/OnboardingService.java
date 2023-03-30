@@ -28,4 +28,6 @@ public interface OnboardingService {
   void rollback(String initiativeId, String userId);
 
   ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId, String userId, LocalDateTime startDate, LocalDateTime endDate, String status, Pageable pageable);
+
+  void suspend(String initiativeId, String userId);
 }

@@ -1,11 +1,14 @@
 package it.gov.pagopa.onboarding.workflow.constants;
 
+import java.util.List;
+
 public final class OnboardingWorkflowConstants {
 
   public static final String ACCEPTED_TC = "ACCEPTED_TC";
   public static final String STATUS_UNSUBSCRIBED = "UNSUBSCRIBED";
   public static final String ON_EVALUATION = "ON_EVALUATION";
   public static final String INVITED = "INVITED";
+  public static final String SUSPENDED = "SUSPENDED";
   public static final String PUBLISHED = "PUBLISHED";
   public static final String ONBOARDING_OK = "ONBOARDING_OK";
   public static final String ONBOARDING_KO = "ONBOARDING_KO";
@@ -15,8 +18,8 @@ public final class OnboardingWorkflowConstants {
   public static final String ID_S_NOT_FOUND = "Onboarding with initiativeId %s and current userId not found.";
   public static final String ERROR_SELF_DECLARATION_SIZE = "The amount of self declaration lists mismatch the amount of flags";
   public static final String ERROR_SELF_DECLARATION_DENY = "The selfDeclarationList was denied by the user for the initiative %s.";
-  public static final String ERROR_WHITELIST = "The citizen is not allowed to participate to this initiative!";
-  public static final String ERROR_TC = "Terms and Conditions have been not accepted by the current user for initiative %s.";
+  public static final String ERROR_WHITELIST_MSG = "The citizen is not allowed to participate to this initiative!";
+  public static final String ERROR_WHITELIST = "NOT_IN_WHITELIST";
   public static final String ERROR_MAX_NUMBER_FOR_PAGE = "Max number for page allowed: 15";
   public static final String ERROR_PDND = "The PDND consent was denied by the user for the initiative %s.";
   public static final String ERROR_UNSUBSCRIBED_INITIATIVE = "Unsubscribed to initiative";
@@ -30,7 +33,10 @@ public final class OnboardingWorkflowConstants {
   public static final String ERROR_INITIATIVE_SUSPENDED = "INITIATIVE_SUSPENDED";
   public static final String ERROR_INITIATIVE_SUSPENDED_MSG = "The initiative is suspended";
   public static final String GENERIC_ERROR = "GENERIC_ERROR";
-  public static final String GENERIC_ERROR_MSG = "Onbording to initiative failed";
+  public static final String GENERIC_ERROR_MSG = "Onboarding to initiative failed";
+  public static final String ERROR_SUSPENSION_STATUS = "It is not possible to suspend the citizen";
+  public static final String ERROR_SUSPENSION = "Error while suspending the citizen";
+  public static final List<String> STATUS_IDEMPOTENT = List.of(ONBOARDING_OK, INVITED, SUSPENDED, ON_EVALUATION);
 
   private OnboardingWorkflowConstants() {
   }

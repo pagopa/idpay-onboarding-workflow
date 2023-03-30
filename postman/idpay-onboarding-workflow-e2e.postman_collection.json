@@ -2,8 +2,7 @@
 	"info": {
 		"_postman_id": "23d35277-3d82-4298-8829-c3a7224ab170",
 		"name": "Onboarding - e2e",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036736"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -24,6 +23,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "edc92424-5f57-46dd-806f-88d80b1e5c86",
 														"exec": [
 															""
 														],
@@ -33,10 +33,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff1249-83e3-4a63-8b2f-ebc575fa420e",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -55,7 +56,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -82,6 +83,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "737187ec-a138-404b-8522-f56ced211d90",
 														"exec": [
 															"let moment = require('moment');\r",
 															"const now = String(moment().format('DD-MM-YYYY hh:mm'));\r",
@@ -99,17 +101,18 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "cb40f430-d3ec-4ebf-8def-853dfada600b",
 														"exec": [
 															"var jsonData = JSON.parse(responseBody);\r",
 															"// console.log('jsondata', jsonData);\r",
 															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 															"pm.collectionVariables.set('initiativeIdWithWhitelist', jsonData.initiativeId);\r",
 															"\r",
-															"pm.test(\"Status test 201\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - STEP1 - Status test 201\", function () {\r",
 															"    pm.response.to.have.status(201);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
@@ -168,6 +171,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5ba8098c-29e7-4da8-b4bc-8ac1e4cea20e",
 														"exec": [
 															"let moment = require('moment');\r",
 															"//Format: YYYY-MM-DD\r",
@@ -199,8 +203,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c1f78da6-d0d2-40f6-9b27-a8ee622d2bb6",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - STEP2 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -266,6 +271,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "c7719903-8187-4e8a-b04f-e62a533a22a4",
 														"exec": [
 															""
 														],
@@ -275,12 +281,13 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "041b0606-56bc-40c0-b28e-dfea8fe1f15d",
 														"exec": [
-															"pm.test(\"Status test 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - STEP3 - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - STEP3 - Verify response body\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"status\");\r",
 															"    pm.expect(jsonResponse.status).contain('DRAFT');\r",
@@ -312,7 +319,8 @@
 															"type": "file",
 															"src": "./postman/example_fiscal_code.csv"
 														}
-													]
+													],
+													"options": {}
 												},
 												"url": {
 													"raw": "{{baseUrlGroup}}/:initiativeId/upload",
@@ -339,8 +347,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff853e-ed54-4372-bc33-e156ae113bf9",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - STEP4 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -350,6 +359,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "515c5af4-87de-4527-8581-dfbd7c03d3e3",
 														"exec": [
 															"const d = new Date();\r",
 															"dateString = d.toISOString()\r",
@@ -439,8 +449,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "f9d24a0e-108e-4007-bf31-6c6d75e774cf",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - STEP5 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -450,6 +461,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "307ce27e-7f5c-4da0-a23c-fdb97dba6d3f",
 														"exec": [
 															"/*const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
 															"timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
@@ -561,7 +573,8 @@
 												"type": "text/javascript",
 												"exec": [
 													""
-												]
+												],
+												"id": "4f1cdfb7-2685-4733-9851-cef5600a26c4"
 											}
 										},
 										{
@@ -570,10 +583,13 @@
 												"type": "text/javascript",
 												"exec": [
 													""
-												]
+												],
+												"id": "773fffdc-bb15-4540-8b37-82b2e354d7b2"
 											}
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "PAGOPA - Initiative update status APPROVED",
@@ -584,6 +600,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "4230cd4d-05ac-415e-9894-0e877c2529e4",
 														"exec": [
 															""
 														],
@@ -593,10 +610,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "8c210506-9f71-4b64-a9de-0dc493f4cef4",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -617,7 +635,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"pagopa_admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Pagopa}}\",\r\n  \"name\": \"{{name_Pagopa}}\",\r\n  \"familyName\": \"{{familyName_Pagopa}}\",\r\n  \"email\": \"{{email_Pagopa}}\",\r\n  \"orgId\": \"{{orgId_Pagopa}}\",\r\n  \"orgVAT\": \"{{orgVAT_Pagopa}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Pagopa}}\",\r\n  \"orgRole\": \"{{orgRole_Pagopa}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -644,8 +662,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "9bf60763-29a8-440a-81c4-1033e6a57d73",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - PagoPA Admin updates initiative status to APPROVED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -655,6 +674,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "68e5d40b-5b53-4cab-8846-947ac8f49f99",
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
@@ -697,17 +717,20 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "ENTE - Initiative PUBLISHED",
 									"item": [
 										{
-											"name": "Generate Portal Token Copy",
+											"name": "Generate Portal Token",
 											"event": [
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "3953f1cf-888d-45a4-a11f-593e2dd13c1b",
 														"exec": [
 															""
 														],
@@ -717,10 +740,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "51e045cd-0785-45b3-b9e0-01a71f16a303",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -741,7 +765,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -768,8 +792,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c2ca6cb9-7366-471f-b7cb-c59ba1a7874c",
 														"exec": [
-															"pm.test(\"Status test\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Ente Admin updates initiative status to PUBLISHED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});\r",
 															""
@@ -780,6 +805,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "ca853894-ff29-4e62-a383-6784758c706b",
 														"exec": [
 															"setTimeout(()=> {}, 20000);\r",
 															"\r",
@@ -838,7 +864,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "Generate Token IO",
@@ -846,8 +874,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Happy case - APP IO - Onboarding user with whitelist - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -860,6 +889,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -912,10 +942,21 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "c7c7c68c-ba1e-44da-8c09-1d83c0704744",
+												"exec": [
+													"//setTimeout(()=> {}, 20000)"
 												],
 												"type": "text/javascript"
 											}
@@ -974,8 +1015,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Prerequisites check - Status 204\", function () {\r",
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
@@ -985,8 +1027,9 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "77af01c6-8f4d-4eca-9c18-bf6109f6730d",
 												"exec": [
-													"setTimeout(()=> {}, 5000)"
+													"//setTimeout(()=> {}, 20000)"
 												],
 												"type": "text/javascript"
 											}
@@ -1045,12 +1088,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with whitelist - Status Onboarding OK - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ONBOARDING_OK or ON_EVALUATION\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_OK', 'ON_EVALUATION']);\r",
 													"});"
@@ -1087,7 +1131,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User with criteria",
@@ -1101,6 +1147,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "edc92424-5f57-46dd-806f-88d80b1e5c86",
 														"exec": [
 															""
 														],
@@ -1110,10 +1157,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff1249-83e3-4a63-8b2f-ebc575fa420e",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -1138,7 +1186,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -1165,17 +1213,18 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a636a15f-e98d-447f-9caf-224fd188b1dd",
 														"exec": [
 															"var jsonData = JSON.parse(responseBody);\r",
 															"// console.log('jsondata', jsonData);\r",
 															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 															"pm.collectionVariables.set('initiativeIdWithCriteria', jsonData.initiativeId);\r",
 															"\r",
-															"pm.test(\"Status test 201\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - STEP1 - Status test 201\", function () {\r",
 															"    pm.response.to.have.status(201);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
@@ -1186,6 +1235,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5a52aece-7a00-4f49-8486-c7a2fe65606e",
 														"exec": [
 															"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
 															"let moment = require('moment');\r",
@@ -1251,6 +1301,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5ba8098c-29e7-4da8-b4bc-8ac1e4cea20e",
 														"exec": [
 															"let moment = require('moment');\r",
 															"//Format: YYYY-MM-DD\r",
@@ -1281,8 +1332,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c1f78da6-d0d2-40f6-9b27-a8ee622d2bb6",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - STEP2 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -1348,8 +1400,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a588c81e-ce2c-4a64-b075-d9134372ca93",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - STEP3 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -1404,8 +1457,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff853e-ed54-4372-bc33-e156ae113bf9",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - STEP4 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -1415,6 +1469,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "515c5af4-87de-4527-8581-dfbd7c03d3e3",
 														"exec": [
 															"const d = new Date();\r",
 															"dateString = d.toISOString()\r",
@@ -1504,8 +1559,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "f9d24a0e-108e-4007-bf31-6c6d75e774cf",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - STEP5 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -1515,6 +1571,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "307ce27e-7f5c-4da0-a23c-fdb97dba6d3f",
 														"exec": [
 															"/*const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
 															"timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
@@ -1618,7 +1675,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "PAGOPA - Initiative update status APPROVED",
@@ -1629,6 +1688,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "4230cd4d-05ac-415e-9894-0e877c2529e4",
 														"exec": [
 															""
 														],
@@ -1638,10 +1698,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "8c210506-9f71-4b64-a9de-0dc493f4cef4",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -1668,7 +1729,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"pagopa_admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Pagopa}}\",\r\n  \"name\": \"{{name_Pagopa}}\",\r\n  \"familyName\": \"{{familyName_Pagopa}}\",\r\n  \"email\": \"{{email_Pagopa}}\",\r\n  \"orgId\": \"{{orgId_Pagopa}}\",\r\n  \"orgVAT\": \"{{orgVAT_Pagopa}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Pagopa}}\",\r\n  \"orgRole\": \"{{orgRole_Pagopa}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -1695,8 +1756,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "9bf60763-29a8-440a-81c4-1033e6a57d73",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - PagoPA Admin updates initiative status to APPROVED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -1706,6 +1768,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "68e5d40b-5b53-4cab-8846-947ac8f49f99",
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
@@ -1748,17 +1811,20 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "ENTE - Initiative PUBLISHED",
 									"item": [
 										{
-											"name": "Generate Portal Token Copy",
+											"name": "Generate Portal Token",
 											"event": [
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "3953f1cf-888d-45a4-a11f-593e2dd13c1b",
 														"exec": [
 															""
 														],
@@ -1768,10 +1834,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "51e045cd-0785-45b3-b9e0-01a71f16a303",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -1798,7 +1865,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -1825,8 +1892,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c2ca6cb9-7366-471f-b7cb-c59ba1a7874c",
 														"exec": [
-															"pm.test(\"Status test\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Ente Admin updates initiative status to PUBLISHED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});\r",
 															""
@@ -1837,6 +1905,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "ca853894-ff29-4e62-a383-6784758c706b",
 														"exec": [
 															"/*let body;\r",
 															"baseUrlInitiative = pm.variables.get('baseUrlInitiative')\r",
@@ -1892,7 +1961,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "Generate Token IO",
@@ -1900,8 +1971,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Happy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -1914,6 +1986,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -1966,8 +2039,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -2028,8 +2102,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Prerequisites check - Status 200 or 202\", function () {\r",
 													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
@@ -2090,8 +2165,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 202\", function () {\r",
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
@@ -2141,14 +2217,15 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Status Onboarding OK - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
 													"setTimeout(()=>{ \r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ONBOARDING_OK or ON_EVALUATION\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_OK', 'ON_EVALUATION']);\r",
 													"});\r",
@@ -2186,7 +2263,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User with manual criteria",
@@ -2200,6 +2279,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "edc92424-5f57-46dd-806f-88d80b1e5c86",
 														"exec": [
 															""
 														],
@@ -2209,10 +2289,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff1249-83e3-4a63-8b2f-ebc575fa420e",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with whitelist - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -2237,7 +2318,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -2264,6 +2345,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "737187ec-a138-404b-8522-f56ced211d90",
 														"exec": [
 															"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
 															"let moment = require('moment');\r",
@@ -2283,17 +2365,18 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "cb40f430-d3ec-4ebf-8def-853dfada600b",
 														"exec": [
 															"var jsonData = JSON.parse(responseBody);\r",
 															"// console.log('jsondata', jsonData);\r",
 															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 															"pm.collectionVariables.set('initiativeIdWithManualCriteria', jsonData.initiativeId);\r",
 															"\r",
-															"pm.test(\"Status test 201\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - STEP1 - Status test 201\", function () {\r",
 															"    pm.response.to.have.status(201);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
@@ -2352,6 +2435,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5ba8098c-29e7-4da8-b4bc-8ac1e4cea20e",
 														"exec": [
 															"let moment = require('moment');\r",
 															"//Format: YYYY-MM-DD\r",
@@ -2382,8 +2466,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c1f78da6-d0d2-40f6-9b27-a8ee622d2bb6",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - STEP2 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -2449,8 +2534,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a588c81e-ce2c-4a64-b075-d9134372ca93",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - STEP3 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -2499,8 +2585,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff853e-ed54-4372-bc33-e156ae113bf9",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - STEP4 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -2510,6 +2597,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "515c5af4-87de-4527-8581-dfbd7c03d3e3",
 														"exec": [
 															"const d = new Date();\r",
 															"dateString = d.toISOString()\r",
@@ -2599,8 +2687,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "f9d24a0e-108e-4007-bf31-6c6d75e774cf",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - STEP5 - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -2610,6 +2699,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "307ce27e-7f5c-4da0-a23c-fdb97dba6d3f",
 														"exec": [
 															"/*const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
 															"timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
@@ -2713,7 +2803,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "PAGOPA - Initiative update status APPROVED",
@@ -2724,6 +2816,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "4230cd4d-05ac-415e-9894-0e877c2529e4",
 														"exec": [
 															""
 														],
@@ -2733,10 +2826,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "8c210506-9f71-4b64-a9de-0dc493f4cef4",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -2763,7 +2857,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"pagopa_admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Pagopa}}\",\r\n  \"name\": \"{{name_Pagopa}}\",\r\n  \"familyName\": \"{{familyName_Pagopa}}\",\r\n  \"email\": \"{{email_Pagopa}}\",\r\n  \"orgId\": \"{{orgId_Pagopa}}\",\r\n  \"orgVAT\": \"{{orgVAT_Pagopa}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Pagopa}}\",\r\n  \"orgRole\": \"{{orgRole_Pagopa}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -2790,8 +2884,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "9bf60763-29a8-440a-81c4-1033e6a57d73",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - PagoPA Admin updates initiative status to APPROVED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -2801,6 +2896,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "68e5d40b-5b53-4cab-8846-947ac8f49f99",
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
@@ -2843,7 +2939,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "ENTE - Initiative PUBLISHED",
@@ -2854,6 +2952,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "3953f1cf-888d-45a4-a11f-593e2dd13c1b",
 														"exec": [
 															""
 														],
@@ -2863,10 +2962,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "51e045cd-0785-45b3-b9e0-01a71f16a303",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -2893,7 +2993,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -2920,8 +3020,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c2ca6cb9-7366-471f-b7cb-c59ba1a7874c",
 														"exec": [
-															"pm.test(\"Status test\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Ente Admin updates initiative status to PUBLISHED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});\r",
 															""
@@ -2932,6 +3033,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "ca853894-ff29-4e62-a383-6784758c706b",
 														"exec": [
 															"/*let body;\r",
 															"baseUrlInitiative = pm.variables.get('baseUrlInitiative')\r",
@@ -2987,16 +3089,19 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
-									"name": "Generate Token IO Copy",
+									"name": "Generate Token IO",
 									"event": [
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -3009,6 +3114,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -3061,8 +3167,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -3123,8 +3230,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Prerequisites check - Status 200 or 202\", function () {\r",
 													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
@@ -3185,8 +3293,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 202\", function () {\r",
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
@@ -3236,14 +3345,15 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Status Onboarding OK - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
 													"setTimeout(()=>{ \r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ONBOARDING_OK or ON_EVALUATION\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_OK', 'ON_EVALUATION']);\r",
 													"});\r",
@@ -3281,9 +3391,13 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						}
-					]
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				},
 				{
 					"name": "ISSUER",
@@ -3297,8 +3411,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "8f06dff1-dc67-40dd-8963-22b7ddf4fd3c",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - ISSUER - Onboarding user with whitelist - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -3308,6 +3423,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "44a0b0d6-08b9-416f-bd2c-7b2b5437d5bd",
 												"exec": [
 													""
 												],
@@ -3372,8 +3488,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "683d8888-9c33-4936-b0cd-807607ab01a4",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - ISSUER - Onboarding user with whitelist - Prerequisites check - Status 202\", function () {\r",
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
@@ -3383,6 +3500,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "86e1d42b-418c-426c-80e3-39910359bfd9",
 												"exec": [
 													""
 												],
@@ -3447,12 +3565,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "d16f14d4-de26-4bed-8e11-e72a6047c835",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Happy case - ISSUER - Onboarding user with whitelist - Status Onboarding OK - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ONBOARDING_OK\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).equals('ONBOARDING_OK');\r",
 													"});"
@@ -3504,11 +3623,16 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						}
-					]
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "Unhappy Case",
@@ -3525,8 +3649,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -3539,6 +3664,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -3591,8 +3717,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -3653,8 +3780,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Prerequisites check - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
@@ -3715,12 +3843,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
 													"    const initiativeIdWithManualCriteria = pm.collectionVariables.get(\"initiativeIdWithManualCriteria\");\r",
 													"    pm.expect(responseJson.message).to.eql(`The selfDeclarationList was denied by the user for the initiative ${initiativeIdWithManualCriteria}.`);\r",
@@ -3772,12 +3901,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Status Onboarding OK - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ACCEPTED_TC\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
 													"});"
@@ -3814,7 +3944,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User T&C not accepted - 404",
@@ -3825,8 +3957,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -3839,6 +3972,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -3891,12 +4025,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Prerequisites check - Status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Message contains info  about KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
 													"    const initiativeIdWithManualCriteria = pm.collectionVariables.get(\"initiativeIdWithManualCriteria\");\r",
 													"    pm.expect(responseJson.message).to.eql(`Onboarding with initiativeId ${initiativeIdWithManualCriteria} and current userId not found.`);\r",
@@ -3959,12 +4094,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
 													"    const initiativeIdWithManualCriteria = pm.collectionVariables.get(\"initiativeIdWithManualCriteria\");\r",
 													"    pm.expect(responseJson.message).to.eql(`Onboarding with initiativeId ${initiativeIdWithManualCriteria} and current userId not found.`);\r",
@@ -4016,12 +4152,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Status Onboarding - Status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Status Onboarding - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
 													"    const initiativeIdWithManualCriteria = pm.collectionVariables.get(\"initiativeIdWithManualCriteria\");\r",
 													"    pm.expect(responseJson.message).to.eql(`Onboarding with initiativeId ${initiativeIdWithManualCriteria} and current userId not found.`);\r",
@@ -4059,7 +4196,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User with criteria - PDND denied - 400",
@@ -4070,8 +4209,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -4084,6 +4224,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -4136,8 +4277,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -4198,8 +4340,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - Prerequisites check - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
@@ -4260,12 +4403,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
 													"    const initiativeIdWithCriteria = pm.collectionVariables.get(\"initiativeIdWithCriteria\");\r",
 													"    pm.expect(responseJson.message).to.eql(`The PDND consent was denied by the user for the initiative ${initiativeIdWithCriteria}.`);\r",
@@ -4317,12 +4461,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - Status Onboarding OK - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ACCEPTED_TC\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
 													"});"
@@ -4359,7 +4504,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User with manual criteria - different amount of flags - 400",
@@ -4370,8 +4517,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -4384,6 +4532,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -4436,8 +4585,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -4498,8 +4648,10 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Prerequisites check - Status 200\",\r",
+													" function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
@@ -4560,12 +4712,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
 													"    pm.expect(responseJson.message).to.eql('The amount of self declaration lists mismatch the amount of flags');\r",
 													"});"
@@ -4616,12 +4769,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Status Onboarding - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ACCEPTED_TC\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
 													"});"
@@ -4658,7 +4812,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User not in Whitelist - 403",
@@ -4669,8 +4825,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user not in whitelist - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -4683,6 +4840,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -4735,8 +4893,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user not in whitelist - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -4797,12 +4956,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user not in whitelist - Prerequisites check - Status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user not in whitelist - Prerequisites check - Message contains info about KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
 													"    pm.expect(responseJson.message).to.eql('The citizen is not allowed to participate to this initiative!');\r",
 													"});"
@@ -4858,7 +5018,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User no criteria - 200 - STATUS KO",
@@ -4872,6 +5034,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "edc92424-5f57-46dd-806f-88d80b1e5c86",
 														"exec": [
 															""
 														],
@@ -4881,10 +5044,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff1249-83e3-4a63-8b2f-ebc575fa420e",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with no criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -4909,7 +5073,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -4936,17 +5100,18 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a636a15f-e98d-447f-9caf-224fd188b1dd",
 														"exec": [
 															"var jsonData = JSON.parse(responseBody);\r",
 															"// console.log('jsondata', jsonData);\r",
 															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 															"pm.collectionVariables.set('NoCriteriaInitiativeId', jsonData.initiativeId);\r",
 															"\r",
-															"pm.test(\"Status test 201\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - STEP1 - Status test 201\", function () {\r",
 															"    pm.response.to.have.status(201);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
@@ -4957,6 +5122,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5a52aece-7a00-4f49-8486-c7a2fe65606e",
 														"exec": [
 															"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
 															"let moment = require('moment');\r",
@@ -5022,6 +5188,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5ba8098c-29e7-4da8-b4bc-8ac1e4cea20e",
 														"exec": [
 															"let moment = require('moment');\r",
 															"//Format: YYYY-MM-DD\r",
@@ -5052,8 +5219,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c1f78da6-d0d2-40f6-9b27-a8ee622d2bb6",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - STEP2 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -5119,8 +5287,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a588c81e-ce2c-4a64-b075-d9134372ca93",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - STEP3 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -5175,8 +5344,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff853e-ed54-4372-bc33-e156ae113bf9",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - STEP4 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -5186,6 +5356,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "515c5af4-87de-4527-8581-dfbd7c03d3e3",
 														"exec": [
 															"const d = new Date();\r",
 															"dateString = d.toISOString()\r",
@@ -5275,8 +5446,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "f9d24a0e-108e-4007-bf31-6c6d75e774cf",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - STEP5 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -5286,6 +5458,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "307ce27e-7f5c-4da0-a23c-fdb97dba6d3f",
 														"exec": [
 															"/*const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
 															"timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
@@ -5389,7 +5562,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "PAGOPA - Initiative update status APPROVED",
@@ -5400,6 +5575,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "4230cd4d-05ac-415e-9894-0e877c2529e4",
 														"exec": [
 															""
 														],
@@ -5409,10 +5585,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "8c210506-9f71-4b64-a9de-0dc493f4cef4",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -5439,7 +5616,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"pagopa_admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Pagopa}}\",\r\n  \"name\": \"{{name_Pagopa}}\",\r\n  \"familyName\": \"{{familyName_Pagopa}}\",\r\n  \"email\": \"{{email_Pagopa}}\",\r\n  \"orgId\": \"{{orgId_Pagopa}}\",\r\n  \"orgVAT\": \"{{orgVAT_Pagopa}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Pagopa}}\",\r\n  \"orgRole\": \"{{orgRole_Pagopa}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -5466,8 +5643,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "9bf60763-29a8-440a-81c4-1033e6a57d73",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - PagoPA Admin updates initiative status to APPROVED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -5477,6 +5655,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "68e5d40b-5b53-4cab-8846-947ac8f49f99",
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
@@ -5519,17 +5698,20 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "ENTE - Initiative PUBLISHED",
 									"item": [
 										{
-											"name": "Generate Portal Token Copy",
+											"name": "Generate Portal Token",
 											"event": [
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "3953f1cf-888d-45a4-a11f-593e2dd13c1b",
 														"exec": [
 															""
 														],
@@ -5539,10 +5721,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "51e045cd-0785-45b3-b9e0-01a71f16a303",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -5569,7 +5752,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -5596,8 +5779,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c2ca6cb9-7366-471f-b7cb-c59ba1a7874c",
 														"exec": [
-															"pm.test(\"Status test\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Ente Admin updates initiative status to PUBLISHED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});\r",
 															""
@@ -5608,6 +5792,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "ca853894-ff29-4e62-a383-6784758c706b",
 														"exec": [
 															"/*let body;\r",
 															"baseUrlInitiative = pm.variables.get('baseUrlInitiative')\r",
@@ -5663,7 +5848,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "Generate Token IO",
@@ -5671,8 +5858,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -5685,6 +5873,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -5737,8 +5926,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -5799,8 +5989,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Prerequisites check - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
@@ -5861,8 +6052,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - PDND + Autocertification - Status 202\", function () {\r",
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
@@ -5913,14 +6105,15 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - PDND + Autocertification - Status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
 													"setTimeout(()=>{ \r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding status is ONBOARDING_KO or ON_EVALUATION\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_KO', 'ON_EVALUATION']);\r",
 													"});\r",
@@ -5958,7 +6151,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User initiative onboarding ended - 403",
@@ -5969,8 +6164,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -5983,6 +6179,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -6035,8 +6232,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "6852b439-e271-4ca1-88c5-e9a12ea415ad",
 												"exec": [
-													"pm.test('Retrieve Initiative ID', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Get initiative - status 200', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"initiativeId\", pm.response.json().initiativeId);\r",
@@ -6081,12 +6279,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Messaggio test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Accept T&C -  message contains info about initiative ended\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('The opportunity to join the initiative has already ended');\r",
 													"});"
@@ -6142,7 +6341,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User initiative onboarding not started - 403",
@@ -6156,6 +6357,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "edc92424-5f57-46dd-806f-88d80b1e5c86",
 														"exec": [
 															""
 														],
@@ -6165,10 +6367,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff1249-83e3-4a63-8b2f-ebc575fa420e",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -6193,7 +6396,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -6220,17 +6423,18 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a636a15f-e98d-447f-9caf-224fd188b1dd",
 														"exec": [
 															"var jsonData = JSON.parse(responseBody);\r",
 															"// console.log('jsondata', jsonData);\r",
 															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 															"pm.collectionVariables.set('initiativeIdNotStarted', jsonData.initiativeId);\r",
 															"\r",
-															"pm.test(\"Status test 201\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - STEP1 - Status test 201\", function () {\r",
 															"    pm.response.to.have.status(201);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
@@ -6241,6 +6445,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5a52aece-7a00-4f49-8486-c7a2fe65606e",
 														"exec": [
 															"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
 															"let moment = require('moment');\r",
@@ -6306,6 +6511,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5ba8098c-29e7-4da8-b4bc-8ac1e4cea20e",
 														"exec": [
 															"let moment = require('moment');\r",
 															"//Format: YYYY-MM-DD\r",
@@ -6336,8 +6542,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c1f78da6-d0d2-40f6-9b27-a8ee622d2bb6",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - STEP2 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -6403,8 +6610,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a588c81e-ce2c-4a64-b075-d9134372ca93",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - STEP3 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -6459,8 +6667,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff853e-ed54-4372-bc33-e156ae113bf9",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - STEP4 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -6470,6 +6679,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "515c5af4-87de-4527-8581-dfbd7c03d3e3",
 														"exec": [
 															"const d = new Date();\r",
 															"dateString = d.toISOString()\r",
@@ -6559,8 +6769,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "f9d24a0e-108e-4007-bf31-6c6d75e774cf",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - STEP5 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -6570,6 +6781,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "307ce27e-7f5c-4da0-a23c-fdb97dba6d3f",
 														"exec": [
 															"/*const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
 															"timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
@@ -6673,7 +6885,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "PAGOPA - Initiative update status APPROVED",
@@ -6684,6 +6898,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "4230cd4d-05ac-415e-9894-0e877c2529e4",
 														"exec": [
 															""
 														],
@@ -6693,10 +6908,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "8c210506-9f71-4b64-a9de-0dc493f4cef4",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -6723,7 +6939,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"pagopa_admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Pagopa}}\",\r\n  \"name\": \"{{name_Pagopa}}\",\r\n  \"familyName\": \"{{familyName_Pagopa}}\",\r\n  \"email\": \"{{email_Pagopa}}\",\r\n  \"orgId\": \"{{orgId_Pagopa}}\",\r\n  \"orgVAT\": \"{{orgVAT_Pagopa}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Pagopa}}\",\r\n  \"orgRole\": \"{{orgRole_Pagopa}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -6750,8 +6966,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "9bf60763-29a8-440a-81c4-1033e6a57d73",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - PagoPA Admin updates initiative status to APPROVED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -6761,6 +6978,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "68e5d40b-5b53-4cab-8846-947ac8f49f99",
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
@@ -6803,7 +7021,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "ENTE - Initiative PUBLISHED",
@@ -6814,6 +7034,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "3953f1cf-888d-45a4-a11f-593e2dd13c1b",
 														"exec": [
 															""
 														],
@@ -6823,10 +7044,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "51e045cd-0785-45b3-b9e0-01a71f16a303",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -6853,7 +7075,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -6880,8 +7102,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c2ca6cb9-7366-471f-b7cb-c59ba1a7874c",
 														"exec": [
-															"pm.test(\"Status test\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - PagoPA Admin updates initiative status to PUBLISHED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});\r",
 															""
@@ -6892,6 +7115,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "ca853894-ff29-4e62-a383-6784758c706b",
 														"exec": [
 															"/*let body;\r",
 															"baseUrlInitiative = pm.variables.get('baseUrlInitiative')\r",
@@ -6947,7 +7171,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "Generate Token IO",
@@ -6955,8 +7181,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started- Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -6969,6 +7196,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -7021,17 +7249,18 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C - message is The initiative has not yet begun\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).to.be.equal('The initiative has not yet begun');\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding details test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C -  datails is INITIATIVE_NOT_STARTED\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.details).to.be.equal('INITIATIVE_NOT_STARTED');\r",
 													"});"
@@ -7087,7 +7316,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User initiative onboarding no budget - 403",
@@ -7101,6 +7332,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "edc92424-5f57-46dd-806f-88d80b1e5c86",
 														"exec": [
 															""
 														],
@@ -7110,10 +7342,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff1249-83e3-4a63-8b2f-ebc575fa420e",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -7138,7 +7371,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -7165,17 +7398,18 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a636a15f-e98d-447f-9caf-224fd188b1dd",
 														"exec": [
 															"var jsonData = JSON.parse(responseBody);\r",
 															"// console.log('jsondata', jsonData);\r",
 															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 															"pm.collectionVariables.set('initiativeIdNoBudget', jsonData.initiativeId);\r",
 															"\r",
-															"pm.test(\"Status test 201\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - STEP1 - Status test 201\", function () {\r",
 															"    pm.response.to.have.status(201);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
@@ -7186,6 +7420,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5a52aece-7a00-4f49-8486-c7a2fe65606e",
 														"exec": [
 															"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
 															"let moment = require('moment');\r",
@@ -7251,6 +7486,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5ba8098c-29e7-4da8-b4bc-8ac1e4cea20e",
 														"exec": [
 															"let moment = require('moment');\r",
 															"//Format: YYYY-MM-DD\r",
@@ -7281,8 +7517,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c1f78da6-d0d2-40f6-9b27-a8ee622d2bb6",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - STEP2 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -7348,8 +7585,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a588c81e-ce2c-4a64-b075-d9134372ca93",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - STEP3 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -7404,8 +7642,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff853e-ed54-4372-bc33-e156ae113bf9",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - STEP4 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -7415,6 +7654,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "515c5af4-87de-4527-8581-dfbd7c03d3e3",
 														"exec": [
 															"const d = new Date();\r",
 															"dateString = d.toISOString()\r",
@@ -7504,8 +7744,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "f9d24a0e-108e-4007-bf31-6c6d75e774cf",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - STEP5 - Status test 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -7515,6 +7756,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "307ce27e-7f5c-4da0-a23c-fdb97dba6d3f",
 														"exec": [
 															"/*const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
 															"timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
@@ -7618,7 +7860,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "PAGOPA - Initiative update status APPROVED",
@@ -7629,6 +7873,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "4230cd4d-05ac-415e-9894-0e877c2529e4",
 														"exec": [
 															""
 														],
@@ -7638,10 +7883,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "8c210506-9f71-4b64-a9de-0dc493f4cef4",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -7668,7 +7914,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"pagopa_admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Pagopa}}\",\r\n  \"name\": \"{{name_Pagopa}}\",\r\n  \"familyName\": \"{{familyName_Pagopa}}\",\r\n  \"email\": \"{{email_Pagopa}}\",\r\n  \"orgId\": \"{{orgId_Pagopa}}\",\r\n  \"orgVAT\": \"{{orgVAT_Pagopa}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Pagopa}}\",\r\n  \"orgRole\": \"{{orgRole_Pagopa}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -7695,8 +7941,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "9bf60763-29a8-440a-81c4-1033e6a57d73",
 														"exec": [
-															"pm.test(\"Status test 204\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - PagoPA Admin updates initiative status to APPROVED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -7706,6 +7953,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "68e5d40b-5b53-4cab-8846-947ac8f49f99",
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
@@ -7748,7 +7996,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "ENTE - Initiative PUBLISHED",
@@ -7759,6 +8009,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "3953f1cf-888d-45a4-a11f-593e2dd13c1b",
 														"exec": [
 															""
 														],
@@ -7768,10 +8019,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "51e045cd-0785-45b3-b9e0-01a71f16a303",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -7798,7 +8050,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -7825,8 +8077,9 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "c2ca6cb9-7366-471f-b7cb-c59ba1a7874c",
 														"exec": [
-															"pm.test(\"Status test\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - PagoPA Admin updates initiative status to PUBLISHED - status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});\r",
 															""
@@ -7837,6 +8090,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "ca853894-ff29-4e62-a383-6784758c706b",
 														"exec": [
 															"/*let body;\r",
 															"baseUrlInitiative = pm.variables.get('baseUrlInitiative')\r",
@@ -7892,7 +8146,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "Generate Token IO",
@@ -7900,8 +8156,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -7914,6 +8171,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													""
 												],
@@ -7966,8 +8224,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C - status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});\r",
 													"\r",
@@ -8030,8 +8289,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Prerequisites check - status 204\", function () {\r",
 													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
@@ -8092,8 +8352,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Prerequisites check - status 202\", function () {\r",
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
@@ -8103,6 +8364,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "923412ad-b35b-4409-b8db-67ef8f66a84c",
 												"exec": [
 													"setTimeout(()=> {}, 20000);"
 												],
@@ -8152,8 +8414,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding no budget - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -8166,6 +8429,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "083ae34d-c3fd-470f-8a2e-4eafbbef6d50",
 												"exec": [
 													"setTimeout(()=> {}, 20000);"
 												],
@@ -8218,8 +8482,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
@@ -8231,6 +8496,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "3ed78198-5166-4e77-82fe-ba402db44740",
 												"exec": [
 													"setTimeout(()=> {}, 10000);"
 												],
@@ -8285,7 +8551,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User Initiative not found - 404",
@@ -8296,8 +8564,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiativenot found - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -8353,12 +8622,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not found - Accept T&C - status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not found - Accept T&C - message contains info about initiative not found\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('{\\\"code\\\":\\\"it.gov.pagopa.initiative.not.found\\\",\\\"message\\\":\\\"Initiative with initiativeId test not found.\\\"}');\r",
 													"});"
@@ -8414,7 +8684,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding Unsubscribed User - bad request - 400",
@@ -8425,8 +8697,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -8482,8 +8755,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "6852b439-e271-4ca1-88c5-e9a12ea415ad",
 												"exec": [
-													"pm.test('Retrieve Initiative ID', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user -  get initiative id - status 200', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"initiativeId\", pm.response.json().initiativeId);\r",
@@ -8528,12 +8802,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user - Accept T&C - status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user - Accept T&C - message contains info about unsubscribed user to initiative\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('Unsubscribed to initiative');\r",
 													"});"
@@ -8595,12 +8870,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "587158b4-7621-44dd-98b3-38b9eb3e3a06",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user -  Status onboarding - status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Omboarding status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user -  Status onboarding - user has status UNSUBSCRIBED\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).equals('UNSUBSCRIBED');\r",
 													"});"
@@ -8637,7 +8913,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User Initiative bad request - no initiativeId - 400",
@@ -8648,8 +8926,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -8705,12 +8984,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - Accept T&C - status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - Accept T&C - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
 													"});"
@@ -8772,12 +9052,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "f02c6da4-a972-4ffb-9ebd-bd14eee5e257",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - Prerequisites check - status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - Prerequisites check - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
 													"});"
@@ -8839,12 +9120,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "1e39ba6c-8bbd-4528-ab3a-3015053d1408",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - PDND + Autocertification - status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - PDND + Autocertification - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
 													"});"
@@ -8889,13 +9171,15 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "Onboarding User initiative not active - 403",
 							"item": [
 								{
-									"name": "ENTE - Initiative creation Copy",
+									"name": "ENTE - Initiative creation",
 									"item": [
 										{
 											"name": "Generate Portal Token",
@@ -8903,6 +9187,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "edc92424-5f57-46dd-806f-88d80b1e5c86",
 														"exec": [
 															""
 														],
@@ -8912,10 +9197,11 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "28ff1249-83e3-4a63-8b2f-ebc575fa420e",
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Retrieve Token', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user initiative not active - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -8940,7 +9226,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"b8986bf2-1f93-4827-ab16-b21eb8aeae2b\",\r\n  \"name\": \"Test\",\r\n  \"familyName\": \"IDPay\",\r\n  \"email\": \"test@test.com\",\r\n  \"orgId\": \"2f63a151-da4e-4e1e-acf9-adecc0c4d727\",\r\n  \"orgVAT\": \"00608720272\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"ADMIN\",\r\n  \"orgRole\": \"admin\"\r\n}\r\n",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -8967,17 +9253,18 @@
 												{
 													"listen": "test",
 													"script": {
+														"id": "a636a15f-e98d-447f-9caf-224fd188b1dd",
 														"exec": [
 															"var jsonData = JSON.parse(responseBody);\r",
 															"// console.log('jsondata', jsonData);\r",
 															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 															"pm.collectionVariables.set('initiativeIdDraft', jsonData.initiativeId);\r",
 															"\r",
-															"pm.test(\"Status test 201\", function () {\r",
+															"pm.test(\"Onboarding - Unhppy case - APP IO - Onboarding user initiative not active - Initiative creation - STEP1 - Status test 201\", function () {\r",
 															"    pm.response.to.have.status(201);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Verify response body\", function () {\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not active - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 															"    let jsonResponse = pm.response.json();\r",
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
@@ -8988,6 +9275,7 @@
 												{
 													"listen": "prerequest",
 													"script": {
+														"id": "5a52aece-7a00-4f49-8486-c7a2fe65606e",
 														"exec": [
 															"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
 															"let moment = require('moment');\r",
@@ -9047,7 +9335,9 @@
 											},
 											"response": []
 										}
-									]
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
 								},
 								{
 									"name": "Generate Token IO",
@@ -9055,8 +9345,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "758f3668-4703-4928-9c75-3671b183cba3",
 												"exec": [
-													"pm.test('Retrieve Token', () => {\r",
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative not active - Generate token IO', () => {\r",
 													"    //verify response HTTP status \r",
 													"    pm.response.to.have.status(200);\r",
 													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -9112,12 +9403,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "5900ad86-9838-4ee5-bac8-3feacb653273",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not active - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not active - Accept T&C -  message contains info about initiative not active\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('The initiative is not active!');\r",
 													"});"
@@ -9172,10 +9464,83 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "DELETE initiative",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "5881597a-e88c-40d2-b9d5-d067c33e50d3",
+												"exec": [
+													"pm.test(\"Initiative with whitelist - Unhappy case - Initiative deletion - Ente Admin delete(enabled:false) an initiative in status draft - Responses with 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "b72f220e-02f0-42f5-bea5-78b6bb768f17",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrlInitiative}}/:initiativeId/beneficiary/instruments",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												":initiativeId",
+												"beneficiary",
+												"instruments"
+											],
+											"variable": [
+												{
+													"key": "initiativeId",
+													"value": "{{initiativeIdDraft}}"
+												}
+											]
+										}
+									},
+									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						}
-					]
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				},
 				{
 					"name": "ISSUER",
@@ -9189,12 +9554,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "683d8888-9c33-4936-b0cd-807607ab01a4",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - Status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - message is Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.');\r",
 													"});"
@@ -9205,6 +9571,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "86e1d42b-418c-426c-80e3-39910359bfd9",
 												"exec": [
 													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
@@ -9269,12 +9636,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "d16f14d4-de26-4bed-8e11-e72a6047c835",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Status Onboarding - status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Status Onboarding - message is Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.');\r",
 													"});"
@@ -9285,6 +9653,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "3ad529ce-492c-4eb6-83e1-d3b792b5c236",
 												"exec": [
 													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
 												],
@@ -9335,7 +9704,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "ISSUER Onboarding User not in Whitelist - 403",
@@ -9346,8 +9717,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "8f06dff1-dc67-40dd-8963-22b7ddf4fd3c",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user not in whitelist - Accept T&C - status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -9357,6 +9729,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "44a0b0d6-08b9-416f-bd2c-7b2b5437d5bd",
 												"exec": [
 													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
@@ -9421,12 +9794,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "683d8888-9c33-4936-b0cd-807607ab01a4",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user not in whitelist - Prerequisites check - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user not in whitelist - Prerequisites check - message is The citizen is not allowed to participate to this initiative!\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('The citizen is not allowed to participate to this initiative!');\r",
 													"});"
@@ -9437,6 +9811,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "86e1d42b-418c-426c-80e3-39910359bfd9",
 												"exec": [
 													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
 												],
@@ -9501,12 +9876,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "d16f14d4-de26-4bed-8e11-e72a6047c835",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user not in whitelist - Status Onboarding - status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user not in whitelist - Status Onboarding - user status is ONBOARDING_KO\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).equals('ONBOARDING_KO');\r",
 													"});"
@@ -9517,6 +9893,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "3967115e-0d3e-4588-a3ef-2e4f6b2064e7",
 												"exec": [
 													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
 												],
@@ -9567,7 +9944,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "ISSUER Onboarding InitiativeId empty - 400",
@@ -9578,8 +9957,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "8f06dff1-dc67-40dd-8963-22b7ddf4fd3c",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiativeId empty - Accept T&C - status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
@@ -9589,6 +9969,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "44a0b0d6-08b9-416f-bd2c-7b2b5437d5bd",
 												"exec": [
 													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
@@ -9653,12 +10034,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "683d8888-9c33-4936-b0cd-807607ab01a4",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiativeId empty - Prerequisites check - status 400\", function () {\r",
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiativeId empty - Prerequisites check - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
 													"});"
@@ -9669,6 +10051,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "86e1d42b-418c-426c-80e3-39910359bfd9",
 												"exec": [
 													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
 												],
@@ -9733,12 +10116,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "d16f14d4-de26-4bed-8e11-e72a6047c835",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiativeId empty - Status Onboarding - status 200\", function () {\r",
 													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiativeId empty - Status Onboarding - user status is ACCEPTED_TC\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
 													"});"
@@ -9749,6 +10133,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "1f9a73ee-df3f-485a-97cf-75c20f45f859",
 												"exec": [
 													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
 												],
@@ -9799,7 +10184,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "ISSUER Onboarding Initiative not found - 404",
@@ -9810,12 +10197,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "8f06dff1-dc67-40dd-8963-22b7ddf4fd3c",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not found - Accept T&C - status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not found - Accept T&C -  message contains info about initiative not found\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('{\\\"code\\\":\\\"it.gov.pagopa.initiative.not.found\\\",\\\"message\\\":\\\"Initiative with initiativeId test not found.\\\"}');\r",
 													"});"
@@ -9826,6 +10214,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "44a0b0d6-08b9-416f-bd2c-7b2b5437d5bd",
 												"exec": [
 													""
 												],
@@ -9890,12 +10279,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "683d8888-9c33-4936-b0cd-807607ab01a4",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not found - Prerequisites check - status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not found - Prerequisites check - message contains info about initiative not found\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('{\\\"code\\\":\\\"it.gov.pagopa.initiative.not.found\\\",\\\"message\\\":\\\"Initiative with initiativeId test not found.\\\"}');\r",
 													"});"
@@ -9906,6 +10296,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "86e1d42b-418c-426c-80e3-39910359bfd9",
 												"exec": [
 													""
 												],
@@ -9964,7 +10355,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "ISSUER Onboarding Initiative draft - 403",
@@ -9975,12 +10368,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "8f06dff1-dc67-40dd-8963-22b7ddf4fd3c",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative draft - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative draft - Accept T&C - message contains info about initiative not active\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('The initiative is not active!');\r",
 													"});"
@@ -9991,6 +10385,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "44a0b0d6-08b9-416f-bd2c-7b2b5437d5bd",
 												"exec": [
 													""
 												],
@@ -10055,12 +10450,13 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "683d8888-9c33-4936-b0cd-807607ab01a4",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative draft - Prerequisites check - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Message test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative draft - Prerequisites check -  message contais info about initiative not active\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('The initiative is not active!');\r",
 													"});"
@@ -10071,6 +10467,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "86e1d42b-418c-426c-80e3-39910359bfd9",
 												"exec": [
 													""
 												],
@@ -10129,7 +10526,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "ISSUER Onboarding Initiative ended - 403",
@@ -10140,8 +10539,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "8f06dff1-dc67-40dd-8963-22b7ddf4fd3c",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative ended - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});"
 												],
@@ -10151,6 +10551,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "44a0b0d6-08b9-416f-bd2c-7b2b5437d5bd",
 												"exec": [
 													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
@@ -10209,7 +10610,9 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						},
 						{
 							"name": "ISSUER Onboarding Initiative not started - 403",
@@ -10220,8 +10623,9 @@
 										{
 											"listen": "test",
 											"script": {
+												"id": "8f06dff1-dc67-40dd-8963-22b7ddf4fd3c",
 												"exec": [
-													"pm.test(\"Status test\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not started - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
 													"});"
 												],
@@ -10231,6 +10635,7 @@
 										{
 											"listen": "prerequest",
 											"script": {
+												"id": "44a0b0d6-08b9-416f-bd2c-7b2b5437d5bd",
 												"exec": [
 													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
@@ -10289,17 +10694,23 @@
 									},
 									"response": []
 								}
-							]
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
 						}
-					]
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
+				"id": "cc8b0a70-c567-4018-8705-49ed3f6120f1",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -10309,6 +10720,7 @@
 		{
 			"listen": "test",
 			"script": {
+				"id": "b2a56cc4-73d5-4fb8-8e57-dff2c16b6f46",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -10318,209 +10730,260 @@
 	],
 	"variable": [
 		{
+			"id": "3bb4f2c5-b756-408a-ae8f-17956cb03380",
 			"key": "tokenIO",
 			"value": ""
 		},
 		{
+			"id": "65ae029d-6963-423c-ba5c-bbda165c3e92",
 			"key": "initiativeId",
 			"value": ""
 		},
 		{
+			"id": "2d631515-3cca-41c7-9b4d-75e24a5ffe53",
 			"key": "serviceId - initiative with criteria",
 			"value": "MOCKdevYNDW3OYHUL533E2YM8X88WWF3S"
 		},
 		{
+			"id": "2d6e2cf7-d658-4e23-91b5-2c4d68c77196",
 			"key": "initiativeId - not found",
 			"value": "test"
 		},
 		{
+			"id": "92c62dcc-c300-4369-a6d0-a0693c6da1be",
 			"key": "serviceId - initiative with whitelist",
 			"value": "MOCKdev1YYPSLE0C22EGH7F97M97JE0XH"
 		},
 		{
+			"id": "560911c2-6939-4596-a3fe-3be8297a130b",
 			"key": "IssuerinitiativeId",
 			"value": "63fded4ffea3f35a5644e738"
 		},
 		{
+			"id": "3071170d-8d95-43e3-a5b4-5be403dbb2e4",
 			"key": "NoCriteriaInitiativeId",
 			"value": "63fc855ffea3f35a5644e72d"
 		},
 		{
+			"id": "5e8783ac-45ef-4a5b-8f0a-d6dc7ea4256e",
 			"key": "serviceId - self declaration",
 			"value": "MOCKdevWI962QGAVKET21OPP0XYXXUYTL"
 		},
 		{
+			"id": "ea3de5cc-f59a-4fa1-8d2f-37a0db6abd5f",
 			"key": "initiativeId - draft",
 			"value": "63fc8961fea3f35a5644e72e"
 		},
 		{
+			"id": "f4b26703-425e-40db-9e79-7e0f678b1b06",
 			"key": "serviceId - endDate",
 			"value": "MOCKdevRT7SSUXXTV4DEAZE2NWR8LF4EW"
 		},
 		{
+			"id": "a6a9dba3-8de1-4e08-9034-ed21114bfe99",
 			"key": "serviceId - startDate",
 			"value": "MOCKdevAYVTFNGYH6PAHSDJ5WKEOC2JS0"
 		},
 		{
+			"id": "faf02aff-a2d2-4204-961e-9a7015d45c9d",
 			"key": "serviceId - no budget",
 			"value": "MOCKdevDX6C521Q0GX1XCNYIKH86GZR61"
 		},
 		{
+			"id": "f9d8d3e9-0f33-418d-965a-15d5a9e6bb67",
 			"key": "fiscalCode",
 			"value": "{{$randomPassword}}"
 		},
 		{
+			"id": "f1224499-971a-49b8-af7d-3668e28b9ffa",
 			"key": "same_fiscalCode",
 			"value": ""
 		},
 		{
+			"id": "88024dd3-5323-47ef-91c5-f24e7e3bee19",
 			"key": "initiativeId - endDate",
 			"value": "63ff1505fea3f35a5644e73a"
 		},
 		{
+			"id": "d7bac2ce-9a22-4098-8490-4ed22a88e242",
 			"key": "initiativeId - startDate",
 			"value": "6400a8ad5416301023ae4c9e"
 		},
 		{
+			"id": "0c1b0c7d-c398-4d82-8525-fe651fd78c62",
 			"key": "serviceId - unsubscribed user",
 			"value": "MOCKdevX21DC1KCY68H15SHEQZEMAZAOK"
 		},
 		{
+			"id": "10dac13d-f6cd-4ec9-9bc5-7c040434cbad",
 			"key": "CF_fake",
-			"value": "RNZPMP80A44X000M",
-			"type": "string"
+			"value": "RNZPMP80A44X000M"
 		},
 		{
+			"id": "2915ee86-adf1-4adb-b956-abae88b4e926",
 			"key": "identityPortalToken",
 			"value": ""
 		},
 		{
+			"id": "276861f5-bb66-441e-9d9f-810598e73a39",
 			"key": "serviceName",
 			"value": ""
 		},
 		{
+			"id": "f606d9b0-465e-49fa-8efd-d7c85796b7c1",
 			"key": "description",
 			"value": ""
 		},
 		{
+			"id": "92bab1b7-f788-4484-886f-4ef844223082",
 			"key": "channel_type",
 			"value": ""
 		},
 		{
+			"id": "1dfb04fe-fee4-4978-b450-744f3e3f5fc9",
 			"key": "channel_contact",
 			"value": ""
 		},
 		{
+			"id": "1017075b-e4e7-43f7-9c49-18aa08c605d9",
 			"key": "budget",
 			"value": ""
 		},
 		{
+			"id": "7b3e62b5-74f3-4acd-8446-cb06da54ba9f",
 			"key": "beneficiaryType",
 			"value": ""
 		},
 		{
+			"id": "f762793d-5947-449e-baca-551f1998b772",
 			"key": "beneficiaryKnown",
 			"value": ""
 		},
 		{
+			"id": "427cc280-cadc-4030-80a6-2bb1a9fe89a4",
 			"key": "beneficiaryBudget",
 			"value": ""
 		},
 		{
+			"id": "e4a7ee10-7692-48cc-942c-b3607468bef1",
 			"key": "rankingStartDate",
 			"value": ""
 		},
 		{
+			"id": "de2af404-8d9d-43c8-8f2e-07bff034c7ba",
 			"key": "rankingEndDate",
 			"value": ""
 		},
 		{
+			"id": "b28c52c8-83ad-43a1-9ef6-1d98d62135f3",
 			"key": "startDate",
 			"value": ""
 		},
 		{
+			"id": "5b89d74b-8daa-4aab-93c8-907a0a30f8ba",
 			"key": "endDate",
 			"value": ""
 		},
 		{
+			"id": "af553288-a0ca-4580-b20c-c07299144eb4",
 			"key": "rewardRuleType",
 			"value": ""
 		},
 		{
+			"id": "859c4de3-6d9a-4315-ae85-b90f670653b3",
 			"key": "rewardValueType",
 			"value": ""
 		},
 		{
+			"id": "f92f7d70-adca-4302-b969-2e60cd01dc9e",
 			"key": "rewardRuleValue",
 			"value": ""
 		},
 		{
+			"id": "d28a75b2-8a4a-471a-8cb7-8f3ac7bde6a1",
 			"key": "trxThresholdFrom",
 			"value": ""
 		},
 		{
+			"id": "a523f16e-cad2-4d79-ac6e-191b8b69daaa",
 			"key": "trxThresholdTo",
 			"value": ""
 		},
 		{
+			"id": "8537d46e-0483-4670-88d2-82ad914d2bd3",
 			"key": "trxDaysOfWeek",
 			"value": ""
 		},
 		{
+			"id": "076dd23e-8975-4f6f-a468-6546828d9729",
 			"key": "trxDayEndTime",
 			"value": ""
 		},
 		{
+			"id": "4e14c8ad-4f07-4a15-82de-ef3fa3440497",
 			"key": "trxCountFrom",
 			"value": ""
 		},
 		{
+			"id": "5857e61c-12e3-48fb-9c22-a1dc2b16299d",
 			"key": "trxCountTo",
 			"value": ""
 		},
 		{
+			"id": "b58c0d6b-cb33-48c8-aa2b-a87656b10092",
 			"key": "trxRewardLimitFrequency",
 			"value": ""
 		},
 		{
+			"id": "29276405-e293-4755-90eb-c57bfa5bbead",
 			"key": "trxRewardLimitValue",
 			"value": ""
 		},
 		{
+			"id": "e5f6ab36-e921-42e8-a49c-2eff72962262",
 			"key": "body",
 			"value": ""
 		},
 		{
+			"id": "76df978f-2ed6-4a18-a0e1-fa21a3fbe3b8",
 			"key": "identityPortalTokenPagopa",
 			"value": ""
 		},
 		{
+			"id": "0b82d87b-426e-4daf-9a49-559fad695697",
 			"key": "rankingEnabled",
 			"value": ""
 		},
 		{
+			"id": "7a715bdd-dccf-40c2-aa46-85bd322e39d0",
 			"key": "initiativeIdWithCriteria",
 			"value": ""
 		},
 		{
+			"id": "e381abdd-435e-4dd6-b6ba-b22c980b0b01",
 			"key": "initiativeIdWithWhitelist",
 			"value": ""
 		},
 		{
+			"id": "ef7afa65-0aff-41b0-9acb-ccbb660289a8",
 			"key": "initiativeIdWithManualCriteria",
 			"value": ""
 		},
 		{
+			"id": "d8e5ad7b-83ae-4b5b-a61e-c6e45a3c8069",
 			"key": "initiativeIdNotStarted",
 			"value": ""
 		},
 		{
+			"id": "d5264c46-17c5-4bf3-8a8a-d10eb92dccd0",
 			"key": "initiativeIdNoBudget",
 			"value": ""
 		},
 		{
+			"id": "f027515c-8f65-4c66-a820-7933ace1b0a7",
 			"key": "initiativeIdDraft",
 			"value": ""
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }

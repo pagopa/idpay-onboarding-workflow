@@ -27,7 +27,7 @@ public class Onboarding {
 
   private String status;
 
-  private String datailKO;
+  private String detailKO;
 
   private String channel;
 
@@ -50,5 +50,6 @@ public class Onboarding {
   private LocalDateTime updateDate;
 
   private LocalDateTime creationDate;
+  private LocalDateTime suspensionDate;
 
 }

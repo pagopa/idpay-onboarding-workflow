@@ -81,4 +81,10 @@ public class OnboardingControllerImpl implements OnboardingController {
     onboardingService.rollback(initiativeId, userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
+
+  @Override
+  public ResponseEntity<Void> suspend(String initiativeId, String userId) {
+    onboardingService.suspend(initiativeId, userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
 }

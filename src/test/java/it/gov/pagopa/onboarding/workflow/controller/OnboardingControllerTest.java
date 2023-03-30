@@ -49,6 +49,7 @@ class OnboardingControllerTest {
   private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
   private static final String DISABLE_URL = "/disable";
   private static final String ROLLBACK_URL = "/rollback";
+  private static final String SUSPEND_URL = "/suspend";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -110,27 +111,6 @@ class OnboardingControllerTest {
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
-  }
-
-  @Test
-  void checkPrerequisitesTest_noTCAccepted() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format(OnboardingWorkflowConstants.ERROR_TC,
-                INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR)).when(onboardingServiceMock)
-        .checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-
-    Map<String, Object> body = new HashMap<>();
-    body.put("initiativeId", INITIATIVE_ID);
-    body.put("channel", CHANNEL);
-
-    mvc.perform(
-            MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(body))
-                .accept(MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
   }
 
   @Test
@@ -338,5 +318,16 @@ class OnboardingControllerTest {
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  }
+
+  @Test
+  void suspend() throws Exception {
+    Mockito.doNothing().when(onboardingServiceMock).suspend(INITIATIVE_ID, USER_ID);
+    mvc.perform(
+                    MockMvcRequestBuilders.put(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + SUSPEND_URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andReturn();
   }
 }
