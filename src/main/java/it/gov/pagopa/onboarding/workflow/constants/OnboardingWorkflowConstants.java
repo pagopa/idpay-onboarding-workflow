@@ -36,6 +36,8 @@ public final class OnboardingWorkflowConstants {
   public static final String GENERIC_ERROR_MSG = "Onboarding to initiative failed";
   public static final String ERROR_SUSPENSION_STATUS = "It is not possible to suspend the citizen";
   public static final String ERROR_SUSPENSION = "Error while suspending the citizen";
+  public static final String ERROR_READMISSION = "Error while readmitting the citizen";
+  public static final String ERROR_READMIT_STATUS= "It is not possible to readmit the citizen";
   public static final List<String> STATUS_IDEMPOTENT = List.of(ONBOARDING_OK, INVITED, SUSPENDED, ON_EVALUATION);
 
   private OnboardingWorkflowConstants() {

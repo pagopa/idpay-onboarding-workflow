@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1236,6 +1237,48 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_SUSPENSION, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
+    }
+  }
+  @ParameterizedTest
+  @ValueSource(strings = {OnboardingWorkflowConstants.SUSPENDED,OnboardingWorkflowConstants.ONBOARDING_OK})
+  void readmit_ok(String status) {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(status);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    onboardingService.readmit(INITIATIVE_ID, USER_ID);
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+  }
+  @ParameterizedTest
+  @ValueSource(strings = {OnboardingWorkflowConstants.ON_EVALUATION,OnboardingWorkflowConstants.INVITED,OnboardingWorkflowConstants.ACCEPTED_TC,OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED,OnboardingWorkflowConstants.ONBOARDING_KO})
+  void readmit_wrongStatus(String status) {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(status);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    try {
+      onboardingService.readmit(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_READMIT_STATUS, e.getMessage());
+    }
+  }
+  @Test
+  void readmit_ko() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.SUSPENDED);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    Mockito.doThrow(new OnboardingWorkflowException(500, "", "")).when(onboardingRepositoryMock).save(any());
+
+    try {
+      onboardingService.readmit(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_READMISSION, e.getMessage());
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
