@@ -1,11 +1,12 @@
 package it.gov.pagopa.onboarding.workflow.utils;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 
 @Component
 @AllArgsConstructor
@@ -19,7 +20,7 @@ public class AuditUtilities {
       srcIp = InetAddress.getLocalHost().getHostAddress();
     } catch (UnknownHostException e) {
       log.error("Cannot determine the ip of the current host", e);
-      srcIp="UNKNOWN";
+      srcIp = "UNKNOWN";
     }
     SRCIP = srcIp;
   }
@@ -77,28 +78,28 @@ public class AuditUtilities {
     );
   }
 
-  public void logOnboardingOnEvaluation(String userId, String initiativeId, String channel, LocalDateTime date){
+  public void logOnboardingOnEvaluation(String userId, String initiativeId, String channel, LocalDateTime date) {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding of the citizen on evaluation", userId, initiativeId, channel, date.toString()
     );
   }
 
-  public void logOnboardingKOWithReason(String userId, String initiativeId, String channel, String msg){
+  public void logOnboardingKOWithReason(String userId, String initiativeId, String channel, String msg) {
     logAuditString(
             CEF_PATTERN,
             String.format("Onboarding of the citizen failed: %s", msg), userId, initiativeId, channel
     );
   }
 
-  public void logOnboardingKOInitiativeId(String initiativeId, String msg){
+  public void logOnboardingKOInitiativeId(String initiativeId, String msg) {
     logAuditString(
             CEF_PATTERN_MSG,
             String.format("Onboarding failed for initiative %s: %s", initiativeId, msg)
     );
   }
 
-  public void logOnboardingKOWhiteList(String userId, String initiativeId, String channel, LocalDateTime date){
+  public void logOnboardingKOWhiteList(String userId, String initiativeId, String channel, LocalDateTime date) {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding failed because the citizen is not allowed to participate to this initiative",
@@ -119,16 +120,32 @@ public class AuditUtilities {
             "Onboarding disabled", userId, initiativeId, channel, date.toString()
     );
   }
+
   public void logSuspension(String userId, String initiativeId) {
     logAuditString(
             CEF_PATTERN_BASE,
             "Onboarding suspended", userId, initiativeId
     );
   }
+
   public void logSuspensionKO(String userId, String initiativeId) {
     logAuditString(
             CEF_PATTERN_BASE,
             "Onboarding suspension failed", userId, initiativeId
+    );
+  }
+
+  public void logReadmission(String userId, String initiativeId) {
+    logAuditString(
+            CEF_PATTERN_BASE,
+            "Onboarding readmitted", userId, initiativeId
+    );
+  }
+
+  public void logReadmissionKO(String userId, String initiativeId) {
+    logAuditString(
+            CEF_PATTERN_BASE,
+            "Onboarding readmission failed", userId, initiativeId
     );
   }
 }

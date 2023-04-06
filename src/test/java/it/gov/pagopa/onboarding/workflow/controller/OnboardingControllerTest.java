@@ -50,6 +50,7 @@ class OnboardingControllerTest {
   private static final String DISABLE_URL = "/disable";
   private static final String ROLLBACK_URL = "/rollback";
   private static final String SUSPEND_URL = "/suspend";
+  private static final String READMIT_URL = "/readmit";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -325,6 +326,16 @@ class OnboardingControllerTest {
     Mockito.doNothing().when(onboardingServiceMock).suspend(INITIATIVE_ID, USER_ID);
     mvc.perform(
                     MockMvcRequestBuilders.put(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + SUSPEND_URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andReturn();
+  }
+  @Test
+  void readmit() throws Exception {
+    Mockito.doNothing().when(onboardingServiceMock).suspend(INITIATIVE_ID, USER_ID);
+    mvc.perform(
+                    MockMvcRequestBuilders.put(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + READMIT_URL)
                             .contentType(MediaType.APPLICATION_JSON_VALUE)
                             .accept(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.status().isNoContent())
