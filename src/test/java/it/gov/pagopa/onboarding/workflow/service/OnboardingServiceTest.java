@@ -94,18 +94,19 @@ class OnboardingServiceTest {
   private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
   private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
+  private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
-          new BigDecimal(500));
+          new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT);
   private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
           new EvaluationDTO(
                   USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, null, null, null, null),
                           new OnboardingRejectionReason(OUT_OF_RANKING, null, null, null, null)),
-                  new BigDecimal(500));
+                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
@@ -204,6 +205,7 @@ class OnboardingServiceTest {
     INITIATIVE_DTO.setStatus("PUBLISHED");
     INITIATIVE_DTO.setGeneral(GENERAL);
     INITIATIVE_DTO.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
+    INITIATIVE_DTO.setInitiativeRewardType(INITIATIVE_REWARD_TYPE_DISCOUNT);
 
     INITIATIVE_DTO_NO_PDND.setStatus("PUBLISHED");
     INITIATIVE_DTO_NO_PDND.setGeneral(GENERAL);
