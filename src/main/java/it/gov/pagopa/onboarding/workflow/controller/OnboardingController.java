@@ -117,5 +117,7 @@ public interface OnboardingController {
 
   @PutMapping("/{initiativeId}/{userId}/suspend")
   ResponseEntity<Void> suspend(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+  @PutMapping("/{initiativeId}/{userId}/readmit")
+  ResponseEntity<Void> readmit(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
 }
