@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,18 +95,19 @@ class OnboardingServiceTest {
   private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
   private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
+  private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
-          new BigDecimal(500));
+          new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT);
   private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
           new EvaluationDTO(
                   USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, null, null, null, null),
                           new OnboardingRejectionReason(OUT_OF_RANKING, null, null, null, null)),
-                  new BigDecimal(500));
+                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
@@ -204,6 +206,7 @@ class OnboardingServiceTest {
     INITIATIVE_DTO.setStatus("PUBLISHED");
     INITIATIVE_DTO.setGeneral(GENERAL);
     INITIATIVE_DTO.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
+    INITIATIVE_DTO.setInitiativeRewardType(INITIATIVE_REWARD_TYPE_DISCOUNT);
 
     INITIATIVE_DTO_NO_PDND.setStatus("PUBLISHED");
     INITIATIVE_DTO_NO_PDND.setGeneral(GENERAL);
@@ -1236,6 +1239,48 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getCode());
       assertEquals(OnboardingWorkflowConstants.ERROR_SUSPENSION, e.getMessage());
+      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
+    }
+  }
+  @ParameterizedTest
+  @ValueSource(strings = {OnboardingWorkflowConstants.SUSPENDED,OnboardingWorkflowConstants.ONBOARDING_OK})
+  void readmit_ok(String status) {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(status);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    onboardingService.readmit(INITIATIVE_ID, USER_ID);
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+  }
+  @ParameterizedTest
+  @ValueSource(strings = {OnboardingWorkflowConstants.ON_EVALUATION,OnboardingWorkflowConstants.INVITED,OnboardingWorkflowConstants.ACCEPTED_TC,OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED,OnboardingWorkflowConstants.ONBOARDING_KO})
+  void readmit_wrongStatus(String status) {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(status);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    try {
+      onboardingService.readmit(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.BAD_REQUEST.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_READMIT_STATUS, e.getMessage());
+    }
+  }
+  @Test
+  void readmit_ko() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.SUSPENDED);
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    Mockito.doThrow(new OnboardingWorkflowException(500, "", "")).when(onboardingRepositoryMock).save(any());
+
+    try {
+      onboardingService.readmit(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.ERROR_READMISSION, e.getMessage());
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }

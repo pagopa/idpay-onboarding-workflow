@@ -30,4 +30,5 @@ public interface OnboardingService {
   ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId, String userId, LocalDateTime startDate, LocalDateTime endDate, String status, Pageable pageable);
 
   void suspend(String initiativeId, String userId);
+  void readmit(String initiativeId, String userId);
 }

@@ -87,4 +87,10 @@ public class OnboardingControllerImpl implements OnboardingController {
     onboardingService.suspend(initiativeId, userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
+
+  @Override
+  public ResponseEntity<Void> readmit(String initiativeId, String userId) {
+    onboardingService.readmit(initiativeId,userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
 }

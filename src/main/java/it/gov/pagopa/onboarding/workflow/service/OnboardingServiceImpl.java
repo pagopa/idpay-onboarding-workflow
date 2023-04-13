@@ -51,6 +51,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   public static final String PUT_TC_CONSENT = "PUT_TC_CONSENT";
   public static final String SUSPENSION = "SUSPENSION";
+  public static final String READMISSION = "READMISSION";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
   @Autowired
@@ -200,6 +201,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
     dto.setOnboardingRejectionReasons(List.of());
     dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
+    dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     return dto;
   }
 
@@ -477,17 +479,20 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     long startTime = System.currentTimeMillis();
-    Set<String> onboardingRejectionReasonsType = evaluationDTO.getOnboardingRejectionReasons().stream()
+
+    Set<String> onboardingRejectionReasonsType = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
+            .orElseGet(Collections::emptyList)
+            .stream()
             .map(OnboardingRejectionReason::getType)
-            .filter(Objects::nonNull).collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsType);
 
     onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(),
-            evaluationDTO.getUserId())
-        .ifPresent(onboarding ->
-            setStatus(onboarding, evaluationDTO.getStatus(),
-                evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons)
-        );
+                    evaluationDTO.getUserId())
+            .ifPresent(onboarding ->
+                    setStatus(onboarding, evaluationDTO.getStatus(),
+                            evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons)
+            );
     log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding's status is: {}", evaluationDTO.getStatus());
     performanceLog(startTime, "COMPLETE_ONBOARDING");
   }
@@ -515,7 +520,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboardingRepository.save(newOnboarding);
       }
     }
-    performanceLog(startTime, "ALLOWED_INITIAIVE");
+    performanceLog(startTime, "ALLOWED_INITIATIVE");
   }
   @Override
   public void suspend(String initiativeId, String userId){
@@ -523,9 +528,10 @@ public class OnboardingServiceImpl implements OnboardingService {
     log.info("[SUSPENSION] User suspension from the initiative {} started", initiativeId);
 
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
-    if (!onboarding.getStatus().equals(OnboardingWorkflowConstants.ONBOARDING_OK)){
+    if (!List.of(OnboardingWorkflowConstants.ONBOARDING_OK,OnboardingWorkflowConstants.SUSPENDED).contains(onboarding.getStatus())){
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION);
+      log.info("[SUSPENSION] User suspension from the initiative {} is not possible", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
               OnboardingWorkflowConstants.ERROR_SUSPENSION_STATUS, null);
     }
@@ -541,10 +547,43 @@ public class OnboardingServiceImpl implements OnboardingService {
     } catch (Exception e){
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION);
+      log.info("[SUSPENSION] User suspension from the initiative {} is failed", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
               OnboardingWorkflowConstants.ERROR_SUSPENSION, OnboardingWorkflowConstants.GENERIC_ERROR);
     }
   }
+
+  @Override
+  public void readmit(String initiativeId, String userId){
+    long startTime = System.currentTimeMillis();
+    log.info("[READMISSION] User readmission to the initiative {} started", initiativeId);
+
+    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    if (!List.of(OnboardingWorkflowConstants.ONBOARDING_OK,OnboardingWorkflowConstants.SUSPENDED).contains(onboarding.getStatus())){
+      auditUtilities.logReadmissionKO(userId, initiativeId);
+      performanceLog(startTime, READMISSION);
+      log.info("[READMISSION] User readmission to the initiative {} is not possible", initiativeId);
+      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
+              OnboardingWorkflowConstants.ERROR_READMIT_STATUS, null);
+    }
+    try {
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+      LocalDateTime updateDate = LocalDateTime.now();
+      onboarding.setUpdateDate(updateDate);
+      onboarding.setSuspensionDate(null);
+      onboardingRepository.save(onboarding);
+      auditUtilities.logReadmission(userId, initiativeId);
+      log.info("[READMISSION] User is readmitted to the initiative {}", initiativeId);
+      performanceLog(startTime, READMISSION);
+    } catch (Exception e){
+      auditUtilities.logReadmissionKO(userId, initiativeId);
+      performanceLog(startTime, READMISSION);
+      log.info("[READMISSION] User readmission to the initiative {} is failed", initiativeId);
+      throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+              OnboardingWorkflowConstants.ERROR_READMISSION, OnboardingWorkflowConstants.GENERIC_ERROR);
+    }
+  }
+
 
   private Pageable getPageable(Pageable pageable) {
     if (pageable == null) {
