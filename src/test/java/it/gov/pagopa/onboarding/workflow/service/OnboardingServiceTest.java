@@ -90,6 +90,7 @@ class OnboardingServiceTest {
   private static final String STATUS = "STATUS";
   private static final String SERVICE_ID = "SERVICE_ID";
   private static final String INITIATIVE_NAME = "INITIATIVE_NAME";
+  private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
   private static final String CHANNEL = "CHANNEL";
   private static final BigDecimal BUDGET = BigDecimal.valueOf(1000);
   private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
@@ -100,14 +101,14 @@ class OnboardingServiceTest {
       new EvaluationDTO(
           USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
-          new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT);
+          new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME);
   private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
           new EvaluationDTO(
                   USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, null, null, null, null),
                           new OnboardingRejectionReason(OUT_OF_RANKING, null, null, null, null)),
-                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT);
+                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
