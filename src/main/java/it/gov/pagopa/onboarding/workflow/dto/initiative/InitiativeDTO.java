@@ -50,4 +50,6 @@ public class InitiativeDTO   {
   private InitiativeRefundRuleDTO refundRule;
   @JsonProperty("initiativeRewardType")
   private String initiativeRewardType;
+  @JsonProperty("organizationName")
+  private String organizationName;
 }
