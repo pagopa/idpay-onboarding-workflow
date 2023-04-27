@@ -52,4 +52,6 @@ public class InitiativeDTO   {
   private String initiativeRewardType;
   @JsonProperty("organizationName")
   private String organizationName;
+  @JsonProperty("isLogoPresent")
+  private Boolean isLogoPresent;
 }
