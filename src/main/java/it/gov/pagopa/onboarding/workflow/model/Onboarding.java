@@ -23,6 +23,7 @@ public class Onboarding {
   @Id
   private String id;
   private String userId;
+  private String familyId;
   private String initiativeId;
 
   private String status;

@@ -491,10 +491,11 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(),
                     evaluationDTO.getUserId())
-            .ifPresent(onboarding ->
+            .ifPresent(onboarding -> {
                     setStatus(onboarding, evaluationDTO.getStatus(),
-                            evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons)
-            );
+                            evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons);
+                    onboarding.setFamilyId(evaluationDTO.getFamilyId());
+            });
     log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding's status is: {}", evaluationDTO.getStatus());
     performanceLog(startTime, "COMPLETE_ONBOARDING");
   }
