@@ -99,12 +99,12 @@ class OnboardingServiceTest {
   private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
-          USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
+          USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
           new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
   private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
           new EvaluationDTO(
-                  USER_ID, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
+                  USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, null, null, null, null),
                           new OnboardingRejectionReason(OUT_OF_RANKING, null, null, null, null)),
