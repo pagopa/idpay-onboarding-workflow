@@ -733,6 +733,31 @@ class OnboardingServiceTest {
 
     RequiredCriteriaDTO res = onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
     assertNull(res);
+  } @Test
+  void checkPrerequisites_ok_familyUnit() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+    onboarding.setTc(true);
+    onboarding.setDemandedDate(LocalDateTime.now());
+    INITIATIVE_DTO.getGeneral().setBeneficiaryType("NF");
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+
   }
 
   @ParameterizedTest
@@ -1010,6 +1035,29 @@ class OnboardingServiceTest {
     onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
     assertEquals(OUT_OF_RANKING + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
+  }
+  @Test
+  void completeOnboardingCreateOnboardingStatusDEMANDED_ok() {
+    EVALUATION_DTO.setStatus("DEMANDED");
+    try {
+      onboardingService.completeOnboarding(EVALUATION_DTO);
+    } catch (OnboardingWorkflowException e) {
+      fail();
+    }
+  }
+  @Test
+  void checkChangeJOINEDStatusInToONBOARDING_OK() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus("JOINED");
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    EVALUATION_DTO.setStatus("JOINED");
+
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+
   }
   @Test
   void deactivateOnboarding_ok() {

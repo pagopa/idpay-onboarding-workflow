@@ -8,6 +8,8 @@ public final class OnboardingWorkflowConstants {
   public static final String STATUS_UNSUBSCRIBED = "UNSUBSCRIBED";
   public static final String ON_EVALUATION = "ON_EVALUATION";
   public static final String INVITED = "INVITED";
+  public static final String DEMANDED = "DEMANDED";
+  public static final String JOINED = "JOINED";
   public static final String SUSPENDED = "SUSPENDED";
   public static final String PUBLISHED = "PUBLISHED";
   public static final String ONBOARDING_OK = "ONBOARDING_OK";
