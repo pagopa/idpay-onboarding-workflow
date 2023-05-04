@@ -1019,6 +1019,16 @@ class OnboardingServiceTest {
     onboardingService.completeOnboarding(EVALUATION_DTO);
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
+  @Test
+  void completeOnboardingDEMANDEDWithOnboardingNotNull() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus("DEMANDED");
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    EVALUATION_DTO.setStatus("DEMANDED");
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+    assertEquals(OnboardingWorkflowConstants.DEMANDED, onboarding.getStatus());
+  }
 
   @Test
   void completeOnboarding_noOnboardingFound() {
