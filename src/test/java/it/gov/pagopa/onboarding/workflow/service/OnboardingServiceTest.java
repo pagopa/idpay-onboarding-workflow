@@ -1048,7 +1048,7 @@ class OnboardingServiceTest {
   @Test
   void checkChangeJOINEDStatusInToONBOARDING_OK() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus("JOINED");
+
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
             .thenReturn(Optional.of(onboarding));
 
@@ -1057,6 +1057,20 @@ class OnboardingServiceTest {
     onboardingService.completeOnboarding(EVALUATION_DTO);
 
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+
+  }
+  @Test
+  void checkChangeREJECTEDtatusInToONBOARDING_KO() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    EVALUATION_DTO.setStatus("REJECTED");
+
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, onboarding.getStatus());
 
   }
   @Test

@@ -123,6 +123,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (status.equals(OnboardingWorkflowConstants.JOINED)) {
       status = OnboardingWorkflowConstants.ONBOARDING_OK;
     }
+    if (status.equals(OnboardingWorkflowConstants.REJECTED)) {
+      status = OnboardingWorkflowConstants.ONBOARDING_KO;
+    }
 
     onboarding.setStatus(status);
     if (status.equals(OnboardingWorkflowConstants.ONBOARDING_OK)) {
@@ -208,7 +211,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setFamilyId(onboarding.getFamilyId());
     dto.setOrganizationId(initiativeDTO.getOrganizationId());
     dto.setAdmissibilityCheckDate(LocalDateTime.now());
-    dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    if (onboarding.getStatus().equals(OnboardingWorkflowConstants.DEMANDED)) {dto.setStatus(OnboardingWorkflowConstants.JOINED);}
+    else {dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);}
     dto.setOnboardingRejectionReasons(List.of());
     dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
