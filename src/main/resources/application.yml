@@ -1,3 +1,5 @@
+api.key.decrypt: ${PDV_DECRYPT_API_KEY:}
+
 spring:
   application:
     name: "@project.artifactId@"
@@ -148,3 +150,6 @@ rest-client:
   initiative:
     serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
     baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}
+  decrypt:
+    baseUrl: ${PDV_DECRYPT_BASE_URL:}
+    cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}

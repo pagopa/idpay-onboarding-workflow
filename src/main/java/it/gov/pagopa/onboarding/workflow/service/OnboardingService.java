@@ -1,11 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
+
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Pageable;
 
@@ -31,4 +27,6 @@ public interface OnboardingService {
 
   void suspend(String initiativeId, String userId);
   void readmit(String initiativeId, String userId);
+  OnboardingFamilyDTO getfamilyUnitComposition(String initiativeId, String userId);
+
 }

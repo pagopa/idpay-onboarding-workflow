@@ -2,19 +2,9 @@ package it.gov.pagopa.onboarding.workflow.service;
 
 import feign.FeignException;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingRejectionReason;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
@@ -52,6 +42,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String PUT_TC_CONSENT = "PUT_TC_CONSENT";
   public static final String SUSPENSION = "SUSPENSION";
   public static final String READMISSION = "READMISSION";
+  public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
   @Autowired
@@ -68,6 +59,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Autowired
   InitiativeRestConnector initiativeRestConnector;
+  @Autowired
+  DecryptRestConnector decryptRestConnector;
 
   @Autowired
   AuditUtilities auditUtilities;
@@ -601,4 +594,47 @@ public class OnboardingServiceImpl implements OnboardingService {
         service,
         System.currentTimeMillis() - startTime);
   }
+
+  @Override
+  public OnboardingFamilyDTO getfamilyUnitComposition(String initiativeId, String userId) {
+    long startTime = System.currentTimeMillis();
+
+    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    List<OnboardingFamilyDetailDTO> usersListDecrypted = new ArrayList<>();
+    OnboardingFamilyDTO onboardingFamilyDecryptDTO = new OnboardingFamilyDTO(usersListDecrypted);
+
+    log.info("[GET_ONBOARDING_FAMILY] Retrieved familyId {} for user {}", onboarding.getFamilyId(), userId);
+
+    if(onboarding.getFamilyId() == null){
+      performanceLog(startTime, GET_ONBOARDING_FAMILY);
+      return onboardingFamilyDecryptDTO;
+    }
+
+    List<Onboarding> familyList = onboardingRepository.findByInitiativeIdAndFamilyId(initiativeId, onboarding.getFamilyId());
+
+    usersListDecrypted = familyList.stream().map(o -> {
+      LocalDateTime onboardingDate = !OnboardingWorkflowConstants.ONBOARDING_KO.equals(o.getStatus()) ?
+              o.getOnboardingOkDate() : o.getOnboardingKODate();
+      return new OnboardingFamilyDetailDTO(decryptCF(o.getUserId()), o.getFamilyId(),
+              (onboardingDate != null ? onboardingDate.toLocalDate() : null), o.getStatus());
+    }).toList();
+
+    onboardingFamilyDecryptDTO.setUsersList(usersListDecrypted);
+    performanceLog(startTime, GET_ONBOARDING_FAMILY);
+    return onboardingFamilyDecryptDTO;
+  }
+
+  private String decryptCF(String userId) {
+    String fiscalCode;
+    try {
+      DecryptCfDTO decryptedCfDTO = decryptRestConnector.getPiiByToken(userId);
+      fiscalCode = decryptedCfDTO.getPii();
+    } catch (Exception e) {
+      throw new OnboardingWorkflowException(
+              HttpStatus.INTERNAL_SERVER_ERROR.value(),
+              e.getMessage(), OnboardingWorkflowConstants.GENERIC_ERROR);
+    }
+    return fiscalCode;
+  }
+
 }
