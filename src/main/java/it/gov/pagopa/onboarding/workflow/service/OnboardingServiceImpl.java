@@ -180,7 +180,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
     if ("NF".equals(initiativeDTO.getGeneral().getBeneficiaryType()) && onboarding.getDemandedDate() != null) {
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
-      outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO));
+      outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.JOINED));
     }
   }
   private boolean checkWhitelist(Onboarding onboarding, InitiativeDTO initiativeDTO) {
@@ -198,11 +198,11 @@ public class OnboardingServiceImpl implements OnboardingService {
               OnboardingWorkflowConstants.ERROR_WHITELIST_MSG, OnboardingWorkflowConstants.GENERIC_ERROR);
     }
     setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
-    outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO));
+    outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.ONBOARDING_OK));
     return true;
   }
   private EvaluationDTO createEvaluationDto(Onboarding onboarding,
-      InitiativeDTO initiativeDTO) {
+      InitiativeDTO initiativeDTO, String status) {
     EvaluationDTO dto = new EvaluationDTO();
     dto.setInitiativeId(onboarding.getInitiativeId());
     dto.setInitiativeName(initiativeDTO.getInitiativeName());
@@ -211,8 +211,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setFamilyId(onboarding.getFamilyId());
     dto.setOrganizationId(initiativeDTO.getOrganizationId());
     dto.setAdmissibilityCheckDate(LocalDateTime.now());
-    if (onboarding.getStatus().equals(OnboardingWorkflowConstants.DEMANDED)) {dto.setStatus(OnboardingWorkflowConstants.JOINED);}
-    else {dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);}
+    dto.setStatus(status);
     dto.setOnboardingRejectionReasons(List.of());
     dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
