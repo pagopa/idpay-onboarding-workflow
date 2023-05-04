@@ -90,7 +90,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
         .orElse(null);
 
-    if (onboarding != null && !onboarding.getStatus().equals(OnboardingWorkflowConstants.INVITED)) {
+    if (onboarding != null && !List.of(OnboardingWorkflowConstants.INVITED,OnboardingWorkflowConstants.DEMANDED).contains(onboarding.getStatus())) {
       checkStatus(onboarding);
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
@@ -120,6 +120,13 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date, String rejectionReasons) {
+    if (status.equals(OnboardingWorkflowConstants.JOINED)) {
+      status = OnboardingWorkflowConstants.ONBOARDING_OK;
+    }
+    if (status.equals(OnboardingWorkflowConstants.REJECTED)) {
+      status = OnboardingWorkflowConstants.ONBOARDING_KO;
+    }
+
     onboarding.setStatus(status);
     if (status.equals(OnboardingWorkflowConstants.ONBOARDING_OK)) {
       onboarding.setOnboardingOkDate(date);
@@ -155,6 +162,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       checkDates(initiativeDTO, onboarding);
       checkBudget(initiativeDTO, onboarding);
+      checkFamilyUnit(onboarding, initiativeDTO);
     }
 
     onboarding.setChannel(channel);
@@ -163,13 +171,17 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (!checkWhitelist(onboarding, initiativeDTO)) {
       dto = getCriteriaLists(initiativeDTO);
     }
-
     onboardingRepository.save(onboarding);
     auditUtilities.logPDND(userId, initiativeId, onboarding.getChannel());
     performanceLog(startTime, "CHECK_PREREQUISITES");
     return dto;
   }
-
+  private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
+    if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) && onboarding.getDemandedDate() != null) {
+      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
+      outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.JOINED));
+    }
+  }
   private boolean checkWhitelist(Onboarding onboarding, InitiativeDTO initiativeDTO) {
     if (Boolean.FALSE.equals(initiativeDTO.getGeneral().getBeneficiaryKnown())) {
       return false;
@@ -185,20 +197,20 @@ public class OnboardingServiceImpl implements OnboardingService {
               OnboardingWorkflowConstants.ERROR_WHITELIST_MSG, OnboardingWorkflowConstants.GENERIC_ERROR);
     }
     setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
-    outcomeProducer.sendOutcome(createEvaluationDto(onboarding.getInitiativeId(),
-        onboarding.getUserId(), initiativeDTO));
+    outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.ONBOARDING_OK));
     return true;
   }
-  private EvaluationDTO createEvaluationDto(String initiativeId, String userId,
-      InitiativeDTO initiativeDTO) {
+  private EvaluationDTO createEvaluationDto(Onboarding onboarding,
+      InitiativeDTO initiativeDTO, String status) {
     EvaluationDTO dto = new EvaluationDTO();
-    dto.setInitiativeId(initiativeId);
+    dto.setInitiativeId(onboarding.getInitiativeId());
     dto.setInitiativeName(initiativeDTO.getInitiativeName());
     dto.setInitiativeEndDate(initiativeDTO.getGeneral().getEndDate());
-    dto.setUserId(userId);
+    dto.setUserId(onboarding.getUserId());
+    dto.setFamilyId(onboarding.getFamilyId());
     dto.setOrganizationId(initiativeDTO.getOrganizationId());
     dto.setAdmissibilityCheckDate(LocalDateTime.now());
-    dto.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    dto.setStatus(status);
     dto.setOnboardingRejectionReasons(List.of());
     dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
@@ -482,21 +494,35 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     long startTime = System.currentTimeMillis();
 
-    Set<String> onboardingRejectionReasonsType = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
-            .orElseGet(Collections::emptyList)
-            .stream()
-            .map(OnboardingRejectionReason::getType)
-            .collect(Collectors.toSet());
-    String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsType);
+    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId())
+            .orElse(null);
 
-    onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(),
-                    evaluationDTO.getUserId())
-            .ifPresent(onboarding -> {
-                    setStatus(onboarding, evaluationDTO.getStatus(),
-                            evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons);
-                    onboarding.setFamilyId(evaluationDTO.getFamilyId());
-            });
-    log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding's status is: {}", evaluationDTO.getStatus());
+    if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
+      Set<String> onboardingRejectionReasonsType = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
+              .orElseGet(Collections::emptyList)
+              .stream()
+              .map(OnboardingRejectionReason::getType)
+              .collect(Collectors.toSet());
+      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsType);
+
+      onboarding.setFamilyId(evaluationDTO.getFamilyId());
+      setStatus(onboarding, evaluationDTO.getStatus(),
+              evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons);
+      log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding's status is: {}", evaluationDTO.getStatus());
+    }
+
+    if (onboarding == null && OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
+      log.info("[COMPLETE_ONBOARDING] New onboarding on initiative {} with status DEMANDED", evaluationDTO.getInitiativeId());
+      Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
+              evaluationDTO.getUserId());
+      newOnboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+      LocalDateTime localDateTime = LocalDateTime.now();
+      newOnboarding.setDemandedDate(localDateTime);
+      newOnboarding.setUpdateDate(localDateTime);
+      newOnboarding.setCreationDate(localDateTime);
+      newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
+      onboardingRepository.save(newOnboarding);
+    }
     performanceLog(startTime, "COMPLETE_ONBOARDING");
   }
 

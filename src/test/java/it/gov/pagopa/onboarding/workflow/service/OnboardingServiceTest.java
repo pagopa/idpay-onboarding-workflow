@@ -97,6 +97,7 @@ class OnboardingServiceTest {
   private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
+  private static final String BENEFICIARY_TYPE_NF = "NF";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
@@ -734,6 +735,31 @@ class OnboardingServiceTest {
     RequiredCriteriaDTO res = onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
     assertNull(res);
   }
+  @Test
+  void checkPrerequisites_ok_familyUnit() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+    onboarding.setDemandedDate(LocalDateTime.now());
+    INITIATIVE_DTO.getGeneral().setBeneficiaryType(BENEFICIARY_TYPE_NF);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
 
   @ParameterizedTest
   @CsvSource({
@@ -993,6 +1019,16 @@ class OnboardingServiceTest {
     onboardingService.completeOnboarding(EVALUATION_DTO);
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
+  @Test
+  void completeOnboardingDEMANDEDWithOnboardingNotNull() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus("DEMANDED");
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+    EVALUATION_DTO.setStatus("DEMANDED");
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+    assertEquals(OnboardingWorkflowConstants.DEMANDED, onboarding.getStatus());
+  }
 
   @Test
   void completeOnboarding_noOnboardingFound() {
@@ -1010,6 +1046,43 @@ class OnboardingServiceTest {
     onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
     assertEquals(OUT_OF_RANKING + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
+  }
+  @Test
+  void completeOnboardingCreateOnboardingStatusDEMANDED_ok() {
+    EVALUATION_DTO.setStatus("DEMANDED");
+    try {
+      onboardingService.completeOnboarding(EVALUATION_DTO);
+    } catch (OnboardingWorkflowException e) {
+      fail();
+    }
+  }
+  @Test
+  void checkChangeJOINEDStatusInToONBOARDING_OK() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    EVALUATION_DTO.setStatus("JOINED");
+
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+
+  }
+  @Test
+  void checkChangeREJECTEDtatusInToONBOARDING_KO() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboarding));
+
+    EVALUATION_DTO.setStatus("REJECTED");
+
+    onboardingService.completeOnboarding(EVALUATION_DTO);
+
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, onboarding.getStatus());
+
   }
   @Test
   void deactivateOnboarding_ok() {
