@@ -162,8 +162,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       checkDates(initiativeDTO, onboarding);
       checkBudget(initiativeDTO, onboarding);
+      checkFamilyUnit(onboarding, initiativeDTO);
     }
-    checkFamilyUnit(onboarding, initiativeDTO);
 
     onboarding.setChannel(channel);
     RequiredCriteriaDTO dto = null;
@@ -171,14 +171,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (!checkWhitelist(onboarding, initiativeDTO)) {
       dto = getCriteriaLists(initiativeDTO);
     }
-
     onboardingRepository.save(onboarding);
     auditUtilities.logPDND(userId, initiativeId, onboarding.getChannel());
     performanceLog(startTime, "CHECK_PREREQUISITES");
     return dto;
   }
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
-    if ("NF".equals(initiativeDTO.getGeneral().getBeneficiaryType()) && onboarding.getDemandedDate() != null) {
+    if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) && onboarding.getDemandedDate() != null) {
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
       outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.JOINED));
     }

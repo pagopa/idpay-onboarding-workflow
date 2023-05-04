@@ -97,6 +97,7 @@ class OnboardingServiceTest {
   private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
+  private static final String BENEFICIARY_TYPE_NF = "NF";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
@@ -733,13 +734,14 @@ class OnboardingServiceTest {
 
     RequiredCriteriaDTO res = onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
     assertNull(res);
-  } @Test
+  }
+  @Test
   void checkPrerequisites_ok_familyUnit() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTc(true);
     onboarding.setDemandedDate(LocalDateTime.now());
-    INITIATIVE_DTO.getGeneral().setBeneficiaryType("NF");
+    INITIATIVE_DTO.getGeneral().setBeneficiaryType(BENEFICIARY_TYPE_NF);
 
     Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
             .thenReturn(Optional.of(onboarding));
@@ -757,7 +759,6 @@ class OnboardingServiceTest {
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
     }
-
   }
 
   @ParameterizedTest

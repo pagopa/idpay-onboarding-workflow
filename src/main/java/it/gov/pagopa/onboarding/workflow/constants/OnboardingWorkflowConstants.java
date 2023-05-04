@@ -16,6 +16,7 @@ public final class OnboardingWorkflowConstants {
   public static final String ONBOARDING_KO = "ONBOARDING_KO";
   public static final String REJECTED = "REJECTED";
   public static final String ELIGIBLE_KO = "ELIGIBLE_KO";
+  public static final String BENEFICIARY_TYPE_NF = "NF";
   public static final String ALLOWED_CITIZEN_PUBLISH = "ALLOWED_CITIZEN_PUBLISH";
   public static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   public static final String ID_S_NOT_FOUND = "Onboarding with initiativeId %s and current userId not found.";
