@@ -12,6 +12,7 @@ import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.AutomatedCriteriaDTO;
@@ -82,7 +83,11 @@ class OnboardingServiceTest {
   @MockBean
   Utilities utilities;
 
+  @MockBean
+  DecryptRestConnector decryptRestConnector;
+
   private static final String USER_ID = "TEST_USER_ID";
+  private static final String FAMILY_ID = "TEST_FAMILY_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private static final LocalDate OPERATION_DATE = LocalDate.now();
   private static final LocalDateTime START_DATE = LocalDateTime.now();
@@ -92,6 +97,8 @@ class OnboardingServiceTest {
   private static final String INITIATIVE_NAME = "INITIATIVE_NAME";
   private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
   private static final String CHANNEL = "CHANNEL";
+  private static final String PII = "PII_TEST";
+
   private static final BigDecimal BUDGET = BigDecimal.valueOf(1000);
   private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
   private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
@@ -1358,4 +1365,102 @@ class OnboardingServiceTest {
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
     }
   }
+  @Test
+  void getFamilyUnitComposition_ok() {
+    final Onboarding onboardingOk = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboardingOk.setFamilyId(FAMILY_ID);
+    onboardingOk.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    onboardingOk.setOnboardingOkDate(LocalDateTime.now().minusDays(2));
+
+    final Onboarding onboardingDemanded = new Onboarding(INITIATIVE_ID, "USER_ID_2");
+    onboardingDemanded.setFamilyId(FAMILY_ID);
+    onboardingOk.setStatus("DEMANDED");
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboardingOk));
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndFamilyId(INITIATIVE_ID, FAMILY_ID))
+            .thenReturn(List.of(onboardingOk, onboardingDemanded));
+
+    Mockito.when(decryptRestConnector.getPiiByToken(USER_ID))
+            .thenReturn(new DecryptCfDTO(PII));
+    Mockito.when(decryptRestConnector.getPiiByToken("USER_ID_2"))
+            .thenReturn(new DecryptCfDTO("PII_2"));
+
+    OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID);
+
+    assertEquals(PII, onboardingFamilyDTO.getUsersList().get(0).getFiscalCode());
+    assertEquals(onboardingOk.getFamilyId(), onboardingFamilyDTO.getUsersList().get(0).getFamilyId());
+    assertEquals(onboardingOk.getOnboardingOkDate().toLocalDate(), onboardingFamilyDTO.getUsersList().get(0).getOnboardingDate());
+    assertEquals(onboardingOk.getStatus(), onboardingFamilyDTO.getUsersList().get(0).getStatus());
+
+    assertEquals("PII_2", onboardingFamilyDTO.getUsersList().get(1).getFiscalCode());
+    assertEquals(onboardingDemanded.getFamilyId(), onboardingFamilyDTO.getUsersList().get(1).getFamilyId());
+    assertNull(onboardingFamilyDTO.getUsersList().get(1).getOnboardingDate());
+    assertEquals(onboardingDemanded.getStatus(), onboardingFamilyDTO.getUsersList().get(1).getStatus());
+
+  }
+
+  @Test
+  void getFamilyUnitComposition_ok_onboardingKo() {
+    final Onboarding onboardingKo = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboardingKo.setFamilyId(FAMILY_ID);
+    onboardingKo.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    onboardingKo.setOnboardingKODate(LocalDateTime.now());
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboardingKo));
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndFamilyId(INITIATIVE_ID, FAMILY_ID))
+            .thenReturn(List.of(onboardingKo));
+
+    Mockito.when(decryptRestConnector.getPiiByToken(USER_ID))
+            .thenReturn(new DecryptCfDTO(PII));
+
+    OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID);
+
+    assertEquals(PII, onboardingFamilyDTO.getUsersList().get(0).getFiscalCode());
+    assertEquals(onboardingKo.getFamilyId(), onboardingFamilyDTO.getUsersList().get(0).getFamilyId());
+    assertEquals(onboardingKo.getOnboardingKODate().toLocalDate(), onboardingFamilyDTO.getUsersList().get(0).getOnboardingDate());
+    assertEquals(onboardingKo.getStatus(), onboardingFamilyDTO.getUsersList().get(0).getStatus());
+
+  }
+
+  @Test
+  void getFamilyUnitComposition_ok_noFamilyId() {
+    final Onboarding onboardingKo = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboardingKo.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    onboardingKo.setOnboardingKODate(LocalDateTime.now());
+
+    OnboardingFamilyDTO onboardingFamilyExpected = new OnboardingFamilyDTO();
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboardingKo));
+
+    OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID);
+
+    assertEquals(onboardingFamilyExpected, onboardingFamilyDTO);
+
+  }
+
+  @Test
+  void getFamilyUnitComposition_ko() {
+    final Onboarding onboardingOk = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboardingOk.setFamilyId(FAMILY_ID);
+    onboardingOk.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    onboardingOk.setOnboardingOkDate(LocalDateTime.now().minusDays(2));
+
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
+            .thenReturn(Optional.of(onboardingOk));
+    Mockito.when(onboardingRepositoryMock.findByInitiativeIdAndFamilyId(INITIATIVE_ID, FAMILY_ID))
+            .thenReturn(List.of(onboardingOk));
+
+    Mockito.doThrow(new OnboardingWorkflowException(500, "", "")).when(decryptRestConnector).getPiiByToken((USER_ID));
+
+    try {
+      onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getCode());
+      assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetail());
+    }
+  }
+
 }
