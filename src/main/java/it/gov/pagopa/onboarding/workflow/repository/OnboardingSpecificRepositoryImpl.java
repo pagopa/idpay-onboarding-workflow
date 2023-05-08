@@ -44,9 +44,10 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     }
     if (status != null) {
       if (List.of(OnboardingWorkflowConstants.ACCEPTED_TC, OnboardingWorkflowConstants.INVITED,
-              OnboardingWorkflowConstants.ON_EVALUATION).contains(status)) {
+              OnboardingWorkflowConstants.ON_EVALUATION, OnboardingWorkflowConstants.DEMANDED).contains(status)) {
         criteria.orOperator(Criteria.where(Fields.status).is(OnboardingWorkflowConstants.INVITED),
                 Criteria.where(Fields.status).is(OnboardingWorkflowConstants.ACCEPTED_TC),
+                Criteria.where(Fields.status).is(OnboardingWorkflowConstants.DEMANDED),
                 Criteria.where(Fields.status).is(OnboardingWorkflowConstants.ON_EVALUATION));
       } else {
       criteria.and(Onboarding.Fields.status).is(status);
