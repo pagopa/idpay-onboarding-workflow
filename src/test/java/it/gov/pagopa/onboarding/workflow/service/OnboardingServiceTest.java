@@ -1185,7 +1185,6 @@ class OnboardingServiceTest {
   void getOnboardingStatusList_ok_page_null() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-    onboarding.setUpdateDate(LocalDateTime.now());
     List<Onboarding> onboardingList = List.of(onboarding);
     Criteria criteria = new Criteria();
     Long count = 15L;

@@ -352,8 +352,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     List<Onboarding> onboardinglist = onboardingRepository.findByFilter(criteria, pageable);
     long count = onboardingRepository.getCount(criteria);
     final Page<Onboarding> result = PageableExecutionUtils.getPage(onboardinglist,
-        this.getPageable(pageable),
-        () -> count);
+        this.getPageable(pageable), () -> count);
     for (Onboarding o : onboardinglist) {
       OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
           o.getUserId(), o.getStatus(), o.getUpdateDate()!=null?o.getUpdateDate().toString(): EMPTY);
