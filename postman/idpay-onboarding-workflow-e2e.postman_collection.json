@@ -3386,7 +3386,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -3460,11 +3460,11 @@
 																	"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 																	"pm.collectionVariables.set('initiativeId', jsonData.initiativeId);\r",
 																	"\r",
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP1 - Responses with 201\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - STEP1 - Status test 201\", function () {\r",
 																	"    pm.response.to.have.status(201);\r",
 																	"});\r",
 																	"\r",
-																	"pm.test(\"Verify response body\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
 																	"    let jsonResponse = pm.response.json();\r",
 																	"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 																	"});"
@@ -3562,7 +3562,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Initiative with criteria - STEP2 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - STEP2 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -3629,7 +3629,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP3 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - STEP3 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -3679,7 +3679,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP4 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - STEP4 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -3778,7 +3778,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP5 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - STEP5 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -3914,7 +3914,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative updating - Generate Portal Token (PagoPA Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -3969,7 +3969,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative updating - PagoPA Admin updates initiative status into APPROVED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - PagoPA Admin updates initiative status to APPROVED - status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -4044,7 +4044,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -4099,7 +4099,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});\r",
 																	""
@@ -4174,7 +4174,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Generate token IO', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -4240,7 +4240,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Accept T&C - Status 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -4302,7 +4302,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Prerequisites check - Status 200 or 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Prerequisites check - Status 200 or 202\", function () {\r",
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
@@ -4364,7 +4364,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - PDND + Autocertification - Status 202\", function () {\r",
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
@@ -4415,7 +4415,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Status Onboarding OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Status Onboarding OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
@@ -4477,7 +4477,7 @@
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Initiative with criteria - Happy case - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -4530,11 +4530,11 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Get family unit composition OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK -  checking ONBOARDING_OK status is present\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Get family unit composition OK -  checking ONBOARDING_OK status is present\", function () {\r",
 															"     let jsonResponse = pm.response.json()\r",
 															"     const foundStatusOk = jsonResponse.usersList.some((item) =>{\r",
 															"         return item.status === \"ONBOARDING_OK\"\r",
@@ -4542,7 +4542,7 @@
 															"    pm.expect(foundStatusOk).equals(true); \r",
 															"});\r",
 															"\r",
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK -  checking DEMANDED status is present\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Get family unit composition OK -  checking DEMANDED status is present\", function () {\r",
 															"     let jsonResponse = pm.response.json()\r",
 															"     const foundStatusDem = jsonResponse.usersList.some((item) =>{\r",
 															"         return item.status === \"DEMANDED\"\r",
@@ -4624,7 +4624,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -4698,7 +4698,7 @@
 																	"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 																	"pm.collectionVariables.set('initiativeId', jsonData.initiativeId);\r",
 																	"\r",
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP1 - Responses with 201\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - STEP1 - Status test 201\", function () {\r",
 																	"    pm.response.to.have.status(201);\r",
 																	"});\r",
 																	"\r",
@@ -4800,7 +4800,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Initiative with criteria - STEP2 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - STEP2 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -4867,7 +4867,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP3 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - STEP3 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -4917,7 +4917,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP4 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - STEP4 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -5016,7 +5016,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP5 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - STEP5 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -5152,7 +5152,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative updating - Generate Portal Token (PagoPA Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -5207,7 +5207,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative updating - PagoPA Admin updates initiative status into APPROVED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - PagoPA Admin updates initiative status to APPROVED - status 204)\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -5282,7 +5282,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -5337,7 +5337,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});\r",
 																	""
@@ -5412,7 +5412,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Generate token IO', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -5478,7 +5478,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Accept T&C - Status 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -5540,7 +5540,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Prerequisites check - Status 200 or 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Prerequisites check - Status 200 or 202\", function () {\r",
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
@@ -5602,7 +5602,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - PDND + Autocertification - Status 202\", function () {\r",
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
@@ -5653,7 +5653,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Status Onboarding OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Status Onboarding OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
@@ -5715,7 +5715,7 @@
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Initiative with criteria - Happy case - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -5768,11 +5768,11 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Get family unit composition OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK -  checking ONBOARDING_OK status is present\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Get family unit composition OK -  checking ONBOARDING_OK status is present\", function () {\r",
 															"     let jsonResponse = pm.response.json()\r",
 															"     const foundStatusOk = jsonResponse.usersList.some((item) =>{\r",
 															"         return item.status === \"ONBOARDING_OK\"\r",
@@ -5780,7 +5780,7 @@
 															"    pm.expect(foundStatusOk).equals(true); \r",
 															"});\r",
 															"\r",
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK -  checking DEMANDED status is present\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Get family unit composition OK -  checking DEMANDED status is present\", function () {\r",
 															"     let jsonResponse = pm.response.json()\r",
 															"     const foundStatusDem = jsonResponse.usersList.some((item) =>{\r",
 															"         return item.status === \"DEMANDED\"\r",
@@ -5862,7 +5862,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -5936,7 +5936,7 @@
 																	"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 																	"pm.collectionVariables.set('initiativeId', jsonData.initiativeId);\r",
 																	"\r",
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP1 - Responses with 201\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - STEP1 - Status test 201\", function () {\r",
 																	"    pm.response.to.have.status(201);\r",
 																	"});\r",
 																	"\r",
@@ -6038,7 +6038,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Initiative with criteria - STEP2 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - STEP2 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -6105,7 +6105,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP3 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - STEP3 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -6155,7 +6155,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP4 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - STEP4 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -6254,7 +6254,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP5 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - STEP5 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -6390,7 +6390,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative updating - Generate Portal Token (PagoPA Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -6445,7 +6445,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative updating - PagoPA Admin updates initiative status into APPROVED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - PagoPA Admin updates initiative status to APPROVED - status 204)\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -6520,7 +6520,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -6575,7 +6575,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});\r",
 																	""
@@ -6650,7 +6650,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Generate token IO', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -6716,7 +6716,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Accept T&C - Status 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -6778,7 +6778,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Prerequisites check - Status 200 or 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Prerequisites check - Status 200 or 202\", function () {\r",
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
@@ -6840,7 +6840,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - PDND + Autocertification - Status 202\", function () {\r",
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
@@ -6891,7 +6891,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Status Onboarding OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Status Onboarding OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
@@ -6953,7 +6953,7 @@
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Initiative with criteria - Happy case - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -7006,11 +7006,11 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Get family unit composition OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK -  checking ONBOARDING_KO status is present\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Get family unit composition OK -  checking ONBOARDING_KO status is present\", function () {\r",
 															"     let jsonResponse = pm.response.json()\r",
 															"     const foundStatusOk = jsonResponse.usersList.some((item) =>{\r",
 															"         return item.status === \"ONBOARDING_KO\"\r",
@@ -7018,7 +7018,7 @@
 															"    pm.expect(foundStatusOk).equals(true); \r",
 															"});\r",
 															"\r",
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK -  checking DEMANDED status is not present\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Get family unit composition OK -  checking DEMANDED status is not present\", function () {\r",
 															"     let jsonResponse = pm.response.json()\r",
 															"     const foundStatusDem = jsonResponse.usersList.some((item) =>{\r",
 															"         return item.status === \"DEMANDED\"\r",
@@ -7100,7 +7100,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -7174,7 +7174,7 @@
 																	"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
 																	"pm.collectionVariables.set('initiativeId', jsonData.initiativeId);\r",
 																	"\r",
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP1 - Responses with 201\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - STEP1 - Status test 201\", function () {\r",
 																	"    pm.response.to.have.status(201);\r",
 																	"});\r",
 																	"\r",
@@ -7276,7 +7276,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - Initiative with criteria - STEP2 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - STEP2 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -7343,7 +7343,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP3 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - STEP3 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -7393,7 +7393,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP4 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - STEP4 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -7492,7 +7492,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative creation - STEP5 - Responses with 204\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - STEP5 - Status 204\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -7628,7 +7628,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative updating - Generate Portal Token (PagoPA Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - Generate Portal Token (PagoPA Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
@@ -7683,7 +7683,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative updating - PagoPA Admin updates initiative status into APPROVED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - PagoPA Admin updates initiative status to APPROVED - status 204)\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
@@ -7758,7 +7758,7 @@
 																"exec": [
 																	"let textResponse = pm.response.text()\r",
 																	"\r",
-																	"pm.test('Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
+																	"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
 																	"    //verify response HTTP status \r",
 																	"    pm.response.to.have.status(200);\r",
 																	"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -7813,7 +7813,7 @@
 															"listen": "test",
 															"script": {
 																"exec": [
-																	"pm.test(\"Initiative with NF - Happy case - Initiative with criteria - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
+																	"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
 																	"    pm.response.to.have.status(204);\r",
 																	"});\r",
 																	""
@@ -7888,7 +7888,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Generate token IO', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
@@ -7954,7 +7954,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Accept T&C - Status 204\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
@@ -8016,7 +8016,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Prerequisites check - Status 200 or 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Prerequisites check - Status 200 or 202\", function () {\r",
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
@@ -8078,7 +8078,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 202\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - PDND + Autocertification - Status 202\", function () {\r",
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
@@ -8129,7 +8129,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Status Onboarding OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Status Onboarding OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
@@ -8191,7 +8191,7 @@
 														"exec": [
 															"let textResponse = pm.response.text()\r",
 															"\r",
-															"pm.test('Initiative with criteria - Happy case - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
 															"    //verify response HTTP status \r",
 															"    pm.response.to.have.status(200);\r",
 															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
@@ -8244,11 +8244,11 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Get family unit composition OK - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
-															"pm.test(\"Iban - Happy case - Iban empty list - getting the iban list - checking the response is an empty list\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Get family unit composition OK - getting the users list - checking the response is an empty list\", function () {\r",
 															"     let jsonResponse = pm.response.json()\r",
 															"    pm.expect(jsonResponse.usersList.length).equals(0);\r",
 															"});"
