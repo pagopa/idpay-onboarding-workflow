@@ -3,6 +3,8 @@ package it.gov.pagopa.onboarding.workflow.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
+
+import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -69,7 +71,7 @@ class OnboardingSpecificRepositoryTest {
   }
 
   @Test
-  void getCriteriaOnlyStartdate(){
+  void getCriteriaOnlyStartDate(){
     Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,USER_ID,STATUS,START_DATE,null);
     assertEquals(4,criteria.getCriteriaObject().size());
   }
@@ -83,5 +85,10 @@ class OnboardingSpecificRepositoryTest {
   void getCriteriaOnlyInitiativeId(){
     Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,null,null,null,null);
     assertEquals(1,criteria.getCriteriaObject().size());
+  }
+  @Test
+  void getCriteriaOnlyStatus(){
+    Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,null, OnboardingWorkflowConstants.INVITED,null,null);
+    assertEquals(2,criteria.getCriteriaObject().size());
   }
 }

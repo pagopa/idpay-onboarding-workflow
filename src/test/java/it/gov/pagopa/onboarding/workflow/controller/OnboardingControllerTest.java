@@ -5,17 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
-import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,8 +46,11 @@ class OnboardingControllerTest {
   private static final String ROLLBACK_URL = "/rollback";
   private static final String SUSPEND_URL = "/suspend";
   private static final String READMIT_URL = "/readmit";
+  private static final String FAMILY_URL = "/family";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
+  private static final String FAMILY_ID = "TEST_FAMILY_ID";
+  private static final String CF = "TEST_CF";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private static final LocalDateTime START_DATE = LocalDateTime.now();
   private static final LocalDateTime END_DATE = LocalDateTime.now();
@@ -65,6 +63,10 @@ class OnboardingControllerTest {
       ONBOARDING_STATUS_CITIZEN_DTO);
   private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(
       onboardingStatusCitizenDTOList, 15, 20, 100, 15);
+  private static final OnboardingFamilyDetailDTO ONBOARDING_FAMILY_DETAIL_DTO = new OnboardingFamilyDetailDTO(
+          CF, FAMILY_ID, LocalDate.now(), STATUS);
+  static List<OnboardingFamilyDetailDTO> onboardingFamilyDetailDTOList = List.of(ONBOARDING_FAMILY_DETAIL_DTO);
+  private static final OnboardingFamilyDTO FAMILY_DTO = new OnboardingFamilyDTO(onboardingFamilyDetailDTOList);
 
   @Test
   void putTc_ok() throws Exception {
@@ -339,6 +341,18 @@ class OnboardingControllerTest {
                             .contentType(MediaType.APPLICATION_JSON_VALUE)
                             .accept(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andReturn();
+  }
+
+  @Test
+  void familyUnitComposition() throws Exception {
+    Mockito.when(
+            onboardingServiceMock.getfamilyUnitComposition(INITIATIVE_ID, USER_ID)).thenReturn(FAMILY_DTO);
+    mvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + FAMILY_URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
   }
 }

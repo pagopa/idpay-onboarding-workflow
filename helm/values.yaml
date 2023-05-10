@@ -59,6 +59,7 @@ microservice-chart:
     rest-client:
       IDPAY_INITIATIVE_BASE_URL: initiative_ms_base_url
       IDPAY_GROUP_BASE_URL: idpay_group_host
+      PDV_DECRYPT_BASE_URL: pdv_decrypt_base_url
     idpay-eventhub-00:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
       KAFKA_ONBOARDING_SASL_MECHANISM: kafka_sasl_mechanism
@@ -76,6 +77,7 @@ microservice-chart:
     KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG: evh-idpay-onboarding-notification-idpay-onboarding-notification-consumer-jaas-config-idpay-00
     SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
     REDIS_CONNECTION_URL: idpay-redis-00-primary-connection-url
+    PDV_DECRYPT_API_KEY: pdv-api-key
 
   # nodeSelector: {}
 

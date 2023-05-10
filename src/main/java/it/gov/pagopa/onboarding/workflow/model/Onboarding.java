@@ -23,6 +23,7 @@ public class Onboarding {
   @Id
   private String id;
   private String userId;
+  private String familyId;
   private String initiativeId;
 
   private String status;
@@ -42,6 +43,7 @@ public class Onboarding {
   private LocalDateTime requestDeactivationDate;
 
   private LocalDateTime invitationDate;
+  private LocalDateTime demandedDate;
 
   private LocalDateTime onboardingOkDate;
 
