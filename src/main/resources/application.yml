@@ -153,3 +153,6 @@ rest-client:
   decrypt:
     baseUrl: ${PDV_DECRYPT_BASE_URL:}
     cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}
+  admissibility:
+    serviceCodeAdm: ${IDPAY_ADMISSIBILITY_SERVICE_CODE:idpay-admissibility}
+    baseUrl: ${IDPAY_ADMISSIBILITY_BASE_URL:}
