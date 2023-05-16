@@ -43,6 +43,7 @@ public final class OnboardingWorkflowConstants {
   public static final String ERROR_READMISSION = "Error while readmitting the citizen";
   public static final String ERROR_READMIT_STATUS= "It is not possible to readmit the citizen";
   public static final List<String> STATUS_IDEMPOTENT = List.of(ONBOARDING_OK, INVITED, SUSPENDED, ON_EVALUATION);
+  public static final String REJECTION_REASON_BIRTHDATE_KO = "BIRTHDATE_KO";
 
   private OnboardingWorkflowConstants() {
   }
