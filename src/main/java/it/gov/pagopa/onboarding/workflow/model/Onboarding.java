@@ -1,8 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.model;
 
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
@@ -25,21 +23,18 @@ public class Onboarding {
   @Id
   private String id;
   private String userId;
+  private String familyId;
   private String initiativeId;
 
   private String status;
 
+  private String detailKO;
+
   private String channel;
-
-  private Boolean pdndCheck;
-
-  private Boolean autocertificationCheck;
 
   private Boolean tc;
 
   private Boolean pdndAccept;
-
-  private List<SelfDeclarationItemsDTO> selfDeclarationList;
 
   private LocalDateTime tcAcceptTimestamp;
 
@@ -48,6 +43,7 @@ public class Onboarding {
   private LocalDateTime requestDeactivationDate;
 
   private LocalDateTime invitationDate;
+  private LocalDateTime demandedDate;
 
   private LocalDateTime onboardingOkDate;
 
@@ -56,5 +52,6 @@ public class Onboarding {
   private LocalDateTime updateDate;
 
   private LocalDateTime creationDate;
+  private LocalDateTime suspensionDate;
 
 }

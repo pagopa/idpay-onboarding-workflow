@@ -5,7 +5,6 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding.Fields;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -44,9 +43,12 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
       criteria.and(Onboarding.Fields.userId).is(userId);
     }
     if (status != null) {
-      if (status.equals(OnboardingWorkflowConstants.ACCEPTED_TC) || status.equals(
-              OnboardingWorkflowConstants.INVITED) || status.equals(OnboardingWorkflowConstants.ON_EVALUATION)) {
-        criteria.orOperator(Criteria.where(Fields.status).is(OnboardingWorkflowConstants.INVITED),Criteria.where(Fields.status).is(OnboardingWorkflowConstants.ACCEPTED_TC),Criteria.where(Fields.status).is(OnboardingWorkflowConstants.ON_EVALUATION) );
+      if (List.of(OnboardingWorkflowConstants.ACCEPTED_TC, OnboardingWorkflowConstants.INVITED,
+              OnboardingWorkflowConstants.ON_EVALUATION, OnboardingWorkflowConstants.DEMANDED).contains(status)) {
+        criteria.orOperator(Criteria.where(Fields.status).is(OnboardingWorkflowConstants.INVITED),
+                Criteria.where(Fields.status).is(OnboardingWorkflowConstants.ACCEPTED_TC),
+                Criteria.where(Fields.status).is(OnboardingWorkflowConstants.DEMANDED),
+                Criteria.where(Fields.status).is(OnboardingWorkflowConstants.ON_EVALUATION));
       } else {
       criteria.and(Onboarding.Fields.status).is(status);
       }
@@ -64,8 +66,6 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     }
     return criteria;
   }
-
-
 
   private Pageable getPageable(Pageable pageable) {
     if (pageable == null) {

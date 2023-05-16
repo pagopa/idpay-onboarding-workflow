@@ -5,17 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentDTO;
-import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,8 +44,13 @@ class OnboardingControllerTest {
   private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
   private static final String DISABLE_URL = "/disable";
   private static final String ROLLBACK_URL = "/rollback";
+  private static final String SUSPEND_URL = "/suspend";
+  private static final String READMIT_URL = "/readmit";
+  private static final String FAMILY_URL = "/family";
   private static final String CHECK_PREREQUISITES_URL = "/initiative/";
   private static final String USER_ID = "TEST_USER_ID";
+  private static final String FAMILY_ID = "TEST_FAMILY_ID";
+  private static final String CF = "TEST_CF";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private static final LocalDateTime START_DATE = LocalDateTime.now();
   private static final LocalDateTime END_DATE = LocalDateTime.now();
@@ -63,6 +63,10 @@ class OnboardingControllerTest {
       ONBOARDING_STATUS_CITIZEN_DTO);
   private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(
       onboardingStatusCitizenDTOList, 15, 20, 100, 15);
+  private static final OnboardingFamilyDetailDTO ONBOARDING_FAMILY_DETAIL_DTO = new OnboardingFamilyDetailDTO(
+          CF, FAMILY_ID, LocalDate.now(), STATUS);
+  static List<OnboardingFamilyDetailDTO> onboardingFamilyDetailDTOList = List.of(ONBOARDING_FAMILY_DETAIL_DTO);
+  private static final OnboardingFamilyDTO FAMILY_DTO = new OnboardingFamilyDTO(onboardingFamilyDetailDTOList);
 
   @Test
   void putTc_ok() throws Exception {
@@ -86,7 +90,7 @@ class OnboardingControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("The initiative with id %s does not exist.", INITIATIVE_ID)))
+            String.format("The initiative with id %s does not exist.", INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR))
         .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
@@ -110,28 +114,6 @@ class OnboardingControllerTest {
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(body)).accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
-  }
-
-  @Test
-  void checkPrerequisitesTest_noTCAccepted() throws Exception {
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format(
-                "Terms and Conditions have been not accepted by the current user for initiative %s.",
-                INITIATIVE_ID))).when(onboardingServiceMock)
-        .checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-
-    Map<String, Object> body = new HashMap<>();
-    body.put("initiativeId", INITIATIVE_ID);
-    body.put("channel", CHANNEL);
-
-    mvc.perform(
-            MockMvcRequestBuilders.put(BASE_URL + CHECK_PREREQUISITES_URL + USER_ID)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(body))
-                .accept(MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
   }
 
   @Test
@@ -208,7 +190,8 @@ class OnboardingControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-            String.format("The initiative with id %s has not met the prerequisites.", INITIATIVE_ID)))
+                    OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
+                    OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED))
         .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
 
     Map<String, Object> body = new HashMap<>();
@@ -248,7 +231,7 @@ class OnboardingControllerTest {
 
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
             String.format("Onboarding with initiativeId %s and current userId not found.",
-                INITIATIVE_ID)))
+                INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR))
         .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
     mvc.perform(
@@ -330,7 +313,7 @@ class OnboardingControllerTest {
   @Test
   void onboarding_status_list_ko() throws Exception {
     Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-        "Max number for page allowed: 15")).when(
+        OnboardingWorkflowConstants.ERROR_MAX_NUMBER_FOR_PAGE, OnboardingWorkflowConstants.GENERIC_ERROR)).when(
         onboardingServiceMock).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
         STATUS, null);
 
@@ -338,5 +321,38 @@ class OnboardingControllerTest {
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  }
+
+  @Test
+  void suspend() throws Exception {
+    Mockito.doNothing().when(onboardingServiceMock).suspend(INITIATIVE_ID, USER_ID);
+    mvc.perform(
+                    MockMvcRequestBuilders.put(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + SUSPEND_URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andReturn();
+  }
+  @Test
+  void readmit() throws Exception {
+    Mockito.doNothing().when(onboardingServiceMock).suspend(INITIATIVE_ID, USER_ID);
+    mvc.perform(
+                    MockMvcRequestBuilders.put(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + READMIT_URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andReturn();
+  }
+
+  @Test
+  void familyUnitComposition() throws Exception {
+    Mockito.when(
+            onboardingServiceMock.getfamilyUnitComposition(INITIATIVE_ID, USER_ID)).thenReturn(FAMILY_DTO);
+    mvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + FAMILY_URL)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
   }
 }

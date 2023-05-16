@@ -3,7 +3,8 @@ package it.gov.pagopa.onboarding.workflow.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
-import org.junit.Assert;
+
+import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -71,7 +71,7 @@ class OnboardingSpecificRepositoryTest {
   }
 
   @Test
-  void getCriteriaOnlyStartdate(){
+  void getCriteriaOnlyStartDate(){
     Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,USER_ID,STATUS,START_DATE,null);
     assertEquals(4,criteria.getCriteriaObject().size());
   }
@@ -85,5 +85,10 @@ class OnboardingSpecificRepositoryTest {
   void getCriteriaOnlyInitiativeId(){
     Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,null,null,null,null);
     assertEquals(1,criteria.getCriteriaObject().size());
+  }
+  @Test
+  void getCriteriaOnlyStatus(){
+    Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,null, OnboardingWorkflowConstants.INVITED,null,null);
+    assertEquals(2,criteria.getCriteriaObject().size());
   }
 }

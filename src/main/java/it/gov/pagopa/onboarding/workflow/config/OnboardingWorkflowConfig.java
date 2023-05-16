@@ -1,10 +1,13 @@
 package it.gov.pagopa.onboarding.workflow.config;
 
-import it.gov.pagopa.onboarding.workflow.connector.GroupRestClient;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestClient;
+import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRest;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableFeignClients(clients = {InitiativeRestClient.class, GroupRestClient.class})
+@EnableFeignClients(clients = {
+        DecryptRest.class,
+        InitiativeRestClient.class
+})
 public class OnboardingWorkflowConfig {}

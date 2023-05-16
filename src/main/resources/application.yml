@@ -1,9 +1,17 @@
+api.key.decrypt: ${PDV_DECRYPT_API_KEY:}
+
 spring:
   application:
-    name: idpay-onboarding-workflow
+    name: "@project.artifactId@"
+    version: "@project.version@"
+  jmx.enabled: true
   config:
     activate:
       on-profile: default
+  cache:
+    type: redis
+  redis:
+    url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
   cloud:
     azure:
       servicebus:
@@ -131,6 +139,10 @@ logging:
       gov:
         pagopa: ${LOG_LEVEL_PAGOPA:INFO}
 
+management.endpoints:
+  web:
+    exposure.include: info, health
+
 rest-client:
   group:
     serviceCode: ${IDPAY_GROUP_SERVICE_CODE:idpay-group}
@@ -138,3 +150,6 @@ rest-client:
   initiative:
     serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
     baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}
+  decrypt:
+    baseUrl: ${PDV_DECRYPT_BASE_URL:}
+    cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}

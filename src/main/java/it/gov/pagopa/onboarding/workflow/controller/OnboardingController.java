@@ -4,13 +4,8 @@
  */
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import it.gov.pagopa.onboarding.workflow.dto.CheckPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
+
 import java.time.LocalDateTime;
 import javax.validation.Valid;
 import org.springframework.data.domain.Pageable;
@@ -115,4 +110,12 @@ public interface OnboardingController {
   ResponseEntity<Void> rollback(
       @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
+  @PutMapping("/{initiativeId}/{userId}/suspend")
+  ResponseEntity<Void> suspend(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+  @PutMapping("/{initiativeId}/{userId}/readmit")
+  ResponseEntity<Void> readmit(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+  @GetMapping("/{initiativeId}/{userId}/family")
+  ResponseEntity<OnboardingFamilyDTO> familyUnitComposition(
+          @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 }

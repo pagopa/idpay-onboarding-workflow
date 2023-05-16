@@ -1,7 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
-import java.time.LocalDateTime;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 

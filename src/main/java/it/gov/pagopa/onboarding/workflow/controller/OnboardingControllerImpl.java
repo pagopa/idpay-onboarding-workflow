@@ -1,12 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import it.gov.pagopa.onboarding.workflow.dto.CheckPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
@@ -80,5 +74,23 @@ public class OnboardingControllerImpl implements OnboardingController {
   public ResponseEntity<Void> rollback(String initiativeId, String userId) {
     onboardingService.rollback(initiativeId, userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  @Override
+  public ResponseEntity<Void> suspend(String initiativeId, String userId) {
+    onboardingService.suspend(initiativeId, userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  @Override
+  public ResponseEntity<Void> readmit(String initiativeId, String userId) {
+    onboardingService.readmit(initiativeId,userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  @Override
+  public  ResponseEntity<OnboardingFamilyDTO> familyUnitComposition(String initiativeId, String userId){
+    OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(initiativeId, userId);
+    return new ResponseEntity<>(onboardingFamilyDTO, HttpStatus.OK);
   }
 }
