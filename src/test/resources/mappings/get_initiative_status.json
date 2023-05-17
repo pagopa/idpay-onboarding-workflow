@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/admissibility/initiative/.*"
+  },
+  "response": {
+    "status": "200",
+    "jsonBody": {
+      "status": "PUBLISHED",
+      "budgetAvailable": true
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
+
+
+
+
+
+
