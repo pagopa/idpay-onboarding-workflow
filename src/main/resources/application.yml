@@ -10,8 +10,6 @@ spring:
       on-profile: default
   cache:
     type: redis
-  redis:
-    url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
   cloud:
     azure:
       servicebus:
@@ -114,6 +112,8 @@ spring:
             producer:
               entity-type: queue
   data:
+    redis:
+      url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
     mongodb:
       database: ${MONGODB_DBNAME:}
       uri: ${MONGODB_URI:}
