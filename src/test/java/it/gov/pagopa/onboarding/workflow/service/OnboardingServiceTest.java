@@ -290,29 +290,6 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void putTc_ko_admissibility() {
-    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    when(onboardingRepositoryMock.findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID))
-        .thenReturn(
-            Optional.empty());
-
-    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_DTO);
-    Request request =
-        Request.create(
-            Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
-     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenThrow(
-            new FeignException.NotFound("", request, new byte[0], null));
-
-    try {
-      onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
-      fail();
-    }catch (OnboardingWorkflowException e){
-      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
-    }
-  }
-
-  @Test
   void putTc_ko_status_not_published() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     final InitiativeStatusDTO initiativeStatusDTO = new InitiativeStatusDTO("TEST", true);

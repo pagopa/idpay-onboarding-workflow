@@ -273,7 +273,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void checkBudget(String initiativeId, Onboarding onboarding) {
-    try {
       InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(
           initiativeId);
       if (initiativeStatusDTO.isBudgetAvailable() && initiativeStatusDTO.getStatus()
@@ -292,13 +291,6 @@ public class OnboardingServiceImpl implements OnboardingService {
         throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
             OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
             OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
-
-
-    } catch (FeignException e) {
-          log.error("[GET_INITIATIVE_STATUS] Initiative {}: something went wrong when invoking the API.",
-              initiativeId);
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR);
-    }
   }
 
   private RequiredCriteriaDTO getCriteriaLists(InitiativeDTO initiativeDTO) {
