@@ -114,8 +114,8 @@ class OnboardingServiceTest {
           new EvaluationDTO(
                   USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
-                  List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, null, null, null, null),
-                          new OnboardingRejectionReason(OUT_OF_RANKING, null, null, null, null)),
+                  List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null),
+                          new OnboardingRejectionReason(OUT_OF_RANKING, "CITIZEN_OUT_OF_RANKING", null, null, null)),
                   new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
@@ -1066,7 +1066,7 @@ class OnboardingServiceTest {
             .thenReturn(Optional.of(onboarding));
     onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
-    assertEquals(OUT_OF_RANKING + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
+    assertEquals("CITIZEN_OUT_OF_RANKING" + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
   }
   @Test
   void completeOnboardingCreateOnboardingStatusDEMANDED_ok() {

@@ -491,12 +491,12 @@ public class OnboardingServiceImpl implements OnboardingService {
             .orElse(null);
 
     if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
-      Set<String> onboardingRejectionReasonsType = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
+      Set<String> onboardingRejectionReasonsCode = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
               .orElseGet(Collections::emptyList)
               .stream()
-              .map(OnboardingRejectionReason::getType)
+              .map(OnboardingRejectionReason::getCode)
               .collect(Collectors.toSet());
-      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsType);
+      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsCode);
 
       onboarding.setFamilyId(evaluationDTO.getFamilyId());
       setStatus(onboarding, evaluationDTO.getStatus(),
