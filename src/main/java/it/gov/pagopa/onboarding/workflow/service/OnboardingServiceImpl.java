@@ -313,7 +313,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private void checkStatus(Onboarding onboarding){
     String status = onboarding.getStatus();
-    if (List.of(OnboardingWorkflowConstants.ONBOARDING_KO, OnboardingWorkflowConstants.ELIGIBLE_KO).contains(status)){
+    if (List.of(OnboardingWorkflowConstants.ONBOARDING_KO, OnboardingWorkflowConstants.ELIGIBLE_KO).contains(status) &&
+            !OnboardingWorkflowConstants.REJECTION_REASON_BIRTHDATE_KO.equals(onboarding.getDetailKO())){
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               utilities.getMessageOnboardingKO(onboarding.getDetailKO()));
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -512,12 +513,12 @@ public class OnboardingServiceImpl implements OnboardingService {
             .orElse(null);
 
     if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
-      Set<String> onboardingRejectionReasonsType = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
+      Set<String> onboardingRejectionReasonsCode = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
               .orElseGet(Collections::emptyList)
               .stream()
-              .map(OnboardingRejectionReason::getType)
+              .map(OnboardingRejectionReason::getCode)
               .collect(Collectors.toSet());
-      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsType);
+      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsCode);
 
       onboarding.setFamilyId(evaluationDTO.getFamilyId());
       setStatus(onboarding, evaluationDTO.getStatus(),
