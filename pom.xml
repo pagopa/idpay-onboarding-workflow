@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.azure.spring</groupId>
             <artifactId>spring-cloud-azure-stream-binder-servicebus</artifactId>
-            <version>4.3.0</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.openfeign</groupId>
