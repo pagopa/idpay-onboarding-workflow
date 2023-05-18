@@ -122,7 +122,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     checkDates(initiativeDTO, onboarding);
-    checkBudget(initiativeId, onboarding);
+    checkBudget(initiativeDTO, onboarding);
 
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTc(true);
@@ -175,7 +175,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     checkStatus(onboarding);
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       checkDates(initiativeDTO, onboarding);
-      checkBudget(initiativeId, onboarding);
+      checkBudget(initiativeDTO, onboarding);
       checkFamilyUnit(onboarding, initiativeDTO);
     }
 
@@ -272,25 +272,28 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private void checkBudget(String initiativeId, Onboarding onboarding) {
-      InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(
-          initiativeId);
-      if (initiativeStatusDTO.isBudgetAvailable() && initiativeStatusDTO.getStatus()
-          .equals(OnboardingWorkflowConstants.PUBLISHED)) {
-        return;
-      }
-        LocalDateTime localDateTime = LocalDateTime.now();
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-        onboarding.setOnboardingKODate(localDateTime);
-        onboarding.setUpdateDate(localDateTime);
-        onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
-        onboardingRepository.save(onboarding);
-        auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
-            onboarding.getUserId(), onboarding.getChannel(),
-            OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
-        throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-            OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
-            OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+  private void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding) {
+    if(Boolean.TRUE.equals(initiativeDTO.getGeneral().getBeneficiaryKnown())){
+      return;
+    }
+    InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(
+        initiativeDTO.getInitiativeId());
+    if (initiativeStatusDTO.isBudgetAvailable() && initiativeStatusDTO.getStatus()
+        .equals(OnboardingWorkflowConstants.PUBLISHED)) {
+      return;
+    }
+    LocalDateTime localDateTime = LocalDateTime.now();
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    onboarding.setOnboardingKODate(localDateTime);
+    onboarding.setUpdateDate(localDateTime);
+    onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+    onboardingRepository.save(onboarding);
+    auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
+        onboarding.getUserId(), onboarding.getChannel(),
+        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
+    throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
+        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
   }
 
   private RequiredCriteriaDTO getCriteriaLists(InitiativeDTO initiativeDTO) {
@@ -400,7 +403,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     InitiativeDTO initiativeDTO = getInitiative(consentPutDTO.getInitiativeId());
 
     checkDates(initiativeDTO, onboarding);
-    checkBudget(consentPutDTO.getInitiativeId(), onboarding);
+    checkBudget(initiativeDTO, onboarding);
 
     if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
         && !consentPutDTO.isPdndAccept()) {
