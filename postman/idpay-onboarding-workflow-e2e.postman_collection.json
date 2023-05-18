@@ -9375,6 +9375,290 @@
 							]
 						},
 						{
+							"name": "Onboarding User with criteria - CF format not valid - 400",
+							"item": [
+								{
+									"name": "Generate Token IO",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
+													"    //verify response HTTP status \r",
+													"    pm.response.to.have.status(200);\r",
+													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "",
+												"type": "default"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{$randomPassword}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"bpd",
+												"pagopa",
+												"api",
+												"v1",
+												"login"
+											],
+											"query": [
+												{
+													"key": "fiscalCode",
+													"value": "{{$randomPassword}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Accept T&C",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria CF format not valid - Accept T&C - Status 400\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria CF format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
+													"    let jsonResponse = pm.response.json()\r",
+													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{tokenIO}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{apimSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithCriteria}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"onboarding",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Onboarding User with criteria - VAT number format not valid - 400",
+							"item": [
+								{
+									"name": "Generate Token IO",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user with criteria - Generate token IO', () => {\r",
+													"    //verify response HTTP status \r",
+													"    pm.response.to.have.status(200);\r",
+													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"let vat = getRndInteger(100000000,999999999);\r",
+													"\r",
+													"function getRndInteger(min, max) {\r",
+													"\r",
+													"  return Math.floor(Math.random() * (max - min)) + min;\r",
+													"\r",
+													"}\r",
+													"\r",
+													"pm.collectionVariables.set('vatNumberWrong', vat);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "",
+												"type": "default"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{vatNumberWrong}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"bpd",
+												"pagopa",
+												"api",
+												"v1",
+												"login"
+											],
+											"query": [
+												{
+													"key": "fiscalCode",
+													"value": "{{vatNumberWrong}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Accept T&C",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria VAT number format not valid - Accept T&C - Status 400\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria VAT number format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
+													"    let jsonResponse = pm.response.json()\r",
+													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{tokenIO}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{apimSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithCriteria}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"onboarding",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Onboarding User with manual criteria - different amount of flags - 400",
 							"item": [
 								{
@@ -14710,6 +14994,184 @@
 							]
 						},
 						{
+							"name": "ISSUER Onboarding User CF format not valid - 400",
+							"item": [
+								{
+									"name": "Accept T&C",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user CF format not valid - Accept T&C - status 400\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user CF format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
+													"    let jsonResponse = pm.response.json()\r",
+													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{issuerSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "it_IT",
+												"type": "text"
+											},
+											{
+												"key": "Fiscal-Code",
+												"value": "{{fiscalCode}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"hb",
+												"onboarding",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "ISSUER Onboarding User VAT number format not valid - 400",
+							"item": [
+								{
+									"name": "Accept T&C",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user VAT number format not valid - Accept T&C - status 400\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user VAT number format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
+													"    let jsonResponse = pm.response.json()\r",
+													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"let vat = getRndInteger(100000000,999999999);\r",
+													"\r",
+													"function getRndInteger(min, max) {\r",
+													"\r",
+													"  return Math.floor(Math.random() * (max - min)) + min;\r",
+													"\r",
+													"}\r",
+													"\r",
+													"pm.collectionVariables.set('vatNumberWrong', vat);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{issuerSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "it_IT",
+												"type": "text"
+											},
+											{
+												"key": "Fiscal-Code",
+												"value": "{{vatNumberWrong}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"hb",
+												"onboarding",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "ISSUER Onboarding InitiativeId empty - 400",
 							"item": [
 								{
@@ -15604,6 +16066,14 @@
 		},
 		{
 			"key": "vatNumber",
+			"value": ""
+		},
+		{
+			"key": "cf",
+			"value": ""
+		},
+		{
+			"key": "vatNumberWrong",
 			"value": ""
 		}
 	]

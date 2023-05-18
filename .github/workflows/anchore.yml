@@ -12,11 +12,9 @@
 name: Anchore Container Scan
 
 on:
-  push:
-    branches: [ "release-dev", "release-uat", "main" ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "release-dev", "release-uat", "main" ]
+    branches: [ "release-dev" ]
   schedule:
     - cron: '00 07 * * *'
 
@@ -50,3 +48,33 @@ jobs:
         if: always()
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
+      - name: Inspect action SARIF report
+        run: cat ${{ steps.scan.outputs.sarif }}
+      - name: Send notification to Slack
+        id: slack
+        if: ${{ github.event_name == 'schedule' && steps.scan.conclusion == 'failure'}}
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "GitHub Action scan result: ${{ steps.scan.conclusion }}",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ github.workspace }} - Notification Scan Result"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action scan result: ${{ steps.scan.conclusion }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.CVE_SCAN_SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

@@ -2,11 +2,26 @@ package it.gov.pagopa.onboarding.workflow.service;
 
 import feign.FeignException;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.*;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.DecryptCfDTO;
+import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingFamilyDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingFamilyDetailDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingRejectionReason;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
+import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
+import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
+import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
@@ -17,12 +32,15 @@ import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
-
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +79,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   InitiativeRestConnector initiativeRestConnector;
   @Autowired
   DecryptRestConnector decryptRestConnector;
+
+  @Autowired
+  AdmissibilityRestConnector admissibilityRestConnector;
 
   @Autowired
   AuditUtilities auditUtilities;
@@ -169,12 +190,14 @@ public class OnboardingServiceImpl implements OnboardingService {
     performanceLog(startTime, "CHECK_PREREQUISITES");
     return dto;
   }
+
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
     if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) && onboarding.getDemandedDate() != null) {
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
       outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.JOINED));
     }
   }
+
   private boolean checkWhitelist(Onboarding onboarding, InitiativeDTO initiativeDTO) {
     if (Boolean.FALSE.equals(initiativeDTO.getGeneral().getBeneficiaryKnown())) {
       return false;
@@ -193,6 +216,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.ONBOARDING_OK));
     return true;
   }
+
   private EvaluationDTO createEvaluationDto(Onboarding onboarding,
       InitiativeDTO initiativeDTO, String status) {
     EvaluationDTO dto = new EvaluationDTO();
@@ -249,26 +273,27 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding) {
-    InitiativeGeneralDTO generalInfo = initiativeDTO.getGeneral();
-    BigDecimal totalBudget = generalInfo.getBudget();
-    BigDecimal beneficiaryBudget = generalInfo.getBeneficiaryBudget();
-    int onboardedCitizen = onboardingRepository.countByInitiativeIdAndStatus(initiativeDTO.getInitiativeId(),
-            OnboardingWorkflowConstants.ONBOARDING_OK) + 1;
-
-    BigDecimal budgetUsed = beneficiaryBudget.multiply(BigDecimal.valueOf(onboardedCitizen));
-    if (budgetUsed.compareTo(totalBudget) > 0){
-      LocalDateTime localDateTime = LocalDateTime.now();
-      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-      onboarding.setOnboardingKODate(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
-      onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
-      onboardingRepository.save(onboarding);
-      auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
-              OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
-      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-              OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
-              OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+    if(Boolean.TRUE.equals(initiativeDTO.getGeneral().getBeneficiaryKnown())){
+      return;
     }
+    InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(
+        initiativeDTO.getInitiativeId());
+    if (initiativeStatusDTO.isBudgetAvailable() && initiativeStatusDTO.getStatus()
+        .equals(OnboardingWorkflowConstants.PUBLISHED)) {
+      return;
+    }
+    LocalDateTime localDateTime = LocalDateTime.now();
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+    onboarding.setOnboardingKODate(localDateTime);
+    onboarding.setUpdateDate(localDateTime);
+    onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+    onboardingRepository.save(onboarding);
+    auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
+        onboarding.getUserId(), onboarding.getChannel(),
+        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
+    throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
+        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
+        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
   }
 
   private RequiredCriteriaDTO getCriteriaLists(InitiativeDTO initiativeDTO) {
@@ -291,7 +316,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private void checkStatus(Onboarding onboarding){
     String status = onboarding.getStatus();
-    if (List.of(OnboardingWorkflowConstants.ONBOARDING_KO, OnboardingWorkflowConstants.ELIGIBLE_KO).contains(status)){
+    if (List.of(OnboardingWorkflowConstants.ONBOARDING_KO, OnboardingWorkflowConstants.ELIGIBLE_KO).contains(status) &&
+            !OnboardingWorkflowConstants.REJECTION_REASON_BIRTHDATE_KO.equals(onboarding.getDetailKO())){
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               utilities.getMessageOnboardingKO(onboarding.getDetailKO()));
       throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
@@ -490,12 +516,12 @@ public class OnboardingServiceImpl implements OnboardingService {
             .orElse(null);
 
     if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
-      Set<String> onboardingRejectionReasonsType = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
+      Set<String> onboardingRejectionReasonsCode = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
               .orElseGet(Collections::emptyList)
               .stream()
-              .map(OnboardingRejectionReason::getType)
+              .map(OnboardingRejectionReason::getCode)
               .collect(Collectors.toSet());
-      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsType);
+      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsCode);
 
       onboarding.setFamilyId(evaluationDTO.getFamilyId());
       setStatus(onboarding, evaluationDTO.getStatus(),
@@ -543,6 +569,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     performanceLog(startTime, "ALLOWED_INITIATIVE");
   }
+
   @Override
   public void suspend(String initiativeId, String userId){
     long startTime = System.currentTimeMillis();

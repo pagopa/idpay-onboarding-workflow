@@ -60,6 +60,7 @@ microservice-chart:
       IDPAY_INITIATIVE_BASE_URL: initiative_ms_base_url
       IDPAY_GROUP_BASE_URL: idpay_group_host
       PDV_DECRYPT_BASE_URL: pdv_decrypt_base_url
+      IDPAY_ADMISSIBILITY_BASE_URL: admissibility_ms_base_url
     idpay-eventhub-00:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
       KAFKA_ONBOARDING_SASL_MECHANISM: kafka_sasl_mechanism
