@@ -14,9 +14,9 @@ spring:
     azure:
       servicebus:
         connection-string: ${SERVICEBUS_ONBOARDING_CONNECTION_STRING:}
+    function:
+      definition: consumerOutcome;consumerOnboarding
     stream:
-      function:
-        definition: consumerOutcome;consumerOnboarding
       binders:
         servicebus-onboarding:
           type: servicebus
