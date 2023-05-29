@@ -410,6 +410,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, "SAVE_CONSENT");
       auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
               String.format(OnboardingWorkflowConstants.ERROR_PDND, consentPutDTO.getInitiativeId()));
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(OnboardingWorkflowConstants.ERROR_PDND,
               consentPutDTO.getInitiativeId()), null);
