@@ -411,6 +411,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
               String.format(OnboardingWorkflowConstants.ERROR_PDND, consentPutDTO.getInitiativeId()));
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      onboardingRepository.save(onboarding);
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(OnboardingWorkflowConstants.ERROR_PDND,
               consentPutDTO.getInitiativeId()), null);
