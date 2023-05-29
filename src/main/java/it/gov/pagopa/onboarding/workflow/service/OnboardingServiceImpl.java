@@ -412,6 +412,7 @@ public class OnboardingServiceImpl implements OnboardingService {
               String.format(OnboardingWorkflowConstants.ERROR_PDND, consentPutDTO.getInitiativeId()));
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
       onboardingRepository.save(onboarding);
+      log.info("[ONBOARDING_FAILED] Onboarding status is,: {}", onboarding.getStatus());
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(OnboardingWorkflowConstants.ERROR_PDND,
               consentPutDTO.getInitiativeId()), null);
