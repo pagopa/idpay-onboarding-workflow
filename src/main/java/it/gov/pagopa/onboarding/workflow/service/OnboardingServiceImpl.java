@@ -109,7 +109,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
       log.info("[PUT_TC_CONSENT] User has already accepted T&C");
       auditUtilities.logTCIdemp(userId, initiativeId, onboarding.getChannel());
-      performanceLog(startTime, PUT_TC_CONSENT);
+      performanceLog(startTime, PUT_TC_CONSENT, userId, initiativeId);
       return;
     }
 
@@ -130,7 +130,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setUpdateDate(localDateTime);
     onboardingRepository.save(onboarding);
     auditUtilities.logTC(userId, initiativeId, onboarding.getChannel());
-    performanceLog(startTime, PUT_TC_CONSENT);
+    performanceLog(startTime, PUT_TC_CONSENT, userId, initiativeId);
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date, String rejectionReasons) {
@@ -187,7 +187,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     onboardingRepository.save(onboarding);
     auditUtilities.logPDND(userId, initiativeId, onboarding.getChannel());
-    performanceLog(startTime, "CHECK_PREREQUISITES");
+    performanceLog(startTime, "CHECK_PREREQUISITES", userId, initiativeId);
     return dto;
   }
 
@@ -358,7 +358,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
-    performanceLog(startTime, "GET_ONBOARDING_STATUS");
+    performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
     log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
     return new OnboardingStatusDTO(onboarding.getStatus());
   }
@@ -385,7 +385,7 @@ public class OnboardingServiceImpl implements OnboardingService {
           o.getUserId(), o.getStatus(), o.getUpdateDate()!=null?o.getUpdateDate().toString(): EMPTY);
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
-    performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST");
+    performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST", userId, initiativeId);
     return new ResponseInitiativeOnboardingDTO(onboardingStatusCitizenDTOS, result.getNumber(),
         result.getSize(), (int) result.getTotalElements(), result.getTotalPages());
   }
@@ -408,7 +408,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
         && !consentPutDTO.isPdndAccept()) {
-      performanceLog(startTime, "SAVE_CONSENT");
+      performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
       auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
               String.format(OnboardingWorkflowConstants.ERROR_PDND, consentPutDTO.getInitiativeId()));
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
@@ -427,7 +427,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
-    performanceLog(startTime, "SAVE_CONSENT");
+    performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
   }
 
   private void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
@@ -491,7 +491,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboardingRepository.save(onboarding);
     log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", deactivationDate);
     auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
-    performanceLog(startTime, "DEACTIVATE_ONBOARDING");
+    performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
   }
 
   @Override
@@ -544,7 +544,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
       onboardingRepository.save(newOnboarding);
     }
-    performanceLog(startTime, "COMPLETE_ONBOARDING");
+    performanceLog(startTime, "COMPLETE_ONBOARDING", evaluationDTO.getUserId(),
+        evaluationDTO.getInitiativeId());
   }
 
   @Override
@@ -570,7 +571,8 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboardingRepository.save(newOnboarding);
       }
     }
-    performanceLog(startTime, "ALLOWED_INITIATIVE");
+    performanceLog(startTime, "ALLOWED_INITIATIVE", onboardingNotificationDTO.getUserId(),
+        onboardingNotificationDTO.getInitiativeId());
   }
 
   @Override
@@ -581,7 +583,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     if (!List.of(OnboardingWorkflowConstants.ONBOARDING_OK,OnboardingWorkflowConstants.SUSPENDED).contains(onboarding.getStatus())){
       auditUtilities.logSuspensionKO(userId, initiativeId);
-      performanceLog(startTime, SUSPENSION);
+      performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is not possible", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
               OnboardingWorkflowConstants.ERROR_SUSPENSION_STATUS, null);
@@ -594,10 +596,10 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboardingRepository.save(onboarding);
       auditUtilities.logSuspension(userId, initiativeId);
       log.info("[SUSPENSION] User is suspended from the initiative {}", initiativeId);
-      performanceLog(startTime, SUSPENSION);
+      performanceLog(startTime, SUSPENSION, userId, initiativeId);
     } catch (Exception e){
       auditUtilities.logSuspensionKO(userId, initiativeId);
-      performanceLog(startTime, SUSPENSION);
+      performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is failed", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
               OnboardingWorkflowConstants.ERROR_SUSPENSION, OnboardingWorkflowConstants.GENERIC_ERROR);
@@ -612,7 +614,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     if (!List.of(OnboardingWorkflowConstants.ONBOARDING_OK,OnboardingWorkflowConstants.SUSPENDED).contains(onboarding.getStatus())){
       auditUtilities.logReadmissionKO(userId, initiativeId);
-      performanceLog(startTime, READMISSION);
+      performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is not possible", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
               OnboardingWorkflowConstants.ERROR_READMIT_STATUS, null);
@@ -625,10 +627,10 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboardingRepository.save(onboarding);
       auditUtilities.logReadmission(userId, initiativeId);
       log.info("[READMISSION] User is readmitted to the initiative {}", initiativeId);
-      performanceLog(startTime, READMISSION);
+      performanceLog(startTime, READMISSION, userId, initiativeId);
     } catch (Exception e){
       auditUtilities.logReadmissionKO(userId, initiativeId);
-      performanceLog(startTime, READMISSION);
+      performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is failed", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
               OnboardingWorkflowConstants.ERROR_READMISSION, OnboardingWorkflowConstants.GENERIC_ERROR);
@@ -643,11 +645,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     return pageable;
   }
 
-  private void performanceLog(long startTime, String service){
+  private void performanceLog(long startTime, String service, String userId, String initiativeId){
     log.info(
-        "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms",
+        "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
         service,
-        System.currentTimeMillis() - startTime);
+        System.currentTimeMillis() - startTime,
+        initiativeId,
+        userId);
   }
 
   @Override
@@ -661,7 +665,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     log.info("[GET_ONBOARDING_FAMILY] Retrieved familyId {} for user {}", onboarding.getFamilyId(), userId);
 
     if(onboarding.getFamilyId() == null){
-      performanceLog(startTime, GET_ONBOARDING_FAMILY);
+      performanceLog(startTime, GET_ONBOARDING_FAMILY, userId, initiativeId);
       return onboardingFamilyDecryptDTO;
     }
 
@@ -675,7 +679,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }).toList();
 
     onboardingFamilyDecryptDTO.setUsersList(usersListDecrypted);
-    performanceLog(startTime, GET_ONBOARDING_FAMILY);
+    performanceLog(startTime, GET_ONBOARDING_FAMILY, userId, initiativeId);
     return onboardingFamilyDecryptDTO;
   }
 
