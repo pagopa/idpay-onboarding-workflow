@@ -359,6 +359,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     long startTime = System.currentTimeMillis();
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     performanceLog(startTime, "GET_ONBOARDING_STATUS");
+    log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
     return new OnboardingStatusDTO(onboarding.getStatus());
   }
 
@@ -410,6 +411,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, "SAVE_CONSENT");
       auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
               String.format(OnboardingWorkflowConstants.ERROR_PDND, consentPutDTO.getInitiativeId()));
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      onboardingRepository.save(onboarding);
       throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
           String.format(OnboardingWorkflowConstants.ERROR_PDND,
               consentPutDTO.getInitiativeId()), null);
