@@ -139,6 +139,7 @@ logging:
       gov:
         pagopa: ${LOG_LEVEL_PAGOPA:INFO}
 
+management.health.mongo.enabled: false
 management.endpoints:
   web:
     exposure.include: info, health
