@@ -139,10 +139,12 @@ logging:
       gov:
         pagopa: ${LOG_LEVEL_PAGOPA:INFO}
 
-management.health.mongo.enabled: false
-management.endpoints:
-  web:
-    exposure.include: info, health
+management:
+  endpoint:
+    health.logging.slow-indicator-threshold: ${HEALTH_ACTUATOR_LOGGER_TIMEOUT_DURATION:PT1S}
+  endpoints:
+    web:
+      exposure.include: info, health
 
 rest-client:
   group:
