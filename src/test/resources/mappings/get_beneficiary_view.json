@@ -6,7 +6,12 @@
   "response": {
     "status": "200",
     "jsonBody": {
-      "initiativeId": "INITIATIVE_ID"
+      "initiativeId": "INITIATIVE_ID",
+      "status": "PUBLISHED",
+      "general": {
+        "startDate": "2023-01-01",
+        "endDate": "2099-01-01"
+      }
     },
     "headers": {
       "Content-Type": "application/json"
