@@ -45,21 +45,21 @@ spring:
         consumerOutcome-in-0:
           binder: kafka-outcome
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
-          destination: ${KAFKA_TOPIC_OUTCOME:}
+          destination: ${KAFKA_TOPIC_OUTCOME:idpay_onboarding_outcome}
           group: ${KAFKA_OUTCOME_GROUP_IN:}
         consumerOnboarding-in-0:
           binder: onboarding-notification
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
-          destination: ${KAFKA_TOPIC_ONBOARDING_NOTIFICATION:}
+          destination: ${KAFKA_TOPIC_ONBOARDING_NOTIFICATION:idpay_onboarding_notification}
           group: ${KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN:}
         onboarding-out-0:
           binder: kafka-outcome-out
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
-          destination: ${KAFKA_TOPIC_OUTCOME}
+          destination: ${KAFKA_TOPIC_OUTCOME:idpay_onboarding_outcome}
         onboarding-out-1:
           binder: servicebus-onboarding
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
-          destination: ${KAFKA_TOPIC_ONBOARDING:}
+          destination: ${KAFKA_TOPIC_ONBOARDING:idpay_onboarding_request}
       kafka:
         binder:
           auto-create-topics: false
@@ -115,8 +115,8 @@ spring:
     redis:
       url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
     mongodb:
-      database: ${MONGODB_DBNAME:}
-      uri: ${MONGODB_URI:}
+      database: ${MONGODB_DBNAME:idpay}
+      uri: ${MONGODB_URI:mongodb://localhost:27017}
       # custom configured properties
       config:
         connectionPool:
@@ -129,15 +129,26 @@ spring:
 
 logging:
   level:
-    org:
-      springframework:
-        cloud: ${LOG_LEVEL_SPRING_CLOUD:WARN}
-        boot: ${LOG_LEVEL_SPRING_BOOT:INFO}
-        data: ${LOG_LEVEL_SPRING_DATA:INFO}
     root: ${LOG_LEVEL_ROOT:INFO}
-    it:
-      gov:
-        pagopa: ${LOG_LEVEL_PAGOPA:INFO}
+    it.gov.pagopa: ${LOG_LEVEL_PAGOPA:INFO}
+    it.gov.pagopa.reward: ${LOG_LEVEL_REWARD:INFO}
+    it.gov.pagopa.reward.service.BaseKafkaConsumer: ${LOG_LEVEL_BASE_KAFKA_CONSUMER:INFO}
+    org.springframework.integration: ${LOG_LEVEL_SPRING_INTEGRATION:INFO}
+    org.springframework.security: ${LOG_LEVEL_SPRING_SECURITY:INFO}
+    org.springframework.ws: ${LOG_LEVEL_SPRING_WS:INFO}
+    org.springframework.cloud: ${LOG_LEVEL_SPRING_CLOUD:WARN}
+    org.springframework.data: ${LOG_LEVEL_SPRING_DATA:INFO}
+    org.springframework.hateoas: ${LOG_LEVEL_SPRING_HATEOAS:INFO}
+    org.springframework.boot: ${LOG_LEVEL_SPRING_BOOT:INFO}
+    org.springframework.boot.availability: ${LOG_LEVEL_SPRING_BOOT_AVAILABILITY:DEBUG}
+    org.springframework.kafka: ${LOG_LEVEL_SPRING_KAFKA:INFO}
+    org.springframework.batch: ${LOG_LEVEL_SPRING_BATCH:INFO}
+    io.swagger: ${LOG_LEVEL_IO_SWAGGER:WARN}
+    javax.persistence: ${LOG_LEVEL_JAVAX_PERSISTENCE:INFO}
+    org.hibernate: ${LOG_LEVEL_ORG_HIBERNATE:INFO}
+    org.kie: ${LOG_LEVEL_ORG_KIE:WARN}
+    org.drools: ${LOG_LEVEL_ORG_DROOLS:WARN}
+    org.mongodb.driver: ${LOG_LEVEL_MONGODB_DRIVER:WARN}
 
 management:
   endpoint:
