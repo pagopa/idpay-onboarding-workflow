@@ -1,10 +1,12 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@Getter
+@Data
+@NoArgsConstructor
 public class UnsubscribeBodyDTO {
 
   private String initiativeId;
