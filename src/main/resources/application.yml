@@ -46,12 +46,12 @@ spring:
           binder: kafka-outcome
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_OUTCOME:idpay_onboarding_outcome}
-          group: ${KAFKA_OUTCOME_GROUP_IN:}
+          group: ${KAFKA_OUTCOME_GROUP_IN:consumerOutcomeGroup}
         consumerOnboarding-in-0:
           binder: onboarding-notification
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_ONBOARDING_NOTIFICATION:idpay_onboarding_notification}
-          group: ${KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN:}
+          group: ${KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN:consumerOnboardingGroup}
         onboarding-out-0:
           binder: kafka-outcome-out
           content-type: ${KAFKA_CONTENT_TYPE:application/json}

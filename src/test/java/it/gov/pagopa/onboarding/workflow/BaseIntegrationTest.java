@@ -7,8 +7,11 @@ import it.gov.pagopa.common.kafka.KafkaTestUtilitiesService;
 import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
 import it.gov.pagopa.common.redis.configuration.EmbeddedRedisTestConfiguration;
 import it.gov.pagopa.common.utils.TestIntegrationUtils;
+import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import jakarta.annotation.PostConstruct;
+import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -16,6 +19,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
+import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -91,23 +97,26 @@ public abstract class BaseIntegrationTest {
     @Autowired
     private WireMockServer wireMockServer;
 
+    @Autowired
+    protected MongoTemplate mongoTemplate;
+
     @Value("${spring.data.redis.url}")
     protected String redisUrl;
 
     @Value("${spring.cloud.stream.bindings.consumerOutcome-in-0.destination}")
-    private String topicConsumerOutcome;
+    protected String topicConsumerOutcome;
     @Value("${spring.cloud.stream.bindings.consumerOutcome-in-0.group}")
-    private String groupIdConsumerOutcome;
+    protected String groupIdConsumerOutcome;
 
     @Value("${spring.cloud.stream.bindings.consumerOnboarding-in-0.destination}")
-    private String topicConsumerOnboarding;
+    protected String topicConsumerOnboarding;
     @Value("${spring.cloud.stream.bindings.consumerOnboarding-in-0.group}")
-    private String groupIdConsumerOnboarding;
+    protected String groupIdConsumerOnboarding;
 
     @Value("${spring.cloud.stream.bindings.onboarding-out-0.destination}")
-    private String topicOnboarding0;
+    protected String topicOnboarding0;
     @Value("${spring.cloud.stream.bindings.onboarding-out-1.destination}")
-    private String topicOnboarding1;
+    protected String topicOnboarding1;
 
     @BeforeAll
     public static void unregisterPreviouslyKafkaServers() throws MalformedObjectNameException, MBeanRegistrationException, InstanceNotFoundException {
@@ -132,4 +141,10 @@ public abstract class BaseIntegrationTest {
                 redisUrl);
     }
 
+    @BeforeEach
+    void configureUniqueIndexes(){
+        IndexDefinition index = new CompoundIndexDefinition(new Document().append(Onboarding.Fields.initiativeId, 1).append(Onboarding.Fields.userId, 1))
+                .unique();
+        mongoTemplate.indexOps(Onboarding.class).ensureIndex(index);
+    }
 }
