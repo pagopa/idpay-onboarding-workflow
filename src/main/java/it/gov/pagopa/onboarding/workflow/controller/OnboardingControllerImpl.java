@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OnboardingControllerImpl implements OnboardingController {
 
   @Autowired
-  OnboardingService onboardingService;
+  private OnboardingService onboardingService;
 
   public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
       @Valid @RequestBody CheckPutDTO body,
