@@ -15,17 +15,17 @@ microservice-chart:
       memory: "4Gi"
       cpu: "300m"
 
-#  autoscaling:
-#    enable: false
-#    minReplica: 1
-#    maxReplica: 2
-#    pollingInterval: 30 # seconds
-#    cooldownPeriod: 300 # seconds
-#    triggers:
-##      - type: cpu
-##        metadata:
-##          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-##          value: "70"
+  autoscaling:
+    enable: false
+    minReplica: 1
+    maxReplica: 2
+    pollingInterval: 30 # seconds
+    cooldownPeriod: 300 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "70"
 #      - type: azure-app-insights
 #        metadata:
 #          metricAggregationTimespan: "0:1"
