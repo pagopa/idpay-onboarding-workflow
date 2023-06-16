@@ -19,8 +19,8 @@ microservice-chart:
     enable: true
     minReplica: 1
     maxReplica: 2
-    pollingInterval: 5 # seconds
-    cooldownPeriod: 20 # seconds
+    pollingInterval: 30 # seconds
+    cooldownPeriod: 300 # seconds
     triggers:
 #      - type: cpu
 #        metadata:
@@ -30,6 +30,7 @@ microservice-chart:
         metadata:
           metricAggregationTimespan: "0:1"
           metricAggregationType: sum
+          metricFilter: cloud/roleName eq 'idpayonboardingworkflow'
           metricId: "requests/count"
           targetValue: "1"
 
