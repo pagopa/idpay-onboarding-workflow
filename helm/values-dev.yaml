@@ -19,8 +19,8 @@ microservice-chart:
     enable: true
     minReplica: 1
     maxReplica: 2
-    pollingInterval: 30 # seconds
-    cooldownPeriod: 300 # seconds
+    pollingInterval: 5 # seconds
+    cooldownPeriod: 5 # seconds
     triggers:
 #      - type: cpu
 #        metadata:
@@ -28,7 +28,7 @@ microservice-chart:
 #          value: "70"
       - type: azure-app-insights
         metadata:
-          metricAggregationInterval: "00:01"
+          metricAggregationTimespan: "0:1"
           metricAggregationType: sum
           metricFilter: cloud/roleName eq 'idpayonboardingworkflow'
           metricId: "requests/count"
