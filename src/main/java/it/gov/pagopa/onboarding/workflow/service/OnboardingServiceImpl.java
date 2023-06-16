@@ -122,7 +122,10 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     checkDates(initiativeDTO, onboarding);
-    checkBudget(initiativeDTO, onboarding);
+
+    if (!OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus())){
+      checkBudget(initiativeDTO, onboarding);
+    }
 
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
     onboarding.setTc(true);
