@@ -28,7 +28,7 @@ microservice-chart:
 #          value: "70"
       - type: azure-app-insights
         metadata:
-          metricAggregationTimespan: "0:1"
+          metricAggregationInterval: "00:01"
           metricAggregationType: sum
           metricFilter: cloud/roleName eq 'idpayonboardingworkflow'
           metricId: "requests/count"
