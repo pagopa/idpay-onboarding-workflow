@@ -90,7 +90,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   Utilities utilities;
 
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
-    return onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+    return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
         .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
             String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND, initiativeId), null));
   }
@@ -101,7 +101,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
 
-    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+    Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
         .orElse(null);
 
     if (onboarding != null && !List.of(OnboardingWorkflowConstants.INVITED,OnboardingWorkflowConstants.DEMANDED).contains(onboarding.getStatus())) {
@@ -499,7 +499,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void rollback(String initiativeId, String userId) {
-    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userId)
+    Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
         .orElse(null);
     if (onboarding != null && onboarding.getStatus()
         .equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
@@ -518,7 +518,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     long startTime = System.currentTimeMillis();
 
-    Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId())
+    Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()))
             .orElse(null);
 
     if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
@@ -559,9 +559,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboardingNotificationDTO.getOperationType()
         .equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)) {
       log.info("[ALLOWED_INITIATIVE] Allowed citizen");
-      Onboarding onboarding = onboardingRepository.findByInitiativeIdAndUserId(
-          onboardingNotificationDTO.getInitiativeId(),
-          onboardingNotificationDTO.getUserId()).orElse(null);
+      Onboarding onboarding = onboardingRepository.findById(
+              Onboarding.buildId(
+                      onboardingNotificationDTO.getInitiativeId(),
+                      onboardingNotificationDTO.getUserId()))
+              .orElse(null);
       if (onboarding == null) {
         log.info("[ALLOWED_INITIATIVE] New onboarding with status INVITED");
         Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(),

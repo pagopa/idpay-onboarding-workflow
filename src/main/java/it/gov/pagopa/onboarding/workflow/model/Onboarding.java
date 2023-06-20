@@ -4,13 +4,11 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @FieldNameConstants
 @Document(collection = "onboarding_citizen")
-@CompoundIndex(name = "onboarding_unique_idx", def = "{'userId': 1, 'initiativeId': 1}", unique = true)
 public class Onboarding {
 
   public Onboarding(String initiativeId, String userId) {
@@ -18,6 +16,11 @@ public class Onboarding {
     this.initiativeId = initiativeId;
     this.userId = userId;
 
+    this.id = buildId(initiativeId, userId);
+  }
+
+  public static String buildId(String initiativeId, String userId) {
+    return "%s_%s".formatted(initiativeId, userId);
   }
 
   @Id
