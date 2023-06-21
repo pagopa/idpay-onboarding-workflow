@@ -199,7 +199,7 @@ stages:
     displayName: 'Test_e2e_on_${{ variables.environment }}'
     # TODO: before merging into release-dev modify the following condition
     #       to depend on previous stages exit status
-    condition: eq(variables.environment, 'DEV')
+    condition: or(eq(variables.environment, 'DEV'), eq(variables.environment, 'UAT'))
     jobs:
       - job: 'Run_Postman_collection_on_${{ variables.environment }}'
         displayName: 'Run_Postman_collection_on_${{ variables.environment }}'
