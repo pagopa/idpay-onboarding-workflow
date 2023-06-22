@@ -20,7 +20,7 @@ public class Onboarding {
   }
 
   public static String buildId(String initiativeId, String userId) {
-    return "%s_%s".formatted(initiativeId, userId);
+    return "%s_%s".formatted(userId, initiativeId);
   }
 
   @Id
