@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import it.gov.pagopa.common.kafka.KafkaTestUtilitiesService;
 import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
-import it.gov.pagopa.common.redis.configuration.EmbeddedRedisTestConfiguration;
+import it.gov.pagopa.common.redis.config.EmbeddedRedisTestConfiguration;
 import it.gov.pagopa.common.utils.TestIntegrationUtils;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import jakarta.annotation.PostConstruct;

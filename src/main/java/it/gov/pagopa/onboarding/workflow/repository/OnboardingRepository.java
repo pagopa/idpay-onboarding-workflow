@@ -5,12 +5,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface OnboardingRepository extends MongoRepository<Onboarding, String>, OnboardingSpecificRepository {
-
-  Optional<Onboarding> findByInitiativeIdAndUserId(String initiativeId, String userId);
 
   List<Onboarding> findByInitiativeIdAndFamilyId(String initiativeId, String familyId);
 

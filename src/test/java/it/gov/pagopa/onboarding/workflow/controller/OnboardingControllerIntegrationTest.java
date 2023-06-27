@@ -70,7 +70,7 @@ class OnboardingControllerIntegrationTest extends BaseIntegrationTest {
 
         // Then
         for (int i = 0; i < N; i++) {
-            Onboarding result = onboardingRepository.findByInitiativeIdAndUserId(initiativeId, userIdFormat.formatted(i)).orElse(null);
+            Onboarding result = onboardingRepository.findById(Onboarding.buildId(initiativeId, userIdFormat.formatted(i))).orElse(null);
             Assertions.assertNotNull(result);
             Assertions.assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, result.getStatus());
             Assertions.assertTrue(result.getTc());
