@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "35212f51-d93a-4d3a-adec-1c446ae4384e",
+		"_postman_id": "ca9dcca0-de64-46af-b100-572393136eda",
 		"name": "Onboarding - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "26036679",
-		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036682-35212f51-d93a-4d3a-adec-1c446ae4384e?action=share&creator=26036679&source=collection_link"
+		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036736-ca9dcca0-de64-46af-b100-572393136eda?action=share&creator=26036679&source=collection_link"
 	},
 	"item": [
 		{
@@ -862,7 +862,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													""
+													"setTimeout(()=> {}, 10000)"
 												],
 												"type": "text/javascript"
 											}
@@ -876,7 +876,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -886,81 +886,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
-												"login"
-											],
-											"query": [
-												{
-													"key": "fiscalCode",
-													"value": "{{CF_fake}}"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Generate Token IO Copy",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test('Onboarding - Happy case - APP IO - Onboarding user with whitelist - Generate token IO', () => {\r",
-													"    //verify response HTTP status \r",
-													"    pm.response.to.have.status(200);\r",
-													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
-													"});\r",
-													""
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "POST",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
-												"type": "default"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "default"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -1991,7 +1923,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													""
+													"setTimeout(()=> {}, 5000)"
 												],
 												"type": "text/javascript"
 											}
@@ -2005,7 +1937,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -2015,15 +1947,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -2046,6 +1976,15 @@
 													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(()=> {}, 10000)"
 												],
 												"type": "text/javascript"
 											}
@@ -3086,7 +3025,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													""
+													"setTimeout(() => {}, 5000);"
 												],
 												"type": "text/javascript"
 											}
@@ -3100,7 +3039,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -3110,15 +3049,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -3141,6 +3078,15 @@
 													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with manual criteria - Accept T&C - Status 204\", function () {\r",
 													"    pm.response.to.have.status(204);\r",
 													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(() => {}, 10000);"
 												],
 												"type": "text/javascript"
 											}
@@ -4188,7 +4134,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															""
+															"setTimeout(()=> {}, 5000)"
 														],
 														"type": "text/javascript"
 													}
@@ -4202,7 +4148,7 @@
 												"header": [
 													{
 														"key": "Ocp-Apim-Subscription-Key",
-														"value": "",
+														"value": "{{genericSubscriptionKey}}",
 														"type": "default"
 													},
 													{
@@ -4212,15 +4158,13 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
 													"host": [
 														"{{baseUrl}}"
 													],
 													"path": [
-														"bpd",
-														"pagopa",
-														"api",
-														"v1",
+														"rtd",
+														"mock-io",
 														"login"
 													],
 													"query": [
@@ -4243,6 +4187,15 @@
 															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"setTimeout(()=> {}, 10000)"
 														],
 														"type": "text/javascript"
 													}
@@ -5426,7 +5379,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															""
+															"setTimeout(()=> {}, 5000)"
 														],
 														"type": "text/javascript"
 													}
@@ -5440,7 +5393,7 @@
 												"header": [
 													{
 														"key": "Ocp-Apim-Subscription-Key",
-														"value": "",
+														"value": "{{genericSubscriptionKey}}",
 														"type": "default"
 													},
 													{
@@ -5450,15 +5403,13 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 													"host": [
 														"{{baseUrl}}"
 													],
 													"path": [
-														"bpd",
-														"pagopa",
-														"api",
-														"v1",
+														"rtd",
+														"mock-io",
 														"login"
 													],
 													"query": [
@@ -5481,6 +5432,15 @@
 															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - Single User ONBOARDING_OK and Family member DEMANDED not present - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"setTimeout(()=> {}, 10000)"
 														],
 														"type": "text/javascript"
 													}
@@ -6664,7 +6624,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															""
+															"setTimeout(()=> {}, 5000)"
 														],
 														"type": "text/javascript"
 													}
@@ -6678,7 +6638,7 @@
 												"header": [
 													{
 														"key": "Ocp-Apim-Subscription-Key",
-														"value": "",
+														"value": "{{genericSubscriptionKey}}",
 														"type": "default"
 													},
 													{
@@ -6688,15 +6648,13 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 													"host": [
 														"{{baseUrl}}"
 													],
 													"path": [
-														"bpd",
-														"pagopa",
-														"api",
-														"v1",
+														"rtd",
+														"mock-io",
 														"login"
 													],
 													"query": [
@@ -6719,6 +6677,15 @@
 															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"setTimeout(()=> {}, 10000)"
 														],
 														"type": "text/javascript"
 													}
@@ -6891,7 +6858,7 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Status Onboarding OK - Status 200\", function () {\r",
+															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_KO and Family Member not created - Status Onboarding KO - Status 200\", function () {\r",
 															"    pm.response.to.have.status(200);\r",
 															"});\r",
 															"\r",
@@ -6901,7 +6868,7 @@
 															"    let jsonResponse = pm.response.json()\r",
 															"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_KO', 'ON_EVALUATION']);\r",
 															"});\r",
-															" },2000)"
+															" },7000)"
 														],
 														"type": "text/javascript"
 													}
@@ -6942,7 +6909,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															""
+															"setTimeout(()=> {}, 5000)"
 														],
 														"type": "text/javascript"
 													}
@@ -7033,7 +7000,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															"setTimeout(function(){}, 20000);"
+															"setTimeout(()=> {}, 20000)"
 														],
 														"type": "text/javascript"
 													}
@@ -7902,7 +7869,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															""
+															"setTimeout(()=> {}, 5000)"
 														],
 														"type": "text/javascript"
 													}
@@ -7916,7 +7883,7 @@
 												"header": [
 													{
 														"key": "Ocp-Apim-Subscription-Key",
-														"value": "",
+														"value": "{{genericSubscriptionKey}}",
 														"type": "default"
 													},
 													{
@@ -7926,15 +7893,13 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
 													"host": [
 														"{{baseUrl}}"
 													],
 													"path": [
-														"bpd",
-														"pagopa",
-														"api",
-														"v1",
+														"rtd",
+														"mock-io",
 														"login"
 													],
 													"query": [
@@ -7957,6 +7922,15 @@
 															"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK on initiative not NF and users list is empty - Accept T&C - Status 204\", function () {\r",
 															"    pm.response.to.have.status(204);\r",
 															"});"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"setTimeout(()=> {}, 15000)"
 														],
 														"type": "text/javascript"
 													}
@@ -8351,13 +8325,13 @@
 											},
 											{
 												"key": "Fiscal-Code",
-												"value": "{{CF_1}}",
+												"value": "{{CF_fake}}",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -8426,13 +8400,13 @@
 											},
 											{
 												"key": "Fiscal-Code",
-												"value": "{{CF_1}}",
+												"value": "{{CF_fake}}",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -8482,7 +8456,7 @@
 										"header": [
 											{
 												"key": "Fiscal-Code",
-												"value": "{{CF_1}}",
+												"value": "{{CF_fake}}",
 												"type": "text"
 											},
 											{
@@ -8502,7 +8476,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{IssuerinitiativeId}}/status",
+											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{initiativeIdWithWhitelist}}/status",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -8510,7 +8484,7 @@
 												"idpay",
 												"hb",
 												"onboarding",
-												"{{IssuerinitiativeId}}",
+												"{{initiativeIdWithWhitelist}}",
 												"status"
 											]
 										}
@@ -8567,7 +8541,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -8577,15 +8551,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -8867,7 +8839,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -8877,15 +8849,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -9112,7 +9082,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -9122,15 +9092,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -9337,7 +9305,7 @@
 													"\r",
 													"pm.test(\"Onboarding status is ACCEPTED_TC\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
+													"    pm.expect(jsonResponse.status).equals('ONBOARDING_KO');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9412,7 +9380,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -9422,15 +9390,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{$randomPassword}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{$randomPassword}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -9558,7 +9524,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -9568,15 +9534,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{vatNumberWrong}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{vatNumberWrong}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -9696,7 +9660,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -9706,15 +9670,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -9996,7 +9958,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -10006,15 +9968,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -10998,7 +10958,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -11008,15 +10968,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -11251,190 +11209,6 @@
 												"onboarding",
 												"{{NoCriteriaInitiativeId}}",
 												"status"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Onboarding User initiative onboarding ended - 403",
-							"item": [
-								{
-									"name": "Generate Token IO",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Generate token IO', () => {\r",
-													"    //verify response HTTP status \r",
-													"    pm.response.to.have.status(200);\r",
-													"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
-													"});\r",
-													""
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "POST",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
-												"type": "default"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "default"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
-												"login"
-											],
-											"query": [
-												{
-													"key": "fiscalCode",
-													"value": "{{CF_fake}}"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Get initiative ID",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Get initiative - status 200', () => {\r",
-													"    //verify response HTTP status \r",
-													"    pm.response.to.have.status(200);\r",
-													"    pm.collectionVariables.set(\"initiativeId\", pm.response.json().initiativeId);\r",
-													"});\r",
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{tokenIO}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - endDate}}",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"idpay",
-												"onboarding",
-												"service",
-												"{{serviceId - endDate}}"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Accept T&C",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Accept T&C - status 403\", function () {\r",
-													"    pm.response.to.have.status(403);\r",
-													"});\r",
-													"\r",
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative Onboarding ending - Accept T&C -  message contains info about initiative ended\", function () {\r",
-													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('The opportunity to join the initiative has already ended');\r",
-													"});"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{tokenIO}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "PUT",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{apimSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"idpay",
-												"onboarding",
-												""
 											]
 										}
 									},
@@ -12282,7 +12056,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -12292,15 +12066,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -13213,7 +12985,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													""
+													"setTimeout(()=> {}, 5000)"
 												],
 												"type": "text/javascript"
 											}
@@ -13227,7 +12999,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -13237,15 +13009,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_fake}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -13270,6 +13040,15 @@
 													"});\r",
 													"\r",
 													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(()=> {}, 10000)"
 												],
 												"type": "text/javascript"
 											}
@@ -13479,7 +13258,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -13489,15 +13268,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -13614,7 +13391,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -13624,15 +13401,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -13798,7 +13573,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -13808,21 +13583,19 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_fake}}"
 												}
 											]
 										}
@@ -13830,18 +13603,28 @@
 									"response": []
 								},
 								{
-									"name": "Get initiative ID",
+									"name": "Unsubscribe - Ok",
 									"event": [
 										{
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test('Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user -  get initiative id - status 200', () => {\r",
-													"    //verify response HTTP status \r",
-													"    pm.response.to.have.status(200);\r",
-													"    pm.collectionVariables.set(\"initiativeId\", pm.response.json().initiativeId);\r",
+													"pm.test(\"Wallet - Happy case - Unsubscribed wallet & user - Unsubscribe - Response status is 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
 													"});\r",
+													"\r",
+													"\r",
+													"\r",
 													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(() => {}, 20000);"
 												],
 												"type": "text/javascript"
 											}
@@ -13858,18 +13641,38 @@
 												}
 											]
 										},
-										"method": "GET",
-										"header": [],
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{apimSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/service/{{serviceId - unsubscribed user}}",
+											"raw": "{{baseUrl}}/idpay/wallet/{{initiativeIdWithCriteria}}/unsubscribe",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
 												"idpay",
-												"onboarding",
-												"service",
-												"{{serviceId - unsubscribed user}}"
+												"wallet",
+												"{{initiativeIdWithCriteria}}",
+												"unsubscribe"
 											]
 										}
 									},
@@ -13890,6 +13693,15 @@
 													"    let jsonResponse = pm.response.json()\r",
 													"    pm.expect(jsonResponse.message).equals('Unsubscribed to initiative');\r",
 													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(() => {}, 10000);"
 												],
 												"type": "text/javascript"
 											}
@@ -13921,7 +13733,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithCriteria}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -13960,6 +13772,15 @@
 												],
 												"type": "text/javascript"
 											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(() => {}, 10000);"
+												],
+												"type": "text/javascript"
+											}
 										}
 									],
 									"request": {
@@ -13976,14 +13797,14 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
+											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithCriteria}}/status",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
 												"idpay",
 												"onboarding",
-												"{{initiativeId}}",
+												"{{initiativeIdWithCriteria}}",
 												"status"
 											]
 										}
@@ -14021,7 +13842,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -14031,15 +13852,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -14428,7 +14247,7 @@
 										"header": [
 											{
 												"key": "Ocp-Apim-Subscription-Key",
-												"value": "",
+												"value": "{{genericSubscriptionKey}}",
 												"type": "default"
 											},
 											{
@@ -14438,15 +14257,13 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/bpd/pagopa/api/v1/login?fiscalCode={{CF_2}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
-												"bpd",
-												"pagopa",
-												"api",
-												"v1",
+												"rtd",
+												"mock-io",
 												"login"
 											],
 											"query": [
@@ -15504,6 +15321,161 @@
 							"name": "ISSUER Onboarding Initiative draft - 403",
 							"item": [
 								{
+									"name": "ENTE - Initiative creation",
+									"item": [
+										{
+											"name": "Generate Portal Token",
+											"event": [
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															""
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let textResponse = pm.response.text()\r",
+															"\r",
+															"pm.test('Onboarding - Happy case - APP IO - Onboarding user initiative not active - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+															"    //verify response HTTP status \r",
+															"    pm.response.to.have.status(200);\r",
+															"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
+															"});\r",
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "noauth"
+												},
+												"method": "POST",
+												"header": [
+													{
+														"key": "Ocp-Apim-Trace",
+														"value": "true",
+														"type": "default"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Ente}}\",\r\n  \"name\": \"{{name_Ente}}\",\r\n  \"familyName\": \"{{familyName_Ente}}\",\r\n  \"email\": \"{{email_Ente}}\",\r\n  \"orgId\": \"{{orgId_Ente}}\",\r\n  \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n  \"orgRole\": \"{{orgRole_Ente}}\"\r\n}\r\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"host": [
+														"{{baseUrlToken}}"
+													],
+													"path": [
+														"welfare",
+														"token",
+														"test"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "STEP1-Insert Initiative (Service Info)",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"var jsonData = JSON.parse(responseBody);\r",
+															"// console.log('jsondata', jsonData);\r",
+															"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
+															"pm.collectionVariables.set('initiativeIdDraft', jsonData.initiativeId);\r",
+															"\r",
+															"pm.test(\"Onboarding - Unhppy case - APP IO - Onboarding user initiative not active - Initiative creation - STEP1 - Status test 201\", function () {\r",
+															"    pm.response.to.have.status(201);\r",
+															"});\r",
+															"\r",
+															"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not active - Initiative creation - STEP1 - Verify response body contains initiativeId\", function () {\r",
+															"    let jsonResponse = pm.response.json();\r",
+															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
+															"});"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"//pm.collectionVariables.set('serviceId', pm.variables.replaceIn('{{$randomUUID}}'));\r",
+															"let moment = require('moment');\r",
+															"const now = String(moment().format('DD-MM-YYYY hh:mm'));\r",
+															"const serviceName = 'Test funzionali App IO onboarding user criteri automatici ' + now;\r",
+															"pm.collectionVariables.set('serviceName', serviceName);\r",
+															"pm.collectionVariables.set('description', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
+															"\r",
+															"pm.collectionVariables.set('channel_type', 'web');\r",
+															"pm.collectionVariables.set('channel_contact', pm.variables.replaceIn('{{$randomUrl}}'));"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{identityPortalToken}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"serviceIO\": true,\n    \"serviceName\": \"{{serviceName}}\",\n    \"serviceScope\": \"LOCAL\",\n    \"description\": \"{{description}}\",\n    \"privacyLink\": \"https://www.google.it\",\n    \"tcLink\": \"https://www.google.com\",\n    \"channels\": [\n        {\n            \"type\": \"{{channel_type}}\",\n            \"contact\": \"{{channel_contact}}\"\n        }\n    ]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrlInitiative}}/info",
+													"host": [
+														"{{baseUrlInitiative}}"
+													],
+													"path": [
+														"info"
+													]
+												},
+												"description": "Save initiative and first subset of data 'general info'"
+											},
+											"response": []
+										}
+									]
+								},
+								{
 									"name": "Accept T&C",
 									"event": [
 										{
@@ -15561,7 +15533,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId - draft}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdDraft}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -15641,7 +15613,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId - draft}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdDraft}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -15662,22 +15634,18 @@
 										}
 									},
 									"response": []
-								}
-							]
-						},
-						{
-							"name": "ISSUER Onboarding Initiative ended - 403",
-							"item": [
+								},
 								{
-									"name": "Accept T&C",
+									"name": "DELETE initiative",
 									"event": [
 										{
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative ended - Accept T&C - status 403\", function () {\r",
-													"    pm.response.to.have.status(403);\r",
-													"});"
+													"pm.test(\"Initiative with whitelist - Unhappy case - Initiative deletion - Ente Admin delete(enabled:false) an initiative in status draft - Responses with 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});\r",
+													""
 												],
 												"type": "text/javascript"
 											}
@@ -15686,7 +15654,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
+													""
 												],
 												"type": "text/javascript"
 											}
@@ -15694,50 +15662,41 @@
 									],
 									"request": {
 										"auth": {
-											"type": "noauth"
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
 										},
-										"method": "PUT",
+										"method": "DELETE",
 										"header": [
 											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{issuerSubscriptionKey}}",
-												"type": "text"
+												"key": "Content-Type",
+												"value": "application/json"
 											},
 											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT",
-												"type": "text"
-											},
-											{
-												"key": "Fiscal-Code",
-												"value": "{{CF_fake}}",
-												"type": "text"
+												"key": "Accept",
+												"value": "application/json"
 											}
 										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId - endDate}}\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlInitiative}}/:initiativeId/beneficiary/instruments",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlInitiative}}"
 											],
 											"path": [
-												"idpay",
-												"hb",
-												"onboarding",
-												""
+												":initiativeId",
+												"beneficiary",
+												"instruments"
+											],
+											"variable": [
+												{
+													"key": "initiativeId",
+													"value": "{{initiativeIdDraft}}"
+												}
 											]
 										}
 									},
@@ -15801,7 +15760,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeId - startDate}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdNotStarted}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -16057,7 +16016,7 @@
 		},
 		{
 			"key": "basePath",
-			"value": "./postman",
+			"value": "C:/Users/ranaldoda/IDPay/idpay-portal-welfare-backend-initiative/postman",
 			"type": "string"
 		},
 		{
