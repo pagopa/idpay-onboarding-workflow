@@ -1,14 +1,14 @@
 package it.gov.pagopa.onboarding.workflow.exception;
 
-import lombok.AllArgsConstructor;
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
-@AllArgsConstructor
 @Getter
-public class OnboardingWorkflowException extends RuntimeException {
+@SuppressWarnings("squid:S110")
+public class OnboardingWorkflowException extends ClientExceptionWithBody {
 
-  private final int code;
-  private final String message;
-  private final String detail;
-
+  public OnboardingWorkflowException(int code, String message, String details) {
+    super(HttpStatus.valueOf(code), String.valueOf(code), message, details);
+  }
 }
