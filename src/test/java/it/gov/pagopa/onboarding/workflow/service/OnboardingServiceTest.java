@@ -544,16 +544,17 @@ class OnboardingServiceTest {
   @Test
   void getOnboardingStatus_ok() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-
-    OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
-        OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    onboarding.setUpdateDate(LocalDateTime.now());
+    onboarding.setOnboardingOkDate(LocalDateTime.now());
 
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
         .thenReturn(Optional.of(onboarding));
-    onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+    OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
-    assertEquals(onboardingStatusDTO.getStatus(), onboarding.getStatus());
+    assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
+    assertEquals(onboarding.getUpdateDate(), onboardingStatusDTO.getStatusDate());
+    assertEquals(onboarding.getOnboardingOkDate(), onboardingStatusDTO.getOnboardingOkDate());
 
   }
 
@@ -567,6 +568,22 @@ class OnboardingServiceTest {
       assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
       assertEquals(String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND,INITIATIVE_ID), e.getMessage());
     }
+
+  }
+
+  @Test
+  void getOnboardingStatus_nullOnboardingOkDate() {
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setUpdateDate(LocalDateTime.now());
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+    OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+    assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
+    assertEquals(onboarding.getUpdateDate(), onboardingStatusDTO.getStatusDate());
+    assertNull(onboardingStatusDTO.getOnboardingOkDate());
 
   }
 
