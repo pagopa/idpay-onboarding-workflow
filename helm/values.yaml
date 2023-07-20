@@ -15,7 +15,7 @@ microservice-chart:
     httpGet:
       path: /actuator/health/readiness
       port: 8080
-    initialDelaySeconds: 35
+    initialDelaySeconds: 55
     failureThreshold: 15
     periodSeconds: 10
 

@@ -4,9 +4,9 @@ server:
   port: ${ONBOARDING_PORT:8080}
   tomcat:
     threads:
-      min-spare: ${HTTP_SERVER_MIN_THREADS:50} # Minimum amount of worker threads
-      max: ${HTTP_SERVER_MAX_THREADS:50} # Maximum amount of worker threads.
-    accept-count: ${HTTP_SERVER_MAX_ACCEPT_COUNT:70} # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
+      min-spare: ${HTTP_SERVER_MIN_THREADS:30} # Minimum amount of worker threads
+      max: ${HTTP_SERVER_MAX_THREADS:30} # Maximum amount of worker threads.
+    accept-count: ${HTTP_SERVER_MAX_ACCEPT_COUNT:60} # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
     max-connections: ${HTTP_SERVER_MAX_CONNECTIONS:8192} # Maximum number of connections that the server accepts and processes at any given time.
 
 spring:

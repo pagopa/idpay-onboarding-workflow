@@ -13,7 +13,7 @@ microservice-chart:
       cpu: "200m"
     limits:
       memory: "2Gi"
-      cpu: "1"
+      cpu: "700m"
 
   autoscaling:
     enable: false
@@ -28,7 +28,7 @@ microservice-chart:
           value: "70"
 
   envConfig:
-    JAVA_TOOL_OPTIONS: "-Xms512m -Xmx2g -Djava.util.concurrent.ForkJoinPool.common.parallelism=7 -Dio.netty.eventLoopThreads=100 -javaagent:/app/applicationinsights-agent.jar"
+    JAVA_TOOL_OPTIONS: "-Xms128m -Xmx2g -Djava.util.concurrent.ForkJoinPool.common.parallelism=7 -Dio.netty.eventLoopThreads=100 -javaagent:/app/applicationinsights-agent.jar"
 
   envSecret:
     aks-api-url: cstar-p-weu-prod01-aks-apiserver-url
