@@ -215,7 +215,7 @@ class OnboardingControllerTest {
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
 
     OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
-        OnboardingWorkflowConstants.ACCEPTED_TC);
+        OnboardingWorkflowConstants.ACCEPTED_TC, LocalDateTime.now(), null);
 
     Mockito.when(onboardingServiceMock.getOnboardingStatus(INITIATIVE_ID, USER_ID))
         .thenReturn(onboardingStatusDTO);
