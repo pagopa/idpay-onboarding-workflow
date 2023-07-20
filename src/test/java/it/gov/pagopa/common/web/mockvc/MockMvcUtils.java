@@ -16,7 +16,13 @@ public final class MockMvcUtils {
         Assertions.assertEquals(expectedHttpStatusCode.value(), response.getResponse().getStatus());
         if (expectedBodyClass != null) {
             try {
-                return TestUtils.objectMapper.readValue(response.getResponse().getContentAsString(), expectedBodyClass);
+                String body = response.getResponse().getContentAsString();
+                if(String.class.equals(expectedBodyClass)){
+                    //noinspection unchecked
+                    return (T)body;
+                } else {
+                    return TestUtils.objectMapper.readValue(body, expectedBodyClass);
+                }
             } catch (JsonProcessingException | UnsupportedEncodingException e) {
                 throw new IllegalStateException("Cannot read body response!", e);
             }
