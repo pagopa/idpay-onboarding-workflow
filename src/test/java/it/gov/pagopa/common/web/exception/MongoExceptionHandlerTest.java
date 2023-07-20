@@ -5,6 +5,7 @@ import static org.mockito.Mockito.doThrow;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoQueryException;
 import com.mongodb.ServerAddress;
+import it.gov.pagopa.common.mongo.retry.exception.MongoRequestRateTooLargeRetryExpiredException;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.BsonDocument;
 import org.junit.jupiter.api.Test;
@@ -25,8 +26,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(value = {MongoExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
-@ContextConfiguration(classes = {MongoExceptionHandler.class, MongoExceptionHandlerTest.TestController.class})
+@WebMvcTest(value = {
+    MongoExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@ContextConfiguration(classes = {MongoExceptionHandler.class,
+    MongoExceptionHandlerTest.TestController.class, ErrorManager.class})
 class MongoExceptionHandlerTest {
 
   @Autowired
@@ -42,15 +45,16 @@ class MongoExceptionHandlerTest {
   @RestController
   @Slf4j
   static class TestController {
+
     @GetMapping("/test")
-    String testEndpoint(){
+    String testEndpoint() {
       return "OK";
     }
   }
 
 
   @Test
-  void testHandleUncategorizedMongoDbException() throws Exception {
+  void handleUncategorizedMongoDbException() throws Exception {
 
     String mongoFullErrorResponse = """
         {"ok": 0.0, "errmsg": "Error=16500, RetryAfterMs=34,\s
@@ -61,7 +65,8 @@ class MongoExceptionHandlerTest {
 
     final MongoQueryException mongoQueryException = new MongoQueryException(
         BsonDocument.parse(mongoFullErrorResponse), new ServerAddress());
-    doThrow(new UncategorizedMongoDbException(mongoQueryException.getMessage(), mongoQueryException))
+    doThrow(
+        new UncategorizedMongoDbException(mongoQueryException.getMessage(), mongoQueryException))
         .when(testControllerSpy).testEndpoint();
 
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
@@ -74,4 +79,26 @@ class MongoExceptionHandlerTest {
         .andExpect(MockMvcResultMatchers.header().string("Retry-After-Ms", "34"));
   }
 
+  @Test
+  void handleUncategorizedMongoDbExceptionNotRequestRateTooLarge() throws Exception {
+
+    doThrow(new UncategorizedMongoDbException("TooManyRequests", new Exception()))
+        .when(testControllerSpy).testEndpoint();
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/test")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\",\"details\":\"\"}"));
+  }
+
+  @Test
+  void handleMongoRequestRateTooLargeRetryExpiredException() throws Exception {
+    doThrow(new MongoRequestRateTooLargeRetryExpiredException(3,3,0,100,34L,new Exception()))
+        .when(testControllerSpy).testEndpoint();
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/test")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isTooManyRequests())
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"TOO_MANY_REQUESTS\",\"message\":\"TOO_MANY_REQUESTS\",\"details\":\"\"}"));
+  }
 }
