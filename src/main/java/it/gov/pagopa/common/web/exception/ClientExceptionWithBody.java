@@ -5,19 +5,19 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class ClientExceptionWithBody extends ClientException{
-  private final String code;
+  private final Integer code;
   private final String details;
 
-  public ClientExceptionWithBody(HttpStatus httpStatus, String code, String message, String details){
+  public ClientExceptionWithBody(HttpStatus httpStatus, Integer code, String message, String details){
     this(httpStatus, code, message, details, null);
   }
 
-  public ClientExceptionWithBody(HttpStatus httpStatus, String code, String message,
+  public ClientExceptionWithBody(HttpStatus httpStatus, Integer code, String message,
       String details, Throwable ex){
     this(httpStatus, code, message, details, false, ex);
   }
 
-  public ClientExceptionWithBody(HttpStatus httpStatus, String code, String message, String details, boolean printStackTrace, Throwable ex){
+  public ClientExceptionWithBody(HttpStatus httpStatus, Integer code, String message, String details, boolean printStackTrace, Throwable ex){
     super(httpStatus, message, printStackTrace, ex);
     this.code = code;
     this.details = details;
