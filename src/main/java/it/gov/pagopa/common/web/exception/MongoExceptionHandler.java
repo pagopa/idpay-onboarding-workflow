@@ -66,7 +66,7 @@ public class MongoExceptionHandler {
     }
 
     return bodyBuilder
-        .body(new ErrorDTO("TOO_MANY_REQUESTS", "TOO_MANY_REQUESTS", ""));
+        .body(new ErrorDTO(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", ""));
   }
 
 }

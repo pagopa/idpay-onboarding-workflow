@@ -9,6 +9,6 @@ import org.springframework.http.HttpStatus;
 public class OnboardingWorkflowException extends ClientExceptionWithBody {
 
   public OnboardingWorkflowException(int code, String message, String details) {
-    super(HttpStatus.valueOf(code), String.valueOf(code), message, details);
+    super(HttpStatus.valueOf(code), code, message, details);
   }
 }
