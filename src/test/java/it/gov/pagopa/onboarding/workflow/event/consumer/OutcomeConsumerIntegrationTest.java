@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.event.consumer;
 
+import it.gov.pagopa.common.mongo.retry.MongoRequestRateTooLargeRetryableTest;
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.onboarding.workflow.BaseIntegrationTest;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
@@ -7,14 +8,6 @@ import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingRejectionReason;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.TopicPartition;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +15,23 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 
 class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
 
-    @Autowired
-    private OnboardingRepository onboardingRepository;
+    @SpyBean
+    private OnboardingRepository onboardingRepositorySpy;
 
     @AfterEach
     void clearData() {
-        onboardingRepository.deleteAll();
+        onboardingRepositorySpy.deleteAll();
     }
 
     @Test
@@ -56,7 +57,7 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
                 waitForRewardsStored(expectedStoredOnboarding));
 
         // Checking results
-        onboardingRepository.findAll().forEach(this::checkOnboardingResulted);
+        onboardingRepositorySpy.findAll().forEach(this::checkOnboardingResulted);
 
         // Print results
         long timeEnd = System.currentTimeMillis();
@@ -94,7 +95,7 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
 
     protected long waitForRewardsStored(int n) {
         long[] countSaved = {0};
-        TestUtils.waitFor(() -> (countSaved[0] = onboardingRepository.findAll().size()) >= n, () -> "Expected %d saved onboarding requests, read %d".formatted(n, countSaved[0]), 60, 1000);
+        TestUtils.waitFor(() -> (countSaved[0] = onboardingRepositorySpy.findAll().size()) >= n, () -> "Expected %d saved onboarding requests, read %d".formatted(n, countSaved[0]), 60, 1000);
         return countSaved[0];
     }
 
@@ -123,11 +124,11 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
     // endregion
 
     //region useCases utility methods
-    private void storeOnboardingRequest(String initiativeId, String userId, String status) {
+    private Onboarding storeOnboardingRequest(String initiativeId, String userId, String status) {
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus(status);
         onboarding.setCreationDate(LocalDateTime.now());
-        onboardingRepository.save(onboarding);
+        return onboardingRepositorySpy.save(onboarding);
     }
     //endregion
 
@@ -197,10 +198,46 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
                         return out;
                     },
                     o -> assertOnboardingUpdated(o, OnboardingWorkflowConstants.DEMANDED)
-            )
+            ),
+
+        // useCase3: as useCase2 but with RequestRateTooLarge exception
+        Pair.of(
+            i -> {
+              String initiativeId = "INITIATIVEID" + i;
+              String userId = "USERID" + i;
+              EvaluationDTO out = new EvaluationDTO();
+              out.setUserId(userId);
+              out.setInitiativeId(initiativeId);
+              out.setStatus(OnboardingWorkflowConstants.DEMANDED);
+
+              String onboardingId = Onboarding.buildId(initiativeId, userId);
+
+              buildOnboardingRepositoryRetryableStub(1).findByIdRetryable(onboardingId);
+              buildOnboardingRepositoryRetryableStub(2).saveRetryable(Mockito.argThat(o -> o.getId().equals(onboardingId)));
+
+              return out;
+            },
+            o -> {
+              assertOnboardingUpdated(o, OnboardingWorkflowConstants.DEMANDED);
+              Mockito.verify(onboardingRepositorySpy, Mockito.times(2)).findByIdRetryable(o.getId());
+              Mockito.verify(onboardingRepositorySpy, Mockito.times(3)).saveRetryable(Mockito.argThat(s -> s.getId().equals(o.getId())));
+            }
+        )
     );
 
-    private static void assertOnboardingUpdated(Onboarding result, String expectedStatus) {
+  private OnboardingRepository buildOnboardingRepositoryRetryableStub(int maxRetry) {
+    int[] counter = {0};
+    return Mockito.doAnswer(a -> {
+      if(counter[0]++ < maxRetry){
+        throw MongoRequestRateTooLargeRetryableTest.buildRequestRateTooLargeMongodbException();
+      }else {
+        return a.callRealMethod();
+      }
+    }).when(onboardingRepositorySpy);
+
+  }
+
+  private static void assertOnboardingUpdated(Onboarding result, String expectedStatus) {
         Assertions.assertEquals(expectedStatus, result.getStatus());
         Assertions.assertNotNull(result.getUpdateDate());
         Assertions.assertFalse(result.getCreationDate().isAfter(result.getUpdateDate()));

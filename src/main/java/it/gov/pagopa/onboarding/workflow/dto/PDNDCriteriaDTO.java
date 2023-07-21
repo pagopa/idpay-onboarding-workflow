@@ -14,17 +14,17 @@ import lombok.NoArgsConstructor;
 @JsonInclude(Include.NON_NULL)
 public class PDNDCriteriaDTO {
 
-  String code = null;
+  private String code;
 
-  String description = null;
+  private String description;
 
-  String authority = null;
+  private String authority;
 
-  String value = null;
+  private String value;
 
-  String operator = null;
+  private String operator;
 
-  String value2 = null;
+  private String value2;
 
 }
 

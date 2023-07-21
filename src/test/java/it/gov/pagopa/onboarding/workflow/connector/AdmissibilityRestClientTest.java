@@ -70,7 +70,7 @@ class AdmissibilityRestClientTest {
       restConnector.getInitiativeStatus("TEST");
       fail();
     }catch (OnboardingWorkflowException e){
-      assertEquals(HttpStatus.NOT_FOUND.value(), e.getCode());
+      assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
   }
 
