@@ -1,7 +1,6 @@
 package it.gov.pagopa.common.web.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.common.web.dto.ErrorDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,7 +74,6 @@ class ErrorManagerTest {
 
   @Test
   void handleExceptionClientExceptionTest() throws Exception {
-    ErrorDTO expectedErrorClientException = new ErrorDTO("Error","Something gone wrong", "");
 
     Mockito.doThrow(ClientException.class)
         .when(testControllerSpy).testEndpoint();
@@ -83,7 +81,7 @@ class ErrorManagerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.content().json(""));
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\",\"details\":\"\"}"));
 
     Mockito.doThrow(new ClientException(HttpStatus.BAD_REQUEST, "ClientException with httpStatus and message"))
         .when(testControllerSpy).testEndpoint();
@@ -91,7 +89,7 @@ class ErrorManagerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.content().json(""));
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\",\"details\":\"\"}"));
 
     Mockito.doThrow(new ClientException(HttpStatus.BAD_REQUEST, "ClientException with httpStatus, message and throwable", new Throwable()))
         .when(testControllerSpy).testEndpoint();
@@ -99,7 +97,7 @@ class ErrorManagerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.content().json(""));
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\",\"details\":\"\"}"));
   }
 
   @Test
