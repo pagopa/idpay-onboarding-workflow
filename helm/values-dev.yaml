@@ -32,6 +32,7 @@ microservice-chart:
 
   envSecret:
     aks-api-url: cstar-d-weu-dev01-aks-apiserver-url
+    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key #TODO remove after test
 
   keyvault:
     name: "cstar-d-idpay-kv"
