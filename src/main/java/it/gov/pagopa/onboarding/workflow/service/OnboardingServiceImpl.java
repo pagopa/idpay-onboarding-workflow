@@ -5,21 +5,7 @@ import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.DecryptCfDTO;
-import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingFamilyDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingFamilyDetailDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingRejectionReason;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusCitizenDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.PDNDCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
@@ -642,6 +628,21 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
+  @Override
+  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO){
+    long startTime = System.currentTimeMillis();
+
+    if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
+      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+      log.info("[DELETE OPERATION] Deleted {} onboardings for initiativeId {}", deletedOnboardings.size(), queueCommandOperationDTO.getOperationId());
+      deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
+    }
+
+    log.info(
+            "[PERFORMANCE_LOG] [PROCESS_COMMAND] Time occurred to perform business logic: {} ms on initiativeId: {}",
+            System.currentTimeMillis() - startTime,
+            queueCommandOperationDTO.getOperationId());
+  }
 
   private Pageable getPageable(Pageable pageable) {
     if (pageable == null) {

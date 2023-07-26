@@ -23,4 +23,7 @@ public interface OnboardingRepository extends MongoRepository<Onboarding, String
   default <S extends Onboarding> S saveRetryable(S entity){
     return save(entity);
   }
+
+  List<Onboarding> deleteByInitiativeId(String initiativeId);
+
 }
