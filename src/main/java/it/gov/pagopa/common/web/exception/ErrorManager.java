@@ -15,7 +15,7 @@ public class ErrorManager {
   private static final ErrorDTO defaultErrorDTO;
 
   static {
-    defaultErrorDTO = new ErrorDTO("Error", "Something gone wrong", "");
+    defaultErrorDTO = new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something gone wrong", "");
   }
 
   @ExceptionHandler(RuntimeException.class)
@@ -39,7 +39,7 @@ public class ErrorManager {
       HttpStatus httpStatus;
       if (error instanceof ClientExceptionWithBody clientExceptionWithBody){
         httpStatus = clientExceptionWithBody.getHttpStatus();
-        errorDTO = new ErrorDTO(String.valueOf(clientExceptionWithBody.getCode()),  error.getMessage(), clientExceptionWithBody.getDetails());
+        errorDTO = new ErrorDTO(clientExceptionWithBody.getCode(),  error.getMessage(), clientExceptionWithBody.getDetails());
       }
       else {
         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
