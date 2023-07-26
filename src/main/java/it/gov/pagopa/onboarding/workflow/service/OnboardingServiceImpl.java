@@ -632,9 +632,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO){
     long startTime = System.currentTimeMillis();
 
-    if (queueCommandOperationDTO.getOperationType().equals("DELETE_INITIATIVE")) {
+    if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
-      log.info("[DELETE OPERATION] Deleted {} onboardings for initiavideId {}", deletedOnboardings.size(), queueCommandOperationDTO.getOperationId());
+      log.info("[DELETE OPERATION] Deleted {} onboardings for initiativeId {}", deletedOnboardings.size(), queueCommandOperationDTO.getOperationId());
       deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
     }
 
