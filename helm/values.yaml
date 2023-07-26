@@ -73,10 +73,10 @@ microservice-chart:
       KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-onboarding-consumer-group
       KAFKA_TOPIC_ONBOARDING_NOTIFICATION: idpay_onboarding_notification_topic
       KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN: idpay-onboarding-notification-consumer-group
-      KAFKA_TOPIC_COMMANDS: idpay-commands
-      KAFKA_COMMANDS_GROUP_IN: idpay-commands-onboarding-consumer-group
     idpay-eventhub-01:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST_01: kafka_broker
+      #KAFKA_TOPIC_COMMANDS: idpay-commands
+      #KAFKA_COMMANDS_GROUP_IN: idpay-commands-onboarding-consumer-group
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
