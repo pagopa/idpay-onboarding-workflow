@@ -10,7 +10,18 @@
       "status": "PUBLISHED",
       "general": {
         "startDate": "2023-01-01",
-        "endDate": "2099-01-01"
+        "endDate": "2099-01-01",
+        "beneficiaryKnown": "false"
+      },
+      "beneficiaryRule": {
+        "selfDeclarationCriteria": [],
+        "automatedCriteria": [
+          {
+            "authority": "INPS",
+            "code": "ISEE",
+            "operator": "GT",
+            "value": "1"
+          }]
       }
     },
     "headers": {

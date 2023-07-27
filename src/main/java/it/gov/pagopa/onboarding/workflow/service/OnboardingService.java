@@ -29,4 +29,6 @@ public interface OnboardingService {
   void readmit(String initiativeId, String userId);
   OnboardingFamilyDTO getfamilyUnitComposition(String initiativeId, String userId);
 
+  void processCommand(QueueCommandOperationDTO queueCommandOperationDTO);
+
 }

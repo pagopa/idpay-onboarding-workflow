@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import feign.FeignException;
 import feign.Request;
@@ -112,6 +112,7 @@ class OnboardingServiceTest {
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
   private static final String BENEFICIARY_TYPE_NF = "NF";
+  private static final String DELETE_OPERATION_TYPE = "DELETE_INITIATIVE";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
@@ -1687,6 +1688,35 @@ class OnboardingServiceTest {
       assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getHttpStatus());
       assertEquals(OnboardingWorkflowConstants.GENERIC_ERROR, e.getDetails());
     }
+  }
+
+  @Test
+  void handleInitiativeNotification() {
+    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+            .operationId(INITIATIVE_ID)
+            .operationType(DELETE_OPERATION_TYPE)
+            .build();
+    Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getOperationId(), USER_ID);
+    final List<Onboarding> deletedOnboardings = List.of(onboarding);
+
+    when(onboardingRepositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
+            .thenReturn(deletedOnboardings);
+
+    onboardingService.processCommand(queueCommandOperationDTO);
+
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+  }
+
+  @Test
+  void handleInitiativeNotification_operationTypeNotDelete() {
+    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+            .operationId(INITIATIVE_ID)
+            .operationType("TEST_OPERATION_TYPE")
+            .build();
+
+    onboardingService.processCommand(queueCommandOperationDTO);
+
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
   }
 
 }

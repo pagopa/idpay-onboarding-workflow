@@ -3,24 +3,23 @@ package it.gov.pagopa.common.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
+import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.Assertions;
+import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -148,6 +147,38 @@ public final class TestUtils {
             return true;
         } catch (IOException e) {
             throw new IllegalStateException("Error while trying to check open port", e);
+        }
+    }
+
+    public static void executeParallelUseCases(int executions, List<FailableConsumer<Integer,Exception>> useCases, int parallelism){
+        ExecutorService executor= Executors.newFixedThreadPool(parallelism);
+
+        try {
+            List<? extends Future<?>> tasks = IntStream.range(0, executions)
+                    .mapToObj(i -> executor.submit(() -> {
+                        try {
+                            useCases.get(i % useCases.size()).accept(i);
+                        } catch (Exception e) {
+                            throw new IllegalStateException("Unexpected exception thrown during test", e);
+                        }
+                    }))
+                    .toList();
+
+            for (int i = 0; i < tasks.size(); i++) {
+                try {
+                    tasks.get(i).get();
+                } catch (Exception e) {
+                    System.err.printf("UseCase %d (execution %d) failed: %n", i % useCases.size(), i);
+                    if (e instanceof RuntimeException runtimeException) {
+                        throw runtimeException;
+                    } else if (e.getCause() instanceof AssertionFailedError assertionFailedError) {
+                        throw assertionFailedError;
+                    }
+                    Assertions.fail(e);
+                }
+            }
+        } finally {
+            executor.shutdown();
         }
     }
 }

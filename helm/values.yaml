@@ -73,12 +73,15 @@ microservice-chart:
       KAFKA_OUTCOME_GROUP_IN: idpay-onboarding-outcome-onboarding-consumer-group
       KAFKA_TOPIC_ONBOARDING_NOTIFICATION: idpay_onboarding_notification_topic
       KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN: idpay-onboarding-notification-consumer-group
+    idpay-eventhub-01:
+      KAFKA_BINDER_BROKER_ENDPOINT_LIST_01: kafka_broker
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
     KAFKA_OUTCOME_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-consumer-jaas-config-idpay-00
     KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-producer-jaas-config-idpay-00
     KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG: evh-idpay-onboarding-notification-idpay-onboarding-notification-consumer-jaas-config-idpay-00
+    KAFKA_COMMANDS_SASL_JAAS_CONFIG: evh-idpay-commands-idpay-commands-consumer-jaas-config-idpay-01
     SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
     REDIS_CONNECTION_URL: idpay-redis-00-primary-connection-url
     PDV_DECRYPT_API_KEY: pdv-api-key
