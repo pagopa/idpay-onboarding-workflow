@@ -148,4 +148,13 @@ public class AuditUtilities {
             "Onboarding readmission failed", userId, initiativeId
     );
   }
+
+  public void logDeletedOnboarding(String userId, String initiativeId){
+    logAuditString(
+            CEF_PATTERN_BASE,
+            "Onboarding deleted", userId,initiativeId
+    );
+  }
+
+
 }
