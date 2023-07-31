@@ -1,6 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.event.consumer;
 
-import it.gov.pagopa.common.mongo.retry.MongoRequestRateTooLargeRetryableTest;
+import it.gov.pagopa.common.mongo.retry.MongoRequestRateTooLargeRetryerTest;
 import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.onboarding.workflow.BaseIntegrationTest;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -23,6 +24,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.util.CollectionUtils;
 
 class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
 
@@ -212,29 +215,47 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
 
               String onboardingId = Onboarding.buildId(initiativeId, userId);
 
-              buildOnboardingRepositoryRetryableStub(1).findByIdRetryable(onboardingId);
-              buildOnboardingRepositoryRetryableStub(2).saveRetryable(Mockito.argThat(o -> o.getId().equals(onboardingId)));
+              buildMongoRepositoryRetryableStub(1, (String id) -> alternativeFindById(onboardingRepositorySpy, id)).findById(onboardingId);
+              buildMongoRepositoryRetryableStub(2, (Onboarding o) -> alternativeSave(onboardingRepositorySpy, o)).save(Mockito.argThat(o -> o.getId().equals(onboardingId)));
 
               return out;
             },
             o -> {
               assertOnboardingUpdated(o, OnboardingWorkflowConstants.DEMANDED);
-              Mockito.verify(onboardingRepositorySpy, Mockito.times(2)).findByIdRetryable(o.getId());
-              Mockito.verify(onboardingRepositorySpy, Mockito.times(3)).saveRetryable(Mockito.argThat(s -> s.getId().equals(o.getId())));
+              Mockito.verify(onboardingRepositorySpy, Mockito.times(2)).findById(o.getId());
+              Mockito.verify(onboardingRepositorySpy, Mockito.times(3)).save(Mockito.argThat(s -> s.getId().equals(o.getId())));
             }
         )
     );
 
-  private OnboardingRepository buildOnboardingRepositoryRetryableStub(int maxRetry) {
+  private <T> OnboardingRepository buildMongoRepositoryRetryableStub(int maxRetry, Function<T, ?> realMethod) {
     int[] counter = {0};
     return Mockito.doAnswer(a -> {
       if(counter[0]++ < maxRetry){
-        throw MongoRequestRateTooLargeRetryableTest.buildRequestRateTooLargeMongodbException();
+        throw MongoRequestRateTooLargeRetryerTest.buildRequestRateTooLargeMongodbException();
       }else {
-        return a.callRealMethod();
+        return realMethod.apply(a.getArgument(0));
       }
     }).when(onboardingRepositorySpy);
 
+  }
+
+  private <T> Optional<T> alternativeFindById(MongoRepository<T, String> mongoRepository, String id){
+    final List<T> result = mongoRepository.findAllById(List.of(id));
+    if(!CollectionUtils.isEmpty(result)){
+      return Optional.of(result.get(0));
+    }else {
+      return Optional.empty();
+    }
+  }
+
+  private <T> T alternativeSave(MongoRepository<T, String> mongoRepository, T entity){
+    final List<T> result = mongoRepository.saveAll(List.of(entity));
+    if(!CollectionUtils.isEmpty(result)){
+      return result.get(0);
+    }else {
+      return null;
+    }
   }
 
   private static void assertOnboardingUpdated(Onboarding result, String expectedStatus) {
