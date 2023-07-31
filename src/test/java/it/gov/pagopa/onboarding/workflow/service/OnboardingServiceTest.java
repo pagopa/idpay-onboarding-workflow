@@ -1248,7 +1248,7 @@ class OnboardingServiceTest {
   @Test
   void completeOnboarding_ok() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
         .thenReturn(Optional.of(onboarding));
     onboardingService.completeOnboarding(EVALUATION_DTO);
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
@@ -1257,7 +1257,7 @@ class OnboardingServiceTest {
   void completeOnboardingDEMANDEDWithOnboardingNotNull() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus("DEMANDED");
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
     EVALUATION_DTO.setStatus("DEMANDED");
     onboardingService.completeOnboarding(EVALUATION_DTO);
@@ -1266,16 +1266,16 @@ class OnboardingServiceTest {
 
   @Test
   void completeOnboarding_noOnboardingFound() {
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
         .thenReturn(Optional.empty());
     onboardingService.completeOnboarding(EVALUATION_DTO);
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
-        .findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+        .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
   }
   @Test
   void completeOnboarding_ko(){
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
     onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
@@ -1294,7 +1294,7 @@ class OnboardingServiceTest {
   void checkChangeJOINEDStatusInToONBOARDING_OK() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
 
     EVALUATION_DTO.setStatus("JOINED");
@@ -1308,7 +1308,7 @@ class OnboardingServiceTest {
   void checkChangeREJECTEDtatusInToONBOARDING_KO() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
 
     EVALUATION_DTO.setStatus("REJECTED");

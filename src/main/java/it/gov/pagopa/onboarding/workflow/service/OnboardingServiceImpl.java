@@ -504,7 +504,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     long startTime = System.currentTimeMillis();
 
-    Onboarding onboarding = onboardingRepository.findByIdRetryable(Onboarding.buildId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()))
+    Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()))
             .orElse(null);
 
     if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
@@ -531,7 +531,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       newOnboarding.setUpdateDate(localDateTime);
       newOnboarding.setCreationDate(localDateTime);
       newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
-      onboardingRepository.saveRetryable(newOnboarding);
+      onboardingRepository.save(newOnboarding);
     }
     performanceLog(startTime, "COMPLETE_ONBOARDING", evaluationDTO.getUserId(),
         evaluationDTO.getInitiativeId());
@@ -545,7 +545,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboardingNotificationDTO.getOperationType()
         .equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)) {
       log.info("[ALLOWED_INITIATIVE] Allowed citizen");
-      Onboarding onboarding = onboardingRepository.findByIdRetryable(
+      Onboarding onboarding = onboardingRepository.findById(
               Onboarding.buildId(
                       onboardingNotificationDTO.getInitiativeId(),
                       onboardingNotificationDTO.getUserId()))
@@ -559,7 +559,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         newOnboarding.setInvitationDate(localDateTime);
         newOnboarding.setUpdateDate(localDateTime);
         newOnboarding.setCreationDate(localDateTime);
-        onboardingRepository.saveRetryable(newOnboarding);
+        onboardingRepository.save(newOnboarding);
       }
     }
     performanceLog(startTime, "ALLOWED_INITIATIVE", onboardingNotificationDTO.getUserId(),
