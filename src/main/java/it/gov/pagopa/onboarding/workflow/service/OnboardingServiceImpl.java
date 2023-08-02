@@ -633,15 +633,15 @@ public class OnboardingServiceImpl implements OnboardingService {
     long startTime = System.currentTimeMillis();
 
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
-      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
-      log.info("[DELETE OPERATION] Deleted {} onboardings for initiativeId {}", deletedOnboardings.size(), queueCommandOperationDTO.getOperationId());
+      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+      log.info("[DELETE OPERATION] Deleted {} onboardings for initiativeId {}", deletedOnboardings.size(), queueCommandOperationDTO.getEntityId());
       deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
     }
 
     log.info(
             "[PERFORMANCE_LOG] [PROCESS_COMMAND] Time occurred to perform business logic: {} ms on initiativeId: {}",
             System.currentTimeMillis() - startTime,
-            queueCommandOperationDTO.getOperationId());
+            queueCommandOperationDTO.getEntityId());
   }
 
   private Pageable getPageable(Pageable pageable) {

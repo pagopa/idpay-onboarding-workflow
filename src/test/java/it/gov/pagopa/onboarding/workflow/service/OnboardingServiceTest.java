@@ -1693,30 +1693,30 @@ class OnboardingServiceTest {
   @Test
   void handleInitiativeNotification() {
     final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .operationId(INITIATIVE_ID)
+            .entityId(INITIATIVE_ID)
             .operationType(DELETE_OPERATION_TYPE)
             .build();
-    Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getOperationId(), USER_ID);
+    Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getEntityId(), USER_ID);
     final List<Onboarding> deletedOnboardings = List.of(onboarding);
 
-    when(onboardingRepositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
+    when(onboardingRepositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
             .thenReturn(deletedOnboardings);
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
   }
 
   @Test
   void handleInitiativeNotification_operationTypeNotDelete() {
     final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .operationId(INITIATIVE_ID)
+            .entityId(INITIATIVE_ID)
             .operationType("TEST_OPERATION_TYPE")
             .build();
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
   }
 
 }

@@ -29,7 +29,7 @@ spring:
       servicebus:
         connection-string: ${SERVICEBUS_ONBOARDING_CONNECTION_STRING:}
     function:
-      definition: consumerOutcome;consumerOnboarding;consumerCommand
+      definition: consumerOutcome;consumerOnboarding;consumerCommands
     stream:
       binders:
         servicebus-onboarding:
@@ -48,7 +48,7 @@ spring:
               binder:
                 brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
                 configuration.sasl.jaas.config: ${KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG:}
-        kafka-command:
+        kafka-commands:
           type: kafka
           environment:
             spring.cloud.stream.kafka:
@@ -73,8 +73,8 @@ spring:
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_ONBOARDING_NOTIFICATION:idpay_onboarding_notification}
           group: ${KAFKA_ONBOARDING_NOTIFICATION_GROUP_IN:consumerOnboardingGroup}
-        consumerCommand-in-0:
-          binder: kafka-command
+        consumerCommands-in-0:
+          binder: kafka-commands
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_COMMANDS:idpay-commands}
           group: ${KAFKA_COMMANDS_GROUP_IN:idpay-commands-onboarding-consumer-group}
@@ -124,7 +124,7 @@ spring:
                 socket.connection.setup.timeout:
                   max.ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
                   ms: ${KAFKA_ONBOARDING_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
-          consumerCommand-in-0:
+          consumerCommands-in-0:
             consumer:
               startOffset: ${KAFKA_COMMANDS_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
               autoCommitOffset: ${KAFKA_COMMANDS_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
