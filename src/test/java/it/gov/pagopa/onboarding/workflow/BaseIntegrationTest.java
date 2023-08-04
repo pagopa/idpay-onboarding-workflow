@@ -35,6 +35,7 @@ import javax.management.MalformedObjectNameException;
 @EmbeddedKafka(topics = {
         "${spring.cloud.stream.bindings.consumerOutcome-in-0.destination}",
         "${spring.cloud.stream.bindings.consumerOnboarding-in-0.destination}",
+        "${spring.cloud.stream.bindings.consumerCommands-in-0.destination}",
         "${spring.cloud.stream.bindings.onboarding-out-0.destination}",
         "${spring.cloud.stream.bindings.onboarding-out-1.destination}",
 }, controlledShutdown = true)
@@ -69,6 +70,7 @@ import javax.management.MalformedObjectNameException;
                 "spring.cloud.stream.binders.kafka-outcome.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 "spring.cloud.stream.binders.onboarding-notification.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 "spring.cloud.stream.binders.kafka-outcome-out.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
+                "spring.cloud.stream.binders.kafka-commands.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 //endregion
 
                 //region service bus
