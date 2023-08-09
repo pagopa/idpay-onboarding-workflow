@@ -25,7 +25,7 @@ public class AdmissibilityRestConnectorImpl implements AdmissibilityRestConnecto
     }catch (FeignException e){
       log.error("[GET_INITIATIVE_STATUS] Initiative {}: something went wrong when invoking the API.",
           initiativeId);
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR);
+      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
     return initiativeStatusDTO;
   }
