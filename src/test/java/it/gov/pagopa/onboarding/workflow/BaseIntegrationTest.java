@@ -48,7 +48,7 @@ import javax.management.MalformedObjectNameException;
                 // region mongodb
                 "logging.level.org.mongodb.driver=WARN",
                 "logging.level.de.flapdoodle.embed.mongo.spring.autoconfigure=WARN",
-                "de.flapdoodle.mongodb.embedded.version=4.0.21",
+                "de.flapdoodle.mongodb.embedded.version=4.2.24",
                 // endregion
 
                 //region wiremock
