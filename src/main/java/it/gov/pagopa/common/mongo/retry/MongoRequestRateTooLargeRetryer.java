@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.UncategorizedMongoDbException;
+import org.springframework.dao.DataAccessException;
 
 @Slf4j
 public final class MongoRequestRateTooLargeRetryer {
@@ -24,13 +24,13 @@ public final class MongoRequestRateTooLargeRetryer {
     while (true) {
       try {
         return logic.get();
-      } catch (UncategorizedMongoDbException e) {
+      } catch (DataAccessException e) {
         handleMongoException(e, maxRetry, ++counter, maxMillisElapsed, startime);
       }
     }
   }
 
-  private static void handleMongoException(UncategorizedMongoDbException e, long maxRetry,
+  private static void handleMongoException(DataAccessException e, long maxRetry,
       long counter, long maxMillisElapsed, long startime)
       throws InterruptedException {
     long millisElapsed = System.currentTimeMillis() - startime;
@@ -65,7 +65,7 @@ public final class MongoRequestRateTooLargeRetryer {
   }
 
 
-  public static Long getRetryAfterMs(UncategorizedMongoDbException ex) {
+  public static Long getRetryAfterMs(DataAccessException ex) {
     Matcher matcher = RETRY_AFTER_MS_PATTERN.matcher(ex.getMessage());
     if (matcher.find()) {
       return Long.parseLong(matcher.group(1));
@@ -73,8 +73,8 @@ public final class MongoRequestRateTooLargeRetryer {
     return null;
   }
 
-  public static boolean isRequestRateTooLargeException(UncategorizedMongoDbException ex) {
-    return ex.getMessage().contains("RequestRateTooLarge");
+  public static boolean isRequestRateTooLargeException(DataAccessException ex) {
+    return ex.getMessage().contains("TooManyRequests");
   }
 
 }
