@@ -176,7 +176,7 @@ public class MongoRequestRateTooLargeRetryerTest {
     //Given
     long[] counter = {0};
     UncategorizedMongoDbException mongoDbException = new UncategorizedMongoDbException(
-        "RequestRateTooLarge", new Throwable());
+        "TooManyRequests", new Throwable());
 
     Mockito.doAnswer(invocationOnMock -> {
       if (counter[0] < REQUEST_RATE_TOO_LARGE_MAX_RETRY) {
