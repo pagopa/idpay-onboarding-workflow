@@ -339,7 +339,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     } catch (FeignException e) {
       log.error("[GET_INITIATIVE] Initiative {}: something went wrong when invoking the API.",
           initiativeId);
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR);
+      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
   }
 
@@ -593,7 +593,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is failed", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              OnboardingWorkflowConstants.ERROR_SUSPENSION, OnboardingWorkflowConstants.GENERIC_ERROR);
+              OnboardingWorkflowConstants.ERROR_SUSPENSION, OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
   }
 
@@ -624,7 +624,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is failed", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              OnboardingWorkflowConstants.ERROR_READMISSION, OnboardingWorkflowConstants.GENERIC_ERROR);
+              OnboardingWorkflowConstants.ERROR_READMISSION, OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
   }
 
@@ -697,7 +697,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     } catch (Exception e) {
       throw new OnboardingWorkflowException(
               HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              e.getMessage(), OnboardingWorkflowConstants.GENERIC_ERROR);
+              e.getMessage(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
     return fiscalCode;
   }

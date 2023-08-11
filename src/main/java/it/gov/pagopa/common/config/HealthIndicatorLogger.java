@@ -21,7 +21,7 @@ public class HealthIndicatorLogger implements HealthIndicator {
         for (final HealthIndicator current : healthIndicatorList) {
             if (current != this) {
                 Health health = current.health();
-                if(Status.DOWN.equals(health.getStatus())){
+                if(Status.DOWN.equals(health.getStatus()) || Status.OUT_OF_SERVICE.equals(health.getStatus())){
                     log.info("[HEALTH][{}] {}: {}", health.getStatus(), current.getClass().getSimpleName(), health.getDetails());
                 }
             }
