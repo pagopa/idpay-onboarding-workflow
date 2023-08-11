@@ -349,7 +349,10 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
     log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
-    return new OnboardingStatusDTO(onboarding.getStatus(), onboarding.getUpdateDate(), onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null);
+    return new OnboardingStatusDTO(onboarding.getStatus(),
+            onboarding.getUpdateDate(),
+            onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null,
+            onboarding.getDetailKO());
   }
 
   @Override
