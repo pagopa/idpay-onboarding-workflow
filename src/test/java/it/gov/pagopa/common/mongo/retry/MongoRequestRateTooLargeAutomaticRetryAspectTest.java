@@ -1,6 +1,7 @@
 package it.gov.pagopa.common.mongo.retry;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,11 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
             }
             return expectedResult;
         }).when(pjpMock).proceed();
+    }
+
+    @AfterEach
+    void cleanContext(){
+        configureExecutionContext(true);
     }
 
     //region test batch
