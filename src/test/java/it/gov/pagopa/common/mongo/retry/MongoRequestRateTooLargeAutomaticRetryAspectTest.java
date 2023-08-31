@@ -47,7 +47,7 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
         checkRetryBehaviour(aspect);
     }
     @Test
-    void testBatchException() throws Throwable {
+    void testBatchException() {
         //given
         configureExecutionContext(true);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(false, maxRetry, 1000, false, maxRetry, 1000);
@@ -58,7 +58,7 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
     }
 
     @Test
-    void testBatchDisabledApiEnabled() throws Throwable {
+    void testBatchDisabledApiEnabled() {
         //given
         configureExecutionContext(true);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(true, maxRetry, 1000, false, maxRetry, 1000);
@@ -83,7 +83,7 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
     }
 
     @Test
-    void testApiException() throws Throwable {
+    void testApiException() {
         //given
         configureExecutionContext(false);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(false, maxRetry, 1000, false, maxRetry, 1000);
@@ -94,7 +94,7 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
     }
 
     @Test
-    void testApiDisabledBatchEnabled() throws Throwable {
+    void testApiDisabledBatchEnabled() {
         //given
         configureExecutionContext(false);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(false, maxRetry, 1000, true, maxRetry, 1000);
