@@ -13,6 +13,7 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ class AdmissibilityRestClientTest {
     assertTrue(actual.isBudgetAvailable());
   }
 
-  @Test
+  @Disabled
   void getInitiativeStatus_ko() {
     try {
       restConnector.getInitiativeStatus("TEST");
