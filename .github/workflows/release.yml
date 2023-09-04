@@ -21,11 +21,10 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Setup Node.js with GitHub Package Registry
+      - name: Setup Node.js
         uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d #v3.8.1
         with:
           node-version: 20
-          registry-url: 'https://npm.pkg.github.com'
           scope: 'cycjimmy'
       - name: Release
         uses: cycjimmy/semantic-release-action@61680d0e9b02ff86f5648ade99e01be17f0260a4 #v4.0.0
