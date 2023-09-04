@@ -101,8 +101,8 @@ public class MongoTestUtilitiesService {
                     """,
                     mongoCommandsListenerDesc,
                     commands.stream()
-                    .map(c -> "Times %d: %s".formatted(c.getValue(), c.getKey()))
-                    .collect(Collectors.joining("\n")),
+                            .map(c -> "Times %d: %s".formatted(c.getValue(), c.getKey()))
+                            .collect(Collectors.joining("\n")),
                     IntStream.range(0, mongoCommandsListenerDesc.length()).mapToObj(x->"*").collect(Collectors.joining()));
         }
     }
@@ -130,6 +130,7 @@ public class MongoTestUtilitiesService {
                         cleanUpsert(clone);
                         cleanFindAndModify(clone);
                         cleanInsert(clone);
+                        cleanAggregate(clone);
 
                         mongoCommands.add(new MongoCommand(
                                 event.getCommandName(),
@@ -168,6 +169,12 @@ public class MongoTestUtilitiesService {
                 private void cleanInsert(Document clone) {
                     if(clone.get("insert")!=null){
                         clearDocumentValues(clone, "documents");
+                    }
+                }
+
+                private void cleanAggregate(Document clone) {
+                    if(clone.get("aggregate")!=null){
+                        clearDocumentValues(clone, "pipeline");
                     }
                 }
 

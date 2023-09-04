@@ -1248,7 +1248,7 @@ class OnboardingServiceTest {
   @Test
   void completeOnboarding_ok() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
         .thenReturn(Optional.of(onboarding));
     onboardingService.completeOnboarding(EVALUATION_DTO);
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
@@ -1257,7 +1257,7 @@ class OnboardingServiceTest {
   void completeOnboardingDEMANDEDWithOnboardingNotNull() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus("DEMANDED");
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
     EVALUATION_DTO.setStatus("DEMANDED");
     onboardingService.completeOnboarding(EVALUATION_DTO);
@@ -1266,16 +1266,16 @@ class OnboardingServiceTest {
 
   @Test
   void completeOnboarding_noOnboardingFound() {
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
         .thenReturn(Optional.empty());
     onboardingService.completeOnboarding(EVALUATION_DTO);
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
-        .findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+        .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
   }
   @Test
   void completeOnboarding_ko(){
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
     onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
@@ -1294,7 +1294,7 @@ class OnboardingServiceTest {
   void checkChangeJOINEDStatusInToONBOARDING_OK() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
 
     EVALUATION_DTO.setStatus("JOINED");
@@ -1308,7 +1308,7 @@ class OnboardingServiceTest {
   void checkChangeREJECTEDtatusInToONBOARDING_KO() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
-    when(onboardingRepositoryMock.findByIdRetryable(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
 
     EVALUATION_DTO.setStatus("REJECTED");
@@ -1693,30 +1693,30 @@ class OnboardingServiceTest {
   @Test
   void handleInitiativeNotification() {
     final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .operationId(INITIATIVE_ID)
+            .entityId(INITIATIVE_ID)
             .operationType(DELETE_OPERATION_TYPE)
             .build();
-    Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getOperationId(), USER_ID);
+    Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getEntityId(), USER_ID);
     final List<Onboarding> deletedOnboardings = List.of(onboarding);
 
-    when(onboardingRepositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
+    when(onboardingRepositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
             .thenReturn(deletedOnboardings);
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
   }
 
   @Test
   void handleInitiativeNotification_operationTypeNotDelete() {
     final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .operationId(INITIATIVE_ID)
+            .entityId(INITIATIVE_ID)
             .operationType("TEST_OPERATION_TYPE")
             .build();
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
   }
 
 }

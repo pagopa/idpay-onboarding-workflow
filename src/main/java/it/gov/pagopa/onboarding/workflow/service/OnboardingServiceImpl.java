@@ -339,7 +339,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     } catch (FeignException e) {
       log.error("[GET_INITIATIVE] Initiative {}: something went wrong when invoking the API.",
           initiativeId);
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR);
+      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
   }
 
@@ -504,7 +504,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void completeOnboarding(EvaluationDTO evaluationDTO) {
     long startTime = System.currentTimeMillis();
 
-    Onboarding onboarding = onboardingRepository.findByIdRetryable(Onboarding.buildId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()))
+    Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()))
             .orElse(null);
 
     if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
@@ -531,7 +531,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       newOnboarding.setUpdateDate(localDateTime);
       newOnboarding.setCreationDate(localDateTime);
       newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
-      onboardingRepository.saveRetryable(newOnboarding);
+      onboardingRepository.save(newOnboarding);
     }
     performanceLog(startTime, "COMPLETE_ONBOARDING", evaluationDTO.getUserId(),
         evaluationDTO.getInitiativeId());
@@ -545,7 +545,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (onboardingNotificationDTO.getOperationType()
         .equals(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)) {
       log.info("[ALLOWED_INITIATIVE] Allowed citizen");
-      Onboarding onboarding = onboardingRepository.findByIdRetryable(
+      Onboarding onboarding = onboardingRepository.findById(
               Onboarding.buildId(
                       onboardingNotificationDTO.getInitiativeId(),
                       onboardingNotificationDTO.getUserId()))
@@ -559,7 +559,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         newOnboarding.setInvitationDate(localDateTime);
         newOnboarding.setUpdateDate(localDateTime);
         newOnboarding.setCreationDate(localDateTime);
-        onboardingRepository.saveRetryable(newOnboarding);
+        onboardingRepository.save(newOnboarding);
       }
     }
     performanceLog(startTime, "ALLOWED_INITIATIVE", onboardingNotificationDTO.getUserId(),
@@ -593,7 +593,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is failed", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              OnboardingWorkflowConstants.ERROR_SUSPENSION, OnboardingWorkflowConstants.GENERIC_ERROR);
+              OnboardingWorkflowConstants.ERROR_SUSPENSION, OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
   }
 
@@ -624,24 +624,25 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is failed", initiativeId);
       throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              OnboardingWorkflowConstants.ERROR_READMISSION, OnboardingWorkflowConstants.GENERIC_ERROR);
+              OnboardingWorkflowConstants.ERROR_READMISSION, OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
   }
 
   @Override
   public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO){
-    long startTime = System.currentTimeMillis();
 
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
-      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
-      log.info("[DELETE OPERATION] Deleted {} onboardings for initiativeId {}", deletedOnboardings.size(), queueCommandOperationDTO.getOperationId());
-      deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
-    }
+      long startTime = System.currentTimeMillis();
 
-    log.info(
-            "[PERFORMANCE_LOG] [PROCESS_COMMAND] Time occurred to perform business logic: {} ms on initiativeId: {}",
-            System.currentTimeMillis() - startTime,
-            queueCommandOperationDTO.getOperationId());
+      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+      log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
+      deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
+
+      log.info(
+              "[PERFORMANCE_LOG] [DELETE_INITIATIVE] Time occurred to perform business logic: {} ms on initiativeId: {}",
+              System.currentTimeMillis() - startTime,
+              queueCommandOperationDTO.getEntityId());
+    }
   }
 
   private Pageable getPageable(Pageable pageable) {
@@ -697,7 +698,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     } catch (Exception e) {
       throw new OnboardingWorkflowException(
               HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              e.getMessage(), OnboardingWorkflowConstants.GENERIC_ERROR);
+              e.getMessage(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
     }
     return fiscalCode;
   }

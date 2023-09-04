@@ -31,8 +31,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {MongoRequestRateTooLargeRetryableAspect.class,
-    MongoRequestRateTooLargeRetryableTest.TestService.class})
-public class MongoRequestRateTooLargeRetryableTest {
+    MongoRequestRateTooLargeRetryerTest.TestService.class})
+public class MongoRequestRateTooLargeRetryerTest {
 
   public static final int REQUEST_RATE_TOO_LARGE_MAX_RETRY = 3;
   public static final int REQUEST_RATE_TOO_LARGE_MAX_MILLIS_ELAPSED = 1000;
@@ -176,7 +176,7 @@ public class MongoRequestRateTooLargeRetryableTest {
     //Given
     long[] counter = {0};
     UncategorizedMongoDbException mongoDbException = new UncategorizedMongoDbException(
-        "RequestRateTooLarge", new Throwable());
+        "TooManyRequests", new Throwable());
 
     Mockito.doAnswer(invocationOnMock -> {
       if (counter[0] < REQUEST_RATE_TOO_LARGE_MAX_RETRY) {
