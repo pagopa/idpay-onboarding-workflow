@@ -35,6 +35,15 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     return mongoTemplate.count(query, Onboarding.class);
   }
 
+  @Override
+  public long deleteOnboardingPaged(String initiativeId, int pageSize){
+    Pageable pageable = PageRequest.of(0, pageSize);
+    return mongoTemplate.remove(
+            Query.query(Criteria.where(Fields.initiativeId).is(initiativeId)).with(pageable),
+            Onboarding.class
+    ).getDeletedCount();
+  }
+
   public Criteria getCriteria(String initiativeId, String userId, String status,
       LocalDateTime startDate, LocalDateTime endDate) {
 
