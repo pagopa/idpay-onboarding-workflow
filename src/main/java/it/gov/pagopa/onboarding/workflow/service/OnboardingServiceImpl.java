@@ -644,13 +644,20 @@ public class OnboardingServiceImpl implements OnboardingService {
       List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
       List<Onboarding> fetchedOnboardings;
 
-      do{
+      /*do{
         fetchedOnboardings = onboardingRepository.findByFilter(onboardingRepository.getCriteria(queueCommandOperationDTO.getEntityId(), null, null, null, null), Pageable.ofSize(100));
 
         fetchedOnboardings.forEach(retrievedOnboarding -> onboardingRepository.delete(retrievedOnboarding));
         totalDeletedOnboardings.addAll(fetchedOnboardings);
 
       }while (fetchedOnboardings.size() == 100);
+       */
+      do{
+        fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),200);
+
+        totalDeletedOnboardings.addAll(fetchedOnboardings);
+
+      }while (fetchedOnboardings.size() == 200);
 
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
       totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
