@@ -629,14 +629,58 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO){
+  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       long startTime = System.currentTimeMillis();
 
+      /*
       List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
       deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
+       */
+
+      //First paged query then single remove on every record
+      List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
+      List<Onboarding> fetchedOnboardings;
+
+      /*do{
+        fetchedOnboardings = onboardingRepository.findByFilter(onboardingRepository.getCriteria(queueCommandOperationDTO.getEntityId(), null, null, null, null), Pageable.ofSize(100));
+
+        fetchedOnboardings.forEach(retrievedOnboarding -> onboardingRepository.delete(retrievedOnboarding));
+        totalDeletedOnboardings.addAll(fetchedOnboardings);
+
+      }while (fetchedOnboardings.size() == 100);
+       */
+      do{
+        fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),100);
+
+        totalDeletedOnboardings.addAll(fetchedOnboardings);
+
+        try{
+          Thread.sleep(1000);
+        } catch (InterruptedException e){
+          log.error("An error has occurred while waiting, {}", e.getMessage());
+        }
+
+      }while (fetchedOnboardings.size() == 100);
+
+      log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
+      totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
+
+      //Paged remove
+      /*
+      boolean goNext = true;
+      int pageSize = 100;
+      long hitsCount = 0;
+      long totalCounts = 0;
+
+      do{
+        hitsCount = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(), pageSize);
+        totalCounts += hitsCount;
+      }while(hitsCount == 100);
+      log.info("[DELETE_INITIATIVE][TOTAL_COUNTS] Total number of deleted onboardings: {} for initiativeId {}", totalCounts, queueCommandOperationDTO.getEntityId());
+      */
 
       log.info(
               "[PERFORMANCE_LOG] [DELETE_INITIATIVE] Time occurred to perform business logic: {} ms on initiativeId: {}",
