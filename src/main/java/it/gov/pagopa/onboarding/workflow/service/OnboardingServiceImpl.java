@@ -654,19 +654,18 @@ public class OnboardingServiceImpl implements OnboardingService {
       }while (fetchedOnboardings.size() == 100);
        */
       do{
-        fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),500);
+        fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),100);
 
         totalDeletedOnboardings.addAll(fetchedOnboardings);
-        System.out.println("ciao ciao");
 
-       /* try{
+       try{
           Thread.sleep(1000);
         } catch (InterruptedException e){
           log.error("An error has occurred while waiting, {}", e.getMessage());
         }
-        */
 
-      }while (fetchedOnboardings.size() == 500);
+
+      }while (fetchedOnboardings.size() == 100);
 
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
       totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
