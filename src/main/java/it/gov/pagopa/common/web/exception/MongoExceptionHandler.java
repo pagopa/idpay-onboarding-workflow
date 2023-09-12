@@ -28,7 +28,7 @@ public class MongoExceptionHandler {
 
   @ExceptionHandler(DataAccessException.class)
   protected ResponseEntity<ErrorDTO> handleDataAccessException(
-      DataAccessException ex, HttpServletRequest request) {
+          DataAccessException ex, HttpServletRequest request) {
 
     if (MongoRequestRateTooLargeRetryer.isRequestRateTooLargeException(ex)) {
       Long retryAfterMs = MongoRequestRateTooLargeRetryer.getRetryAfterMs(ex);
@@ -41,32 +41,32 @@ public class MongoExceptionHandler {
 
   @ExceptionHandler(MongoRequestRateTooLargeRetryExpiredException.class)
   protected ResponseEntity<ErrorDTO> handleMongoRequestRateTooLargeRetryExpiredException(
-      MongoRequestRateTooLargeRetryExpiredException ex, HttpServletRequest request) {
+          MongoRequestRateTooLargeRetryExpiredException ex, HttpServletRequest request) {
 
     return getErrorDTOResponseEntity(ex, request, ex.getRetryAfterMs());
   }
 
   @NotNull
   private ResponseEntity<ErrorDTO> getErrorDTOResponseEntity(Exception ex,
-      HttpServletRequest request, Long retryAfterMs) {
+                                                             HttpServletRequest request, Long retryAfterMs) {
     String message = ex.getMessage();
 
     log.info(
-        "A MongoQueryException (RequestRateTooLarge) occurred handling request {}: HttpStatus 429 - {}",
-        ErrorManager.getRequestDetails(request), message);
+            "A MongoQueryException (RequestRateTooLarge) occurred handling request {}: HttpStatus 429 - {}",
+            ErrorManager.getRequestDetails(request), message);
     log.debug("Something went wrong while accessing MongoDB", ex);
 
     final BodyBuilder bodyBuilder = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-        .contentType(MediaType.APPLICATION_JSON);
+            .contentType(MediaType.APPLICATION_JSON);
 
     if (retryAfterMs != null) {
       long retryAfter = (long) Math.ceil((double) retryAfterMs / 1000);
       bodyBuilder.header(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfter))
-          .header("Retry-After-Ms", String.valueOf(retryAfterMs));
+              .header("Retry-After-Ms", String.valueOf(retryAfterMs));
     }
 
     return bodyBuilder
-        .body(new ErrorDTO(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", ""));
+            .body(new ErrorDTO(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null));
   }
 
 }
