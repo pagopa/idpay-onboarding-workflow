@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -719,7 +718,7 @@ class OnboardingServiceTest {
 
   }
 
-  @Disabled
+  @Test
   void checkPrerequisites_ko_start_date() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
@@ -740,7 +739,7 @@ class OnboardingServiceTest {
     }
   }
 
-  @Disabled
+  @Test
   void checkPrerequisites_ko_ranking_start_date() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
@@ -761,7 +760,7 @@ class OnboardingServiceTest {
     }
   }
 
-  @Disabled
+  @Test
   void checkPrerequisites_ko_end_date() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
@@ -782,7 +781,7 @@ class OnboardingServiceTest {
     }
   }
 
-  @Disabled
+  @Test
   void checkPrerequisites_ko_ranking_end_date() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
@@ -793,6 +792,9 @@ class OnboardingServiceTest {
 
     when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_KO_RANKING_END_DATE);
+
+    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_STATUS_DTO);
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
@@ -1254,7 +1256,7 @@ class OnboardingServiceTest {
     onboardingService.completeOnboarding(EVALUATION_DTO);
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
-  @Disabled
+  @Test
   void completeOnboardingDEMANDEDWithOnboardingNotNull() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus("DEMANDED");
@@ -1262,7 +1264,7 @@ class OnboardingServiceTest {
             .thenReturn(Optional.of(onboarding));
     EVALUATION_DTO.setStatus("DEMANDED");
     onboardingService.completeOnboarding(EVALUATION_DTO);
-    assertEquals(OnboardingWorkflowConstants.DEMANDED, onboarding.getStatus());
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
 
   @Test

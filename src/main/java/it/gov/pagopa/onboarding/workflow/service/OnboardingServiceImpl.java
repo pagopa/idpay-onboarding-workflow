@@ -166,11 +166,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     checkStatus(onboarding);
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
       if (onboarding.getDemandedDate() == null){
+        checkDates(initiativeDTO, onboarding);
         checkBudget(initiativeDTO, onboarding);
-
-        if (!initiativeDTO.getGeneral().isRankingEnabled()){
-          checkDates(initiativeDTO, onboarding);
-        }
+      }
+      if (onboarding.getDemandedDate() != null && !initiativeDTO.getGeneral().isRankingEnabled()){
+        checkDates(initiativeDTO, onboarding);
       }
       checkFamilyUnit(onboarding, initiativeDTO);
     }
