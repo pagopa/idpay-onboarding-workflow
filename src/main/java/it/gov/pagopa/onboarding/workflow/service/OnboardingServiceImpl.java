@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -653,17 +654,19 @@ public class OnboardingServiceImpl implements OnboardingService {
       }while (fetchedOnboardings.size() == 100);
        */
       do{
-        fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),100);
+        fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),500);
 
         totalDeletedOnboardings.addAll(fetchedOnboardings);
+        System.out.println("ciao ciao");
 
-        try{
+       /* try{
           Thread.sleep(1000);
         } catch (InterruptedException e){
           log.error("An error has occurred while waiting, {}", e.getMessage());
         }
+        */
 
-      }while (fetchedOnboardings.size() == 100);
+      }while (fetchedOnboardings.size() == 500);
 
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
       totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
