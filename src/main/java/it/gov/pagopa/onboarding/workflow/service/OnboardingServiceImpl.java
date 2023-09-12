@@ -629,7 +629,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
+  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO){
 
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       long startTime = System.currentTimeMillis();
@@ -656,12 +656,6 @@ public class OnboardingServiceImpl implements OnboardingService {
         fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),100);
 
         totalDeletedOnboardings.addAll(fetchedOnboardings);
-
-        try{
-          Thread.sleep(1000);
-        } catch (InterruptedException e){
-          log.error("An error has occurred while waiting, {}", e.getMessage());
-        }
 
       }while (fetchedOnboardings.size() == 100);
 
