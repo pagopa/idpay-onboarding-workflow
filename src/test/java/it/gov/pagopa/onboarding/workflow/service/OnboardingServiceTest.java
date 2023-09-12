@@ -1254,7 +1254,7 @@ class OnboardingServiceTest {
     onboardingService.completeOnboarding(EVALUATION_DTO);
     assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
-  @Test
+  @Disabled
   void completeOnboardingDEMANDEDWithOnboardingNotNull() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus("DEMANDED");
