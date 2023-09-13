@@ -550,6 +550,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setFamilyId(evaluationDTO.getFamilyId());
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
       onboardingRepository.save(onboarding);
+      evaluationDTO.setStatus(OnboardingWorkflowConstants.JOINED);
+      outcomeProducer.sendOutcome(evaluationDTO);
       log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is ONBOARDING_OK",
               onboarding.getUserId(), evaluationDTO.getInitiativeId());
     }
