@@ -127,6 +127,7 @@ class OnboardingServiceTest {
                   new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
+  private static final InitiativeDTO INITIATIVE_DTO_RANKING = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_PDND = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_SELF = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_NO_CRITERIA = new InitiativeDTO();
@@ -141,6 +142,7 @@ class OnboardingServiceTest {
   private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF = new InitiativeBeneficiaryRuleDTO();
   private static final InitiativeBeneficiaryRuleDTO INITIATIVE_BENEFICIARY_RULE_DTO_NO_CRITERIA = new InitiativeBeneficiaryRuleDTO();
   private static final InitiativeGeneralDTO GENERAL = new InitiativeGeneralDTO();
+  private static final InitiativeGeneralDTO GENERAL_RANKING = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_WHITELIST = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_KO_START_DATE = new InitiativeGeneralDTO();
   private static final InitiativeGeneralDTO GENERAL_KO_RANKING_START_DATE = new InitiativeGeneralDTO();
@@ -183,6 +185,15 @@ class OnboardingServiceTest {
     GENERAL.setBudget(BUDGET);
     GENERAL.setBeneficiaryBudget(BENEFICIARY_BUDGET);
     GENERAL.setRankingEnabled(Boolean.FALSE);
+
+    GENERAL_RANKING.setBeneficiaryKnown(false);
+    GENERAL_RANKING.setStartDate(LocalDate.MIN);
+    GENERAL_RANKING.setEndDate(LocalDate.MAX);
+    GENERAL_RANKING.setRankingStartDate(LocalDate.MIN);
+    GENERAL_RANKING.setRankingEndDate(LocalDate.MAX);
+    GENERAL_RANKING.setBudget(BUDGET);
+    GENERAL_RANKING.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    GENERAL_RANKING.setRankingEnabled(Boolean.TRUE);
 
     GENERAL_WHITELIST.setBeneficiaryKnown(true);
     GENERAL_WHITELIST.setStartDate(LocalDate.MIN);
@@ -230,6 +241,12 @@ class OnboardingServiceTest {
     INITIATIVE_DTO.setGeneral(GENERAL);
     INITIATIVE_DTO.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
     INITIATIVE_DTO.setInitiativeRewardType(INITIATIVE_REWARD_TYPE_DISCOUNT);
+
+    INITIATIVE_DTO_RANKING.setInitiativeId(INITIATIVE_ID);
+    INITIATIVE_DTO_RANKING.setStatus("PUBLISHED");
+    INITIATIVE_DTO_RANKING.setGeneral(GENERAL_RANKING);
+    INITIATIVE_DTO_RANKING.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
+    INITIATIVE_DTO_RANKING.setInitiativeRewardType(INITIATIVE_REWARD_TYPE_DISCOUNT);
 
     INITIATIVE_DTO_NO_PDND.setInitiativeId(INITIATIVE_ID);
     INITIATIVE_DTO_NO_PDND.setStatus("PUBLISHED");
@@ -436,6 +453,60 @@ class OnboardingServiceTest {
 
     when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
             .thenReturn(INITIATIVE_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setTc(true);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+
+    assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
+    assertEquals(USER_ID, onboarding.getUserId());
+    assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+    assertTrue(onboarding.getTc());
+    Mockito.verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
+  }
+
+  @Test
+  void putTc_ok_no_demanded_ranking() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(
+                    Optional.empty());
+
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO_RANKING);
+
+    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_STATUS_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setTc(true);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+
+    assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
+    assertEquals(USER_ID, onboarding.getUserId());
+    assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+    assertTrue(onboarding.getTc());
+  }
+
+  @Test
+  void putTc_ok_demanded_ranking() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO_RANKING);
 
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setTc(true);
@@ -938,6 +1009,19 @@ class OnboardingServiceTest {
   }
 
   @Test
+  void checkPrerequisites_onboardingOK_ranking() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO_RANKING);
+
+    RequiredCriteriaDTO res = onboardingService.checkPrerequisites(onboarding.getInitiativeId(), onboarding.getUserId(), CHANNEL);
+    assertEquals(INITIATIVE_BENEFICIARY_RULE_DTO.getSelfDeclarationCriteria(), res.getSelfDeclarationList());
+  }
+
+  @Test
   void checkPrerequisites_onboardingOK_whitelist() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
@@ -965,6 +1049,35 @@ class OnboardingServiceTest {
 
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
         .thenReturn(INITIATIVE_STATUS_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
+
+  @Test
+  void checkPrerequisites_ok_familyUnit_ranking() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+    onboarding.setDemandedDate(LocalDateTime.now());
+    INITIATIVE_DTO.getGeneral().setBeneficiaryType(BENEFICIARY_TYPE_NF);
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_DTO_RANKING);
+
+    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_STATUS_DTO);
 
     Mockito.doAnswer(invocationOnMock -> {
       onboarding.setChannel(CHANNEL);
