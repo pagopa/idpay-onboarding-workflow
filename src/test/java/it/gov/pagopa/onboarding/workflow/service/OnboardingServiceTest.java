@@ -182,6 +182,7 @@ class OnboardingServiceTest {
     GENERAL.setEndDate(LocalDate.MAX);
     GENERAL.setBudget(BUDGET);
     GENERAL.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    GENERAL.setRankingEnabled(Boolean.FALSE);
 
     GENERAL_WHITELIST.setBeneficiaryKnown(true);
     GENERAL_WHITELIST.setStartDate(LocalDate.MIN);
@@ -793,6 +794,9 @@ class OnboardingServiceTest {
     when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO_KO_RANKING_END_DATE);
 
+    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_STATUS_DTO);
+
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
     } catch (OnboardingWorkflowException e) {
@@ -1261,7 +1265,7 @@ class OnboardingServiceTest {
             .thenReturn(Optional.of(onboarding));
     EVALUATION_DTO.setStatus("DEMANDED");
     onboardingService.completeOnboarding(EVALUATION_DTO);
-    assertEquals(OnboardingWorkflowConstants.DEMANDED, onboarding.getStatus());
+    assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
   }
 
   @Test

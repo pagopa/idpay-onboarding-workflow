@@ -107,7 +107,9 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setUpdateDate(localDateTime);
     }
 
-    checkDates(initiativeDTO, onboarding);
+    if (!(initiativeDTO.getGeneral().getRankingEnabled() && OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus()))){
+      checkDates(initiativeDTO, onboarding);
+    }
 
     if (!OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus())){
       checkBudget(initiativeDTO, onboarding);
@@ -163,8 +165,13 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     checkStatus(onboarding);
     if (onboarding.getStatus().equals(OnboardingWorkflowConstants.ACCEPTED_TC)) {
-      checkDates(initiativeDTO, onboarding);
-      checkBudget(initiativeDTO, onboarding);
+      if (onboarding.getDemandedDate() == null){
+        checkDates(initiativeDTO, onboarding);
+        checkBudget(initiativeDTO, onboarding);
+      }
+      if (onboarding.getDemandedDate() != null && !initiativeDTO.getGeneral().getRankingEnabled()){
+        checkDates(initiativeDTO, onboarding);
+      }
       checkFamilyUnit(onboarding, initiativeDTO);
     }
 
@@ -518,11 +525,13 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setFamilyId(evaluationDTO.getFamilyId());
       setStatus(onboarding, evaluationDTO.getStatus(),
               evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons);
-      log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding's status is: {}", evaluationDTO.getStatus());
+      log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is: {}",
+              onboarding.getUserId(), evaluationDTO.getInitiativeId(), evaluationDTO.getStatus());
     }
 
     if (onboarding == null && OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
-      log.info("[COMPLETE_ONBOARDING] New onboarding on initiative {} with status DEMANDED", evaluationDTO.getInitiativeId());
+      log.info("[COMPLETE_ONBOARDING] New onboarding for user {} on initiative {} with status DEMANDED",
+              evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
       Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
               evaluationDTO.getUserId());
       newOnboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
@@ -533,6 +542,18 @@ public class OnboardingServiceImpl implements OnboardingService {
       newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
       onboardingRepository.save(newOnboarding);
     }
+
+    if (onboarding != null && OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
+      LocalDateTime localDateTime = LocalDateTime.now();
+      onboarding.setDemandedDate(localDateTime);
+      onboarding.setUpdateDate(localDateTime);
+      onboarding.setFamilyId(evaluationDTO.getFamilyId());
+      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+      onboardingRepository.save(onboarding);
+      log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is ONBOARDING_OK",
+              onboarding.getUserId(), evaluationDTO.getInitiativeId());
+    }
+
     performanceLog(startTime, "COMPLETE_ONBOARDING", evaluationDTO.getUserId(),
         evaluationDTO.getInitiativeId());
   }
