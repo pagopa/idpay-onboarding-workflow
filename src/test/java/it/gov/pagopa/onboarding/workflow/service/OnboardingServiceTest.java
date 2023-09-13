@@ -182,6 +182,7 @@ class OnboardingServiceTest {
     GENERAL.setEndDate(LocalDate.MAX);
     GENERAL.setBudget(BUDGET);
     GENERAL.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    GENERAL.setRankingEnabled(Boolean.FALSE);
 
     GENERAL_WHITELIST.setBeneficiaryKnown(true);
     GENERAL_WHITELIST.setStartDate(LocalDate.MIN);
