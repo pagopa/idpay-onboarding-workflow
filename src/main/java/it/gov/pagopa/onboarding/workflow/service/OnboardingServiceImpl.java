@@ -514,7 +514,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()))
             .orElse(null);
 
-    Set<String> onboardingRejectionReasonsCode = Optional.of(evaluationDTO.getOnboardingRejectionReasons())
+    Set<String> onboardingRejectionReasonsCode = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
             .orElseGet(Collections::emptyList)
             .stream()
             .map(OnboardingRejectionReason::getCode)
