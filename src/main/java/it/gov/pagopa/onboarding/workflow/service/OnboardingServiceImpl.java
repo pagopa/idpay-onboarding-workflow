@@ -514,14 +514,14 @@ public class OnboardingServiceImpl implements OnboardingService {
     Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(evaluationDTO.getInitiativeId(), evaluationDTO.getUserId()))
             .orElse(null);
 
-    if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
-      Set<String> onboardingRejectionReasonsCode = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
-              .orElseGet(Collections::emptyList)
-              .stream()
-              .map(OnboardingRejectionReason::getCode)
-              .collect(Collectors.toSet());
-      String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsCode);
+    Set<String> onboardingRejectionReasonsCode = Optional.of(evaluationDTO.getOnboardingRejectionReasons())
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .map(OnboardingRejectionReason::getCode)
+            .collect(Collectors.toSet());
+    String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsCode);
 
+    if (onboarding != null && !OnboardingWorkflowConstants.DEMANDED.equals(evaluationDTO.getStatus())) {
       onboarding.setFamilyId(evaluationDTO.getFamilyId());
       setStatus(onboarding, evaluationDTO.getStatus(),
               evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons);
@@ -554,6 +554,20 @@ public class OnboardingServiceImpl implements OnboardingService {
       outcomeProducer.sendOutcome(evaluationDTO);
       log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is ONBOARDING_OK",
               onboarding.getUserId(), evaluationDTO.getInitiativeId());
+    }
+
+    if (onboarding == null && OnboardingWorkflowConstants.ONBOARDING_KO.equals(evaluationDTO.getStatus())) {
+      log.info("[COMPLETE_ONBOARDING] New onboarding for user {} on initiative {} with status ONBOARDING_KO",
+              evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
+      Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
+              evaluationDTO.getUserId());
+      newOnboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      newOnboarding.setDetailKO(rejectionReasons);
+      LocalDateTime localDateTime = LocalDateTime.now();
+      newOnboarding.setUpdateDate(localDateTime);
+      newOnboarding.setCreationDate(localDateTime);
+      newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
+      onboardingRepository.save(newOnboarding);
     }
 
     performanceLog(startTime, "COMPLETE_ONBOARDING", evaluationDTO.getUserId(),
