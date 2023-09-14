@@ -1398,6 +1398,15 @@ class OnboardingServiceTest {
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
     assertEquals("CITIZEN_OUT_OF_RANKING" + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
   }
+
+  @Test
+  void completeOnboarding_ko_no_onb(){
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.empty());
+    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
+            .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+  }
   @Test
   void completeOnboardingCreateOnboardingStatusDEMANDED_ok() {
     EVALUATION_DTO.setStatus("DEMANDED");
