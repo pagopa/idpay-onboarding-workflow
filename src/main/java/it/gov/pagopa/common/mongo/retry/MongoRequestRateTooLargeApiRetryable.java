@@ -5,10 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Annotation used to retry a method if it throws a RequestRateTooLarge mongo exception */
+/** Annotation used to enable the retry behavior for RequestRateTooLarge mongo exception */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface MongoRequestRateTooLargeRetryable {
+public @interface MongoRequestRateTooLargeApiRetryable {
   /** Maximum number of attempts to retry RequestRateTooLarge mongo exception.
    * If 0 or negative there will not be a limit on the number of attempts */
   long maxRetry() default 0;

@@ -11,7 +11,8 @@
       "general": {
         "startDate": "2023-01-01",
         "endDate": "2099-01-01",
-        "beneficiaryKnown": "false"
+        "beneficiaryKnown": "false",
+        "rankingEnabled" : "false"
       },
       "beneficiaryRule": {
         "selfDeclarationCriteria": [],
