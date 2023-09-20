@@ -677,18 +677,27 @@ public class OnboardingServiceImpl implements OnboardingService {
       List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
       List<Onboarding> fetchedOnboardings;
 
-      ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+      //ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
       do {
         fetchedOnboardings = onboardingRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
                 Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY)));
 
         totalDeletedOnboardings.addAll(fetchedOnboardings);
-        executorService.schedule(() -> {
+        /*executorService.schedule(() -> {
         }, Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(DELAY_KEY)), TimeUnit.MILLISECONDS);
+         */
+        try {
+          synchronized (this) {
+            wait(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(DELAY_KEY)));
+          }
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          log.error("An error has occurred while waiting");
+        }
 
       } while (fetchedOnboardings.size() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY))));
-      executorService.shutdown();
+      //executorService.shutdown();
 
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
       totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
