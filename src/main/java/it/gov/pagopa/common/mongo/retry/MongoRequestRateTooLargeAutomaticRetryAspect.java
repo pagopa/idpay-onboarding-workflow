@@ -8,7 +8,12 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerMapping;
+
+import java.util.Optional;
 
 @Configuration
 @EnableAspectJAutoProxy
@@ -51,7 +56,10 @@ public class MongoRequestRateTooLargeAutomaticRetryAspect {
                 return pjp.proceed();
             }
         } else {
-            if(enabledApi){
+            MongoRequestRateTooLargeApiRetryable apiRetryableConfig = getRequestRateTooLargeApiRetryableConfig();
+            if(apiRetryableConfig!=null){
+                return MongoRequestRateTooLargeRetryableAspect.executeJoinPointRetryable(pjp, apiRetryableConfig.maxRetry(), apiRetryableConfig.maxMillisElapsed());
+            } else if(enabledApi){
                 return MongoRequestRateTooLargeRetryableAspect.executeJoinPointRetryable(pjp, maxRetryApi, maxMillisElapsedApi);
             } else {
                 return pjp.proceed();
@@ -62,5 +70,19 @@ public class MongoRequestRateTooLargeAutomaticRetryAspect {
 
     private static boolean isNotControllerContext() {
         return RequestContextHolder.getRequestAttributes() == null;
+    }
+
+    private MongoRequestRateTooLargeApiRetryable getRequestRateTooLargeApiRetryableConfig() {
+        HandlerMethod apiHandlerMethod = getApiHandlerMethod();
+        if(apiHandlerMethod!=null){
+            return apiHandlerMethod.getMethod().getAnnotation(MongoRequestRateTooLargeApiRetryable.class);
+        }
+        return null;
+    }
+
+    private static HandlerMethod getApiHandlerMethod(){
+        return (HandlerMethod) Optional.ofNullable(RequestContextHolder.getRequestAttributes())
+                .map(r -> r.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST))
+                .orElse(null);
     }
 }
