@@ -36,7 +36,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
   }
 
   @Override
-  public List<Onboarding> deleteOnboardingPaged(String initiativeId, int pageSize){
+  public List<Onboarding> deletePaged(String initiativeId, int pageSize){
     Pageable pageable = PageRequest.of(0, pageSize);
     return mongoTemplate.findAllAndRemove(
             Query.query(Criteria.where(Fields.initiativeId).is(initiativeId)).with(pageable),

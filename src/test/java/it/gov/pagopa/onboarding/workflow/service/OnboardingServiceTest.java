@@ -37,10 +37,8 @@ import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1818,19 +1816,29 @@ class OnboardingServiceTest {
 
   @Test
   void handleInitiativeNotification() {
+    Map<String, String> additionalParams = new HashMap<>();
+    additionalParams.put("pagination", "2");
+    additionalParams.put("delay", "1000");
+
     final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
             .operationType(DELETE_OPERATION_TYPE)
+            .additionalParams(additionalParams)
             .build();
     Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getEntityId(), USER_ID);
-    final List<Onboarding> deletedOnboardings = List.of(onboarding);
+    Onboarding onboarding1 = new Onboarding("initiativeId1",USER_ID);
+    Onboarding onboarding2 = new Onboarding("initiativeId2",USER_ID);
+    Onboarding onboarding3 = new Onboarding("initiativeId3",USER_ID);
+    final List<Onboarding> deletedOnboardings = List.of(onboarding,onboarding1,onboarding2,onboarding3);
 
-    when(onboardingRepositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
+    when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(),
+            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
             .thenReturn(deletedOnboardings);
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deletePaged(queueCommandOperationDTO.getEntityId(),
+            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
   }
 
   @Test

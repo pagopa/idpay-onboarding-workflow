@@ -19,16 +19,6 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +30,14 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
@@ -50,6 +48,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
+  public static final String PAGINATION_KEY = "pagination";
+  public static final String DELAY_KEY = "delay";
   @Autowired
   private OnboardingRepository onboardingRepository;
 
@@ -674,54 +674,24 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       long startTime = System.currentTimeMillis();
 
-      /*
-      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
-      log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
-      deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
-       */
-
-      //First paged query then single remove on every record
       List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
       List<Onboarding> fetchedOnboardings;
 
-      /*do{
-        fetchedOnboardings = onboardingRepository.findByFilter(onboardingRepository.getCriteria(queueCommandOperationDTO.getEntityId(), null, null, null, null), Pageable.ofSize(100));
+      ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-        fetchedOnboardings.forEach(retrievedOnboarding -> onboardingRepository.delete(retrievedOnboarding));
-        totalDeletedOnboardings.addAll(fetchedOnboardings);
-
-      }while (fetchedOnboardings.size() == 100);
-       */
-      do{
-        fetchedOnboardings = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(),100);
+      do {
+        fetchedOnboardings = onboardingRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY)));
 
         totalDeletedOnboardings.addAll(fetchedOnboardings);
+        executorService.schedule(() -> {
+        }, Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(DELAY_KEY)), TimeUnit.MILLISECONDS);
 
-       try{
-          Thread.sleep(1000);
-        } catch (InterruptedException e){
-          log.error("An error has occurred while waiting, {}", e.getMessage());
-        }
-
-
-      }while (fetchedOnboardings.size() == 100);
+      } while (fetchedOnboardings.size() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY))));
+      executorService.shutdown();
 
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
       totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
-
-      //Paged remove
-      /*
-      boolean goNext = true;
-      int pageSize = 100;
-      long hitsCount = 0;
-      long totalCounts = 0;
-
-      do{
-        hitsCount = onboardingRepository.deleteOnboardingPaged(queueCommandOperationDTO.getEntityId(), pageSize);
-        totalCounts += hitsCount;
-      }while(hitsCount == 100);
-      log.info("[DELETE_INITIATIVE][TOTAL_COUNTS] Total number of deleted onboardings: {} for initiativeId {}", totalCounts, queueCommandOperationDTO.getEntityId());
-      */
 
       log.info(
               "[PERFORMANCE_LOG] [DELETE_INITIATIVE] Time occurred to perform business logic: {} ms on initiativeId: {}",

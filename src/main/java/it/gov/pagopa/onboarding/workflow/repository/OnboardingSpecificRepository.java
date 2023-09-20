@@ -12,6 +12,6 @@ public interface OnboardingSpecificRepository {
   Criteria getCriteria(String initiativeId, String userId, String status,
       LocalDateTime startDate, LocalDateTime endDate);
   long getCount(Criteria criteria);
-  List<Onboarding> deleteOnboardingPaged(String initiativeId, int pageSize);
+  List<Onboarding> deletePaged(String initiativeId, int pageSize);
 
 }
