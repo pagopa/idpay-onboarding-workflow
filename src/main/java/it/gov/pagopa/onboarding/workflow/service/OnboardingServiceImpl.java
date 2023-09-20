@@ -378,7 +378,9 @@ public class OnboardingServiceImpl implements OnboardingService {
         this.getPageable(pageable), () -> count);
     for (Onboarding o : onboardinglist) {
       OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
-          o.getUserId(), o.getStatus(), o.getUpdateDate()!=null?o.getUpdateDate().toString(): EMPTY);
+              o.getUserId(), o.getStatus(),
+              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
+              o.getFamilyId());
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
     performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST", userId, initiativeId);
