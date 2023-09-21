@@ -38,12 +38,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -103,6 +106,7 @@ class OnboardingServiceTest {
   private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
   private static final String CHANNEL = "CHANNEL";
   private static final String PII = "PII_TEST";
+  public static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
 
   private static final BigDecimal BUDGET = BigDecimal.valueOf(1000);
   private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
@@ -1814,59 +1818,64 @@ class OnboardingServiceTest {
     }
   }
 
-  @Test
-  void handleInitiativeNotification() {
+  @ParameterizedTest
+  @MethodSource("operationTypeAndInvocationTimes")
+  void processOperation_deleteOperation(String operationType, int times) {
     Map<String, String> additionalParams = new HashMap<>();
     additionalParams.put("pagination", "2");
-    additionalParams.put("delay", "1000");
+    additionalParams.put("delay", "1");
 
-    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+    QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
-            .operationType(DELETE_OPERATION_TYPE)
+            .operationType(operationType)
+            .operationTime(LocalDateTime.now())
             .additionalParams(additionalParams)
             .build();
-    Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getEntityId(), USER_ID);
-    final List<Onboarding> deletedOnboardings = List.of(onboarding);
 
-    when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(),
-            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
-            .thenReturn(deletedOnboardings);
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+
+    List<Onboarding> deletedOnboardingPage = List.of(onboarding);
+
+    if(times == 2){
+      List<Onboarding> onboardingPage = createOnboardingPage(Integer.parseInt("2"));
+
+      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+              .thenReturn(onboardingPage)
+              .thenReturn(deletedOnboardingPage);
+
+      Thread.currentThread().interrupt();
+
+    } else {
+      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+              .thenReturn(deletedOnboardingPage);
+    }
+
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deletePaged(queueCommandOperationDTO.getEntityId(),
+
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
             Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
   }
-  @Test
-  void handleInitiativeNotification_Exception() {
 
-    Map<String, String> additionalParams = new HashMap<>();
-    additionalParams.put("pagination", "2");
-    additionalParams.put("delay", "1000");
-
-    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .entityId(INITIATIVE_ID)
-            .operationType(DELETE_OPERATION_TYPE)
-            .additionalParams(additionalParams)
-            .build();
-
-    Thread.currentThread().interrupt();
-
-    onboardingService.processCommand(queueCommandOperationDTO);
-
-    Assertions.assertTrue(Thread.interrupted());
+  private static Stream<Arguments> operationTypeAndInvocationTimes() {
+    return Stream.of(
+            Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
+            Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 2),
+            Arguments.of("OPERATION_TYPE_TEST", 0)
+    );
   }
 
-  @Test
-  void handleInitiativeNotification_operationTypeNotDelete() {
-    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .entityId(INITIATIVE_ID)
-            .operationType("TEST_OPERATION_TYPE")
-            .build();
+  private List<Onboarding> createOnboardingPage(int pageSize){
+    List<Onboarding> onboardingPage = new ArrayList<>();
 
-    onboardingService.processCommand(queueCommandOperationDTO);
+    for(int i=0;i<pageSize; i++){
+      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+      onboarding.setId("ID_ONBOARDING"+i);
+      onboardingPage.add(onboarding);
+    }
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    return onboardingPage;
   }
 
 }
