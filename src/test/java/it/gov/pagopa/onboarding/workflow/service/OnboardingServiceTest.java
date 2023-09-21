@@ -1826,10 +1826,7 @@ class OnboardingServiceTest {
             .additionalParams(additionalParams)
             .build();
     Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getEntityId(), USER_ID);
-    Onboarding onboarding1 = new Onboarding("initiativeId1",USER_ID);
-    Onboarding onboarding2 = new Onboarding("initiativeId2",USER_ID);
-    Onboarding onboarding3 = new Onboarding("initiativeId3",USER_ID);
-    final List<Onboarding> deletedOnboardings = List.of(onboarding,onboarding1,onboarding2,onboarding3);
+    final List<Onboarding> deletedOnboardings = List.of(onboarding);
 
     when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(),
             Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
@@ -1839,6 +1836,25 @@ class OnboardingServiceTest {
 
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deletePaged(queueCommandOperationDTO.getEntityId(),
             Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
+  }
+  @Test
+  void handleInitiativeNotification_Exception() {
+
+    Map<String, String> additionalParams = new HashMap<>();
+    additionalParams.put("pagination", "2");
+    additionalParams.put("delay", "1000");
+
+    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+            .entityId(INITIATIVE_ID)
+            .operationType(DELETE_OPERATION_TYPE)
+            .additionalParams(additionalParams)
+            .build();
+
+    Thread.currentThread().interrupt();
+
+    onboardingService.processCommand(queueCommandOperationDTO);
+
+    Assertions.assertTrue(Thread.interrupted());
   }
 
   @Test
