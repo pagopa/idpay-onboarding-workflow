@@ -564,7 +564,11 @@ public class OnboardingServiceImpl implements OnboardingService {
               evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
       Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
               evaluationDTO.getUserId());
-      newOnboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      if (rejectionReasons.contains(OnboardingWorkflowConstants.OUT_OF_RANKING)) {
+        newOnboarding.setStatus(OnboardingWorkflowConstants.ELIGIBLE_KO);
+      } else {
+        newOnboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      }
       newOnboarding.setDetailKO(rejectionReasons);
       LocalDateTime localDateTime = LocalDateTime.now();
       newOnboarding.setUpdateDate(localDateTime);
