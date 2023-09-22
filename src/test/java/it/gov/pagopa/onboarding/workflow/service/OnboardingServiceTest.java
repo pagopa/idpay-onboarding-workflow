@@ -424,7 +424,7 @@ class OnboardingServiceTest {
             Optional.of(onboarding));
 
     when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_DTO);
+        .thenReturn(INITIATIVE_DTO_WHITELIST);
 
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
         .thenReturn(INITIATIVE_STATUS_DTO);

@@ -107,7 +107,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setUpdateDate(localDateTime);
     }
 
-    if (!(initiativeDTO.getGeneral().getRankingEnabled() && OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus()))){
+    if (!(Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())
+            && OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus()))){
       checkDates(initiativeDTO, onboarding);
     }
 
@@ -169,7 +170,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         checkDates(initiativeDTO, onboarding);
         checkBudget(initiativeDTO, onboarding);
       }
-      if (onboarding.getDemandedDate() != null && !initiativeDTO.getGeneral().getRankingEnabled()){
+      if (onboarding.getDemandedDate() != null && !Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())){
         checkDates(initiativeDTO, onboarding);
       }
       checkFamilyUnit(onboarding, initiativeDTO);
