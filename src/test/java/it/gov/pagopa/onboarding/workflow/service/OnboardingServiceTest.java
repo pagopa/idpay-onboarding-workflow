@@ -118,12 +118,19 @@ class OnboardingServiceTest {
           USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
           new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
-  private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
+  private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING =
           new EvaluationDTO(
                   USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null),
                           new OnboardingRejectionReason(OUT_OF_RANKING, "CITIZEN_OUT_OF_RANKING", null, null, null)),
+                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+
+  private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
+          new EvaluationDTO(
+                  USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
+                  OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
+                  List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null)),
                   new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
@@ -1390,11 +1397,11 @@ class OnboardingServiceTest {
         .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
   }
   @Test
-  void completeOnboarding_ko(){
+  void completeOnboarding_ko_eligible_ko(){
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
-    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
+    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
     assertEquals("CITIZEN_OUT_OF_RANKING" + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
   }
@@ -1404,6 +1411,15 @@ class OnboardingServiceTest {
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.empty());
     onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
+            .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+  }
+
+  @Test
+  void completeOnboarding_ko_no_onb_eligible_ko(){
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.empty());
+    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
             .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
   }
