@@ -105,7 +105,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setUpdateDate(localDateTime);
     }
 
-    if (!(initiativeDTO.getGeneral().getRankingEnabled() && OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus()))){
+    if (!(Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())
+            && OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus()))){
       checkDates(initiativeDTO, onboarding);
     }
 
@@ -167,7 +168,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         checkDates(initiativeDTO, onboarding);
         checkBudget(initiativeDTO, onboarding);
       }
-      if (onboarding.getDemandedDate() != null && !initiativeDTO.getGeneral().getRankingEnabled()){
+      if (onboarding.getDemandedDate() != null && !Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())){
         checkDates(initiativeDTO, onboarding);
       }
       checkFamilyUnit(onboarding, initiativeDTO);
@@ -561,7 +562,11 @@ public class OnboardingServiceImpl implements OnboardingService {
               evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
       Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
               evaluationDTO.getUserId());
-      newOnboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      if (rejectionReasons.contains(OnboardingWorkflowConstants.OUT_OF_RANKING)) {
+        newOnboarding.setStatus(OnboardingWorkflowConstants.ELIGIBLE_KO);
+      } else {
+        newOnboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      }
       newOnboarding.setDetailKO(rejectionReasons);
       LocalDateTime localDateTime = LocalDateTime.now();
       newOnboarding.setUpdateDate(localDateTime);
