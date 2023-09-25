@@ -19,15 +19,6 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,6 +30,11 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
@@ -49,6 +45,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
+  public static final String PAGINATION_KEY = "pagination";
+  public static final String DELAY_KEY = "delay";
   @Autowired
   private OnboardingRepository onboardingRepository;
 
@@ -672,15 +670,33 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
+  @SuppressWarnings("BusyWait")
   @Override
-  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO){
+  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       long startTime = System.currentTimeMillis();
 
-      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+      List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
+      List<Onboarding> fetchedOnboardings;
+
+      do {
+        fetchedOnboardings = onboardingRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY)));
+
+        totalDeletedOnboardings.addAll(fetchedOnboardings);
+
+        try {
+          Thread.sleep(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(DELAY_KEY)));
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          log.error("An error has occurred while waiting {}", e.getMessage());
+        }
+
+      } while (fetchedOnboardings.size() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(PAGINATION_KEY))));
+
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
-      deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
+      totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
 
       log.info(
               "[PERFORMANCE_LOG] [DELETE_INITIATIVE] Time occurred to perform business logic: {} ms on initiativeId: {}",
