@@ -90,8 +90,8 @@
         <dependency>
             <groupId>org.xerial.snappy</groupId>
             <artifactId>snappy-java</artifactId>
-            <!-- Forced to 1.1.10.3 due to https://nvd.nist.gov/vuln/detail/CVE-2023-34453 -->
-            <version>1.1.10.3</version>
+            <!-- Forced to 1.1.10.4 due to https://nvd.nist.gov/vuln/detail/CVE-2023-34453 -->
+            <version>1.1.10.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
