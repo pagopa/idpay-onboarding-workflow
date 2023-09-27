@@ -51,6 +51,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -58,10 +59,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = OnboardingServiceImpl.class)
+@TestPropertySource(
+        locations = "classpath:application.yml",
+        properties = {
+                "app.delete.paginationSize=100",
+                "app.delete.delayTime=1000"
+        })
 class OnboardingServiceTest {
 
   @MockBean
@@ -93,6 +101,11 @@ class OnboardingServiceTest {
 
   @MockBean
   DecryptRestConnector decryptRestConnector;
+
+  @Value("${app.delete.paginationSize}")
+  private String pagination;
+  @Value("${app.delete.delayTime}")
+  private String delayTime;
 
   private static final String USER_ID = "TEST_USER_ID";
   private static final String FAMILY_ID = "TEST_FAMILY_ID";
@@ -1837,15 +1850,13 @@ class OnboardingServiceTest {
   @ParameterizedTest
   @MethodSource("operationTypeAndInvocationTimes")
   void processOperation_deleteOperation(String operationType, int times) {
-    Map<String, String> additionalParams = new HashMap<>();
-    additionalParams.put("pagination", "2");
-    additionalParams.put("delay", "1");
+
+    int pageSize = Integer.parseInt(pagination);
 
     QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
             .operationType(operationType)
             .operationTime(LocalDateTime.now())
-            .additionalParams(additionalParams)
             .build();
 
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -1853,16 +1864,16 @@ class OnboardingServiceTest {
     List<Onboarding> deletedOnboardingPage = List.of(onboarding);
 
     if(times == 2){
-      List<Onboarding> onboardingPage = createOnboardingPage(Integer.parseInt("2"));
+      List<Onboarding> onboardingPage = createOnboardingPage(pageSize);
 
-      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
               .thenReturn(onboardingPage)
               .thenReturn(deletedOnboardingPage);
 
       Thread.currentThread().interrupt();
 
     } else {
-      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
               .thenReturn(deletedOnboardingPage);
     }
 
@@ -1870,8 +1881,7 @@ class OnboardingServiceTest {
     onboardingService.processCommand(queueCommandOperationDTO);
 
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
-            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(), pageSize);
   }
 
   private static Stream<Arguments> operationTypeAndInvocationTimes() {
