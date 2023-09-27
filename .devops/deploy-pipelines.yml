@@ -208,7 +208,7 @@ stages:
         steps:
           - task: NodeTool@0
             inputs:
-              versionSpec: '14.x'
+              versionSpec: '16.x'
           - task: Npm@1
             displayName: Install newman
             inputs:
