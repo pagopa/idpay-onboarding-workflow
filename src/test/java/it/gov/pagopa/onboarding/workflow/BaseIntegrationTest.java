@@ -80,6 +80,11 @@ import javax.management.MalformedObjectNameException;
                 "spring.cloud.stream.binders.servicebus-onboarding.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 "spring.cloud.stream.bindings.admissibilityProcessor-in-0.destination=idpay-onboarding-request",
                 //endregion
+
+                //regiondelete
+                "app.delete.paginationSize=100",
+                "app.delete.delayTime=1000"
+                //endregion
         })
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(stubs = "classpath:/mappings", port = 0)
