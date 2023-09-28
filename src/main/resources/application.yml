@@ -228,5 +228,5 @@ rest-client:
 
 app:
   delete:
-    paginationSize: ${DELETE_PAGINATION_SIZE}
-    delayTime: ${DELETE_DELAY_TIME}
+    paginationSize: ${DELETE_PAGINATION_SIZE:100}
+    delayTime: ${DELETE_DELAY_TIME:1000}

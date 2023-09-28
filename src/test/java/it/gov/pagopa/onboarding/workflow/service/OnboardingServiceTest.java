@@ -103,9 +103,9 @@ class OnboardingServiceTest {
   DecryptRestConnector decryptRestConnector;
 
   @Value("${app.delete.paginationSize}")
-  private String pagination;
+  private int pageSize;
   @Value("${app.delete.delayTime}")
-  private String delayTime;
+  private long delayTime;
 
   private static final String USER_ID = "TEST_USER_ID";
   private static final String FAMILY_ID = "TEST_FAMILY_ID";
@@ -127,7 +127,6 @@ class OnboardingServiceTest {
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
   private static final String BENEFICIARY_TYPE_NF = "NF";
-  private static final String DELETE_OPERATION_TYPE = "DELETE_INITIATIVE";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
@@ -1850,8 +1849,6 @@ class OnboardingServiceTest {
   @ParameterizedTest
   @MethodSource("operationTypeAndInvocationTimes")
   void processOperation_deleteOperation(String operationType, int times) {
-
-    int pageSize = Integer.parseInt(pagination);
 
     QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
             .entityId(INITIATIVE_ID)
