@@ -29,8 +29,6 @@ microservice-chart:
 
   envConfig:
     JAVA_TOOL_OPTIONS: "-Xms512m -Xmx2g -Djava.util.concurrent.ForkJoinPool.common.parallelism=7 -Dio.netty.eventLoopThreads=100 -javaagent:/app/applicationinsights-agent.jar"
-    DELETE_PAGINATION_SIZE: "100"
-    DELETE_DELAY_TIME: "1000"
 
   envSecret:
     aks-api-url: cstar-p-weu-prod01-aks-apiserver-url

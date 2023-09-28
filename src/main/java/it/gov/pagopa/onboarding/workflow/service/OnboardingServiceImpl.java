@@ -48,9 +48,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String COMMA_DELIMITER = ",";
 
   @Value("${app.delete.paginationSize}")
-  private String pagination;
+  private int pageSize;
   @Value("${app.delete.delayTime}")
-  private String delayTime;
+  private long delayTime;
   @Autowired
   private OnboardingRepository onboardingRepository;
 
@@ -678,9 +678,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
 
-    int pageSize = Integer.parseInt(pagination);
-    long delay = Long.parseLong(delayTime);
-
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       long startTime = System.currentTimeMillis();
 
@@ -694,7 +691,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         totalDeletedOnboardings.addAll(fetchedOnboardings);
 
         try {
-          Thread.sleep(delay);
+          Thread.sleep(delayTime);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           log.error("An error has occurred while waiting {}", e.getMessage());
