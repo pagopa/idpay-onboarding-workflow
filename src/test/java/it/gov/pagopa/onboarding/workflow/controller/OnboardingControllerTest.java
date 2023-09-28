@@ -58,7 +58,7 @@ class OnboardingControllerTest {
   private static final String CHANNEL = "CHANNEL";
 
   private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO = new OnboardingStatusCitizenDTO(
-      USER_ID, STATUS, STATUS);
+      USER_ID, STATUS, STATUS, null);
   static List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOList = List.of(
       ONBOARDING_STATUS_CITIZEN_DTO);
   private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(

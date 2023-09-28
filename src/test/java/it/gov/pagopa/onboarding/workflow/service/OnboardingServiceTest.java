@@ -37,19 +37,21 @@ import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -57,10 +59,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = OnboardingServiceImpl.class)
+@TestPropertySource(
+        locations = "classpath:application.yml",
+        properties = {
+                "app.delete.paginationSize=100",
+                "app.delete.delayTime=1000"
+        })
 class OnboardingServiceTest {
 
   @MockBean
@@ -93,6 +102,11 @@ class OnboardingServiceTest {
   @MockBean
   DecryptRestConnector decryptRestConnector;
 
+  @Value("${app.delete.paginationSize}")
+  private int pageSize;
+  @Value("${app.delete.delayTime}")
+  private long delayTime;
+
   private static final String USER_ID = "TEST_USER_ID";
   private static final String FAMILY_ID = "TEST_FAMILY_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
@@ -105,6 +119,7 @@ class OnboardingServiceTest {
   private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
   private static final String CHANNEL = "CHANNEL";
   private static final String PII = "PII_TEST";
+  public static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
 
   private static final BigDecimal BUDGET = BigDecimal.valueOf(1000);
   private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
@@ -112,18 +127,24 @@ class OnboardingServiceTest {
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
   private static final String BENEFICIARY_TYPE_NF = "NF";
-  private static final String DELETE_OPERATION_TYPE = "DELETE_INITIATIVE";
   private static final EvaluationDTO EVALUATION_DTO =
       new EvaluationDTO(
           USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
           new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
-  private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
+  private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING =
           new EvaluationDTO(
                   USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null),
                           new OnboardingRejectionReason(OUT_OF_RANKING, "CITIZEN_OUT_OF_RANKING", null, null, null)),
+                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+
+  private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
+          new EvaluationDTO(
+                  USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
+                  OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
+                  List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null)),
                   new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
@@ -424,7 +445,7 @@ class OnboardingServiceTest {
             Optional.of(onboarding));
 
     when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_DTO);
+        .thenReturn(INITIATIVE_DTO_WHITELIST);
 
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
         .thenReturn(INITIATIVE_STATUS_DTO);
@@ -1390,11 +1411,11 @@ class OnboardingServiceTest {
         .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
   }
   @Test
-  void completeOnboarding_ko(){
+  void completeOnboarding_ko_eligible_ko(){
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
-    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
+    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
     assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
     assertEquals("CITIZEN_OUT_OF_RANKING" + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
   }
@@ -1404,6 +1425,15 @@ class OnboardingServiceTest {
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.empty());
     onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
+            .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+  }
+
+  @Test
+  void completeOnboarding_ko_no_onb_eligible_ko(){
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.empty());
+    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
             .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
   }
@@ -1816,33 +1846,59 @@ class OnboardingServiceTest {
     }
   }
 
-  @Test
-  void handleInitiativeNotification() {
-    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .entityId(INITIATIVE_ID)
-            .operationType(DELETE_OPERATION_TYPE)
-            .build();
-    Onboarding onboarding = new Onboarding(queueCommandOperationDTO.getEntityId(), USER_ID);
-    final List<Onboarding> deletedOnboardings = List.of(onboarding);
+  @ParameterizedTest
+  @MethodSource("operationTypeAndInvocationTimes")
+  void processOperation_deleteOperation(String operationType, int times) {
 
-    when(onboardingRepositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
-            .thenReturn(deletedOnboardings);
+    QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+            .entityId(INITIATIVE_ID)
+            .operationType(operationType)
+            .operationTime(LocalDateTime.now())
+            .build();
+
+    Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+
+    List<Onboarding> deletedOnboardingPage = List.of(onboarding);
+
+    if(times == 2){
+      List<Onboarding> onboardingPage = createOnboardingPage(pageSize);
+
+      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(onboardingPage)
+              .thenReturn(deletedOnboardingPage);
+
+      Thread.currentThread().interrupt();
+
+    } else {
+      when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(deletedOnboardingPage);
+    }
+
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(), pageSize);
   }
 
-  @Test
-  void handleInitiativeNotification_operationTypeNotDelete() {
-    final QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-            .entityId(INITIATIVE_ID)
-            .operationType("TEST_OPERATION_TYPE")
-            .build();
+  private static Stream<Arguments> operationTypeAndInvocationTimes() {
+    return Stream.of(
+            Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
+            Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 2),
+            Arguments.of("OPERATION_TYPE_TEST", 0)
+    );
+  }
 
-    onboardingService.processCommand(queueCommandOperationDTO);
+  private List<Onboarding> createOnboardingPage(int pageSize){
+    List<Onboarding> onboardingPage = new ArrayList<>();
 
-    Mockito.verify(onboardingRepositoryMock, Mockito.times(0)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+    for(int i=0;i<pageSize; i++){
+      Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+      onboarding.setId("ID_ONBOARDING"+i);
+      onboardingPage.add(onboarding);
+    }
+
+    return onboardingPage;
   }
 
 }

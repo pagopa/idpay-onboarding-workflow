@@ -225,3 +225,8 @@ rest-client:
   admissibility:
     serviceCodeAdm: ${IDPAY_ADMISSIBILITY_SERVICE_CODE:idpay-admissibility}
     baseUrl: ${IDPAY_ADMISSIBILITY_BASE_URL:}
+
+app:
+  delete:
+    paginationSize: ${DELETE_PAGINATION_SIZE:100}
+    delayTime: ${DELETE_DELAY_TIME:1000}

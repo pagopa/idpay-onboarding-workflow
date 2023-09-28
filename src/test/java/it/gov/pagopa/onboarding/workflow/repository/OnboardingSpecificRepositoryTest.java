@@ -3,8 +3,12 @@ package it.gov.pagopa.onboarding.workflow.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.model.Onboarding;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -90,5 +94,28 @@ class OnboardingSpecificRepositoryTest {
   void getCriteriaOnlyStatus(){
     Criteria criteria = onboardingSpecificRepository.getCriteria(INITIATIVE_ID,null, OnboardingWorkflowConstants.INVITED,null,null);
     assertEquals(2,criteria.getCriteriaObject().size());
+  }
+  @Test
+  void deletePaged() {
+    String initiativeId = "initiativeId";
+    int pageSize = 2;
+
+    Onboarding onboarding1 = new Onboarding("initiativeId1",USER_ID);
+    Onboarding onboarding2 = new Onboarding("initiativeId2",USER_ID);
+    Onboarding onboarding3 = new Onboarding("initiativeId3",USER_ID);
+
+    List<Onboarding> onboardingList = new ArrayList<>();
+    onboardingList.add(onboarding1);
+    onboardingList.add(onboarding2);
+    onboardingList.add(onboarding3);
+
+    Mockito.when(mongoTemplate.findAllAndRemove(Mockito.any(Query.class), Mockito.eq(Onboarding.class)))
+            .thenReturn(onboardingList);
+
+    List<Onboarding> deletedGroups = onboardingSpecificRepository.deletePaged(initiativeId, pageSize);
+
+    Mockito.verify(mongoTemplate, Mockito.times(1)).findAllAndRemove(Mockito.any(Query.class),Mockito.eq(Onboarding.class));
+
+    Assertions.assertEquals(onboardingList, deletedGroups);
   }
 }

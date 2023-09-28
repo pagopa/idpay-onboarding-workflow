@@ -19,17 +19,9 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +30,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -49,6 +46,11 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
+
+  @Value("${app.delete.paginationSize}")
+  private int pageSize;
+  @Value("${app.delete.delayTime}")
+  private long delayTime;
   @Autowired
   private OnboardingRepository onboardingRepository;
 
@@ -107,7 +109,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setUpdateDate(localDateTime);
     }
 
-    if (!(initiativeDTO.getGeneral().getRankingEnabled() && OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus()))){
+    if (!(Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())
+            && OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus()))){
       checkDates(initiativeDTO, onboarding);
     }
 
@@ -169,7 +172,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         checkDates(initiativeDTO, onboarding);
         checkBudget(initiativeDTO, onboarding);
       }
-      if (onboarding.getDemandedDate() != null && !initiativeDTO.getGeneral().getRankingEnabled()){
+      if (onboarding.getDemandedDate() != null && !Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())){
         checkDates(initiativeDTO, onboarding);
       }
       checkFamilyUnit(onboarding, initiativeDTO);
@@ -378,7 +381,9 @@ public class OnboardingServiceImpl implements OnboardingService {
         this.getPageable(pageable), () -> count);
     for (Onboarding o : onboardinglist) {
       OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
-          o.getUserId(), o.getStatus(), o.getUpdateDate()!=null?o.getUpdateDate().toString(): EMPTY);
+              o.getUserId(), o.getStatus(),
+              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
+              o.getFamilyId());
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
     performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST", userId, initiativeId);
@@ -561,7 +566,11 @@ public class OnboardingServiceImpl implements OnboardingService {
               evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
       Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
               evaluationDTO.getUserId());
-      newOnboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      if (rejectionReasons.contains(OnboardingWorkflowConstants.OUT_OF_RANKING)) {
+        newOnboarding.setStatus(OnboardingWorkflowConstants.ELIGIBLE_KO);
+      } else {
+        newOnboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+      }
       newOnboarding.setDetailKO(rejectionReasons);
       LocalDateTime localDateTime = LocalDateTime.now();
       newOnboarding.setUpdateDate(localDateTime);
@@ -665,15 +674,33 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
+  @SuppressWarnings("BusyWait")
   @Override
-  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO){
+  public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       long startTime = System.currentTimeMillis();
 
-      List<Onboarding> deletedOnboardings = onboardingRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+      List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
+      List<Onboarding> fetchedOnboardings;
+
+      do {
+        fetchedOnboardings = onboardingRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                pageSize);
+
+        totalDeletedOnboardings.addAll(fetchedOnboardings);
+
+        try {
+          Thread.sleep(delayTime);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          log.error("An error has occurred while waiting {}", e.getMessage());
+        }
+
+      } while (fetchedOnboardings.size() == pageSize);
+
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
-      deletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
+      totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
 
       log.info(
               "[PERFORMANCE_LOG] [DELETE_INITIATIVE] Time occurred to perform business logic: {} ms on initiativeId: {}",
