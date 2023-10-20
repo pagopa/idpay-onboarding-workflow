@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.azure.spring</groupId>
             <artifactId>spring-cloud-azure-stream-binder-servicebus</artifactId>
-            <version>5.4.0</version>
+            <version>5.5.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.openfeign</groupId>
@@ -111,6 +111,12 @@
             <artifactId>snakeyaml</artifactId>
             <!-- Forced to 2.0 due to https://nvd.nist.gov/vuln/detail/CVE-2022-1471 -->
             <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+            <!-- Forced to 1.1.12 due to https://nvd.nist.gov/vuln/detail/CVE-2023-44487 -->
+            <version>1.1.12</version>
         </dependency>
 
         <!--TEST-->
@@ -193,6 +199,15 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>2022.0.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <!-- Forced to 4.1.100 due to https://nvd.nist.gov/vuln/detail/CVE-2023-44487 -->
+                <version>4.1.100.Final</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
