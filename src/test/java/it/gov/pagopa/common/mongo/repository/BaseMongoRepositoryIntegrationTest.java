@@ -4,9 +4,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import it.gov.pagopa.common.mongo.DummySpringRepository;
 import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
 import it.gov.pagopa.common.mongo.config.MongoConfig;
-import lombok.Data;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,26 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoClientSettingsBuilderCustomizer;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mapping.model.CamelCaseAbbreviatingFieldNamingStrategy;
-import org.springframework.data.mapping.model.Property;
-import org.springframework.data.mapping.model.SimpleTypeHolder;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.mapping.BasicMongoPersistentEntity;
-import org.springframework.data.mongodb.core.mapping.BasicMongoPersistentProperty;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
-import org.springframework.data.mongodb.repository.support.MappingMongoEntityInformation;
-import org.springframework.data.util.TypeInformation;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @TestPropertySource(
         properties = {
@@ -59,13 +45,6 @@ class BaseMongoRepositoryIntegrationTest {
         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
     }
 
-    @Document("beneficiary_rule")
-    @Data
-    public static class TestCollection {
-        @Id
-        private String id;
-    }
-
     @TestConfiguration
     static class TestMongoRepositoryConfig extends MongoConfig {
         @Autowired
@@ -79,29 +58,10 @@ class BaseMongoRepositoryIntegrationTest {
             };
         }
 
-        @Bean
-        public TestRepository configureTestRepository(MongoOperations mongoOperations) throws NoSuchFieldException {
-            TypeInformation<TestCollection> testTypeInformation = TypeInformation.of(TestCollection.class);
-            BasicMongoPersistentEntity<TestCollection> testPersistentEntity = new BasicMongoPersistentEntity<>(testTypeInformation);
-            testPersistentEntity.addPersistentProperty(new BasicMongoPersistentProperty(
-                    Property.of(testTypeInformation, TestCollection.class.getDeclaredField("id")),
-                    testPersistentEntity,
-                    new SimpleTypeHolder(Set.of(TestCollection.class), true),
-                    new CamelCaseAbbreviatingFieldNamingStrategy()
-            ));
-            return new TestRepository(new MappingMongoEntityInformation<>(testPersistentEntity), mongoOperations);
-        }
-    }
-
-    static class TestRepository extends MongoRepositoryImpl<TestCollection, String> implements MongoRepository<TestCollection, String> {
-
-        public TestRepository(MongoEntityInformation<TestCollection, String> entityInformation, MongoOperations mongoOperations) {
-            super(entityInformation, mongoOperations);
-        }
     }
 
     @Autowired
-    private TestRepository repository;
+    private DummySpringRepository repository;
 
     private static final List<String> ID_TEST_ENTITIES = List.of("ID", "ID2");
 
@@ -111,7 +71,7 @@ class BaseMongoRepositoryIntegrationTest {
     }
 
     private void storeTestData(String idTestEntity) {
-        TestCollection testData = new TestCollection();
+        DummySpringRepository.DummyMongoCollection testData = new DummySpringRepository.DummyMongoCollection();
         testData.setId(idTestEntity);
         repository.save(testData);
     }
@@ -125,7 +85,7 @@ class BaseMongoRepositoryIntegrationTest {
     void testFindById() {
         MongoTestUtilitiesService.startMongoCommandListener();
 
-        TestCollection result = repository.findById(ID_TEST_ENTITIES.get(0)).orElse(null);
+        DummySpringRepository.DummyMongoCollection result = repository.findById(ID_TEST_ENTITIES.get(0)).orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(ID_TEST_ENTITIES.get(0), result.getId());
 

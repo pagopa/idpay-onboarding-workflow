@@ -88,7 +88,7 @@ public class MongoRequestRateTooLargeRetryerTest {
     assertEquals("ok1", result);
     verify(dummyServiceMock, times(REQUEST_RATE_TOO_LARGE_MAX_RETRY + 1)).get();
 
-    String expectedMessage = "\\[REQUEST_RATE_TOO_LARGE_RETRY] Retrying after 34 ms due to RequestRateTooLargeException: attempt %d of %d after .*";
+    String expectedMessage = "\\[REQUEST_RATE_TOO_LARGE_RETRY]\\[TestService.annotatedMethodWithMaxRetry\\(\\)] Retrying after 34 ms due to RequestRateTooLargeException: attempt %d of %d after .*";
     assertLogMessage(expectedMessage, REQUEST_RATE_TOO_LARGE_MAX_RETRY);
 
   }
@@ -121,7 +121,7 @@ public class MongoRequestRateTooLargeRetryerTest {
         "Obtained elapsed time: " + elapsedTime + "; Minimum expected: "
             + REQUEST_RATE_TOO_LARGE_MAX_MILLIS_ELAPSED);
 
-    String message = "\\[REQUEST_RATE_TOO_LARGE_RETRY] Retrying after 34 ms due to RequestRateTooLargeException: attempt %d of \\d+ after \\d+ ms of max %d ms";
+    String message = "\\[REQUEST_RATE_TOO_LARGE_RETRY]\\[TestService.annotatedMethodWithMaxMillisElapsed\\(\\)] Retrying after 34 ms due to RequestRateTooLargeException: attempt %d of \\d+ after \\d+ ms of max %d ms";
     assertLogMessage(message, REQUEST_RATE_TOO_LARGE_MAX_MILLIS_ELAPSED);
   }
 
@@ -188,7 +188,7 @@ public class MongoRequestRateTooLargeRetryerTest {
     assertEquals("ok1", result);
     verify(dummyServiceMock, times(4)).get();
 
-    String expectedMessage = "\\[REQUEST_RATE_TOO_LARGE_RETRY] Retrying for RequestRateTooLargeException: attempt %d of %d after .*";
+    String expectedMessage = "\\[REQUEST_RATE_TOO_LARGE_RETRY]\\[TestService.annotatedMethodWithMaxRetry\\(\\)] Retrying for RequestRateTooLargeException: attempt %d of %d after .*";
     assertEquals(3, memoryAppender.getLoggedEvents().size());
     assertLogMessage(expectedMessage, REQUEST_RATE_TOO_LARGE_MAX_RETRY);
 

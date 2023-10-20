@@ -117,7 +117,7 @@ class MongoExceptionHandlerTest {
 
   @Test
   void handleMongoRequestRateTooLargeRetryExpiredException() throws Exception {
-    doThrow(new MongoRequestRateTooLargeRetryExpiredException(3,3,0,100,34L,new Exception()))
+    doThrow(new MongoRequestRateTooLargeRetryExpiredException("FLOWNAME",3,3,0,100,34L,new Exception()))
             .when(testControllerSpy).testEndpoint();
 
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
