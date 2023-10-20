@@ -1,6 +1,8 @@
 package it.gov.pagopa.common.mongo.retry;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,7 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
 
     private final int maxRetry = 1;
     private final String expectedResult = "OK";
+
     @BeforeEach
     void configureRetryMock() throws Throwable {
         int[] counter= {0};
@@ -30,6 +33,10 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
             }
             return expectedResult;
         }).when(pjpMock).proceed();
+
+        Signature signatureMock = Mockito.mock(Signature.class);
+        Mockito.lenient().when(signatureMock.toShortString()).thenReturn("ClassName.jointPointName(..)");
+        Mockito.lenient().when(pjpMock.getSignature()).thenReturn(signatureMock);
     }
 
     @AfterEach
