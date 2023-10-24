@@ -5,7 +5,6 @@ import it.gov.pagopa.common.mongo.retry.exception.MongoRequestRateTooLargeRetryE
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
@@ -22,8 +21,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MongoExceptionHandler {
 
-  @Autowired
-  private ErrorManager errorManager;
+  private final ErrorManager errorManager;
+
+  public MongoExceptionHandler(ErrorManager errorManager) {
+    this.errorManager = errorManager;
+  }
 
   @ExceptionHandler(DataAccessException.class)
   protected ResponseEntity<ErrorDTO> handleDataAccessException(
