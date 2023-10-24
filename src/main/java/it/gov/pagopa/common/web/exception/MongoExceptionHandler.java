@@ -5,7 +5,6 @@ import it.gov.pagopa.common.mongo.retry.exception.MongoRequestRateTooLargeRetryE
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -46,7 +45,6 @@ public class MongoExceptionHandler {
     return getErrorDTOResponseEntity(ex, request, ex.getRetryAfterMs());
   }
 
-  @NotNull
   private ResponseEntity<ErrorDTO> getErrorDTOResponseEntity(Exception ex,
                                                              HttpServletRequest request, Long retryAfterMs) {
     String message = ex.getMessage();

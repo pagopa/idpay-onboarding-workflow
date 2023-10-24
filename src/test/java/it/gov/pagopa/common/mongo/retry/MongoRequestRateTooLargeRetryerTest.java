@@ -6,7 +6,6 @@ import com.mongodb.ServerAddress;
 import it.gov.pagopa.common.mongo.retry.exception.MongoRequestRateTooLargeRetryExpiredException;
 import it.gov.pagopa.common.utils.MemoryAppender;
 import org.bson.BsonDocument;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -218,7 +217,6 @@ public class MongoRequestRateTooLargeRetryerTest {
     }
   }
 
-  @NotNull
   public static UncategorizedMongoDbException buildRequestRateTooLargeMongodbException() {
     String mongoFullErrorResponse = """
         {"ok": 0.0, "errmsg": "Error=16500, RetryAfterMs=34,\s
