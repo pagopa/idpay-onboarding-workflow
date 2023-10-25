@@ -2,7 +2,9 @@ package it.gov.pagopa.common.mongo.retry;
 
 import ch.qos.logback.classic.LoggerContext;
 import com.mongodb.MongoQueryException;
+import com.mongodb.MongoWriteException;
 import com.mongodb.ServerAddress;
+import com.mongodb.WriteError;
 import it.gov.pagopa.common.mongo.retry.exception.MongoRequestRateTooLargeRetryExpiredException;
 import it.gov.pagopa.common.utils.MemoryAppender;
 import org.bson.BsonDocument;
@@ -10,15 +12,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -49,6 +56,52 @@ public class MongoRequestRateTooLargeRetryerTest {
     memoryAppender.start();
   }
 
+  public static Stream<DataAccessException> buildRetriableExceptions(){
+    return Stream.of(
+            buildRequestRateTooLargeMongodbException_whenReading(),
+            buildRequestRateTooLargeMongodbException_whenWriting(),
+            buildRequestRateTooLargeMongodbException_whenBulkWriting()
+    );
+  }
+
+  /**  Exception thrown when 429 occurs while reading */
+  public static UncategorizedMongoDbException buildRequestRateTooLargeMongodbException_whenReading() {
+    String mongoFullErrorResponse = """
+        {"ok": 0.0, "errmsg": "Error=16500, RetryAfterMs=34,\s
+        Details='Response status code does not indicate success: TooManyRequests (429) Substatus: 3200 ActivityId: 46ba3855-bc3b-4670-8609-17e1c2c87778 Reason:\s
+        (\\r\\nErrors : [\\r\\n \\"Request rate is large. More Request Units may be needed, so no changes were made. Please retry this request later. Learn more:
+         http://aka.ms/cosmosdb-error-429\\"\\r\\n]\\r\\n) ", "code": 16500, "codeName": "RequestRateTooLarge"}
+        """;
+
+    MongoQueryException mongoQueryException = new MongoQueryException(
+            BsonDocument.parse(mongoFullErrorResponse), new ServerAddress());
+    return new UncategorizedMongoDbException(mongoQueryException.getMessage(), mongoQueryException);
+  }
+
+  /**  Exception thrown when 429 occurs while writing */
+  public static DataIntegrityViolationException buildRequestRateTooLargeMongodbException_whenWriting() {
+    String writeErrorMessage = """
+            Error=16500, RetryAfterMs=34, Details='Response status code does not indicate success: TooManyRequests (429); Substatus: 3200; ActivityId: 822d212d-5aac-4f5d-a2d4-76d6da7b619e; Reason: (
+            Errors : [
+              "Request rate is large. More Request Units may be needed, so no changes were made. Please retry this request later. Learn more: http://aka.ms/cosmosdb-error-429"
+            ]
+            );
+            """;
+    final MongoWriteException mongoWriteException = new MongoWriteException(
+            new WriteError(16500, writeErrorMessage, BsonDocument.parse("{}")), new ServerAddress());
+    return new DataIntegrityViolationException(mongoWriteException.getMessage(), mongoWriteException);
+  }
+
+  /**  Exception thrown when 429 occurs while bulk writing */
+  public static DataIntegrityViolationException buildRequestRateTooLargeMongodbException_whenBulkWriting() {
+    String writeErrorMessage = """
+            Error=16500, RetryAfterMs=34, Details='Batch write error.'
+            """;
+    final MongoWriteException mongoWriteException = new MongoWriteException(
+            new WriteError(16500, writeErrorMessage, BsonDocument.parse("{}")), new ServerAddress());
+    return new DataIntegrityViolationException(mongoWriteException.getMessage(), mongoWriteException);
+  }
+
   public static class TestService {
 
     @Autowired
@@ -67,15 +120,15 @@ public class MongoRequestRateTooLargeRetryerTest {
     }
   }
 
-  @Test
-  void requestRateTooLargeMaxRetry_resultOk() {
+  @ParameterizedTest
+  @MethodSource("buildRetriableExceptions")
+  void requestRateTooLargeMaxRetry_resultOk(DataAccessException retriableException) {
     // Given
     long[] counter = {0};
-    UncategorizedMongoDbException mongoDbException = buildRequestRateTooLargeMongodbException();
 
     Mockito.doAnswer(invocationOnMock -> {
       if (counter[0]++ < REQUEST_RATE_TOO_LARGE_MAX_RETRY) {
-        throw mongoDbException;
+        throw retriableException;
       }
       return "ok1";
     }).when(dummyServiceMock).get();
@@ -92,18 +145,18 @@ public class MongoRequestRateTooLargeRetryerTest {
 
   }
 
-  @Test
-  void requestRateTooLargeWithMaxMillisElapsed_resultOk() {
+  @ParameterizedTest
+  @MethodSource("buildRetriableExceptions")
+  void requestRateTooLargeWithMaxMillisElapsed_resultOk(DataAccessException retriableException) {
     // Given
     int[] counter = {0};
-    UncategorizedMongoDbException mongoDbException = buildRequestRateTooLargeMongodbException();
 
     long startTime = System.currentTimeMillis();
     when(dummyServiceMock.get()).thenAnswer(invocation -> {
       counter[0]++;
       if ((System.currentTimeMillis() - startTime) + 40
           < REQUEST_RATE_TOO_LARGE_MAX_MILLIS_ELAPSED) {
-        throw mongoDbException;
+        throw retriableException;
       }
       return "ok2";
     });
@@ -124,10 +177,10 @@ public class MongoRequestRateTooLargeRetryerTest {
     assertLogMessage(message, REQUEST_RATE_TOO_LARGE_MAX_MILLIS_ELAPSED);
   }
 
-  @Test
-  void requestRateTooLargeMaxRetry_resultKo() {
-    UncategorizedMongoDbException mongoDbException = buildRequestRateTooLargeMongodbException();
-    when(dummyServiceMock.get()).thenThrow(mongoDbException);
+  @ParameterizedTest
+  @MethodSource("buildRetriableExceptions")
+  void requestRateTooLargeMaxRetry_resultKo(DataAccessException retriableException) {
+    when(dummyServiceMock.get()).thenThrow(retriableException);
 
     try {
       testService.annotatedMethodWithMaxRetry();
@@ -142,10 +195,10 @@ public class MongoRequestRateTooLargeRetryerTest {
     verify(dummyServiceMock, times(REQUEST_RATE_TOO_LARGE_MAX_RETRY + 1)).get();
   }
 
-  @Test
-  void requestRateTooLargeRetryExpiredExceptionWithMaxMillisElapsed() {
-    UncategorizedMongoDbException mongoDbException = buildRequestRateTooLargeMongodbException();
-    when(dummyServiceMock.get()).thenThrow(mongoDbException);
+  @ParameterizedTest
+  @MethodSource("buildRetriableExceptions")
+  void requestRateTooLargeRetryExpiredExceptionWithMaxMillisElapsed(DataAccessException retriableException) {
+    when(dummyServiceMock.get()).thenThrow(retriableException);
 
     assertThrows(MongoRequestRateTooLargeRetryExpiredException.class, () ->
         testService.annotatedMethodWithMaxMillisElapsed()
@@ -217,16 +270,4 @@ public class MongoRequestRateTooLargeRetryerTest {
     }
   }
 
-  public static UncategorizedMongoDbException buildRequestRateTooLargeMongodbException() {
-    String mongoFullErrorResponse = """
-        {"ok": 0.0, "errmsg": "Error=16500, RetryAfterMs=34,\s
-        Details='Response status code does not indicate success: TooManyRequests (429) Substatus: 3200 ActivityId: 46ba3855-bc3b-4670-8609-17e1c2c87778 Reason:\s
-        (\\r\\nErrors : [\\r\\n \\"Request rate is large. More Request Units may be needed, so no changes were made. Please retry this request later. Learn more:
-         http://aka.ms/cosmosdb-error-429\\"\\r\\n]\\r\\n) ", "code": 16500, "codeName": "RequestRateTooLarge"}
-        """;
-
-    MongoQueryException mongoQueryException = new MongoQueryException(
-        BsonDocument.parse(mongoFullErrorResponse), new ServerAddress());
-    return new UncategorizedMongoDbException(mongoQueryException.getMessage(), mongoQueryException);
-  }
 }
