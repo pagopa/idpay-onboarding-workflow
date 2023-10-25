@@ -232,7 +232,7 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
     int[] counter = {0};
     return Mockito.doAnswer(a -> {
       if(counter[0]++ < maxRetry){
-        throw MongoRequestRateTooLargeRetryerTest.buildRequestRateTooLargeMongodbException();
+        throw MongoRequestRateTooLargeRetryerTest.buildRequestRateTooLargeMongodbException_whenReading();
       }else {
         return realMethod.apply(a.getArgument(0));
       }

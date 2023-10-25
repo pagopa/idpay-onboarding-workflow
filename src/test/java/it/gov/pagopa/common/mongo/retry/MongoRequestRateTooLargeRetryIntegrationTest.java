@@ -100,7 +100,7 @@ class MongoRequestRateTooLargeRetryIntegrationTest {
     static class TestRepository {
         public String test() {
             counter[0]++;
-            throw MongoRequestRateTooLargeRetryerTest.buildRequestRateTooLargeMongodbException();
+            throw MongoRequestRateTooLargeRetryerTest.buildRequestRateTooLargeMongodbException_whenReading();
 
         }
     }
