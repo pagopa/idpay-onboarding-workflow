@@ -197,11 +197,11 @@ logging:
 
 management:
   health:
-    probes.enabled: true
     redis.enabled: ${REDIS_CACHE_ENABLED:false}
     mongo.enabled: ${HEALTH_MONGO_ENABLED:true}
   endpoint:
     health:
+      probes.enabled: true
       group:
         readiness.include: "*"
         liveness.include: livenessState,diskSpace,ping,binders,streams

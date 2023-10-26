@@ -1,5 +1,6 @@
 package it.gov.pagopa.common.mongo.retry;
 
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -42,11 +43,17 @@ public class MongoRequestRateTooLargeAutomaticRetryAspect {
         this.maxMillisElapsedBatch = maxMillisElapsedBatch;
     }
 
+    @Generated
+    @Pointcut("execution(* org.springframework.data.mongodb.repository.*MongoRepository+.*(..))")
+    public void inSpringRepositoryClass() {
+    }
+
+    @Generated
     @Pointcut("within(it.gov.pagopa..*Repository*)")
     public void inRepositoryClass() {
     }
 
-    @Around("inRepositoryClass()")
+    @Around("inRepositoryClass() or inSpringRepositoryClass()")
     public Object decorateRepositoryMethods(ProceedingJoinPoint pjp) throws Throwable {
 
         if(isNotControllerContext()){
