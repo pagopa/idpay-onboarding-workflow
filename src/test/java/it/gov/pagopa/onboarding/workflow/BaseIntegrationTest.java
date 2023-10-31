@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import it.gov.pagopa.common.kafka.KafkaTestUtilitiesService;
 import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
+import it.gov.pagopa.common.mongo.singleinstance.AutoConfigureSingleInstanceMongodb;
 import it.gov.pagopa.common.redis.config.EmbeddedRedisTestConfiguration;
 import it.gov.pagopa.common.utils.TestIntegrationUtils;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -89,6 +90,7 @@ import javax.management.MalformedObjectNameException;
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(stubs = "classpath:/mappings", port = 0)
 @Import(EmbeddedRedisTestConfiguration.class)
+@AutoConfigureSingleInstanceMongodb
 public abstract class BaseIntegrationTest {
 
     @Autowired

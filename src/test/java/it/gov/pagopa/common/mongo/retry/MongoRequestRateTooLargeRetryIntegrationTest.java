@@ -3,6 +3,7 @@ package it.gov.pagopa.common.mongo.retry;
 import it.gov.pagopa.common.mongo.DummySpringRepository;
 import it.gov.pagopa.common.mongo.config.MongoConfig;
 import it.gov.pagopa.common.mongo.retry.exception.MongoRequestRateTooLargeRetryExpiredException;
+import it.gov.pagopa.common.mongo.singleinstance.AutoConfigureSingleInstanceMongodb;
 import it.gov.pagopa.common.web.exception.ErrorManager;
 import it.gov.pagopa.common.web.exception.MongoExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @TestPropertySource(
         properties = {
-                "de.flapdoodle.mongodb.embedded.version=4.0.21",
+                "de.flapdoodle.mongodb.embedded.version=4.2.24",
 
                 "spring.data.mongodb.database=idpay",
                 "spring.data.mongodb.config.connectionPool.maxSize: 100",
@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
         MongoRequestRateTooLargeRetryIntegrationTest.TestRepository.class,
 })
 @WebMvcTest(excludeAutoConfiguration = SecurityAutoConfiguration.class)
-@AutoConfigureDataMongo
+@AutoConfigureSingleInstanceMongodb
 class MongoRequestRateTooLargeRetryIntegrationTest {
 
     @Value("${mongo.request-rate-too-large.batch.max-retry:3}")
