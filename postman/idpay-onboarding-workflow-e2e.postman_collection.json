@@ -16208,7 +16208,7 @@
 		},
 		{
 			"key": "CF_fake",
-			"value": "RNZPMP80A44X000N"
+			"value": "RNZPMP80A44X000Z"
 		},
 		{
 			"key": "identityPortalToken",
@@ -16341,11 +16341,6 @@
 		{
 			"key": "initiativeIdDraft",
 			"value": ""
-		},
-		{
-			"key": "basePath",
-			"value": "C:/Users/ranaldoda/IDPay/idpay-portal-welfare-backend-initiative/postman",
-			"type": "string"
 		},
 		{
 			"key": "familyUnitComposition",
