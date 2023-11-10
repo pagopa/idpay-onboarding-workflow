@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "ca9dcca0-de64-46af-b100-572393136eda",
+		"_postman_id": "b9c6121b-3495-4bf4-8fe7-6e36fb9b7375",
 		"name": "Onboarding - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036679",
-		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036736-ca9dcca0-de64-46af-b100-572393136eda?action=share&source=collection_link&creator=26036679"
+		"_exporter_id": "21434036",
+		"_collection_link": "https://interstellar-water-820478.postman.co/workspace/My-Workspace~a329ddeb-86a1-48e4-820f-e30044868d3f/collection/21434036-b9c6121b-3495-4bf4-8fe7-6e36fb9b7375?action=share&source=collection_link&creator=21434036"
 	},
 	"item": [
 		{
@@ -311,7 +311,7 @@
 														{
 															"key": "file",
 															"type": "file",
-															"src": "WXH6J3sYC/example_fiscal_code.csv"
+															"src": "./postman/example_fiscal_code.csv"
 														}
 													]
 												},
@@ -4158,7 +4158,7 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
 													"host": [
 														"{{baseUrl}}"
 													],
@@ -4170,71 +4170,7 @@
 													"query": [
 														{
 															"key": "fiscalCode",
-															"value": "{{CF_2}}"
-														}
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Generate Token IO Copy",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"pm.test('Onboarding - Happy case - APP IO - Onboarding user with NF - User ONBOARDING_OK and Family member DEMANDED - Generate token IO', () => {\r",
-															"    //verify response HTTP status \r",
-															"    pm.response.to.have.status(200);\r",
-															"    pm.collectionVariables.set(\"tokenIO\", pm.response.text());\r",
-															"});\r",
-															""
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															"setTimeout(()=> {}, 5000)"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "noauth"
-												},
-												"method": "POST",
-												"header": [
-													{
-														"key": "Ocp-Apim-Subscription-Key",
-														"value": "{{genericSubscriptionKey}}",
-														"type": "default"
-													},
-													{
-														"key": "Ocp-Apim-Trace",
-														"value": "true",
-														"type": "default"
-													}
-												],
-												"url": {
-													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
-													"host": [
-														"{{baseUrl}}"
-													],
-													"path": [
-														"rtd",
-														"mock-io",
-														"login"
-													],
-													"query": [
-														{
-															"key": "fiscalCode",
-															"value": "{{CF_2}}"
+															"value": "{{CF_1}}"
 														}
 													]
 												}
@@ -4595,7 +4531,7 @@
 												"header": [
 													{
 														"key": "Fiscal-Code",
-														"value": "{{CF_2}}",
+														"value": "{{CF_1}}",
 														"type": "text"
 													}
 												],
@@ -14563,11 +14499,6 @@
 												"exec": [
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - Status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
-													"});\r",
-													"\r",
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - message is Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.\", function () {\r",
-													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14612,7 +14543,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -14768,7 +14699,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -14848,7 +14779,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -14927,7 +14858,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{IssuerinitiativeId}}/status",
+											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{initiativeIdWithWhitelist}}/status",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -14935,7 +14866,7 @@
 												"idpay",
 												"hb",
 												"onboarding",
-												"{{IssuerinitiativeId}}",
+												"{{initiativeIdWithWhitelist}}",
 												"status"
 											]
 										}
@@ -16208,7 +16139,7 @@
 		},
 		{
 			"key": "CF_fake",
-			"value": "RNZPMP80A44X000M"
+			"value": "RNZPMP80A44X000Z"
 		},
 		{
 			"key": "identityPortalToken",
@@ -16341,11 +16272,6 @@
 		{
 			"key": "initiativeIdDraft",
 			"value": ""
-		},
-		{
-			"key": "basePath",
-			"value": "C:/Users/ranaldoda/IDPay/idpay-portal-welfare-backend-initiative/postman",
-			"type": "string"
 		},
 		{
 			"key": "familyUnitComposition",
