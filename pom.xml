@@ -10,7 +10,7 @@
     </parent>
     <groupId>it.gov.pagopa.onboarding.workflow</groupId>
     <artifactId>idpay-onboarding-workflow</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <name>idpay-onboarding-workflow</name>
     <description>Onboarding Workflow Microservice</description>
     <properties>
