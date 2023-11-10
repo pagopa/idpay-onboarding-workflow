@@ -14499,11 +14499,6 @@
 												"exec": [
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - Status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
-													"});\r",
-													"\r",
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - message is Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.\", function () {\r",
-													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14548,7 +14543,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -14704,7 +14699,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -14784,7 +14779,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"initiativeId\" : \"{{IssuerinitiativeId}}\"\r\n}",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithWhitelist}}\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -14863,7 +14858,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{IssuerinitiativeId}}/status",
+											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{initiativeIdWithWhitelist}}/status",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -14871,7 +14866,7 @@
 												"idpay",
 												"hb",
 												"onboarding",
-												"{{IssuerinitiativeId}}",
+												"{{initiativeIdWithWhitelist}}",
 												"status"
 											]
 										}
