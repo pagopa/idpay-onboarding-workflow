@@ -85,7 +85,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
-        .orElseThrow(() -> new UserNotOnboardedException(String.format(ID_S_NOT_FOUND, initiativeId)));
+        .orElseThrow(() -> new UserNotOnboardedException(String.format(ID_S_NOT_FOUND_MSG, initiativeId)));
   }
 
   @Override
@@ -324,7 +324,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (status.equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE_AUDIT);
-      throw new UserUnsubscribedException(String.format(ERROR_UNSUBSCRIBED_INITIATIVE, onboarding.getInitiativeId()));
+      throw new UserUnsubscribedException(String.format(ERROR_UNSUBSCRIBED_INITIATIVE_MSG, onboarding.getInitiativeId()));
     }
   }
 
@@ -336,7 +336,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         log.info("[GET_INITIATIVE] Initiative {} is not active PUBLISHED! Status: {}", initiativeId,
             initiativeDTO.getStatus());
         throw new InitiativeInvalidException(INITIATIVE_NOT_PUBLISHED,
-                String.format(ERROR_INITIATIVE_NOT_ACTIVE, initiativeId));
+                String.format(ERROR_INITIATIVE_NOT_ACTIVE_MSG, initiativeId));
       }
       log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", initiativeId);
       return initiativeDTO;
@@ -358,7 +358,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     long startTime = System.currentTimeMillis();
 
     if (pageable != null && pageable.getPageSize() > 15 ){
-      throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE);
+      throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG);
     }
     List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS = new ArrayList<>();
     Criteria criteria = onboardingRepository.getCriteria(initiativeId, userId, status, startDate,
@@ -399,10 +399,10 @@ public class OnboardingServiceImpl implements OnboardingService {
         && !consentPutDTO.isPdndAccept()) {
       performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
       auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
-              String.format(OnboardingWorkflowConstants.ERROR_PDND_AUDIT, consentPutDTO.getInitiativeId()));
+              OnboardingWorkflowConstants.ERROR_PDND_AUDIT);
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
       onboardingRepository.save(onboarding);
-      throw new PDNDConsentDeniedException(String.format(ERROR_PDND, consentPutDTO.getInitiativeId()));
+      throw new PDNDConsentDeniedException(String.format(ERROR_PDND_MSG, consentPutDTO.getInitiativeId()));
     }
 
     selfDeclaration(initiativeDTO, consentPutDTO);
@@ -500,7 +500,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     Set<String> onboardingRejectionReasonsCode = Optional.ofNullable(evaluationDTO.getOnboardingRejectionReasons())
             .orElseGet(Collections::emptyList)
             .stream()
-            .map(OnboardingRejectionReason::getCode)
+            .map(this::mapRejectionReason)
             .collect(Collectors.toSet());
     String rejectionReasons = String.join(COMMA_DELIMITER, onboardingRejectionReasonsCode);
 
@@ -601,7 +601,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is not possible", initiativeId);
       throw new OperationNotAllowedException(SUSPENSION_NOT_ALLOWED,
-              String.format(ERROR_SUSPENSION_STATUS, initiativeId));
+              String.format(ERROR_SUSPENSION_STATUS_MSG, initiativeId));
     }
     try {
       onboarding.setStatus(OnboardingWorkflowConstants.SUSPENDED);
@@ -616,7 +616,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is failed", initiativeId);
-      throw new UserSuspensionOrReadmissionException(String.format(ERROR_SUSPENSION, initiativeId));
+      throw new UserSuspensionOrReadmissionException(String.format(ERROR_SUSPENSION_MSG, initiativeId));
     }
   }
 
@@ -631,7 +631,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is not possible", initiativeId);
       throw new OperationNotAllowedException(READMISSION_NOT_ALLOWED,
-              String.format(ERROR_READMIT_STATUS, initiativeId));
+              String.format(ERROR_READMIT_STATUS_MSG, initiativeId));
     }
     try {
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
@@ -646,7 +646,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logReadmissionKO(userId, initiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is failed", initiativeId);
-      throw new UserSuspensionOrReadmissionException(String.format(ERROR_READMISSION, initiativeId));
+      throw new UserSuspensionOrReadmissionException(String.format(ERROR_READMISSION_MSG, initiativeId));
     }
   }
 
@@ -739,6 +739,15 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new PDVInvocationException(PDV_DECRYPT_ERROR_MSG);
     }
     return fiscalCode;
+  }
+
+  private String mapRejectionReason(OnboardingRejectionReason rejectionReason){
+    //Remapping the GENERIC_ERROR throw by admissibility for technical issues in a TECHNICAL_ERROR
+    if(OnboardingWorkflowConstants.GENERIC_ERROR.equals(rejectionReason.getCode())){
+      return OnboardingWorkflowConstants.ERROR_TECHNICAL;
+    }
+
+    return rejectionReason.getCode();
   }
 
 }

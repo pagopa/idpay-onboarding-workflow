@@ -233,7 +233,7 @@ class OnboardingControllerTest {
   @Test
   void getOnboardingStatus_ko() throws Exception {
 
-    Mockito.doThrow(new UserNotOnboardedException(ID_S_NOT_FOUND, INITIATIVE_ID))
+    Mockito.doThrow(new UserNotOnboardedException(ID_S_NOT_FOUND_MSG, INITIATIVE_ID))
             .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
     mvc.perform(
@@ -314,7 +314,7 @@ class OnboardingControllerTest {
 
   @Test
   void onboarding_status_list_ko() throws Exception {
-    Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE))
+    Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
             .when(onboardingServiceMock).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE, STATUS, null);
 
     mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)

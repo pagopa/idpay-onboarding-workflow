@@ -602,7 +602,7 @@ class OnboardingServiceTest {
       onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
     } catch (UserUnsubscribedException e) {
       assertEquals(USER_UNSUBSCRIBED, e.getCode());
-      assertEquals(String.format(ERROR_UNSUBSCRIBED_INITIATIVE, onboarding.getInitiativeId()), e.getMessage());
+      assertEquals(String.format(ERROR_UNSUBSCRIBED_INITIATIVE_MSG, onboarding.getInitiativeId()), e.getMessage());
     }
   }
 
@@ -651,7 +651,7 @@ class OnboardingServiceTest {
       onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
     } catch (UserNotOnboardedException e) {
       assertEquals(USER_NOT_ONBOARDED, e.getCode());
-      assertEquals(String.format(ID_S_NOT_FOUND,INITIATIVE_ID), e.getMessage());
+      assertEquals(String.format(ID_S_NOT_FOUND_MSG,INITIATIVE_ID), e.getMessage());
     }
 
   }
@@ -922,7 +922,7 @@ class OnboardingServiceTest {
           CHANNEL);
     } catch (InitiativeInvalidException e) {
       assertEquals(INITIATIVE_NOT_PUBLISHED, e.getCode());
-      assertEquals(String.format(ERROR_INITIATIVE_NOT_ACTIVE, onboarding.getInitiativeId()), e.getMessage());
+      assertEquals(String.format(ERROR_INITIATIVE_NOT_ACTIVE_MSG, onboarding.getInitiativeId()), e.getMessage());
     }
   }
 
@@ -1307,7 +1307,7 @@ class OnboardingServiceTest {
       Assertions.fail();
     } catch (PDNDConsentDeniedException e) {
       assertEquals(PDND_CONSENT_DENIED, e.getCode());
-      assertEquals(String.format(ERROR_PDND,INITIATIVE_ID), e.getMessage());
+      assertEquals(String.format(ERROR_PDND_MSG,INITIATIVE_ID), e.getMessage());
     }
   }
 
@@ -1394,6 +1394,16 @@ class OnboardingServiceTest {
     }
   }
 
+  @Test
+  void completeOnboarding_genericError_rejectionReason(){
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.empty());
+    EVALUATION_DTO.setOnboardingRejectionReasons(List.of(new OnboardingRejectionReason
+            (INVALID_INITIATIVE, OnboardingWorkflowConstants.GENERIC_ERROR, null, null, null)));
+    onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
+    Mockito.verify(onboardingRepositoryMock, Mockito.times(1))
+            .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+  }
 
   @Test
   void checkChangeJOINEDStatusInToONBOARDING_OK() {
@@ -1452,7 +1462,7 @@ class OnboardingServiceTest {
       Assertions.fail();
     } catch (UserNotOnboardedException e) {
       assertEquals(USER_NOT_ONBOARDED, e.getCode());
-      assertEquals(String.format(ID_S_NOT_FOUND,INITIATIVE_ID), e.getMessage());
+      assertEquals(String.format(ID_S_NOT_FOUND_MSG,INITIATIVE_ID), e.getMessage());
     }
   }
 
@@ -1564,7 +1574,7 @@ class OnboardingServiceTest {
       fail();
     } catch (PageSizeNotAllowedException e) {
       assertEquals(PAGE_SIZE_NOT_ALLOWED, e.getCode());
-      assertEquals(String.format(ERROR_MAX_NUMBER_FOR_PAGE), e.getMessage());
+      assertEquals(String.format(ERROR_MAX_NUMBER_FOR_PAGE_MSG), e.getMessage());
     }
   }
 
@@ -1636,7 +1646,7 @@ class OnboardingServiceTest {
       onboardingService.suspend(INITIATIVE_ID, USER_ID);
     } catch (OperationNotAllowedException e) {
       assertEquals(SUSPENSION_NOT_ALLOWED, e.getCode());
-      assertEquals(String.format(ERROR_SUSPENSION_STATUS, onboarding.getInitiativeId()), e.getMessage());
+      assertEquals(String.format(ERROR_SUSPENSION_STATUS_MSG, onboarding.getInitiativeId()), e.getMessage());
     }
   }
 
@@ -1653,7 +1663,7 @@ class OnboardingServiceTest {
       onboardingService.suspend(INITIATIVE_ID, USER_ID);
     } catch (UserSuspensionOrReadmissionException e) {
       assertEquals(GENERIC_ERROR, e.getCode());
-      assertEquals(String.format(ERROR_SUSPENSION, onboarding.getInitiativeId()), e.getMessage());
+      assertEquals(String.format(ERROR_SUSPENSION_MSG, onboarding.getInitiativeId()), e.getMessage());
     }
   }
 
@@ -1680,7 +1690,7 @@ class OnboardingServiceTest {
       onboardingService.readmit(INITIATIVE_ID, USER_ID);
     } catch (OperationNotAllowedException e) {
       assertEquals(READMISSION_NOT_ALLOWED, e.getCode());
-      assertEquals(String.format(ERROR_READMIT_STATUS, onboarding.getInitiativeId()), e.getMessage());
+      assertEquals(String.format(ERROR_READMIT_STATUS_MSG, onboarding.getInitiativeId()), e.getMessage());
     }
   }
 
@@ -1697,7 +1707,7 @@ class OnboardingServiceTest {
       onboardingService.readmit(INITIATIVE_ID, USER_ID);
     } catch (UserSuspensionOrReadmissionException e) {
       assertEquals(GENERIC_ERROR, e.getCode());
-      assertEquals(String.format(ERROR_READMISSION, onboarding.getInitiativeId()), e.getMessage());
+      assertEquals(String.format(ERROR_READMISSION_MSG, onboarding.getInitiativeId()), e.getMessage());
     }
   }
 

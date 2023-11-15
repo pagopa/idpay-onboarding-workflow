@@ -7,8 +7,8 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.InitiativeOn
 import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.UserNotInWhitelistException;
 import org.junit.jupiter.api.Test;
 
+
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.GENERIC_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -36,9 +36,15 @@ class UtilitiesTest {
     }
 
     @Test
+    void detailTechnicalError(){
+        String message = utilities.getMessageOnboardingKO(OnboardingWorkflowConstants.ERROR_TECHNICAL);
+        assertEquals(OnboardingWorkflowConstants.TECHNICAL_ERROR_MSG_AUDIT, message);
+    }
+
+    @Test
     void detailGenericError(){
         String message = utilities.getMessageOnboardingKO("Generic error");
-        assertEquals(GENERIC_ERROR_MSG, message);
+        assertEquals(OnboardingWorkflowConstants.GENERIC_REJECTION_ERROR_MSG_AUDIT, message);
     }
 
     @Test
@@ -60,17 +66,25 @@ class UtilitiesTest {
     @Test
     void errorWhitelistException(){
         UserNotInWhitelistException exception = assertThrows(UserNotInWhitelistException.class,
-                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_INITIATIVE_END, INITIATIVE_ID));
+                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_WHITELIST, INITIATIVE_ID));
 
         assertEquals(USER_NOT_IN_WHITELIST, exception.getCode());
     }
 
     @Test
+    void errorTEchnical(){
+        InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
+                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_TECHNICAL, INITIATIVE_ID));
+
+        assertEquals(TECHNICAL_ERROR, exception.getCode());
+    }
+
+    @Test
     void genericOnboardingErrorException(){
         InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
-                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_INITIATIVE_END, INITIATIVE_ID));
+                () -> utilities.getOnboardingException("ISEE error", INITIATIVE_ID));
 
-        assertEquals(GENERIC_ERROR, exception.getCode());
+        assertEquals(UNSATISFIED_REQUIREMENTS, exception.getCode());
     }
 
 }
