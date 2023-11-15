@@ -1,11 +1,14 @@
 package it.gov.pagopa.onboarding.workflow.connector.admissibility;
 
 import feign.FeignException;
-import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.AdmissibilityInvocationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ERROR_ADMISSIBILITY_INVOCATION_MSG;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
 
 @Service
 @Slf4j
@@ -20,13 +23,18 @@ public class AdmissibilityRestConnectorImpl implements AdmissibilityRestConnecto
   @Override
   public InitiativeStatusDTO getInitiativeStatus(String initiativeId) {
     InitiativeStatusDTO initiativeStatusDTO;
-    try{
+    try {
       initiativeStatusDTO = admissibilityRestClient.getInitiativeStatus(initiativeId);
-    }catch (FeignException e){
-      log.error("[GET_INITIATIVE_STATUS] Initiative {}: something went wrong when invoking the API.",
-          initiativeId);
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
+    } catch (FeignException e){
+      if (e.status() == 404){
+        log.info("[GET_INITIATIVE_STATUS] Initiative {} was not found.", initiativeId);
+        throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId));
+      }
+
+      log.error("[GET_INITIATIVE_STATUS] Initiative {}: something went wrong when invoking the API.", initiativeId);
+      throw new AdmissibilityInvocationException(ERROR_ADMISSIBILITY_INVOCATION_MSG);
     }
+
     return initiativeStatusDTO;
   }
 }

@@ -18,7 +18,6 @@ class OnboardingWorkflowExceptionTest {
         // Then
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
         Assertions.assertSame(expectedMessage, result.getMessage());
-        Assertions.assertSame(expectedDetails, result.getDetails());
         Assertions.assertSame(expectedCause, result.getCause());
     }
 }

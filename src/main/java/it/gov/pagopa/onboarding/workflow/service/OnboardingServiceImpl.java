@@ -1,6 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
-import feign.FeignException;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
@@ -14,7 +13,12 @@ import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
-import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.badrequest.OperationNotAllowedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.badrequest.PageSizeNotAllowedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.*;
+import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.UserNotOnboardedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.PDVInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.UserSuspensionOrReadmissionException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
@@ -28,13 +32,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 
 @Slf4j
 @Service
@@ -79,8 +85,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
-        .orElseThrow(() -> new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format(OnboardingWorkflowConstants.ID_S_NOT_FOUND, initiativeId), null));
+        .orElseThrow(() -> new UserNotOnboardedException(String.format(ID_S_NOT_FOUND, initiativeId)));
   }
 
   @Override
@@ -208,8 +213,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       setStatus(onboarding, OnboardingWorkflowConstants.ONBOARDING_KO, LocalDateTime.now(),
               OnboardingWorkflowConstants.ERROR_WHITELIST);
       auditUtilities.logOnboardingKOWhiteList(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), LocalDateTime.now());
-      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-              OnboardingWorkflowConstants.ERROR_WHITELIST_MSG, OnboardingWorkflowConstants.GENERIC_ERROR);
+      throw new UserNotInWhitelistException(String.format(ERROR_WHITELIST_MSG, initiativeDTO.getInitiativeId()));
     }
     setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
     outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.ONBOARDING_OK));
@@ -250,10 +254,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (requestDate.isBefore(startDate)){
       auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
-              OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED_MSG);
-      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-              OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED_MSG,
-              OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED);
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
+      throw new InitiativeInvalidException(INITIATIVE_NOT_STARTED,
+              String.format(ERROR_INITIATIVE_NOT_STARTED_MSG, initiativeDTO.getInitiativeId()));
     }
 
     if (requestDate.isAfter(endDate)){
@@ -264,10 +267,9 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
       onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
-              OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG);
-      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-              OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG,
-              OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
+              OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG_AUDIT);
+      throw new InitiativeInvalidException(INITIATIVE_ENDED,
+              String.format(ERROR_INITIATIVE_END_MSG, initiativeDTO.getInitiativeId()));
     }
   }
 
@@ -289,10 +291,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboardingRepository.save(onboarding);
     auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
         onboarding.getUserId(), onboarding.getChannel(),
-        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG);
-    throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
-        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+        OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG_AUDIT);
+    throw new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeDTO.getInitiativeId()));
   }
 
   private RequiredCriteriaDTO getCriteriaLists(InitiativeDTO initiativeDTO) {
@@ -319,38 +319,27 @@ public class OnboardingServiceImpl implements OnboardingService {
             !OnboardingWorkflowConstants.REJECTION_REASON_BIRTHDATE_KO.equals(onboarding.getDetailKO())){
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               utilities.getMessageOnboardingKO(onboarding.getDetailKO()));
-      throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-              utilities.getMessageOnboardingKO(onboarding.getDetailKO()),
-              onboarding.getDetailKO());
+      utilities.getOnboardingException(onboarding.getDetailKO(), onboarding.getInitiativeId());
     }
     if (status.equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
-              OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE);
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-              OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE,
-              OnboardingWorkflowConstants.GENERIC_ERROR);
+              OnboardingWorkflowConstants.ERROR_UNSUBSCRIBED_INITIATIVE_AUDIT);
+      throw new UserUnsubscribedException(String.format(ERROR_UNSUBSCRIBED_INITIATIVE, onboarding.getInitiativeId()));
     }
   }
 
   private InitiativeDTO getInitiative(String initiativeId) {
-    try {
       log.info("[GET_INITIATIVE] Retrieving information for initiative {}", initiativeId);
-      InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(
-          initiativeId);
+      InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
       log.info(initiativeDTO.toString());
       if (!initiativeDTO.getStatus().equals(OnboardingWorkflowConstants.PUBLISHED)) {
         log.info("[GET_INITIATIVE] Initiative {} is not active PUBLISHED! Status: {}", initiativeId,
             initiativeDTO.getStatus());
-        throw new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-            OnboardingWorkflowConstants.ERROR_INITIATIVE_NOT_ACTIVE, OnboardingWorkflowConstants.GENERIC_ERROR);
+        throw new InitiativeInvalidException(INITIATIVE_NOT_PUBLISHED,
+                String.format(ERROR_INITIATIVE_NOT_ACTIVE, initiativeId));
       }
       log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", initiativeId);
       return initiativeDTO;
-    } catch (FeignException e) {
-      log.error("[GET_INITIATIVE] Initiative {}: something went wrong when invoking the API.",
-          initiativeId);
-      throw new OnboardingWorkflowException(e.status(), e.contentUTF8(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
-    }
   }
 
   @Override
@@ -368,9 +357,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       Pageable pageable) {
     long startTime = System.currentTimeMillis();
 
-    if (pageable != null && pageable.getPageSize() > 15) {
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-          OnboardingWorkflowConstants.ERROR_MAX_NUMBER_FOR_PAGE, null);
+    if (pageable != null && pageable.getPageSize() > 15 ){
+      throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE);
     }
     List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS = new ArrayList<>();
     Criteria criteria = onboardingRepository.getCriteria(initiativeId, userId, status, startDate,
@@ -411,12 +399,10 @@ public class OnboardingServiceImpl implements OnboardingService {
         && !consentPutDTO.isPdndAccept()) {
       performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
       auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
-              String.format(OnboardingWorkflowConstants.ERROR_PDND, consentPutDTO.getInitiativeId()));
+              String.format(OnboardingWorkflowConstants.ERROR_PDND_AUDIT, consentPutDTO.getInitiativeId()));
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
       onboardingRepository.save(onboarding);
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-          String.format(OnboardingWorkflowConstants.ERROR_PDND,
-              consentPutDTO.getInitiativeId()), null);
+      throw new PDNDConsentDeniedException(String.format(ERROR_PDND, consentPutDTO.getInitiativeId()));
     }
 
     selfDeclaration(initiativeDTO, consentPutDTO);
@@ -448,32 +434,24 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (selfDeclarationBool.size() + selfDeclarationMulti.size()
         != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size()) {
-      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE);
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-          OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE, null);
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT);
+      throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
     }
 
     initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().forEach(item -> {
       if (item instanceof SelfCriteriaBoolDTO bool) {
         Boolean flag = selfDeclarationBool.get(bool.getCode());
         if (flag == null || !flag) {
-          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
-                  String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, consentPutDTO.getInitiativeId()));
-          throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-              String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
-                  consentPutDTO.getInitiativeId()), null);
-
+          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
+          throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
         }
         bool.setValue(true);
       }
       if (item instanceof SelfCriteriaMultiDTO multi) {
         String value = selfDeclarationMulti.get(multi.getCode());
         if (value == null || !multi.getValue().contains(value)) {
-          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(),
-                  String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY, consentPutDTO.getInitiativeId()));
-          throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-              String.format(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY,
-                  consentPutDTO.getInitiativeId()), null);
+          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
+          throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
         }
         multi.setValue(List.of(value));
       }
@@ -622,8 +600,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is not possible", initiativeId);
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-              OnboardingWorkflowConstants.ERROR_SUSPENSION_STATUS, null);
+      throw new OperationNotAllowedException(SUSPENSION_NOT_ALLOWED,
+              String.format(ERROR_SUSPENSION_STATUS, initiativeId));
     }
     try {
       onboarding.setStatus(OnboardingWorkflowConstants.SUSPENDED);
@@ -638,8 +616,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is failed", initiativeId);
-      throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              OnboardingWorkflowConstants.ERROR_SUSPENSION, OnboardingWorkflowConstants.GENERIC_ERROR, e);
+      throw new UserSuspensionOrReadmissionException(String.format(ERROR_SUSPENSION, initiativeId));
     }
   }
 
@@ -653,8 +630,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logReadmissionKO(userId, initiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is not possible", initiativeId);
-      throw new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-              OnboardingWorkflowConstants.ERROR_READMIT_STATUS, null);
+      throw new OperationNotAllowedException(READMISSION_NOT_ALLOWED,
+              String.format(ERROR_READMIT_STATUS, initiativeId));
     }
     try {
       onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
@@ -669,8 +646,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logReadmissionKO(userId, initiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is failed", initiativeId);
-      throw new OnboardingWorkflowException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              OnboardingWorkflowConstants.ERROR_READMISSION, OnboardingWorkflowConstants.GENERIC_ERROR, e);
+      throw new UserSuspensionOrReadmissionException(String.format(ERROR_READMISSION, initiativeId));
     }
   }
 
@@ -760,9 +736,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       DecryptCfDTO decryptedCfDTO = decryptRestConnector.getPiiByToken(userId);
       fiscalCode = decryptedCfDTO.getPii();
     } catch (Exception e) {
-      throw new OnboardingWorkflowException(
-              HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              e.getMessage(), OnboardingWorkflowConstants.GENERIC_ERROR, e);
+      throw new PDVInvocationException(PDV_DECRYPT_ERROR_MSG);
     }
     return fiscalCode;
   }

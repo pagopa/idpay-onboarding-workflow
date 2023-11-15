@@ -1,9 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.connector;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import it.gov.pagopa.onboarding.workflow.config.OnboardingWorkflowConfig;
@@ -11,9 +7,9 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnectorImpl;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.AdmissibilityInvocationException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +20,16 @@ import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_FOUND;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ERROR_ADMISSIBILITY_INVOCATION_MSG;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -45,9 +46,6 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
     properties = {"spring.application.name=idpay-admissibility-integration-rest"})
 class AdmissibilityRestClientTest {
 
-  private static final String INITIATIVE_ID = "INITIATIVE_ID";
-  private static final String USER_ID = "TEST_USER_ID";
-
   @Autowired
   private AdmissibilityRestClient restClient;
 
@@ -59,22 +57,43 @@ class AdmissibilityRestClientTest {
 
   @Test
   void getInitiativeStatus(){
-    InitiativeStatusDTO actual =
-        restConnector.getInitiativeStatus(INITIATIVE_ID);
+    // Given
+    String initiativeId = "INITIATIVE_ID";
 
+    // When
+    InitiativeStatusDTO actual = restConnector.getInitiativeStatus(initiativeId);
+
+    // Then
     assertTrue(actual.isBudgetAvailable());
   }
 
-  @Disabled
-  void getInitiativeStatus_ko() {
-    try {
-      restConnector.getInitiativeStatus("TEST");
-      fail();
-    }catch (OnboardingWorkflowException e){
-      assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
-    }
+  @Test
+  void getInitiativeStatus_NOT_FOUND(){
+    // Given
+    String initiativeId = "TEST";
+
+    // When
+    InitiativeNotFoundException exception = assertThrows(InitiativeNotFoundException.class,
+            () -> restConnector.getInitiativeStatus(initiativeId));
+
+    // Then
+    assertEquals(INITIATIVE_NOT_FOUND,exception.getCode());
+    assertEquals(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), exception.getMessage());
   }
 
+  @Test
+  void getInitiativeStatus_GENERIC_ERROR(){
+    // Given
+    String initiativeId = "INITIATIVEID_GENERIC_ERROR";
+
+    // When
+    AdmissibilityInvocationException exception = assertThrows(AdmissibilityInvocationException.class,
+            () -> restConnector.getInitiativeStatus(initiativeId));
+
+    // Then
+    assertEquals(GENERIC_ERROR,exception.getCode());
+    assertEquals(ERROR_ADMISSIBILITY_INVOCATION_MSG, exception.getMessage());
+  }
 
 
   public static class WireMockInitializer

@@ -3,6 +3,7 @@ package it.gov.pagopa.common.web.exception;
 import it.gov.pagopa.common.mongo.retry.MongoRequestRateTooLargeRetryer;
 import it.gov.pagopa.common.mongo.retry.exception.MongoRequestRateTooLargeRetryExpiredException;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -66,7 +67,7 @@ public class MongoExceptionHandler {
     }
 
     return bodyBuilder
-            .body(new ErrorDTO(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null));
+            .body(new ErrorDTO(ExceptionCode.TOO_MANY_REQUESTS, "TOO_MANY_REQUESTS"));
   }
 
 }

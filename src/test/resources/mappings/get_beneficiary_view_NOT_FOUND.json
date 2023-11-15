@@ -1,0 +1,12 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/initiative/INITIATIVEID_NOT_FOUND/beneficiary/view"
+  },
+  "response": {
+    "status": "404",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

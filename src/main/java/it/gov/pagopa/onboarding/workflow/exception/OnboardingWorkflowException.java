@@ -16,7 +16,8 @@ public class OnboardingWorkflowException extends ClientExceptionWithBody {
     }
 
     public OnboardingWorkflowException(int code, String message, String details, Throwable e) {
-        super(transcodeHttpStatus(code, e), code, message, details, e);
+        //super(transcodeHttpStatus(code, e), code, message, details, e);
+        super(transcodeHttpStatus(code, e), "CODICE", message, e);
     }
 
     @NonNull

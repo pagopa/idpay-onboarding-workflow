@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode;
+
 @RestControllerAdvice
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -35,7 +37,7 @@ public class ValidationExceptionHandler {
         ErrorManager.getRequestDetails(request), message);
     log.debug("Something went wrong while validating http request", ex);
 
-    return new ErrorDTO(HttpStatus.BAD_REQUEST.value(), message, "");
+    return new ErrorDTO(ExceptionCode.INVALID_REQUEST, message);
   }
 
   @ExceptionHandler(MissingRequestHeaderException.class)
@@ -49,6 +51,6 @@ public class ValidationExceptionHandler {
         ErrorManager.getRequestDetails(request), message);
     log.debug("Something went wrong handling request", ex);
 
-    return new ErrorDTO(HttpStatus.BAD_REQUEST.value(), message, "");
+    return new ErrorDTO(ExceptionCode.INVALID_REQUEST, message);
   }
 }
