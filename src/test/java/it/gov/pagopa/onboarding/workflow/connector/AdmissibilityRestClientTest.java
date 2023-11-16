@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(
     locations = "classpath:application.yml",
     properties = {"spring.application.name=idpay-admissibility-integration-rest"})
+//@AutoConfigureWireMock(stubs = "classpath:/mappings")
 class AdmissibilityRestClientTest {
 
   @Autowired
@@ -70,7 +71,7 @@ class AdmissibilityRestClientTest {
   @Test
   void getInitiativeStatus_NOT_FOUND(){
     // Given
-    String initiativeId = "TEST";
+    String initiativeId = "INITIATIVE_ID_NOT_FOUND";
 
     // When
     InitiativeNotFoundException exception = assertThrows(InitiativeNotFoundException.class,
@@ -84,7 +85,7 @@ class AdmissibilityRestClientTest {
   @Test
   void getInitiativeStatus_GENERIC_ERROR(){
     // Given
-    String initiativeId = "INITIATIVEID_GENERIC_ERROR";
+    String initiativeId = "INITIATIVE_ID_GENERIC_ERROR";
 
     // When
     AdmissibilityInvocationException exception = assertThrows(AdmissibilityInvocationException.class,

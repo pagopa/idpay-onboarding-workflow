@@ -61,7 +61,7 @@ class InitiativeRestClientTest {
   @Test
   void getInitiativeStatus_NOT_FOUND(){
     // Given
-    String initiativeId = "INITIATIVEID_NOT_FOUND";
+    String initiativeId = "INITIATIVE_ID_NOT_FOUND";
 
     // When
     InitiativeNotFoundException exception = assertThrows(InitiativeNotFoundException.class,
@@ -75,7 +75,7 @@ class InitiativeRestClientTest {
   @Test
   void getInitiativeStatus_GENERIC_ERROR(){
     // Given
-    String initiativeId = "INITIATIVEID_GENERIC_ERROR";
+    String initiativeId = "INITIATIVE_ID_GENERIC_ERROR";
 
     // When
     InitiativeInvocationException exception = assertThrows(InitiativeInvocationException.class,
