@@ -71,7 +71,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ContextConfiguration(classes = OnboardingServiceImpl.class)
+@ContextConfiguration(classes = {OnboardingServiceImpl.class, Utilities.class})
 @TestPropertySource(
         locations = "classpath:application.yml",
         properties = {
@@ -104,7 +104,7 @@ class OnboardingServiceTest {
   @MockBean
   AuditUtilities auditUtilities;
 
-  @MockBean
+  @Autowired
   Utilities utilities;
 
   @MockBean
@@ -616,8 +616,6 @@ class OnboardingServiceTest {
                     Optional.of(onboarding));
     when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
             .thenReturn(INITIATIVE_DTO);
-    doThrow(new InitiativeInvalidException(INITIATIVE_ENDED, String.format(ERROR_INITIATIVE_END_MSG, INITIATIVE_ID)))
-            .when(utilities).getOnboardingException(anyString(), anyString());
 
     try {
       onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
@@ -952,8 +950,6 @@ class OnboardingServiceTest {
     onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
     onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
 
-    doThrow(new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, INITIATIVE_ID)))
-            .when(utilities).getOnboardingException(anyString(), anyString());
 
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
