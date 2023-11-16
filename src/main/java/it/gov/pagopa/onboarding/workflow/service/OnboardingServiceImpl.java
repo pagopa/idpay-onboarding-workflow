@@ -24,7 +24,6 @@ import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,31 +56,36 @@ public class OnboardingServiceImpl implements OnboardingService {
   private int pageSize;
   @Value("${app.delete.delayTime}")
   private long delayTime;
-  @Autowired
-  private OnboardingRepository onboardingRepository;
 
-  @Autowired
-  ConsentMapper consentMapper;
+  private final OnboardingRepository onboardingRepository;
+  private final ConsentMapper consentMapper;
+  private final OnboardingProducer onboardingProducer;
+  private final OutcomeProducer outcomeProducer;
+  private final InitiativeRestConnector initiativeRestConnector;
+  private final DecryptRestConnector decryptRestConnector;
+  private final AdmissibilityRestConnector admissibilityRestConnector;
+  private final AuditUtilities auditUtilities;
+  private final Utilities utilities;
 
-  @Autowired
-  OnboardingProducer onboardingProducer;
-
-  @Autowired
-  OutcomeProducer outcomeProducer;
-
-  @Autowired
-  InitiativeRestConnector initiativeRestConnector;
-  @Autowired
-  DecryptRestConnector decryptRestConnector;
-
-  @Autowired
-  AdmissibilityRestConnector admissibilityRestConnector;
-
-  @Autowired
-  AuditUtilities auditUtilities;
-
-  @Autowired
-  Utilities utilities;
+  public OnboardingServiceImpl(OnboardingRepository onboardingRepository,
+                               ConsentMapper consentMapper,
+                               OnboardingProducer onboardingProducer,
+                               OutcomeProducer outcomeProducer,
+                               InitiativeRestConnector initiativeRestConnector,
+                               DecryptRestConnector decryptRestConnector,
+                               AdmissibilityRestConnector admissibilityRestConnector,
+                               AuditUtilities auditUtilities,
+                               Utilities utilities){
+    this.onboardingRepository = onboardingRepository;
+    this.consentMapper = consentMapper;
+    this.onboardingProducer = onboardingProducer;
+    this.outcomeProducer = outcomeProducer;
+    this.initiativeRestConnector = initiativeRestConnector;
+    this.decryptRestConnector = decryptRestConnector;
+    this.admissibilityRestConnector = admissibilityRestConnector;
+    this.auditUtilities = auditUtilities;
+    this.utilities = utilities;
+  }
 
   private Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
