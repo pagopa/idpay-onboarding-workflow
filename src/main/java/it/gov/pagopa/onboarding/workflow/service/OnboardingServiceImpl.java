@@ -239,14 +239,18 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDate requestDate = LocalDate.now();
 
     LocalDate startDate =
-        (initiativeDTO.getGeneral().getRankingStartDate() != null) ? initiativeDTO.getGeneral()
-            .getRankingStartDate() : initiativeDTO.getGeneral()
-            .getStartDate();
+            (initiativeDTO.getGeneral().getRankingStartDate() != null) ? initiativeDTO.getGeneral()
+                    .getRankingStartDate() : initiativeDTO.getGeneral()
+                    .getStartDate();
 
-    LocalDate endDate =
-        (initiativeDTO.getGeneral().getRankingEndDate() != null) ? initiativeDTO.getGeneral()
-            .getRankingEndDate() : initiativeDTO.getGeneral()
+    LocalDate endDate = initiativeDTO.getGeneral()
             .getEndDate();
+
+    if(!OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())){
+      endDate = (initiativeDTO.getGeneral().getRankingEndDate() != null) ?
+              initiativeDTO.getGeneral().getRankingEndDate()
+              : initiativeDTO.getGeneral().getEndDate();
+    }
 
     if (requestDate.isBefore(startDate)){
       auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
