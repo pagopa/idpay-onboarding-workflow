@@ -172,7 +172,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         checkDates(initiativeDTO, onboarding);
         checkBudget(initiativeDTO, onboarding);
       }
-      if (onboarding.getDemandedDate() != null && !Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())){
+      if (onboarding.getDemandedDate() != null){
         checkDates(initiativeDTO, onboarding);
       }
       checkFamilyUnit(onboarding, initiativeDTO);
@@ -246,10 +246,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDate endDate = initiativeDTO.getGeneral()
             .getEndDate();
 
-    if(!OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())){
-      endDate = (initiativeDTO.getGeneral().getRankingEndDate() != null) ?
-              initiativeDTO.getGeneral().getRankingEndDate()
-              : initiativeDTO.getGeneral().getEndDate();
+    if(!OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
+            && (initiativeDTO.getGeneral().getRankingEndDate() != null)){
+        endDate = initiativeDTO.getGeneral().getRankingEndDate();
     }
 
     if (requestDate.isBefore(startDate)){
