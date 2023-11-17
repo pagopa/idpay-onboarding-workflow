@@ -18,6 +18,12 @@ class UtilitiesTest {
     private final Utilities utilities = new Utilities();
 
     @Test
+    void nullDetail(){
+        String message = utilities.getMessageOnboardingKO(null);
+        assertEquals(OnboardingWorkflowConstants.TECHNICAL_ERROR_MSG_AUDIT, message);
+    }
+
+    @Test
     void detailInitiativeEnd(){
         String message = utilities.getMessageOnboardingKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
         assertEquals(OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG_AUDIT, message);
@@ -48,6 +54,14 @@ class UtilitiesTest {
     }
 
     @Test
+    void nullDetailException(){
+        InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
+                () -> utilities.getOnboardingException(null, INITIATIVE_ID));
+
+        assertEquals(TECHNICAL_ERROR, exception.getCode());
+    }
+
+    @Test
     void initiativeEndedException(){
         InitiativeInvalidException exception = assertThrows(InitiativeInvalidException.class,
                 () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_INITIATIVE_END, INITIATIVE_ID));
@@ -72,7 +86,7 @@ class UtilitiesTest {
     }
 
     @Test
-    void errorTEchnical(){
+    void errorTEchnicalExcetpion(){
         InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
                 () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_TECHNICAL, INITIATIVE_ID));
 

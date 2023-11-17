@@ -14,6 +14,9 @@ import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowCons
 public class Utilities {
 
     public String getMessageOnboardingKO(String detail){
+        if (detail == null) {
+            return OnboardingWorkflowConstants.TECHNICAL_ERROR_MSG_AUDIT;
+        }
         return switch (detail) {
             case OnboardingWorkflowConstants.ERROR_INITIATIVE_END ->
                     OnboardingWorkflowConstants.ERROR_INITIATIVE_END_MSG_AUDIT;
@@ -28,6 +31,9 @@ public class Utilities {
     }
 
     public void getOnboardingException(String detail, String initiativeId){
+        if (detail == null) {
+            throw new InitiativeOnboardingException(TECHNICAL_ERROR, String.format(TECHNICAL_ERROR_MSG, initiativeId));
+        }
         switch (detail) {
             case OnboardingWorkflowConstants.ERROR_INITIATIVE_END ->
                     throw new InitiativeInvalidException(INITIATIVE_ENDED,
