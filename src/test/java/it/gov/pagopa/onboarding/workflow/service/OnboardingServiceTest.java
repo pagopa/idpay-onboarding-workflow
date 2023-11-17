@@ -581,7 +581,30 @@ class OnboardingServiceTest {
     Mockito.verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
   }
 
+  @Test
+  void putTc_ko_not_demanded_outOnboardingRange() {
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.empty());
 
+    LocalDate nowLocalDate = LocalDate.now();
+    InitiativeDTO initiative = getInitiativeDTO(BENEFICIARY_TYPE_NF,
+            nowLocalDate.minusDays(25),
+            nowLocalDate.minusDays(20),
+            nowLocalDate.minusDays(10),
+            nowLocalDate.plusDays(20));
+
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(initiative);
+
+    try {
+      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN, e.getHttpStatus());
+    }
+
+    Mockito.verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
+  }
 
   @Test
   void putTc_idemp() {
@@ -1183,6 +1206,39 @@ class OnboardingServiceTest {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
     } catch (OnboardingWorkflowException e) {
       Assertions.fail();
+    }
+  }
+
+  @Test
+  void checkPrerequisites_KO_Notdemanded_outOnboardingRange_familyInitiative(){
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+
+    LocalDate localDateNow = LocalDate.now();
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(getInitiativeDTO(BENEFICIARY_TYPE_NF,
+                    localDateNow.minusDays(30),
+                    localDateNow.minusDays(20),
+                    localDateNow.plusDays(2),
+                    localDateNow.plusDays(25)));
+
+    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_STATUS_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN, e.getHttpStatus());
     }
   }
 

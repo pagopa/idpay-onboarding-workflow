@@ -274,7 +274,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if((!OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
             || (!initiativeDTO.getGeneral().getRankingEnabled()
-                && OnboardingWorkflowConstants.ACCEPTED_TC.equals(onboarding.getStatus()) && onboarding.getDemandedDate() == null))
+                && ((OnboardingWorkflowConstants.ACCEPTED_TC.equals(onboarding.getStatus()) || onboarding.getStatus()==null) && onboarding.getDemandedDate() == null)))
             && initiativeDTO.getGeneral().getRankingEndDate() != null){
         endDate = initiativeDTO.getGeneral().getRankingEndDate();
     }
