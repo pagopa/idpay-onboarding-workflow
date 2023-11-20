@@ -280,13 +280,6 @@ public class OnboardingServiceImpl implements OnboardingService {
     ){
         endDate = initiativeDTO.getGeneral().getRankingEndDate();
     }
-    log.info("TEST: " + endDate +"\n\n initiative: "+initiativeDTO+"\n\n onboarding: "+onboarding); //TODO cancel me after test
-    log.info("condition" + (initiativeDTO.getGeneral().getRankingEndDate() != null &&
-            (!OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
-                    || (!initiativeDTO.getGeneral().getRankingEnabled()
-                    && !(OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus())
-                    || (onboarding.getDemandedDate() != null && OnboardingWorkflowConstants.ACCEPTED_TC.equals(onboarding.getStatus())))))
-    ));
     return endDate;
   }
 
