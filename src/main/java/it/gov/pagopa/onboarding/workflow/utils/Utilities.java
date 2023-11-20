@@ -30,7 +30,7 @@ public class Utilities {
         };
     }
 
-    public void getOnboardingException(String detail, String initiativeId){
+    public void throwOnboardingKOException(String detail, String initiativeId){
         if (detail == null) {
             throw new InitiativeOnboardingException(TECHNICAL_ERROR, String.format(TECHNICAL_ERROR_MSG, initiativeId));
         }

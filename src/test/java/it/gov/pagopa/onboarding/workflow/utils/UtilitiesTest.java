@@ -56,7 +56,7 @@ class UtilitiesTest {
     @Test
     void nullDetailException(){
         InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
-                () -> utilities.getOnboardingException(null, INITIATIVE_ID));
+                () -> utilities.throwOnboardingKOException(null, INITIATIVE_ID));
 
         assertEquals(TECHNICAL_ERROR, exception.getCode());
     }
@@ -64,7 +64,7 @@ class UtilitiesTest {
     @Test
     void initiativeEndedException(){
         InitiativeInvalidException exception = assertThrows(InitiativeInvalidException.class,
-                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_INITIATIVE_END, INITIATIVE_ID));
+                () -> utilities.throwOnboardingKOException(OnboardingWorkflowConstants.ERROR_INITIATIVE_END, INITIATIVE_ID));
 
         assertEquals(INITIATIVE_ENDED, exception.getCode());
     }
@@ -72,7 +72,7 @@ class UtilitiesTest {
     @Test
     void budgetTerminatedException(){
         InitiativeBudgetExhaustedException exception = assertThrows(InitiativeBudgetExhaustedException.class,
-                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED, INITIATIVE_ID));
+                () -> utilities.throwOnboardingKOException(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED, INITIATIVE_ID));
 
         assertEquals(BUDGET_EXHAUSTED, exception.getCode());
     }
@@ -80,7 +80,7 @@ class UtilitiesTest {
     @Test
     void errorWhitelistException(){
         UserNotInWhitelistException exception = assertThrows(UserNotInWhitelistException.class,
-                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_WHITELIST, INITIATIVE_ID));
+                () -> utilities.throwOnboardingKOException(OnboardingWorkflowConstants.ERROR_WHITELIST, INITIATIVE_ID));
 
         assertEquals(USER_NOT_IN_WHITELIST, exception.getCode());
     }
@@ -88,7 +88,7 @@ class UtilitiesTest {
     @Test
     void errorTEchnicalExcetpion(){
         InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
-                () -> utilities.getOnboardingException(OnboardingWorkflowConstants.ERROR_TECHNICAL, INITIATIVE_ID));
+                () -> utilities.throwOnboardingKOException(OnboardingWorkflowConstants.ERROR_TECHNICAL, INITIATIVE_ID));
 
         assertEquals(TECHNICAL_ERROR, exception.getCode());
     }
@@ -96,7 +96,7 @@ class UtilitiesTest {
     @Test
     void genericOnboardingErrorException(){
         InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
-                () -> utilities.getOnboardingException("ISEE error", INITIATIVE_ID));
+                () -> utilities.throwOnboardingKOException("ISEE error", INITIATIVE_ID));
 
         assertEquals(UNSATISFIED_REQUIREMENTS, exception.getCode());
     }

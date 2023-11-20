@@ -323,7 +323,7 @@ public class OnboardingServiceImpl implements OnboardingService {
             !OnboardingWorkflowConstants.REJECTION_REASON_BIRTHDATE_KO.equals(onboarding.getDetailKO())){
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               utilities.getMessageOnboardingKO(onboarding.getDetailKO()));
-      utilities.getOnboardingException(onboarding.getDetailKO(), onboarding.getInitiativeId());
+      utilities.throwOnboardingKOException(onboarding.getDetailKO(), onboarding.getInitiativeId());
     }
     if (status.equals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)) {
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
