@@ -1,4 +1,4 @@
-package it.gov.pagopa.onboarding.workflow.exception.custom.notfound;
+package it.gov.pagopa.onboarding.workflow.exception.custom;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
 

@@ -9,10 +9,10 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.*;
-import it.gov.pagopa.onboarding.workflow.exception.custom.badrequest.PageSizeNotAllowedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.InitiativeBudgetExhaustedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.InitiativeNotFoundException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.UserNotOnboardedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.PageSizeNotAllowedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeBudgetExhaustedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 

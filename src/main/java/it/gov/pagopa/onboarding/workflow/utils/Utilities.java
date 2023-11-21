@@ -1,10 +1,10 @@
 package it.gov.pagopa.onboarding.workflow.utils;
 
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.InitiativeBudgetExhaustedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.InitiativeInvalidException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.InitiativeOnboardingException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.UserNotInWhitelistException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeBudgetExhaustedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeInvalidException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeOnboardingException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotInWhitelistException;
 import org.springframework.stereotype.Component;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;

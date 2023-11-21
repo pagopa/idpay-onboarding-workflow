@@ -1,15 +1,13 @@
 package it.gov.pagopa.onboarding.workflow.config;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.badrequest.OperationNotAllowedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.badrequest.PageSizeNotAllowedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.forbidden.*;
-import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.InitiativeNotFoundException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.UserNotOnboardedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.AdmissibilityInvocationException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.InitiativeInvocationException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.PDVInvocationException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.UserSuspensionOrReadmissionException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.*;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.AdmissibilityInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.PDVInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.UserSuspensionOrReadmissionException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;

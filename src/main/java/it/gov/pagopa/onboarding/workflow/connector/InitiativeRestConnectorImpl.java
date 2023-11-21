@@ -2,8 +2,8 @@ package it.gov.pagopa.onboarding.workflow.connector;
 
 import feign.FeignException;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.InitiativeNotFoundException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.InitiativeInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeInvocationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

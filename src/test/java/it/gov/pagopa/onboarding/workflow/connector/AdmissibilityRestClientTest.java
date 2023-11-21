@@ -7,8 +7,8 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnectorImpl;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.InitiativeNotFoundException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.AdmissibilityInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.AdmissibilityInvocationException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

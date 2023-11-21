@@ -2,8 +2,8 @@ package it.gov.pagopa.onboarding.workflow.connector.admissibility;
 
 import feign.FeignException;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.exception.custom.notfound.InitiativeNotFoundException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.servererror.AdmissibilityInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.AdmissibilityInvocationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
