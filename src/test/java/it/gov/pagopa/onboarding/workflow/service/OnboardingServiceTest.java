@@ -44,7 +44,6 @@ import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -605,8 +604,8 @@ class OnboardingServiceTest {
     try {
       onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
       Assertions.fail();
-    } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.FORBIDDEN, e.getHttpStatus());
+    } catch (InitiativeInvalidException e) {
+      Assertions.assertEquals(INITIATIVE_ENDED, e.getCode());
     }
 
     Mockito.verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
@@ -1169,7 +1168,7 @@ class OnboardingServiceTest {
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-    } catch (OnboardingWorkflowException e) {
+    } catch (ServiceException e) {
       Assertions.fail();
     }
   }
@@ -1202,8 +1201,8 @@ class OnboardingServiceTest {
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
       Assertions.fail();
-    } catch (OnboardingWorkflowException e) {
-      assertEquals(HttpStatus.FORBIDDEN, e.getHttpStatus());
+    } catch (InitiativeInvalidException e) {
+      Assertions.assertEquals(INITIATIVE_ENDED, e.getCode());
     }
   }
 
@@ -1473,7 +1472,7 @@ class OnboardingServiceTest {
             .thenReturn(Optional.of(onboarding));
     try {
       onboardingService.saveConsent(consentPutDTO, USER_ID);
-    } catch (OnboardingWorkflowException e) {
+    } catch (ServiceException e) {
       Assertions.fail();
     }
   }
