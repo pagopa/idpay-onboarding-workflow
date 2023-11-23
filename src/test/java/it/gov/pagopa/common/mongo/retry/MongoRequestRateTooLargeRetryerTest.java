@@ -35,8 +35,8 @@ import static org.mockito.Mockito.*;
     MongoRequestRateTooLargeRetryerTest.TestService.class})
 public class MongoRequestRateTooLargeRetryerTest {
 
-  public static final int REQUEST_RATE_TOO_LARGE_MAX_RETRY = 3;
-  public static final int REQUEST_RATE_TOO_LARGE_MAX_MILLIS_ELAPSED = 1000;
+  public static final int REQUEST_RATE_TOO_LARGE_MAX_RETRY = 1;
+  public static final int REQUEST_RATE_TOO_LARGE_MAX_MILLIS_ELAPSED = 200;
   @MockBean
   private Supplier<String> dummyServiceMock;
 
@@ -238,10 +238,10 @@ public class MongoRequestRateTooLargeRetryerTest {
 
     //Then
     assertEquals("ok1", result);
-    verify(dummyServiceMock, times(4)).get();
+    verify(dummyServiceMock, times(REQUEST_RATE_TOO_LARGE_MAX_RETRY+1)).get();
 
     String expectedMessage = "\\[REQUEST_RATE_TOO_LARGE_RETRY]\\[TestService.annotatedMethodWithMaxRetry\\(\\)] Retrying for RequestRateTooLargeException: attempt %d of %d after .*";
-    assertEquals(3, memoryAppender.getLoggedEvents().size());
+    assertEquals(REQUEST_RATE_TOO_LARGE_MAX_RETRY, memoryAppender.getLoggedEvents().size());
     assertLogMessage(expectedMessage, REQUEST_RATE_TOO_LARGE_MAX_RETRY);
 
   }
