@@ -30,7 +30,7 @@ public final class OnboardingWorkflowConstants {
   public static final String ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT = "The initiative has not yet begun";
   public static final String ERROR_INITIATIVE_END_MSG_AUDIT = "The opportunity to join the initiative has already ended";
   public static final String ERROR_BUDGET_TERMINATED_MSG_AUDIT = "The budget for this initiative is terminated";
-  public static final List<String> STATUS_IDEMPOTENT = List.of(ONBOARDING_OK, INVITED, SUSPENDED, ON_EVALUATION);
+  public static final List<String> STATUS_IDEMPOTENT = List.of(ONBOARDING_OK, INVITED, SUSPENDED, ON_EVALUATION, DEMANDED);
   public static final String REJECTION_REASON_BIRTHDATE_KO = "AUTOMATED_CRITERIA_BIRTHDATE_FAIL";
   // Onboarding detailKO
   public static final String ERROR_INITIATIVE_END = "INITIATIVE_END";

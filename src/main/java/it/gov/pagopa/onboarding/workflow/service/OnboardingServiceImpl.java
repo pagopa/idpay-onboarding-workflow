@@ -179,7 +179,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         checkDates(initiativeDTO, onboarding);
         checkBudget(initiativeDTO, onboarding);
       }
-      if (onboarding.getDemandedDate() != null && !Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())){
+      if (onboarding.getDemandedDate() != null){
         checkDates(initiativeDTO, onboarding);
       }
       checkFamilyUnit(onboarding, initiativeDTO);
@@ -245,14 +245,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDate requestDate = LocalDate.now();
 
     LocalDate startDate =
-        (initiativeDTO.getGeneral().getRankingStartDate() != null) ? initiativeDTO.getGeneral()
-            .getRankingStartDate() : initiativeDTO.getGeneral()
-            .getStartDate();
+            (initiativeDTO.getGeneral().getRankingStartDate() != null) ? initiativeDTO.getGeneral()
+                    .getRankingStartDate() : initiativeDTO.getGeneral()
+                    .getStartDate();
 
-    LocalDate endDate =
-        (initiativeDTO.getGeneral().getRankingEndDate() != null) ? initiativeDTO.getGeneral()
-            .getRankingEndDate() : initiativeDTO.getGeneral()
-            .getEndDate();
+    LocalDate endDate = getEndDate(initiativeDTO, onboarding);
 
     if (requestDate.isBefore(startDate)){
       auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
@@ -273,6 +270,21 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new InitiativeInvalidException(INITIATIVE_ENDED,
               String.format(ERROR_INITIATIVE_END_MSG, initiativeDTO.getInitiativeId()));
     }
+  }
+
+  private static LocalDate getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding) {
+    LocalDate endDate = initiativeDTO.getGeneral()
+            .getEndDate();
+
+    if(initiativeDTO.getGeneral().getRankingEndDate() != null &&
+            (!OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
+                    || (!initiativeDTO.getGeneral().getRankingEnabled()
+                    && !(OnboardingWorkflowConstants.DEMANDED.equals(onboarding.getStatus())
+                        || onboarding.getDemandedDate() != null)))
+    ){
+        endDate = initiativeDTO.getGeneral().getRankingEndDate();
+    }
+    return endDate;
   }
 
   private void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding) {

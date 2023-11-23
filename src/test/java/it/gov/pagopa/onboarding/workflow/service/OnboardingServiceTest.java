@@ -44,9 +44,11 @@ import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -310,6 +312,7 @@ class OnboardingServiceTest {
     INITIATIVE_DTO_KO.setStatus("CLOSED");
   }
 
+  //region putTc case test
 
   @Test
   void putTc_ok_OnboardingNull() {
@@ -551,6 +554,65 @@ class OnboardingServiceTest {
   }
 
   @Test
+  void putTc_ok_demanded_outOnboardingRange() {
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+
+    LocalDate nowLocalDate = LocalDate.now();
+    InitiativeDTO initiative = getInitiativeDTO(BENEFICIARY_TYPE_NF,
+            nowLocalDate.minusDays(25),
+            nowLocalDate.minusDays(20),
+            nowLocalDate.minusDays(10),
+            nowLocalDate.plusDays(20));
+
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(initiative);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setTc(true);
+      onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+      onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+
+    onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
+
+    assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
+    assertEquals(USER_ID, onboarding.getUserId());
+    assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+    assertTrue(onboarding.getTc());
+    Mockito.verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
+  }
+
+  @Test
+  void putTc_ko_not_demanded_outOnboardingRange() {
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.empty());
+
+    LocalDate nowLocalDate = LocalDate.now();
+    InitiativeDTO initiative = getInitiativeDTO(BENEFICIARY_TYPE_NF,
+            nowLocalDate.minusDays(25),
+            nowLocalDate.minusDays(20),
+            nowLocalDate.minusDays(10),
+            nowLocalDate.plusDays(20));
+
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(initiative);
+
+    try {
+      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN, e.getHttpStatus());
+    }
+
+    Mockito.verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
+  }
+
+  @Test
   void putTc_idemp() {
 
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -624,6 +686,8 @@ class OnboardingServiceTest {
     }
   }
 
+  //endregion
+
   @Test
   void getOnboardingStatus_ok() {
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -670,6 +734,7 @@ class OnboardingServiceTest {
 
   }
 
+  //region Pre-Requisites case test
   @Test
   void checkPrerequisites_ok_no_whitelist() {
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -1076,7 +1141,75 @@ class OnboardingServiceTest {
       Assertions.fail();
     }
   }
+  @Test
+  void checkPrerequisites_ok_demanded_outOnboardingRange(){
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+    onboarding.setDemandedDate(LocalDateTime.now());
 
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+
+    LocalDate localDateNow = LocalDate.now();
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(getInitiativeDTO(BENEFICIARY_TYPE_NF,
+                    localDateNow.minusDays(30),
+                    localDateNow.minusDays(20),
+                    localDateNow.plusDays(2),
+                    localDateNow.plusDays(25)));
+
+    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_STATUS_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
+
+  @Test
+  void checkPrerequisites_KO_Notdemanded_outOnboardingRange_familyInitiative(){
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+    onboarding.setTc(true);
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+
+    LocalDate localDateNow = LocalDate.now();
+    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
+            .thenReturn(getInitiativeDTO(BENEFICIARY_TYPE_NF,
+                    localDateNow.minusDays(30),
+                    localDateNow.minusDays(20),
+                    localDateNow.plusDays(2),
+                    localDateNow.plusDays(25)));
+
+    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+            .thenReturn(INITIATIVE_STATUS_DTO);
+
+    Mockito.doAnswer(invocationOnMock -> {
+      onboarding.setChannel(CHANNEL);
+      return null;
+    }).when(onboardingRepositoryMock).save(any(Onboarding.class));
+
+    try {
+      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
+      Assertions.fail();
+    } catch (OnboardingWorkflowException e) {
+      assertEquals(HttpStatus.FORBIDDEN, e.getHttpStatus());
+    }
+  }
+
+  //endregion
+
+  //region saveConsent use case
   @ParameterizedTest
   @CsvSource({
       "true, true, true",
@@ -1326,6 +1459,26 @@ class OnboardingServiceTest {
       Assertions.fail();
     }
   }
+
+  @Test
+  void saveConsent_onboardingDEMANDED(){
+    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
+            new SelfConsentBoolDTO("boolean", "2", true));
+    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, false, selfConsentDTOList);
+
+    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+    onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+
+    when(onboardingRepositoryMock.findById(Onboarding.buildId(onboarding.getInitiativeId(), USER_ID)))
+            .thenReturn(Optional.of(onboarding));
+    try {
+      onboardingService.saveConsent(consentPutDTO, USER_ID);
+    } catch (OnboardingWorkflowException e) {
+      Assertions.fail();
+    }
+  }
+
+  //endregion
 
   @Test
   void completeOnboarding_ok() {
@@ -1865,6 +2018,36 @@ class OnboardingServiceTest {
     }
 
     return onboardingPage;
+  }
+
+  private InitiativeDTO getInitiativeDTO(String beneficiaryType,
+                                         LocalDate startRankingDate,
+                                         LocalDate endRankingDate,
+                                         @NotNull LocalDate startDate,
+                                         @NotNull LocalDate endDate) {
+    InitiativeDTO initiative = new InitiativeDTO();
+    InitiativeGeneralDTO general = new InitiativeGeneralDTO();
+
+    general.setBeneficiaryKnown(false);
+    if(startRankingDate != null){
+      general.setRankingStartDate(startRankingDate);
+    }
+    if(endRankingDate != null) {
+      general.setRankingEndDate(endRankingDate);
+    }
+    general.setStartDate(startDate);
+    general.setEndDate(endDate);
+    general.setBudget(BUDGET);
+    general.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    general.setRankingEnabled(Boolean.FALSE);
+    general.setBeneficiaryType(beneficiaryType);
+
+    initiative.setInitiativeId(INITIATIVE_ID);
+    initiative.setStatus("PUBLISHED");
+    initiative.setGeneral(general);
+    initiative.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
+    initiative.setInitiativeRewardType(INITIATIVE_REWARD_TYPE_DISCOUNT);
+    return initiative;
   }
 
 }
