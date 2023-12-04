@@ -50,10 +50,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
 
-  @Value("${app.delete.paginationSize}")
-  private int pageSize;
-  @Value("${app.delete.delayTime}")
-  private long delayTime;
+  private final int pageSize;
+  private final long delayTime;
 
   private final OnboardingRepository onboardingRepository;
   private final ConsentMapper consentMapper;
@@ -65,7 +63,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   private final AuditUtilities auditUtilities;
   private final Utilities utilities;
 
-  public OnboardingServiceImpl(OnboardingRepository onboardingRepository,
+  public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
+                               @Value("${app.delete.delayTime}") long delayTime,
+                               OnboardingRepository onboardingRepository,
                                ConsentMapper consentMapper,
                                OnboardingProducer onboardingProducer,
                                OutcomeProducer outcomeProducer,
@@ -74,6 +74,8 @@ public class OnboardingServiceImpl implements OnboardingService {
                                AdmissibilityRestConnector admissibilityRestConnector,
                                AuditUtilities auditUtilities,
                                Utilities utilities){
+    this.pageSize = pageSize;
+    this.delayTime = delayTime;
     this.onboardingRepository = onboardingRepository;
     this.consentMapper = consentMapper;
     this.onboardingProducer = onboardingProducer;
