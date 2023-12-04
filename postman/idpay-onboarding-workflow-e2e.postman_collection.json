@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "b9c6121b-3495-4bf4-8fe7-6e36fb9b7375",
-		"name": "Onboarding - e2e",
+		"_postman_id": "4aab7776-1dd8-40a5-872c-af4a66553fa0",
+		"name": "Onboarding - e2e Copy 2",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "21434036",
-		"_collection_link": "https://interstellar-water-820478.postman.co/workspace/My-Workspace~a329ddeb-86a1-48e4-820f-e30044868d3f/collection/21434036-b9c6121b-3495-4bf4-8fe7-6e36fb9b7375?action=share&source=collection_link&creator=21434036"
+		"_exporter_id": "26036679",
+		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036679-4aab7776-1dd8-40a5-872c-af4a66553fa0?action=share&source=collection_link&creator=26036679"
 	},
 	"item": [
 		{
@@ -311,7 +311,7 @@
 														{
 															"key": "file",
 															"type": "file",
-															"src": "./postman/example_fiscal_code.csv"
+															"src": "/C:/Users/ERANALDUZ/IdPay/idpay-onboarding-workflow/postman/example_fiscal_code.csv"
 														}
 													]
 												},
@@ -4134,7 +4134,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															"setTimeout(()=> {}, 5000)"
+															"//setTimeout(()=> {}, 30000)"
 														],
 														"type": "text/javascript"
 													}
@@ -4158,7 +4158,7 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 													"host": [
 														"{{baseUrl}}"
 													],
@@ -4170,7 +4170,7 @@
 													"query": [
 														{
 															"key": "fiscalCode",
-															"value": "{{CF_1}}"
+															"value": "{{CF_FAKE_1}}"
 														}
 													]
 												}
@@ -4531,7 +4531,7 @@
 												"header": [
 													{
 														"key": "Fiscal-Code",
-														"value": "{{CF_1}}",
+														"value": "{{CF_FAKE_1}}",
 														"type": "text"
 													}
 												],
@@ -6688,7 +6688,7 @@
 													"listen": "prerequest",
 													"script": {
 														"exec": [
-															"setTimeout(()=> {}, 5000)"
+															"setTimeout(()=> {}, 90000)"
 														],
 														"type": "text/javascript"
 													}
@@ -6712,7 +6712,7 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 													"host": [
 														"{{baseUrl}}"
 													],
@@ -6724,7 +6724,7 @@
 													"query": [
 														{
 															"key": "fiscalCode",
-															"value": "{{CF_1}}"
+															"value": "{{CF_FAKE_1}}"
 														}
 													]
 												}
@@ -7094,7 +7094,7 @@
 												"header": [
 													{
 														"key": "Fiscal-Code",
-														"value": "{{CF_1}}",
+														"value": "{{CF_FAKE_1}}",
 														"type": "text"
 													}
 												],
@@ -7998,7 +7998,7 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
+													"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_2}}",
 													"host": [
 														"{{baseUrl}}"
 													],
@@ -8010,7 +8010,7 @@
 													"query": [
 														{
 															"key": "fiscalCode",
-															"value": "{{CF_2}}"
+															"value": "{{CF_FAKE_2}}"
 														}
 													]
 												}
@@ -8351,7 +8351,7 @@
 												"header": [
 													{
 														"key": "Fiscal-Code",
-														"value": "{{CF_2}}",
+														"value": "{{CF_FAKE_2}}",
 														"type": "text"
 													}
 												],
@@ -8656,7 +8656,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -8668,7 +8668,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_FAKE_1}}"
 												}
 											]
 										}
@@ -8806,14 +8806,13 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 400\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 403\", function () {\r",
+													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
-													"    const initiativeIdWithManualCriteria = pm.collectionVariables.get(\"initiativeIdWithManualCriteria\");\r",
-													"    pm.expect(responseJson.message).to.eql(`The selfDeclarationList was denied by the user for the initiative ${initiativeIdWithManualCriteria}.`);\r",
+													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_SELF_DECLARATION_NOT_VALID\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -8954,7 +8953,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -8966,7 +8965,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_FAKE_1}}"
 												}
 											]
 										}
@@ -8986,8 +8985,7 @@
 													"\r",
 													"pm.test(\"Message contains info  about KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
-													"    const initiativeIdWithCriteria = pm.collectionVariables.get(\"initiativeIdWithCriteria\");\r",
-													"    pm.expect(responseJson.message).to.eql(`Onboarding with initiativeId ${initiativeIdWithCriteria} and current userId not found.`);\r",
+													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9054,8 +9052,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
-													"    const initiativeIdWithCriteria = pm.collectionVariables.get(\"initiativeIdWithCriteria\");\r",
-													"    pm.expect(responseJson.message).to.eql(`Onboarding with initiativeId ${initiativeIdWithCriteria} and current userId not found.`);\r",
+													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9111,8 +9108,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - Status Onboarding - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
-													"    const initiativeIdWithCriteria = pm.collectionVariables.get(\"initiativeIdWithCriteria\");\r",
-													"    pm.expect(responseJson.message).to.eql(`Onboarding with initiativeId ${initiativeIdWithCriteria} and current userId not found.`);\r",
+													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9197,7 +9193,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -9209,7 +9205,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_FAKE_1}}"
 												}
 											]
 										}
@@ -9347,14 +9343,13 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 400\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Status 403\", function () {\r",
+													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
-													"    const initiativeIdWithCriteria = pm.collectionVariables.get(\"initiativeIdWithCriteria\");\r",
-													"    pm.expect(responseJson.message).to.eql(`The PDND consent was denied by the user for the initiative ${initiativeIdWithCriteria}.`);\r",
+													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_PDND_CONSENT_DENIED\")\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9527,7 +9522,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria CF format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"    pm.expect(jsonResponse.code).to.eql(\"FISCAL_CODE_NOT_VALID\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9671,7 +9666,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with criteria VAT number format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"    pm.expect(jsonResponse.code).to.eql(\"FISCAL_CODE_NOT_VALID\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9775,7 +9770,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -9787,7 +9782,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_FAKE_1}}"
 												}
 											]
 										}
@@ -9926,13 +9921,13 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 400\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Status 403\", function () {\r",
+													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with manual criteria - PDND + Autocertification - Message contains info about the KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
-													"    pm.expect(responseJson.message).to.eql('The amount of self declaration lists mismatch the amount of flags');\r",
+													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_SELF_DECLARATION_NOT_VALID\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -10073,7 +10068,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -10085,7 +10080,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_FAKE_1}}"
 												}
 											]
 										}
@@ -10167,7 +10162,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user not in whitelist - Prerequisites check - Message contains info about KO status\", function () {\r",
 													"    const responseJson = pm.response.json();\r",
-													"    pm.expect(responseJson.message).to.eql('The citizen is not allowed to participate to this initiative!');\r",
+													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_IN_WHITELIST\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -10506,7 +10501,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\r\n    \"automatedCriteria\": [\r\n        {\r\n            \"authority\": \"INPS\",\r\n            \"code\": \"ISEE\",\r\n            \"operator\": \"GE\",\r\n            \"value\": \"1\",\r\n            \"value2\": \"\",\r\n            \"iseeTypes\": [\r\n                \"ORDINARIO\",\r\n                \"MINORENNE\",\r\n                \"UNIVERSITARIO\",\r\n                \"SOCIOSANITARIO\",\r\n                \"DOTTORATO\",\r\n                \"RESIDENZIALE\",\r\n                \"CORRENTE\"\r\n            ]\r\n        },\r\n        {\r\n            \"authority\": \"AUTH1\",\r\n            \"code\": \"BIRTHDATE\",\r\n            \"field\": \"year\",\r\n            \"operator\": \"EQ\",\r\n            \"value\": \"1960\",\r\n            \"value2\": \"\"\r\n        }\r\n    ],\r\n    \"selfDeclarationCriteria\": []\r\n}",
+													"raw": "{\r\n    \"automatedCriteria\": [\r\n        {\r\n            \"authority\": \"INPS\",\r\n            \"code\": \"ISEE\",\r\n            \"operator\": \"LT\",\r\n            \"value\": \"1\",\r\n            \"value2\": \"\",\r\n            \"iseeTypes\": [\r\n                \"ORDINARIO\",\r\n                \"MINORENNE\",\r\n                \"UNIVERSITARIO\",\r\n                \"SOCIOSANITARIO\",\r\n                \"DOTTORATO\",\r\n                \"RESIDENZIALE\",\r\n                \"CORRENTE\"\r\n            ]\r\n        },\r\n        {\r\n            \"authority\": \"AUTH1\",\r\n            \"code\": \"BIRTHDATE\",\r\n            \"field\": \"year\",\r\n            \"operator\": \"EQ\",\r\n            \"value\": \"1960\",\r\n            \"value2\": \"\"\r\n        }\r\n    ],\r\n    \"selfDeclarationCriteria\": []\r\n}",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -11049,7 +11044,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													""
+													"setTimeout(() => {}, 90000);"
 												],
 												"type": "text/javascript"
 											}
@@ -11073,7 +11068,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_fake}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_3}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -11085,7 +11080,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_fake}}"
+													"value": "{{CF_3}}"
 												}
 											]
 										}
@@ -11289,6 +11284,15 @@
 												],
 												"type": "text/javascript"
 											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"//setTimeout(() => {}, 15000);"
+												],
+												"type": "text/javascript"
+											}
 										}
 									],
 									"request": {
@@ -11314,6 +11318,73 @@
 												"onboarding",
 												"{{NoCriteriaInitiativeId}}",
 												"status"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Accept T&C Retry",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Accept T&C - Status 403\", function () {\r",
+													"    pm.response.to.have.status(403);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user with no criteria - Accept T&C - Message contains info about KO status\", function () {\r",
+													"    const responseJson = pm.response.json();\r",
+													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_UNSATISFIED_REQUIREMENTS\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{tokenIO}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{apimSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{NoCriteriaInitiativeId}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"onboarding",
+												""
 											]
 										}
 									},
@@ -12201,15 +12272,11 @@
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C - message is The initiative has not yet begun\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C - Message contains info about KO status\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).to.be.equal('The initiative has not yet begun');\r",
+													"    pm.expect(jsonResponse.code).to.be.equal('ONBOARDING_INITIATIVE_NOT_STARTED');\r",
 													"});\r",
-													"\r",
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C -  datails is INITIATIVE_NOT_STARTED\", function () {\r",
-													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.details).to.be.equal('INITIATIVE_NOT_STARTED');\r",
-													"});"
+													""
 												],
 												"type": "text/javascript"
 											}
@@ -13373,7 +13440,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -13385,7 +13452,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_FAKE_1}}"
 												}
 											]
 										}
@@ -13403,6 +13470,10 @@
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding not started - Accept T&C - Message contains info about KO status\", function () {\r",
+													"    const responseJson = pm.response.json();\r",
+													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_BUDGET_EXHAUSTED\");\r",
+													"});\r",
 													""
 												],
 												"type": "text/javascript"
@@ -13506,7 +13577,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -13518,7 +13589,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_2}}"
+													"value": "{{CF_FAKE_2}}"
 												}
 											]
 										}
@@ -13538,7 +13609,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not found - Accept T&C - message contains info about initiative not found\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('{\\\"code\\\":\\\"it.gov.pagopa.initiative.not.found\\\",\\\"message\\\":\\\"Initiative with initiativeId test not found.\\\"}');\r",
+													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_INITIATIVE_NOT_FOUND\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -13605,7 +13676,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Happy case - APP IO - Onboarding user with criteria NF - Get family unit composition - message contains info about initiative not found\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Onboarding with initiativeId test and current userId not found.');\r",
+													"    pm.expect(jsonResponse.code).to.equals('ONBOARDING_USER_NOT_ONBOARDED');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -13627,7 +13698,7 @@
 										"header": [
 											{
 												"key": "Fiscal-Code",
-												"value": "{{CF_1}}",
+												"value": "{{CF_FAKE_1}}",
 												"type": "text"
 											}
 										],
@@ -13790,13 +13861,13 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user - Accept T&C - status 400\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user - Accept T&C - status 403\", function () {\r",
+													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding unsubscribed user - Accept T&C - message contains info about unsubscribed user to initiative\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Unsubscribed to initiative');\r",
+													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_USER_UNSUBSCRIBED\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -13957,7 +14028,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_1}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_1}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -13969,7 +14040,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_1}}"
+													"value": "{{CF_FAKE_1}}"
 												}
 											]
 										}
@@ -13989,7 +14060,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - Accept T&C - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
+													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_INVALID_REQUEST\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14056,7 +14127,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - Prerequisites check - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
+													"    pm.expect(jsonResponse.code).equals(\"ONBOARDING_INVALID_REQUEST\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14123,7 +14194,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative onboarding user no initiative - PDND + Autocertification - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
+													"    pm.expect(jsonResponse.code).equals(\"ONBOARDING_INVALID_REQUEST\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14362,7 +14433,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_2}}",
+											"raw": "{{baseUrl}}/rtd/mock-io/login?fiscalCode={{CF_FAKE_2}}",
 											"host": [
 												"{{baseUrl}}"
 											],
@@ -14374,7 +14445,7 @@
 											"query": [
 												{
 													"key": "fiscalCode",
-													"value": "{{CF_2}}"
+													"value": "{{CF_FAKE_2}}"
 												}
 											]
 										}
@@ -14394,7 +14465,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - APP IO - Onboarding user initiative not active - Accept T&C -  message contains info about initiative not active\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('The initiative is not active!');\r",
+													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14499,6 +14570,11 @@
 												"exec": [
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - Status 404\", function () {\r",
 													"    pm.response.to.have.status(404);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Prerequisites check - Message contains info about KO status\", function () {\r",
+													"    const responseJson = pm.response.json();\r",
+													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14560,78 +14636,6 @@
 												"hb",
 												"onboarding",
 												"initiative"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Status Onboarding",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Status Onboarding - status 404\", function () {\r",
-													"    pm.response.to.have.status(404);\r",
-													"});\r",
-													"\r",
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding T&C not accepted - Status Onboarding - message is Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.\", function () {\r",
-													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Onboarding with initiativeId 63fded4ffea3f35a5644e738 and current userId not found.');\r",
-													"});"
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "GET",
-										"header": [
-											{
-												"key": "Ocp-Apim-Subscription-Key",
-												"value": "{{issuerSubscriptionKey}}",
-												"type": "text"
-											},
-											{
-												"key": "Ocp-Apim-Trace",
-												"value": "true",
-												"type": "text"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "it_IT",
-												"type": "text"
-											},
-											{
-												"key": "Fiscal-Code",
-												"value": "{{CF_3}}",
-												"type": "text"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{IssuerinitiativeId}}/status",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"idpay",
-												"hb",
-												"onboarding",
-												"{{IssuerinitiativeId}}",
-												"status"
 											]
 										}
 									},
@@ -14732,9 +14736,9 @@
 													"    pm.response.to.have.status(403);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user not in whitelist - Prerequisites check - message is The citizen is not allowed to participate to this initiative!\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user not in whitelist - Prerequisites check - message contains info about ko\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('The citizen is not allowed to participate to this initiative!');\r",
+													"    pm.expect(jsonResponse.code).equals('ONBOARDING_USER_NOT_IN_WHITELIST');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14889,9 +14893,9 @@
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user CF format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user CF format not valid - Accept T&C - message contains info about ko\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"    pm.expect(jsonResponse.code).equals('FISCAL_CODE_NOT_VALID');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -14974,9 +14978,9 @@
 													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
-													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user VAT number format not valid - Accept T&C - message is Fiscal code not valid!\", function () {\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding user VAT number format not valid - Accept T&C - message contains info about ko\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('Fiscal code not valid!');\r",
+													"    pm.expect(jsonResponse.code).equals('FISCAL_CODE_NOT_VALID');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -15069,7 +15073,8 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiativeId empty - Accept T&C - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');});"
+													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INVALID_REQUEST');\r",
+													"    });"
 												],
 												"type": "text/javascript"
 											}
@@ -15148,7 +15153,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiativeId empty - Prerequisites check - message contains info about mandatory field initiativeId\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('[initiativeId]: The field is mandatory!');\r",
+													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INVALID_REQUEST');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -15233,7 +15238,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not found - Accept T&C -  message contains info about initiative not found\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('{\\\"code\\\":\\\"it.gov.pagopa.initiative.not.found\\\",\\\"message\\\":\\\"Initiative with initiativeId test not found.\\\"}');\r",
+													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_NOT_FOUND');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -15313,7 +15318,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not found - Prerequisites check - message contains info about initiative not found\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('{\\\"code\\\":\\\"it.gov.pagopa.initiative.not.found\\\",\\\"message\\\":\\\"Initiative with initiativeId test not found.\\\"}');\r",
+													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_NOT_FOUND');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -15553,7 +15558,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative draft - Accept T&C - message contains info about initiative not active\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('The initiative is not active!');\r",
+													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -15633,7 +15638,7 @@
 													"\r",
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative draft - Prerequisites check -  message contais info about initiative not active\", function () {\r",
 													"    let jsonResponse = pm.response.json()\r",
-													"    pm.expect(jsonResponse.message).equals('The initiative is not active!');\r",
+													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED');\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -15714,6 +15719,11 @@
 												"exec": [
 													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not started - Accept T&C - status 403\", function () {\r",
 													"    pm.response.to.have.status(403);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Unhappy case - ISSUER - Onboarding initiative not started - Accept T&C - Message contains info about KO status\", function () {\r",
+													"    const responseJson = pm.response.json();\r",
+													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_INITIATIVE_NOT_STARTED\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -16095,7 +16105,7 @@
 		},
 		{
 			"key": "NoCriteriaInitiativeId",
-			"value": "63fc855ffea3f35a5644e72d"
+			"value": "6568ba85ba09561a49e89622"
 		},
 		{
 			"key": "serviceId - self declaration",
