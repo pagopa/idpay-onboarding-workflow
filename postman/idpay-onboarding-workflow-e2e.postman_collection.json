@@ -311,7 +311,7 @@
 														{
 															"key": "file",
 															"type": "file",
-															"src": "./postman/example_fiscal_code.csv"
+															"src": "/C:/Users/ERANALDUZ/IdPay/idpay-onboarding-workflow/postman/example_fiscal_code.csv"
 														}
 													]
 												},
@@ -11044,7 +11044,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													"//setTimeout(() => {}, 90000);"
+													"setTimeout(() => {}, 90000);"
 												],
 												"type": "text/javascript"
 											}
