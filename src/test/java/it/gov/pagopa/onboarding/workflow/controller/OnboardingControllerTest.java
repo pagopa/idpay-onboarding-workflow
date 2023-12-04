@@ -6,13 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
+import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.*;
-import it.gov.pagopa.onboarding.workflow.exception.custom.PageSizeNotAllowedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeBudgetExhaustedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 
@@ -22,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -240,6 +240,18 @@ class OnboardingControllerTest {
             MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+  }
+
+  @Test
+  void getOnboardingStatus_ko_genericServiceException() throws Exception {
+
+    Mockito.doThrow(new ServiceException("DUMMY_EXCEPTION_CODE", "DUMMY_EXCEPTION_STACK_TRACE"))
+            .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+    mvc.perform(
+                    MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
+                            .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
   }
 
   @Test
