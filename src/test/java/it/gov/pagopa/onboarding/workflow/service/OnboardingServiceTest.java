@@ -4,9 +4,7 @@ import static com.mongodb.assertions.Assertions.assertTrue;
 import static com.mongodb.assertions.Assertions.fail;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -184,6 +182,11 @@ class OnboardingServiceTest {
       .status(OnboardingWorkflowConstants.PUBLISHED)
       .budgetAvailable(true)
       .build();
+
+  private static final InitiativeStatusDTO INITIATIVE_NOT_BUDGET_DTO = InitiativeStatusDTO.builder()
+          .status(OnboardingWorkflowConstants.PUBLISHED)
+          .budgetAvailable(false)
+          .build();
   private static final OnboardingNotificationDTO ONBOARDING_NOTIFICATION_DTO = OnboardingNotificationDTO.builder()
       .initiativeId(INITIATIVE_ID)
       .serviceId(SERVICE_ID)
@@ -626,11 +629,7 @@ class OnboardingServiceTest {
     when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
         .thenReturn(INITIATIVE_DTO);
 
-    try {
-      onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.putTcConsent(INITIATIVE_ID, USER_ID));
 
   }
 
@@ -754,12 +753,8 @@ class OnboardingServiceTest {
       return null;
     }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,
-          CHANNEL);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,
+          CHANNEL));
   }
 
   @Test
@@ -777,12 +772,8 @@ class OnboardingServiceTest {
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
         .thenReturn(INITIATIVE_STATUS_DTO);
 
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,
-          CHANNEL);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,
+          CHANNEL));
   }
 
   @Test
@@ -800,12 +791,8 @@ class OnboardingServiceTest {
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
         .thenReturn(INITIATIVE_STATUS_DTO);
 
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,
-          CHANNEL);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID,
+          CHANNEL));
   }
 
   @Test
@@ -829,12 +816,7 @@ class OnboardingServiceTest {
       return null;
     }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
-
+    assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL));
   }
 
   @Test
@@ -961,13 +943,15 @@ class OnboardingServiceTest {
             .thenReturn(INITIATIVE_DTO);
 
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_STATUS_DTO);
+        .thenReturn(INITIATIVE_NOT_BUDGET_DTO);
     when(onboardingRepositoryMock.countByInitiativeIdAndStatus(anyString(), anyString())).thenReturn(15);
 
     try {
       onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-    } catch (ServiceException e) {
       Assertions.fail();
+    } catch (InitiativeBudgetExhaustedException e) {
+      Assertions.assertEquals(BUDGET_EXHAUSTED, e.getCode());
+      Assertions.assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, INITIATIVE_ID),e.getMessage());
     }
   }
 
@@ -1105,11 +1089,7 @@ class OnboardingServiceTest {
       return null;
     }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL));
   }
 
   @Test
@@ -1134,11 +1114,8 @@ class OnboardingServiceTest {
       return null;
     }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL));
+
   }
   @Test
   void checkPrerequisites_ok_demanded_outOnboardingRange(){
@@ -1166,11 +1143,7 @@ class OnboardingServiceTest {
       return null;
     }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
-    try {
-      onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL));
   }
 
   @Test
@@ -1247,11 +1220,7 @@ class OnboardingServiceTest {
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
         .thenReturn(INITIATIVE_STATUS_DTO);
 
-    try {
-      onboardingService.saveConsent(consentPutDTO, USER_ID);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.saveConsent(consentPutDTO, USER_ID));
 
     Mockito.verify(onboardingRepositoryMock, Mockito.times(1)).save(any());
   }
@@ -1452,11 +1421,8 @@ class OnboardingServiceTest {
 
     when(onboardingRepositoryMock.findById(Onboarding.buildId(onboarding.getInitiativeId(), USER_ID)))
             .thenReturn(Optional.of(onboarding));
-    try {
-      onboardingService.saveConsent(consentPutDTO, USER_ID);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+
+    assertDoesNotThrow(() ->onboardingService.saveConsent(consentPutDTO, USER_ID));
   }
 
   @Test
@@ -1470,11 +1436,8 @@ class OnboardingServiceTest {
 
     when(onboardingRepositoryMock.findById(Onboarding.buildId(onboarding.getInitiativeId(), USER_ID)))
             .thenReturn(Optional.of(onboarding));
-    try {
-      onboardingService.saveConsent(consentPutDTO, USER_ID);
-    } catch (ServiceException e) {
-      Assertions.fail();
-    }
+
+    assertDoesNotThrow(() -> onboardingService.saveConsent(consentPutDTO, USER_ID));
   }
 
   //endregion
@@ -1537,11 +1500,7 @@ class OnboardingServiceTest {
   @Test
   void completeOnboardingCreateOnboardingStatusDEMANDED_ok() {
     EVALUATION_DTO.setStatus("DEMANDED");
-    try {
-      onboardingService.completeOnboarding(EVALUATION_DTO);
-    } catch (ServiceException e) {
-      fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.completeOnboarding(EVALUATION_DTO));
   }
 
   @Test
@@ -1664,13 +1623,9 @@ class OnboardingServiceTest {
 
     when(onboardingRepositoryMock.getCount(criteria)).thenReturn(count);
 
-    try {
-      onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
+    assertDoesNotThrow(() -> onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
           STATUS,
-          paging);
-    } catch (ServiceException e) {
-      fail();
-    }
+          paging));
   }
 
   @Test
@@ -1690,13 +1645,9 @@ class OnboardingServiceTest {
 
     when(onboardingRepositoryMock.getCount(criteria)).thenReturn(count);
 
-    try {
-      onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
+    assertDoesNotThrow(() -> onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
           STATUS,
-          null);
-    } catch (ServiceException e) {
-      fail();
-    }
+          null));
   }
 
   @Test
@@ -1734,11 +1685,7 @@ class OnboardingServiceTest {
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
         .thenReturn(Optional.of(onboarding));
 
-    try {
-      onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO);
-    } catch (ServiceException e) {
-      fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO));
   }
 
   @Test
@@ -1768,11 +1715,7 @@ class OnboardingServiceTest {
         }
     ).when(onboardingRepositoryMock).save(onboarding);
 
-    try {
-      onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO);
-    } catch (ServiceException e) {
-      fail();
-    }
+    assertDoesNotThrow(() -> onboardingService.allowedInitiative(ONBOARDING_NOTIFICATION_DTO));
   }
 
   @Test
