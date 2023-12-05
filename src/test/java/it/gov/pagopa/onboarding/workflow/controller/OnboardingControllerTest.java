@@ -1,12 +1,16 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.common.config.JsonConfig;
+import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.*;
-import it.gov.pagopa.onboarding.workflow.exception.OnboardingWorkflowException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 
@@ -16,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -24,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -34,6 +40,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = {
     OnboardingController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@Import({JsonConfig.class, ServiceExceptionConfig.class})
 class OnboardingControllerTest {
 
   @MockBean
@@ -89,9 +96,8 @@ class OnboardingControllerTest {
   void putTc_NotFound() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("The initiative with id %s does not exist.", INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR))
-        .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
+    Mockito.doThrow(new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, INITIATIVE_ID)))
+                    .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
@@ -189,10 +195,8 @@ class OnboardingControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.FORBIDDEN.value(),
-                    OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED_MSG,
-                    OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED))
-        .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
+    Mockito.doThrow(new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, INITIATIVE_ID)))
+                    .when(onboardingServiceMock).checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
 
     Map<String, Object> body = new HashMap<>();
     body.put("initiativeId", INITIATIVE_ID);
@@ -229,15 +233,25 @@ class OnboardingControllerTest {
   @Test
   void getOnboardingStatus_ko() throws Exception {
 
-    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.NOT_FOUND.value(),
-            String.format("Onboarding with initiativeId %s and current userId not found.",
-                INITIATIVE_ID), OnboardingWorkflowConstants.GENERIC_ERROR))
-        .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
+    Mockito.doThrow(new UserNotOnboardedException(ID_S_NOT_FOUND_MSG, INITIATIVE_ID))
+            .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
     mvc.perform(
             MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+  }
+
+  @Test
+  void getOnboardingStatus_ko_genericServiceException() throws Exception {
+
+    Mockito.doThrow(new ServiceException("DUMMY_EXCEPTION_CODE", "DUMMY_EXCEPTION_STACK_TRACE"))
+            .when(onboardingServiceMock).getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+    mvc.perform(
+                    MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
+                            .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
   }
 
   @Test
@@ -312,10 +326,8 @@ class OnboardingControllerTest {
 
   @Test
   void onboarding_status_list_ko() throws Exception {
-    Mockito.doThrow(new OnboardingWorkflowException(HttpStatus.BAD_REQUEST.value(),
-        OnboardingWorkflowConstants.ERROR_MAX_NUMBER_FOR_PAGE, OnboardingWorkflowConstants.GENERIC_ERROR)).when(
-        onboardingServiceMock).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
-        STATUS, null);
+    Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
+            .when(onboardingServiceMock).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE, STATUS, null);
 
     mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
             .contentType(MediaType.APPLICATION_JSON_VALUE)

@@ -1,11 +1,18 @@
 package it.gov.pagopa.onboarding.workflow.connector;
 
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_FOUND;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ERROR_INITIATIVE_INVOCATION_MSG;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import it.gov.pagopa.onboarding.workflow.config.OnboardingWorkflowConfig;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeInvocationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +56,34 @@ class InitiativeRestClientTest {
     InitiativeDTO actual = restConnector.getInitiativeBeneficiaryView(INITIATIVE_ID);
 
     assertEquals(INITIATIVE_ID, actual.getInitiativeId());
+  }
 
+  @Test
+  void getInitiativeStatus_NOT_FOUND(){
+    // Given
+    String initiativeId = "INITIATIVE_ID_NOT_FOUND";
+
+    // When
+    InitiativeNotFoundException exception = assertThrows(InitiativeNotFoundException.class,
+            () -> restConnector.getInitiativeBeneficiaryView(initiativeId));
+
+    // Then
+    assertEquals(INITIATIVE_NOT_FOUND,exception.getCode());
+    assertEquals(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), exception.getMessage());
+  }
+
+  @Test
+  void getInitiativeStatus_GENERIC_ERROR(){
+    // Given
+    String initiativeId = "INITIATIVE_ID_GENERIC_ERROR";
+
+    // When
+    InitiativeInvocationException exception = assertThrows(InitiativeInvocationException.class,
+            () -> restConnector.getInitiativeBeneficiaryView(initiativeId));
+
+    // Then
+    assertEquals(GENERIC_ERROR,exception.getCode());
+    assertEquals(ERROR_INITIATIVE_INVOCATION_MSG, exception.getMessage());
   }
 
 
