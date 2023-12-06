@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/initiative/INITIATIVE_ID_GENERIC_ERROR/beneficiary/view"
+  },
+  "response": {
+    "status": "500",
+    "jsonBody": {},
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

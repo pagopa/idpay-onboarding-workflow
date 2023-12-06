@@ -4,7 +4,6 @@ import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import java.time.LocalDateTime;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OnboardingControllerImpl implements OnboardingController {
 
-  @Autowired
-  private OnboardingService onboardingService;
+  private final OnboardingService onboardingService;
+
+  public OnboardingControllerImpl(OnboardingService onboardingService) {
+    this.onboardingService = onboardingService;
+  }
 
   public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
       @Valid @RequestBody CheckPutDTO body,

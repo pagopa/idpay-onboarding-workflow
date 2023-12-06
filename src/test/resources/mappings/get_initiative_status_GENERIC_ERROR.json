@@ -1,20 +1,13 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/idpay/admissibility/initiative/TEST"
+    "urlPathPattern": "/idpay/admissibility/initiative/INITIATIVE_ID_GENERIC_ERROR"
   },
   "response": {
-    "status": "404",
-    "jsonBody": {
-    },
+    "status": "500",
+    "jsonBody": {},
     "headers": {
       "Content-Type": "application/json"
     }
   }
 }
-
-
-
-
-
-
