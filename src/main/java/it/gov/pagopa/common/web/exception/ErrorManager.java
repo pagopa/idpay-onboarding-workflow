@@ -9,13 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
+
 @RestControllerAdvice
 @Slf4j
 public class ErrorManager {
   private static final ErrorDTO defaultErrorDTO;
 
   static {
-    defaultErrorDTO = new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something gone wrong", "");
+    defaultErrorDTO = new ErrorDTO(GENERIC_ERROR, "Something gone wrong");
   }
 
   @ExceptionHandler(RuntimeException.class)
@@ -39,7 +41,7 @@ public class ErrorManager {
       HttpStatus httpStatus;
       if (error instanceof ClientExceptionWithBody clientExceptionWithBody){
         httpStatus = clientExceptionWithBody.getHttpStatus();
-        errorDTO = new ErrorDTO(clientExceptionWithBody.getCode(),  error.getMessage(), clientExceptionWithBody.getDetails());
+        errorDTO = new ErrorDTO(clientExceptionWithBody.getCode(),  error.getMessage());
       }
       else {
         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
