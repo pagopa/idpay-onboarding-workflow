@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "4aab7776-1dd8-40a5-872c-af4a66553fa0",
-		"name": "Onboarding - e2e Copy 2",
+		"_postman_id": "5a935ba1-4497-479c-9f47-53362f90c124",
+		"name": "Onboarding - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036679",
-		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036679-4aab7776-1dd8-40a5-872c-af4a66553fa0?action=share&source=collection_link&creator=26036679"
+		"_exporter_id": "26036736",
+		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036736-5a935ba1-4497-479c-9f47-53362f90c124?action=share&source=collection_link&creator=26036736"
 	},
 	"item": [
 		{
@@ -8599,6 +8599,494 @@
 							]
 						}
 					]
+				},
+				{
+					"name": "MIL",
+					"item": [
+						{
+							"name": "MIL Onboarding User",
+							"item": [
+								{
+									"name": "MIL Token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var jsonData = JSON.parse(responseBody);\r",
+													"pm.collectionVariables.set('milCitizenToken', jsonData.access_token);\r",
+													"\r",
+													"pm.test(\"Initiative with whitelist - Happy case - Mil Token - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"var randomNum = Math.floor(10000000 + Math.random() * 90000000);\r",
+													"pm.collectionVariables.set('terminalId', randomNum);\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id_mil}}"
+											},
+											{
+												"key": "Channel",
+												"value": "ATM"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminalId}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded"
+											}
+										],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "client_secret",
+													"value": "{{client_secret_mil}}",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id_mil}}",
+													"type": "text"
+												},
+												{
+													"key": "grant_type",
+													"value": "client_credentials",
+													"type": "text"
+												},
+												{
+													"key": "fiscal_code",
+													"value": "{{CF_FAKE_4}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "https://mil-u-apim.azure-api.net/mil-auth/token",
+											"protocol": "https",
+											"host": [
+												"mil-u-apim",
+												"azure-api",
+												"net"
+											],
+											"path": [
+												"mil-auth",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Initiatives List MIL",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Happy case - MIL - Get Initiatives List MIL - response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Happy case - Get Initiatives List MIL - checking Initiatives list contains initiativeId\", function () {\r",
+													"    let responseJson = pm.response.json()\r",
+													"    let isInitiative = false;\r",
+													"    for (let i = 0; i < responseJson.length; i++) {\r",
+													"        if (responseJson[i].initiativeId === pm.collectionVariables.get('initiativeIdWithCriteria')) {\r",
+													"            isInitiative = true;\r",
+													"            break;\r",
+													"        }\r",
+													"    }\r",
+													"    pm.expect(isInitiative).to.be.eql(true);\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"//setTimeout(()=> {}, 20000)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{milCitizenToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{milCitizenSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "it_IT",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/mil/onboarding/initiatives",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"mil",
+												"onboarding",
+												"initiatives"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Accept T&C MIL",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Happy case - MIL - Accept T&C - Status 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{milCitizenToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{milCitizenSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "it_IT",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithCriteria}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/mil/onboarding/",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"mil",
+												"onboarding",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Prerequisites Check MIL",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Happy case - MIL - Prerequisites check - Status 200 or 202\", function () {\r",
+													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{milCitizenToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{milCitizenSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "it_IT",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithCriteria}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/mil/onboarding/initiative",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"mil",
+												"onboarding",
+												"initiative"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "PDND + Autocertification MIL",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Happy case - MIL - PDND + Autocertification - Status 202\", function () {\r",
+													"    pm.response.to.have.status(202);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{milCitizenToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{milCitizenSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "it_IT",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"initiativeId\" : \"{{initiativeIdWithCriteria}}\",\r\n    \"pdndAccept\": true,\r\n    \"selfDeclarationList\": []\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/mil/onboarding/consent",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"mil",
+												"onboarding",
+												"consent"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Onboarding Status MIL",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Onboarding - Happy case - MIL - Onboarding user with criteria - Status Onboarding OK - Status 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Onboarding - Happy case - MIL - Onboarding status is ONBOARDING_OK or ON_EVALUATION\", function () {\r",
+													"    let jsonResponse = pm.response.json()\r",
+													"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_OK', 'ON_EVALUATION']);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(()=> {}, 5000)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{milCitizenToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{milCitizenSubscriptionKey}}",
+												"type": "text"
+											},
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "text"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "it_IT",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/idpay/mil/onboarding/{{initiativeIdWithCriteria}}/status",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"idpay",
+												"mil",
+												"onboarding",
+												"{{initiativeIdWithCriteria}}",
+												"status"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
 				}
 			]
 		},
@@ -16297,6 +16785,14 @@
 		},
 		{
 			"key": "vatNumberWrong",
+			"value": ""
+		},
+		{
+			"key": "milCitizenToken",
+			"value": ""
+		},
+		{
+			"key": "terminalId",
 			"value": ""
 		}
 	]
