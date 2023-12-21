@@ -1,6 +1,8 @@
 package it.gov.pagopa.onboarding.workflow.exception.custom;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.common.web.exception.ServiceExceptionPayload;
+
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 
 public class PDNDConsentDeniedException extends ServiceException {
@@ -10,10 +12,10 @@ public class PDNDConsentDeniedException extends ServiceException {
     }
 
     public PDNDConsentDeniedException(String code, String message) {
-        this(code, message, false, null);
+        this(code, message, null, false, null);
     }
 
-    public PDNDConsentDeniedException(String code, String message, boolean printStackTrace, Throwable ex) {
-        super(code, message, printStackTrace, ex);
+    public PDNDConsentDeniedException(String code, String message, ServiceExceptionPayload response, boolean printStackTrace, Throwable ex) {
+        super(code, message, response, printStackTrace, ex);
     }
 }

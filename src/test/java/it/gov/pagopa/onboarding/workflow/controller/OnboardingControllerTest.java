@@ -96,7 +96,7 @@ class OnboardingControllerTest {
   void putTc_NotFound() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Mockito.doThrow(new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, INITIATIVE_ID)))
+    Mockito.doThrow(new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, INITIATIVE_ID), true, new Throwable()))
                     .when(onboardingServiceMock).putTcConsent(INITIATIVE_ID, USER_ID);
 
     Map<String, Object> body = new HashMap<>();
