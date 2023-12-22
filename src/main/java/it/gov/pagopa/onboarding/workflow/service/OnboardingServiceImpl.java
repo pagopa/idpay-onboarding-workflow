@@ -752,7 +752,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       DecryptCfDTO decryptedCfDTO = decryptRestConnector.getPiiByToken(userId);
       fiscalCode = decryptedCfDTO.getPii();
     } catch (Exception e) {
-      throw new PDVInvocationException(PDV_DECRYPT_ERROR_MSG);
+      throw new PDVInvocationException(PDV_DECRYPT_ERROR_MSG, true, e);
     }
     return fiscalCode;
   }
