@@ -7,8 +7,10 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.AdmissibilityInvocatio
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_FOUND;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ERROR_ADMISSIBILITY_INVOCATION_MSG;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.GENERIC_ERROR;
 
 @Service
 @Slf4j
@@ -28,11 +30,11 @@ public class AdmissibilityRestConnectorImpl implements AdmissibilityRestConnecto
     } catch (FeignException e){
       if (e.status() == 404){
         log.info("[GET_INITIATIVE_STATUS] Initiative {} was not found.", initiativeId);
-        throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId));
+        throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, e);
       }
 
       log.error("[GET_INITIATIVE_STATUS] Initiative {}: something went wrong when invoking the API.", initiativeId);
-      throw new AdmissibilityInvocationException(ERROR_ADMISSIBILITY_INVOCATION_MSG);
+      throw new AdmissibilityInvocationException(ERROR_ADMISSIBILITY_INVOCATION_MSG, true, e);
     }
 
     return initiativeStatusDTO;

@@ -10,6 +10,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import com.mongodb.MongoException;
+import com.mongodb.MongoQueryException;
+import com.mongodb.ServerAddress;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
@@ -45,6 +47,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
+import org.bson.BsonDocument;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -62,6 +65,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -1745,12 +1749,22 @@ class OnboardingServiceTest {
 
   @Test
   void suspend_ko() {
+    String mongoFullErrorResponse = """
+        {"ok": 0.0, "errmsg": "Error=16500, RetryAfterMs=34,\s
+        Details='Response status code does not indicate success: TooManyRequests (429) Substatus: 3200 ActivityId: 46ba3855-bc3b-4670-8609-17e1c2c87778 Reason:\s
+        (\\r\\nErrors : [\\r\\n \\"Request rate is large. More Request Units may be needed, so no changes were made. Please retry this request later. Learn more:
+         http://aka.ms/cosmosdb-error-429\\"\\r\\n]\\r\\n) ", "code": 16500, "codeName": "RequestRateTooLarge"}
+        """;
+
+    final MongoQueryException mongoQueryException = new MongoQueryException(
+            BsonDocument.parse(mongoFullErrorResponse), new ServerAddress());
+
     Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
     when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
             .thenReturn(Optional.of(onboarding));
 
-    Mockito.doThrow(new MongoException(500, "")).when(onboardingRepositoryMock).save(any());
+    Mockito.doThrow(new UncategorizedMongoDbException(mongoQueryException.getMessage(), mongoQueryException)).when(onboardingRepositoryMock).save(any());
 
     try {
       onboardingService.suspend(INITIATIVE_ID, USER_ID);
