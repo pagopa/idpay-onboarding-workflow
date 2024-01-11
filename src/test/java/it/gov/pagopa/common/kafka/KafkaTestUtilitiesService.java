@@ -60,8 +60,6 @@ public class KafkaTestUtilitiesService {
     private String applicationName;
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("${spring.cloud.stream.kafka.binder.zkNodes}")
-    private String zkNodes;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -106,7 +104,7 @@ public class KafkaTestUtilitiesService {
 
     /** It will return usefull URLs related to embedded kafka */
     public String getKafkaUrls() {
-        return "bootstrapServers: %s, zkNodes: %s".formatted(bootstrapServers, zkNodes);
+        return "bootstrapServers: %s".formatted(bootstrapServers);
     }
 
 //region consume messages
@@ -276,7 +274,7 @@ public class KafkaTestUtilitiesService {
     }
 //endregion
 
-//region error topic
+    //region error topic
     public void checkErrorsPublished(String topicErrors, Pattern errorUseCaseIdPatternMatch, int expectedErrorMessagesNumber, long maxWaitingMs, List<Pair<Supplier<String>, java.util.function.Consumer<ConsumerRecord<String, String>>>> errorUseCases) {
         final List<ConsumerRecord<String, String>> errors = consumeMessages(topicErrors, expectedErrorMessagesNumber, maxWaitingMs);
         for (final ConsumerRecord<String, String> record : errors) {
