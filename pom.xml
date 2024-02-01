@@ -12,7 +12,7 @@
     <artifactId>idpay-onboarding-workflow</artifactId>
     <name>idpay-onboarding-workflow</name>
     <description>Onboarding Workflow Microservice</description>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
 
     <properties>
         <java.version>17</java.version>
