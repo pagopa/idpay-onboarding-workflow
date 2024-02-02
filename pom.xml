@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.7</version>
+        <version>3.1.8</version>
     </parent>
 
     <groupId>it.gov.pagopa.onboarding.workflow</groupId>
     <artifactId>idpay-onboarding-workflow</artifactId>
     <name>idpay-onboarding-workflow</name>
     <description>Onboarding Workflow Microservice</description>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
 
     <properties>
         <java.version>17</java.version>
