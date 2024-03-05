@@ -2,7 +2,7 @@ package it.gov.pagopa.onboarding.workflow.constants;
 
 import java.util.List;
 
-public final class OnboardingWorkflowConstants {
+public class OnboardingWorkflowConstants {
 
   public static final String ACCEPTED_TC = "ACCEPTED_TC";
   public static final String STATUS_UNSUBSCRIBED = "UNSUBSCRIBED";
@@ -62,6 +62,9 @@ public final class OnboardingWorkflowConstants {
     public static final String ERROR_ADMISSIBILITY_INVOCATION_MSG = "An error occurred in the microservice admissibility";
     public static final String ERROR_SUSPENSION_MSG = "Error while suspending the user on initiative [%s]";
     public static final String ERROR_READMISSION_MSG = "Error while readmitting the user on initiative [%s]";
+
+    private ExceptionMessage() {}
+
   }
 
   public static final class ExceptionCode {
@@ -87,6 +90,8 @@ public final class OnboardingWorkflowConstants {
     public static final String TOO_MANY_REQUESTS = "ONBOARDING_TOO_MANY_REQUESTS";
 
     public static final String GENERIC_ERROR = "ONBOARDING_GENERIC_ERROR";
+
+    private ExceptionCode() {}
   }
 
   private OnboardingWorkflowConstants() {

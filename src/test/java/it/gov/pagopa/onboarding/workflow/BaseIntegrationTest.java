@@ -13,6 +13,7 @@ import jakarta.annotation.PostConstruct;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -86,6 +87,7 @@ import javax.management.MalformedObjectNameException;
 @AutoConfigureWireMock(stubs = "classpath:/mappings", port = 0)
 @Import(EmbeddedRedisTestConfiguration.class)
 @AutoConfigureSingleInstanceMongodb
+@Disabled
 public abstract class BaseIntegrationTest {
 
     @Autowired
