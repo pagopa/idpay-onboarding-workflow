@@ -1,7 +1,6 @@
 package it.gov.pagopa.common.wiremock;
 
 
-
 import it.gov.pagopa.common.rest.utils.WireMockUtils;
 import it.gov.pagopa.common.utils.JUnitExtensionContextHolder;
 import it.gov.pagopa.common.utils.TestUtils;
@@ -14,10 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +30,8 @@ public class BaseWireMockTest {
     public static final String WIREMOCK_TEST_PROP2BASEPATH_MAP_PREFIX =  "wireMock-test.prop2basePath.";
     public static final String WIREMOCK_TEST_PROP2BASEPATH_SECURE_MAP_PREFIX =  "wireMock-test.prop2basePath.secure.";
 
-    private static Map<String,String> propertiesMap = new HashMap<>();
-    private static Map<String,String> propertiesSecureMap = new HashMap<>();
+    private static final Map<String,String> propertiesMap = new HashMap<>();
+    private static final Map<String,String> propertiesSecureMap = new HashMap<>();
 
     @PostConstruct
     public void logEmbeddedServerConfig() {
@@ -119,26 +118,25 @@ public class BaseWireMockTest {
     public static class WireMockInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(@NonNull ConfigurableApplicationContext applicationContext) {
-            // setting wiremock HTTP baseUrl
 
-            for (PropertySource<?> propertySource : applicationContext.getEnvironment().getPropertySources()) {
-                if (propertySource instanceof EnumerablePropertySource) {
-                    for (String key : ((EnumerablePropertySource<?>) propertySource).getPropertyNames()) {
+            applicationContext.getEnvironment().getPropertySources().stream()
+                    .filter(propertySource -> propertySource instanceof EnumerablePropertySource)
+                    .map(propertySource -> (EnumerablePropertySource<?>) propertySource)
+                    .flatMap(propertySource -> Arrays.stream(propertySource.getPropertyNames()))
+                    .forEach(key -> {
                         if (key.startsWith(WIREMOCK_TEST_PROP2BASEPATH_MAP_PREFIX)) {
-                            propertiesMap.put(key.substring(WIREMOCK_TEST_PROP2BASEPATH_MAP_PREFIX.length()), (String) propertySource.getProperty(key));
+                            propertiesMap.put(key.substring(WIREMOCK_TEST_PROP2BASEPATH_MAP_PREFIX.length()), applicationContext.getEnvironment().getProperty(key));
                         }
                         if (key.startsWith(WIREMOCK_TEST_PROP2BASEPATH_SECURE_MAP_PREFIX)) {
-                            propertiesSecureMap.put(key.substring(WIREMOCK_TEST_PROP2BASEPATH_SECURE_MAP_PREFIX.length()), (String) propertySource.getProperty(key));
+                            propertiesSecureMap.put(key.substring(WIREMOCK_TEST_PROP2BASEPATH_SECURE_MAP_PREFIX.length()), applicationContext.getEnvironment().getProperty(key));
                         }
-                    }
-                }
-            }
+                    });
 
             for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
                 setWireMockBaseMockedServicePath(applicationContext,serverWireMockExtension.getRuntimeInfo().getHttpBaseUrl(),entry);
             }
             for (Map.Entry<String, String> entry : propertiesSecureMap.entrySet()) {
-                setWireMockBaseMockedServicePath(applicationContext,serverWireMockExtension.getRuntimeInfo().getHttpBaseUrl(),entry);
+                setWireMockBaseMockedServicePath(applicationContext,serverWireMockExtension.getRuntimeInfo().getHttpsBaseUrl(),entry);
             }
 
             System.out.printf("""
