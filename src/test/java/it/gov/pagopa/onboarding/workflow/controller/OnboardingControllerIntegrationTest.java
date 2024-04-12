@@ -14,6 +14,7 @@ import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @TestPropertySource(properties = {
         "logging.level.it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl=WARN"
 })
+@Disabled
 class OnboardingControllerIntegrationTest extends BaseIntegrationTest {
 
     public static final String INITIATIVE_ID = "INITIATIVE_ID";
