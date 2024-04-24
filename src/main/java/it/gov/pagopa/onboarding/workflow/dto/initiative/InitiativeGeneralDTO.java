@@ -3,13 +3,14 @@ package it.gov.pagopa.onboarding.workflow.dto.initiative;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
 public class InitiativeGeneralDTO   {
 
-  @JsonProperty("budgetCents")
-  private Long budgetCents;
+  @JsonProperty("budget")
+  private BigDecimal budget;
 
   @JsonProperty("beneficiaryType")
   private String beneficiaryType;
@@ -17,8 +18,8 @@ public class InitiativeGeneralDTO   {
   @JsonProperty("beneficiaryKnown")
   private Boolean beneficiaryKnown;
 
-  @JsonProperty("beneficiaryBudgetCents")
-  private Long beneficiaryBudgetCents;
+  @JsonProperty("beneficiaryBudget")
+  private BigDecimal beneficiaryBudget;
 
   @JsonProperty("startDate")
   private LocalDate startDate;
