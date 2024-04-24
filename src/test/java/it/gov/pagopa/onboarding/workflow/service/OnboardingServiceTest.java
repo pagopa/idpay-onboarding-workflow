@@ -15,7 +15,6 @@ import com.mongodb.ServerAddress;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
-import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
@@ -41,7 +40,7 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
-import java.math.BigDecimal;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -130,8 +129,8 @@ class OnboardingServiceTest {
   private static final String PII = "PII_TEST";
   public static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
 
-  private static final BigDecimal BUDGET = BigDecimal.valueOf(1000);
-  private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.valueOf(100);
+  private static final Long BUDGET = 1000L;
+  private static final Long BENEFICIARY_BUDGET = 100L;
   private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
   private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
   private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
@@ -140,21 +139,21 @@ class OnboardingServiceTest {
       new EvaluationDTO(
           USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
           OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
-          new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+          500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
   private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING =
           new EvaluationDTO(
                   USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null),
                           new OnboardingRejectionReason(OUT_OF_RANKING, "CITIZEN_OUT_OF_RANKING", null, null, null)),
-                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+                  500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
 
   private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
           new EvaluationDTO(
                   USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
                   OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                   List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null)),
-                  new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+                  500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
 
   private static final InitiativeDTO INITIATIVE_DTO = new InitiativeDTO();
   private static final InitiativeDTO INITIATIVE_DTO_RANKING = new InitiativeDTO();
@@ -217,8 +216,8 @@ class OnboardingServiceTest {
     GENERAL.setBeneficiaryKnown(false);
     GENERAL.setStartDate(LocalDate.MIN);
     GENERAL.setEndDate(LocalDate.MAX);
-    GENERAL.setBudget(BUDGET);
-    GENERAL.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    GENERAL.setBudgetCents(BUDGET);
+    GENERAL.setBeneficiaryBudgetCents(BENEFICIARY_BUDGET);
     GENERAL.setRankingEnabled(Boolean.FALSE);
 
     GENERAL_RANKING.setBeneficiaryKnown(false);
@@ -226,15 +225,15 @@ class OnboardingServiceTest {
     GENERAL_RANKING.setEndDate(LocalDate.MAX);
     GENERAL_RANKING.setRankingStartDate(LocalDate.MIN);
     GENERAL_RANKING.setRankingEndDate(LocalDate.MAX);
-    GENERAL_RANKING.setBudget(BUDGET);
-    GENERAL_RANKING.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    GENERAL_RANKING.setBudgetCents(BUDGET);
+    GENERAL_RANKING.setBeneficiaryBudgetCents(BENEFICIARY_BUDGET);
     GENERAL_RANKING.setRankingEnabled(Boolean.TRUE);
 
     GENERAL_WHITELIST.setBeneficiaryKnown(true);
     GENERAL_WHITELIST.setStartDate(LocalDate.MIN);
     GENERAL_WHITELIST.setEndDate(LocalDate.MAX);
-    GENERAL_WHITELIST.setBudget(BUDGET);
-    GENERAL_WHITELIST.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    GENERAL_WHITELIST.setBudgetCents(BUDGET);
+    GENERAL_WHITELIST.setBeneficiaryBudgetCents(BENEFICIARY_BUDGET);
 
     GENERAL_KO_START_DATE.setBeneficiaryKnown(false);
     GENERAL_KO_START_DATE.setStartDate(LocalDate.MAX);
@@ -1993,8 +1992,8 @@ class OnboardingServiceTest {
     }
     general.setStartDate(startDate);
     general.setEndDate(endDate);
-    general.setBudget(BUDGET);
-    general.setBeneficiaryBudget(BENEFICIARY_BUDGET);
+    general.setBudgetCents(BUDGET);
+    general.setBeneficiaryBudgetCents(BENEFICIARY_BUDGET);
     general.setRankingEnabled(Boolean.FALSE);
     general.setBeneficiaryType(beneficiaryType);
 

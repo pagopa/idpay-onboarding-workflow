@@ -236,7 +236,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setAdmissibilityCheckDate(LocalDateTime.now());
     dto.setStatus(status);
     dto.setOnboardingRejectionReasons(List.of());
-    dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
+    dto.setBeneficiaryBudgetCents(initiativeDTO.getGeneral().getBeneficiaryBudgetCents());
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
