@@ -1,7 +1,8 @@
 package it.gov.pagopa.onboarding.workflow.dto.initiative.rule.trx;
 
-import java.math.BigDecimal;
 import lombok.Data;
+
+import java.math.BigDecimal;
 
 @Data
 public class ThresholdDTO {
@@ -12,4 +13,5 @@ public class ThresholdDTO {
   private BigDecimal to;
 
   private Boolean toIncluded;
+
 }

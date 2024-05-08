@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -236,7 +237,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setAdmissibilityCheckDate(LocalDateTime.now());
     dto.setStatus(status);
     dto.setOnboardingRejectionReasons(List.of());
-    dto.setBeneficiaryBudget(initiativeDTO.getGeneral().getBeneficiaryBudget());
+    dto.setBeneficiaryBudgetCents(null != initiativeDTO.getGeneral().getBeneficiaryBudget() ? initiativeDTO.getGeneral().getBeneficiaryBudget().multiply(BigDecimal.valueOf(100)).longValue() : null);
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
