@@ -1,0 +1,244 @@
+asyncapi: 2.0.0
+info:
+  title: Onboarding Service
+  version: 1.0.0
+  description: >-
+    Its purpose is to notify allowed citizen notification and cancellation of an initiative
+tags:
+  - name: "consumerOutcome"
+    description: ""
+  - name: "consumerOnboarding"
+    description: ""
+  - name: "deleteInitiative"
+    description: "Delete the initiative"
+  - name: "onboardingOut"
+    description: ""
+channels:
+  onboarding-consumer-outcome:
+    subscribe:
+      message:
+        $ref: '#/components/messages/EvaluationDTO'
+      bindings:
+        kafka:
+          topic: idpay_onboarding_outcome_topic
+      tags:
+        - name: "consumerOutcome"
+  onboarding-consumer-onboarding:
+    publish:
+      message:
+        $ref: '#/components/messages/OnboardingNotificationDTO'
+      bindings:
+        kafka:
+          topic: idpay_onboarding_request_topic
+      tags:
+        - name: "consumerOnboarding"
+  onboarding-delete-initiative:
+    subscribe:
+      message:
+        $ref: '#/components/messages/QueueCommandOperationDTO'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: "deleteInitiative"
+  onboarding-onboarding-out:
+    subscribe:
+      message:
+        $ref: '#/components/messages/OnboardingDTO'
+      bindings:
+        kafka:
+          topic: idpay_onboarding_outcome
+      tags:
+        - name: "onboardingOut"
+components:
+  messages:
+    EvaluationDTO:
+      contentType: application/json
+      description: >-
+        Event consumed from application when a notification was sent
+      summary: Send the notification
+      payload:
+        $ref: "#/components/schemas/EvaluationDTO"
+    OnboardingDTO:
+      contentType: application/json
+      description: >-
+        Event consumed from application when a notification was sent
+      summary: Send the notification
+      payload:
+        $ref: "#/components/schemas/OnboardingDTO"
+    OnboardingNotificationDTO:
+      contentType: application/json
+      description: >-
+        Event consumed from application when a notification was sent
+      summary: Send the notification
+      payload:
+        $ref: "#/components/schemas/OnboardingNotificationDTO"
+    QueueCommandOperationDTO:
+      contentType: application/json
+      description: >-
+        Event consumed from application when a delete initiative command has published
+      summary: Delete documents of the initiative
+      payload:
+        $ref: "#/components/schemas/QueueCommandOperationDTO"
+  schemas:
+    EvaluationDTO:
+      type: object
+      description: DTO for evaluation data
+      properties:
+        userId:
+          type: string
+          description: User ID
+          example: bcf3651c-d2d3-4998-81a9-5f24302ab674
+        familyId:
+          type: string
+          description: Family ID
+          example: family123
+        initiativeId:
+          type: string
+          description: Initiative ID
+          example: 661626073785876cb5aa7601
+        initiativeName:
+          type: string
+          description: Initiative name
+          example: initiative TEST
+        initiativeEndDate:
+          type: string
+          format: date
+          description: End date of the initiative
+          example: 2024-12-31
+        organizationId:
+          type: string
+          description: Organization ID
+          example: org123
+        status:
+          type: string
+          description: Evaluation status
+          example: APPROVED
+        admissibilityCheckDate:
+          type: string
+          format: date-time
+          description: Date of admissibility check
+          example: "2024-05-24T10:30:00"
+        criteriaConsensusTimestamp:
+          type: string
+          format: date-time
+          description: Timestamp of criteria consensus
+          example: "2024-05-24T12:00:00"
+        onboardingRejectionReasons:
+          type: array
+          description: List of rejection reasons
+          items:
+            $ref: '#/components/schemas/OnboardingRejectionReason'
+        beneficiaryBudgetCents:
+          type: integer
+          description: Budget allocated to the beneficiary in cents
+          example: 10000
+        initiativeRewardType:
+          type: string
+          description: Type of initiative reward
+          example: REFUND
+        organizationName:
+          type: string
+          description: Name of the organization
+          example: organization TEST
+        isLogoPresent:
+          type: boolean
+          description: Indicates if a logo is present
+          example: true
+    OnboardingRejectionReason:
+      type: object
+      description: DTO for onboarding rejection reasons
+      properties:
+        type:
+          type: string
+          description: Type of rejection reason
+          example: TECHNICAL
+        code:
+          type: string
+          description: Rejection code
+        authority:
+          type: string
+          description: Authority responsible for rejection
+          example: System
+        authorityLabel:
+          type: string
+          description: Label of the rejecting authority
+          example: System Error
+        detail:
+          type: string
+          description: Detailed information about the rejection
+          example: Connection timed out
+    OnboardingNotificationDTO:
+      type: object
+      description: DTO for onboarding notification events
+      properties:
+        operationType:
+          type: string
+          description: Type of operation
+          example: UPDATE
+        userId:
+          type: string
+          description: User ID
+          example: bcf3651c-d2d3-4998-81a9-5f24302ab674
+        initiativeId:
+          type: string
+          description: Initiative ID
+          example: 661626073785876cb5aa7601
+        serviceId:
+          type: string
+          description: Service ID
+          example: 661626073785876cb5aa7601
+        initiativeName:
+          type: string
+          description: Initiative name
+          example: initiative TEST
+    OnboardingDTO:
+      type: object
+      description: DTO for onboarding data
+      properties:
+        userId:
+          type: string
+          description: User ID
+          example: bcf3651c-d2d3-4998-81a9-5f24302ab674
+        initiativeId:
+          type: string
+          description: Initiative ID
+          example: 661626073785876cb5aa7601
+        tc:
+          type: boolean
+          description: Terms and conditions acceptance status
+          example: true
+        status:
+          type: string
+          description: Onboarding status
+          example: ONBOARDING_OK
+        pdndAccept:
+          type: boolean
+          description: PDND acceptance status
+          example: true
+        tcAcceptTimestamp:
+          type: string
+          format: date-time
+          description: Timestamp of terms and conditions acceptance
+          example: "2024-05-24T10:30:00"
+        criteriaConsensusTimestamp:
+          type: string
+          format: date-time
+          description: Timestamp of criteria consensus
+          example: "2024-05-24T12:00:00"
+    QueueCommandOperationDTO:
+      type: object
+      properties:
+        operationType:
+          type: string
+          description: Constant that define operation type
+          example: DELETE_INITIATIVE
+        entityId:
+          type: string
+          description: familyId if the initiative is family-based or userId otherwise
+          example: 66176f4e3785876cb5aa764d
+        operationTime:
+          type: string
+          format: date-time
+          description: operation time
+          example: "2024-04-11T07:23:08.874869466"
