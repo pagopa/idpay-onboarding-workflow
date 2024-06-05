@@ -12,9 +12,9 @@ tags:
   - name: "deleteInitiative"
     description: "Delete the initiative"
   - name: "onboardingOut"
-    description: "Send "
+    description: "Send result of the onboarding outcome"
   - name: "onboardingGroupNotification"
-    description: "Receive "
+    description: "Receive information about users indicated by a whitelist initiative "
 channels:
   onboarding-consumer-outcome:
     subscribe:
@@ -65,32 +65,28 @@ components:
   messages:
     EvaluationConsumer:
       contentType: application/json
-      description: >-
-        Event consumed from application when a notification was sent
-      summary: Send the notification
+      description: Event consumed by the application when admissibility returns the result of applying membership rules
+      summary: Information about result of applying membership rules
       payload:
         oneOf:
           - $ref: "https://raw.githubusercontent.com/pagopa/idpay-admissibility-assessor/main/specs/asyncapi.yml#/components/schemas/EvaluationCompletedDTO"
           - $ref: "https://raw.githubusercontent.com/pagopa/idpay-ranking/main/specs/asyncapi.yml#/components/schemas/EvaluationRankingDTO"
     EvaluationProducer:
       contentType: application/json
-      description: >-
-        Event consumed from application when a notification was sent
-      summary: Send the notification
+      description: Send the result of the onboarding outcome
+      summary: Information about result of onboarding
       payload:
         $ref: "#/components/schemas/EvaluationDTO"
     OnboardingDTO:
       contentType: application/json
-      description: >-
-        Event consumed from application when a notification was sent
-      summary: Send the notification
+      description: Send of membership request by a user for execution of eligibility rules
+      summary: Information about execution of eligibility rules
       payload:
         $ref: "#/components/schemas/OnboardingDTO"
     OnboardingNotificationDTO:
       contentType: application/json
-      description: >-
-        Event consumed from application when a notification was sent
-      summary: Send the notification
+      description: Receives information about users indicated by a whitelist initiative
+      summary: Information about users on whitelist initiative
       payload:
         $ref: "https://raw.githubusercontent.com/pagopa/idpay-group/main/specs/asyncapi.yaml#/components/schemas/CitizenNotificationOnQueueDTO"
     DeleteInitiative:
