@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.stream.function.StreamBridge;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,7 +32,7 @@ class OutcomeProducerTest {
         EvaluationDTO evaluationDTO =  new EvaluationDTO(
                 USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
                 OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
-                new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+                500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
         outcomeProducer.sendOutcome(evaluationDTO);
         verify(streamBridge).send(Mockito.eq("onboarding-out-0"), Mockito.any(), Mockito.eq(evaluationDTO));
     }

@@ -1,0 +1,220 @@
+asyncapi: 2.0.0
+info:
+  title: Onboarding Service
+  version: 1.0.0
+  description: >-
+    Its purpose is to notify allowed citizen notification and cancellation of an initiative
+tags:
+  - name: "consumerOutcome"
+    description: "Result of applying the admissibility rules"
+  - name: "onboardingRequest"
+    description: "Send onboarding request to admissibility"
+  - name: "deleteInitiative"
+    description: "Delete the initiative"
+  - name: "onboardingOut"
+    description: "Send result of the onboarding outcome"
+  - name: "onboardingGroupNotification"
+    description: "Receive information about users indicated by a whitelist initiative "
+channels:
+  onboarding-consumer-outcome:
+    subscribe:
+      message:
+        $ref: '#/components/messages/EvaluationConsumer'
+      bindings:
+        kafka:
+          topic: idpay_onboarding_outcome
+      tags:
+        - name: "consumerOutcome"
+  onboarding-request-notify:
+    publish:
+      message:
+        $ref: '#/components/messages/OnboardingDTO'
+      bindings:
+        servicebus:
+          topic: idpay_onboarding_request_topic
+      tags:
+        - name: "onboardingRequest"
+  onboarding-delete-initiative:
+    subscribe:
+      message:
+        $ref: '#/components/messages/DeleteInitiative'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: "deleteInitiative"
+  onboarding-onboarding-out:
+    publish:
+      message:
+        $ref: '#/components/messages/EvaluationProducer'
+      bindings:
+        kafka:
+          topic: idpay_onboarding_outcome
+      tags:
+        - name: "onboardingOut"
+  onboarding-group-notification-consumer:
+    subscribe:
+      message:
+        $ref: '#/components/messages/OnboardingNotificationDTO'
+      bindings:
+        kafka:
+          topic: idpay_onboarding_notification
+      tags:
+        - name: "onboardingGroupNotification"
+components:
+  messages:
+    EvaluationConsumer:
+      contentType: application/json
+      description: Event consumed by the application when admissibility returns the result of applying membership rules
+      summary: Information about result of applying membership rules
+      payload:
+        oneOf:
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-admissibility-assessor/main/specs/asyncapi.yml#/components/schemas/EvaluationCompletedDTO"
+          - $ref: "https://raw.githubusercontent.com/pagopa/idpay-ranking/main/specs/asyncapi.yml#/components/schemas/EvaluationRankingDTO"
+    EvaluationProducer:
+      contentType: application/json
+      description: Send the result of the onboarding outcome
+      summary: Information about result of onboarding
+      payload:
+        $ref: "#/components/schemas/EvaluationDTO"
+    OnboardingDTO:
+      contentType: application/json
+      description: Send of membership request by a user for execution of eligibility rules
+      summary: Information about execution of eligibility rules
+      payload:
+        $ref: "#/components/schemas/OnboardingDTO"
+    OnboardingNotificationDTO:
+      contentType: application/json
+      description: Receives information about users indicated by a whitelist initiative
+      summary: Information about users on whitelist initiative
+      payload:
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-group/main/specs/asyncapi.yaml#/components/schemas/CitizenNotificationOnQueueDTO"
+    DeleteInitiative:
+      contentType: application/json
+      description: >-
+        Event consumed from application when a delete initiative command has published
+      summary: Delete documents of the initiative
+      payload:
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
+  schemas:
+    EvaluationDTO:
+      type: object
+      description: DTO for evaluation data
+      properties:
+        userId:
+          type: string
+          description: User ID
+          example: bcf3651c-d2d3-4998-81a9-5f24302ab674
+        familyId:
+          type: string
+          description: Family ID
+          example: family123
+        initiativeId:
+          type: string
+          description: Initiative ID
+          example: 661626073785876cb5aa7601
+        initiativeName:
+          type: string
+          description: Initiative name
+          example: initiative TEST
+        initiativeEndDate:
+          type: string
+          format: date
+          description: End date of the initiative
+          example: 2024-12-31
+        organizationId:
+          type: string
+          description: Organization ID
+          example: org123
+        status:
+          type: string
+          description: Evaluation status
+          example: APPROVED
+        admissibilityCheckDate:
+          type: string
+          format: date-time
+          description: Date of admissibility check
+          example: "2024-05-24T10:30:00"
+        criteriaConsensusTimestamp:
+          type: string
+          format: date-time
+          description: Timestamp of criteria consensus
+          example: "2024-05-24T12:00:00"
+        onboardingRejectionReasons:
+          type: array
+          description: List of rejection reasons
+          items:
+            $ref: '#/components/schemas/OnboardingRejectionReason'
+        beneficiaryBudgetCents:
+          type: integer
+          description: Budget allocated to the beneficiary in cents
+          example: 10000
+        initiativeRewardType:
+          type: string
+          description: Type of initiative reward
+          example: REFUND
+        organizationName:
+          type: string
+          description: Name of the organization
+          example: organization TEST
+        isLogoPresent:
+          type: boolean
+          description: Indicates if a logo is present
+          example: true
+    OnboardingRejectionReason:
+      type: object
+      description: DTO for onboarding rejection reasons
+      properties:
+        type:
+          type: string
+          description: Type of rejection reason
+          example: TECHNICAL
+        code:
+          type: string
+          description: Rejection code
+        authority:
+          type: string
+          description: Authority responsible for rejection
+          example: System
+        authorityLabel:
+          type: string
+          description: Label of the rejecting authority
+          example: System Error
+        detail:
+          type: string
+          description: Detailed information about the rejection
+          example: Connection timed out
+    OnboardingDTO:
+      type: object
+      description: DTO for onboarding data
+      properties:
+        userId:
+          type: string
+          description: User ID
+          example: bcf3651c-d2d3-4998-81a9-5f24302ab674
+        initiativeId:
+          type: string
+          description: Initiative ID
+          example: 661626073785876cb5aa7601
+        tc:
+          type: boolean
+          description: Terms and conditions acceptance status
+          example: true
+        status:
+          type: string
+          description: Onboarding status
+          example: ONBOARDING_OK
+        pdndAccept:
+          type: boolean
+          description: PDND acceptance status
+          example: true
+        tcAcceptTimestamp:
+          type: string
+          format: date-time
+          description: Timestamp of terms and conditions acceptance
+          example: "2024-05-24T10:30:00"
+        criteriaConsensusTimestamp:
+          type: string
+          format: date-time
+          description: Timestamp of criteria consensus
+          example: "2024-05-24T12:00:00"

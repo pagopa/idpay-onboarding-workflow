@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
@@ -40,7 +39,7 @@ class OutcomeConsumerTest {
         EvaluationDTO evaluationDTO =  new EvaluationDTO(
                 USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
                 OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
-                new BigDecimal(500), INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+                500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
         consumerCommands.accept(evaluationDTO);
         verify(onboardingService).completeOnboarding(evaluationDTO);
     }

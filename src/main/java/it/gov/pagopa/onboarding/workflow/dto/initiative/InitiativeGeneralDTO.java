@@ -1,9 +1,10 @@
 package it.gov.pagopa.onboarding.workflow.dto.initiative;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import lombok.Data;
 
 @Data
 public class InitiativeGeneralDTO   {

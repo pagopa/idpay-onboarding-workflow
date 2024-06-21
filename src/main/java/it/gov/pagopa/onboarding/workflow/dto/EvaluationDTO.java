@@ -1,6 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +29,7 @@ public class EvaluationDTO {
   private LocalDateTime criteriaConsensusTimestamp;
   @NotNull
   private List<OnboardingRejectionReason> onboardingRejectionReasons;
-  private BigDecimal beneficiaryBudget;
+  private Long beneficiaryBudgetCents;
   private String initiativeRewardType;
   private String organizationName;
   private Boolean isLogoPresent;
