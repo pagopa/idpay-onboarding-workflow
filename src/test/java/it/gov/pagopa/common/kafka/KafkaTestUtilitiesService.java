@@ -25,7 +25,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.EmbeddedKafkaKraftBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
@@ -46,13 +46,13 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /** Utilities when performing Kafka tests */
-@ConditionalOnClass(EmbeddedKafkaBroker.class)
+@ConditionalOnClass(EmbeddedKafkaKraftBroker.class)
 @Service
 public class KafkaTestUtilitiesService {
 
     public static final String GROUPID_TEST_CHECK = "idpay-group-test-check";
     @Autowired
-    private EmbeddedKafkaBroker kafkaBroker;
+    private EmbeddedKafkaKraftBroker kafkaBroker;
     @Autowired
     private KafkaTemplate<byte[], byte[]> template;
 
@@ -218,10 +218,10 @@ public class KafkaTestUtilitiesService {
             headers = Stream.concat(
                             Arrays.stream(additionalHeaders),
                             StreamSupport.stream(headers.spliterator(), false))
-                    .collect(Collectors.toList());
+                    .toList();
         }
-        ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(topic, partition, key == null ? null : key.getBytes(StandardCharsets.UTF_8), payload.getBytes(StandardCharsets.UTF_8), headers);
-        template.send(record);
+        ProducerRecord<byte[], byte[]> rec = new ProducerRecord<>(topic, partition, key == null ? null : key.getBytes(StandardCharsets.UTF_8), payload.getBytes(StandardCharsets.UTF_8), headers);
+        template.send(rec);
     }
 //endregion
 
@@ -277,13 +277,13 @@ public class KafkaTestUtilitiesService {
     //region error topic
     public void checkErrorsPublished(String topicErrors, Pattern errorUseCaseIdPatternMatch, int expectedErrorMessagesNumber, long maxWaitingMs, List<Pair<Supplier<String>, java.util.function.Consumer<ConsumerRecord<String, String>>>> errorUseCases) {
         final List<ConsumerRecord<String, String>> errors = consumeMessages(topicErrors, expectedErrorMessagesNumber, maxWaitingMs);
-        for (final ConsumerRecord<String, String> record : errors) {
-            final Matcher matcher = errorUseCaseIdPatternMatch.matcher(record.value());
+        for (final ConsumerRecord<String, String> rec : errors) {
+            final Matcher matcher = errorUseCaseIdPatternMatch.matcher(rec.value());
             int useCaseId = matcher.find() ? Integer.parseInt(matcher.group(1)) : -1;
             if (useCaseId == -1) {
-                throw new IllegalStateException("UseCaseId not recognized! " + record.value());
+                throw new IllegalStateException("UseCaseId not recognized! " + rec.value());
             }
-            errorUseCases.get(useCaseId).getSecond().accept(record);
+            errorUseCases.get(useCaseId).getSecond().accept(rec);
         }
     }
 
