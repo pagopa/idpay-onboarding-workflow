@@ -466,12 +466,17 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
       if (item instanceof SelfCriteriaMultiDTO multi) {
         String value = selfDeclarationMulti.get(multi.getCode());
-        if (value == null || !multi.getValue().contains(value)) {
+        if (value == null) {
           auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
           throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
         }
+        if ((multi.getValue() == null || multi.getValue().isEmpty()) && (multi.getDescription() == null || multi.getDescription().isEmpty())) {
+            auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
+            throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
+          }
         multi.setValue(List.of(value));
       }
+
     });
   }
 
