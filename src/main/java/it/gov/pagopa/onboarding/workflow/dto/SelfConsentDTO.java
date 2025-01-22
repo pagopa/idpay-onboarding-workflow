@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     property = "_type",
     visible = true)
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = SelfConsentTextDTO.class, name = "text"),
     @JsonSubTypes.Type(value = SelfConsentMultiDTO.class, name = "multi"),
     @JsonSubTypes.Type(value = SelfConsentBoolDTO.class, name = "boolean")
 })
