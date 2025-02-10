@@ -18,6 +18,7 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
+import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationText;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationTextRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
@@ -1950,6 +1951,26 @@ class OnboardingServiceTest {
               .thenReturn(deletedOnboardingPage);
     }
 
+    SelfDeclarationText selfDeclarationText = new SelfDeclarationText();
+    selfDeclarationText.setInitiativeId(INITIATIVE_ID);
+    selfDeclarationText.setUserId(USER_ID);
+
+    List<SelfDeclarationText> deletedSelfDeclarationTextPage = List.of(selfDeclarationText);
+
+    if(times == 2){
+      List<SelfDeclarationText> selfDeclarationTextPage = createSelfDeclarationTextsPage(pageSize);
+
+      when(selfDeclarationTextRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(selfDeclarationTextPage)
+              .thenReturn(deletedSelfDeclarationTextPage);
+
+      Thread.currentThread().interrupt();
+
+    } else {
+      when(selfDeclarationTextRepository.deletePaged(queueCommandOperationDTO.getEntityId(), pageSize))
+              .thenReturn(deletedSelfDeclarationTextPage);
+    }
+
 
     onboardingService.processCommand(queueCommandOperationDTO);
 
@@ -1975,6 +1996,20 @@ class OnboardingServiceTest {
     }
 
     return onboardingPage;
+  }
+
+  private List<SelfDeclarationText> createSelfDeclarationTextsPage(int pageSize){
+    List<SelfDeclarationText> selfDeclarationTextsPage = new ArrayList<>();
+
+    for(int i=0;i<pageSize; i++){
+      SelfDeclarationText selfDeclarationText = new SelfDeclarationText();
+      selfDeclarationText.setInitiativeId(INITIATIVE_ID);
+      selfDeclarationText.setUserId(USER_ID);
+      selfDeclarationText.setId("ID_ONBOARDING"+i);
+      selfDeclarationTextsPage.add(selfDeclarationText);
+    }
+
+    return selfDeclarationTextsPage;
   }
 
   private InitiativeDTO getInitiativeDTO(String beneficiaryType,
