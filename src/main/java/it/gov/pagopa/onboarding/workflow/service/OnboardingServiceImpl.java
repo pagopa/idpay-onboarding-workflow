@@ -71,7 +71,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
-                               OnboardingRepository onboardingRepository, SelfDeclarationTextRepository selfDeclarationTextRepository,
+                               OnboardingRepository onboardingRepository,
+                               SelfDeclarationTextRepository selfDeclarationTextRepository,
                                ConsentMapper consentMapper,
                                OnboardingProducer onboardingProducer,
                                OutcomeProducer outcomeProducer,
@@ -705,39 +706,67 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  @SuppressWarnings("BusyWait")
+
   @Override
   public void processCommand(QueueCommandOperationDTO queueCommandOperationDTO) {
 
     if (("DELETE_INITIATIVE").equals(queueCommandOperationDTO.getOperationType())) {
       long startTime = System.currentTimeMillis();
 
-      List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
-      List<Onboarding> fetchedOnboardings;
-
-      do {
-        fetchedOnboardings = onboardingRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                pageSize);
-
-        totalDeletedOnboardings.addAll(fetchedOnboardings);
-
-        try {
-          Thread.sleep(delayTime);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          log.error("An error has occurred while waiting {}", e.getMessage());
-        }
-
-      } while (fetchedOnboardings.size() == pageSize);
-
-      log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
-      totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
+      deleteOnboardings(queueCommandOperationDTO);
+      deleteSelfDeclarationText(queueCommandOperationDTO);
 
       log.info(
               "[PERFORMANCE_LOG] [DELETE_INITIATIVE] Time occurred to perform business logic: {} ms on initiativeId: {}",
               System.currentTimeMillis() - startTime,
               queueCommandOperationDTO.getEntityId());
     }
+  }
+  @SuppressWarnings("BusyWait")
+  private void deleteSelfDeclarationText(QueueCommandOperationDTO queueCommandOperationDTO) {
+    List<SelfDeclarationText> selfDeclarationTextsDeleted = new ArrayList<>();
+    List<SelfDeclarationText> fetcheselfDeclaration;
+
+    do {
+      fetcheselfDeclaration = selfDeclarationTextRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+              pageSize);
+
+      selfDeclarationTextsDeleted.addAll(fetcheselfDeclaration);
+
+      try {
+        Thread.sleep(delayTime);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.error("An error has occurred while waiting {}", e.getMessage());
+      }
+
+    } while (fetcheselfDeclaration.size() == pageSize);
+
+    log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: self_declaration_text", queueCommandOperationDTO.getEntityId());
+    selfDeclarationTextsDeleted.forEach(deletedSelfDeclarationText -> auditUtilities.logDeletedSelfDeclarationText(deletedSelfDeclarationText.getUserId(), deletedSelfDeclarationText.getInitiativeId()));
+  }
+  @SuppressWarnings("BusyWait")
+  private void deleteOnboardings(QueueCommandOperationDTO queueCommandOperationDTO) {
+    List<Onboarding> totalDeletedOnboardings = new ArrayList<>();
+    List<Onboarding> fetchedOnboardings;
+
+    do {
+      fetchedOnboardings = onboardingRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+              pageSize);
+
+      totalDeletedOnboardings.addAll(fetchedOnboardings);
+
+      try {
+        Thread.sleep(delayTime);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.error("An error has occurred while waiting {}", e.getMessage());
+      }
+
+    } while (fetchedOnboardings.size() == pageSize);
+
+    log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: onboarding_citizen", queueCommandOperationDTO.getEntityId());
+    totalDeletedOnboardings.forEach(deletedOnboarding -> auditUtilities.logDeletedOnboarding(deletedOnboarding.getUserId(), deletedOnboarding.getInitiativeId()));
   }
 
   private Pageable getPageable(Pageable pageable) {

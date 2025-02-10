@@ -156,4 +156,10 @@ public class AuditUtilities {
     );
   }
 
+    public void logDeletedSelfDeclarationText(String userId, String initiativeId) {
+      logAuditString(
+              CEF_PATTERN_BASE,
+              "Self Declaration Text deleted", userId,initiativeId
+      );
+    }
 }
