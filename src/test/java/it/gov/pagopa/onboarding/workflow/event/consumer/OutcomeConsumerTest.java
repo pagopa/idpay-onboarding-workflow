@@ -31,7 +31,7 @@ class OutcomeConsumerTest {
     private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
     private static final String SERVICE_ID = "SERVICEID";
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         consumerCommands = outcomeConsumer.consumerOutcome(onboardingService);
     }
 

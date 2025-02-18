@@ -23,8 +23,8 @@ class OutcomeProducerTest {
     private OutcomeProducer outcomeProducer;
 
     private static final LocalDate OPERATION_DATE = LocalDate.now();
-    private final static String USER_ID = "USERID";
-    private final static String INITIATIVE_ID = "INITIATIVEID";
+    private static final String USER_ID = "USERID";
+    private static final String INITIATIVE_ID = "INITIATIVEID";
     private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
     private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
     private static final String SERVICE_ID = "SERVICEID";
