@@ -247,6 +247,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
+    dto.setServiceId(null!= initiativeDTO.getAdditionalInfo()? initiativeDTO.getAdditionalInfo().getServiceId() : null);
     return dto;
   }
 
@@ -460,8 +461,7 @@ public class OnboardingServiceImpl implements OnboardingService {
             .map(SelfConsentTextDTO.class::cast)
             .collect(Collectors.toMap(SelfConsentTextDTO::getCode, SelfConsentTextDTO::getValue));
 
-    if (selfDeclarationBool.size() + selfDeclarationMulti.size() + selfDeclarationText.size()
-            != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size()) {
+    if (sizeCheck(initiativeDTO, selfDeclarationBool, selfDeclarationMulti, selfDeclarationText)) {
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT);
       throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
     }
@@ -476,12 +476,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         bool.setValue(true);
       }
       if (item instanceof SelfCriteriaMultiDTO multi) {
-        String value = selfDeclarationMulti.get(multi.getCode());
-        if (value == null || !multi.getValue().contains(value)) {
-          auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
-          throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
-        }
-        multi.setValue(List.of(value));
+        multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
       }
       if (item instanceof SelfCriteriaTextDTO text) {
         String value = selfDeclarationText.get(text.getCode());
@@ -511,6 +506,20 @@ public class OnboardingServiceImpl implements OnboardingService {
         selfDeclarationTextRepository.save(selfDeclarationTextToSave);
       }
     });
+  }
+
+  private void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti) {
+    String value = selfDeclarationMulti.get(multi.getCode());
+    if (value == null || !multi.getValue().contains(value)) {
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
+      throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
+    }
+    multi.setValue(List.of(value));
+  }
+
+  private static boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText) {
+    return selfDeclarationBool.size() + selfDeclarationMulti.size() + selfDeclarationText.size()
+            != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size();
   }
 
   @Override
