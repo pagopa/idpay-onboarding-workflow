@@ -27,12 +27,13 @@ class OutcomeProducerTest {
     private final static String INITIATIVE_ID = "INITIATIVEID";
     private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
     private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
+    private static final String SERVICE_ID = "SERVICEID";
     @Test
     void testSendSaveOutcome() {
         EvaluationDTO evaluationDTO =  new EvaluationDTO(
                 USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
                 OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
-                500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false);
+                500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
         outcomeProducer.sendOutcome(evaluationDTO);
         verify(streamBridge).send(Mockito.eq("onboarding-out-0"), Mockito.any(), Mockito.eq(evaluationDTO));
     }

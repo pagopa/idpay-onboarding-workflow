@@ -33,4 +33,5 @@ public class EvaluationDTO {
   private String initiativeRewardType;
   private String organizationName;
   private Boolean isLogoPresent;
+  private String serviceId;
 }

@@ -247,6 +247,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
+    dto.setServiceId(null!= initiativeDTO.getAdditionalInfo()? initiativeDTO.getAdditionalInfo().getServiceId() : null);
     return dto;
   }
 
