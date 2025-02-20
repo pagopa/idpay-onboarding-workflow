@@ -22,4 +22,7 @@ public class OnboardingDTO {
 
   LocalDateTime criteriaConsensusTimestamp;
 
+  //New attribute
+  String serviceId;
+
 }

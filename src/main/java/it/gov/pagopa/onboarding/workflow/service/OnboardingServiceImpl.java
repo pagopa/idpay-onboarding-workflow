@@ -207,7 +207,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
-    if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) && onboarding.getDemandedDate() != null) {
+    if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) &&
+            onboarding.getDemandedDate() != null) {
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
       outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.JOINED));
     }
@@ -247,7 +248,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
-    dto.setServiceId(null!= initiativeDTO.getAdditionalInfo()? initiativeDTO.getAdditionalInfo().getServiceId() : null);
+    dto.setServiceId(null != initiativeDTO.getAdditionalInfo() ? initiativeDTO.getAdditionalInfo().getServiceId() : null);
     return dto;
   }
 
@@ -436,6 +437,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setCriteriaConsensusTimestamp(localDateTime);
     onboarding.setUpdateDate(localDateTime);
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
+    // ServiceID Setter
+    onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
