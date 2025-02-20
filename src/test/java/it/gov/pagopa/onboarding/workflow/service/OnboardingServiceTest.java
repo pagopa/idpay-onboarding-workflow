@@ -1200,6 +1200,10 @@ class OnboardingServiceTest {
       initiativeDTO = INITIATIVE_DTO_NO_CRITERIA;
     }
 
+    initiativeDTO.setAdditionalInfo(new InitiativeAdditionalDTO());
+    initiativeDTO.getAdditionalInfo().setServiceId("SERVICE");
+
+
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
         new SelfConsentMultiDTO("multi", "2", "Value"),
         new SelfConsentTextDTO("text", "3", "Value3"));
@@ -1208,6 +1212,7 @@ class OnboardingServiceTest {
 
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
     onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+
 
     when(
             onboardingRepositoryMock.findById(Onboarding.buildId(onboarding.getInitiativeId(), USER_ID)))
@@ -1219,6 +1224,8 @@ class OnboardingServiceTest {
 
     when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
         .thenReturn(INITIATIVE_STATUS_DTO);
+
+    when(consentMapper.map(onboarding)).thenReturn(OnboardingDTO.builder().build());
 
     assertDoesNotThrow(() -> onboardingService.saveConsent(consentPutDTO, USER_ID));
 
