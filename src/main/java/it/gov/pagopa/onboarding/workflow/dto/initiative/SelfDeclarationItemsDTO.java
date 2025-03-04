@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     property = "_type",
     visible = true)
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = SelfCriteriaTextDTO.class, name = "text"),
     @JsonSubTypes.Type(value = SelfCriteriaMultiDTO.class, name = "multi"),
     @JsonSubTypes.Type(value = SelfCriteriaBoolDTO.class, name = "boolean")
 })

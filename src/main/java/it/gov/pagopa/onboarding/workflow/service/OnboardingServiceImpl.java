@@ -9,6 +9,7 @@ import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaTextDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
@@ -18,7 +19,10 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedExcept
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDVInvocationException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.UserSuspensionOrReadmissionException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
+import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationText;
+import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationTextValues;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
+import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationTextRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +59,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private final long delayTime;
 
   private final OnboardingRepository onboardingRepository;
+  private final SelfDeclarationTextRepository selfDeclarationTextRepository;
   private final ConsentMapper consentMapper;
   private final OnboardingProducer onboardingProducer;
   private final OutcomeProducer outcomeProducer;
@@ -66,7 +71,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
-                               OnboardingRepository onboardingRepository,
+                               OnboardingRepository onboardingRepository, SelfDeclarationTextRepository selfDeclarationTextRepository,
                                ConsentMapper consentMapper,
                                OnboardingProducer onboardingProducer,
                                OutcomeProducer outcomeProducer,
@@ -78,6 +83,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.pageSize = pageSize;
     this.delayTime = delayTime;
     this.onboardingRepository = onboardingRepository;
+    this.selfDeclarationTextRepository = selfDeclarationTextRepository;
     this.consentMapper = consentMapper;
     this.onboardingProducer = onboardingProducer;
     this.outcomeProducer = outcomeProducer;
@@ -201,7 +207,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
-    if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) && onboarding.getDemandedDate() != null) {
+    if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) &&
+            onboarding.getDemandedDate() != null) {
       setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
       outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.JOINED));
     }
@@ -241,6 +248,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
+    dto.setServiceId(null != initiativeDTO.getAdditionalInfo() ? initiativeDTO.getAdditionalInfo().getServiceId() : null);
     return dto;
   }
 
@@ -422,35 +430,41 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new PDNDConsentDeniedException(String.format(ERROR_PDND_MSG, consentPutDTO.getInitiativeId()));
     }
 
-    selfDeclaration(initiativeDTO, consentPutDTO);
+    selfDeclaration(initiativeDTO, consentPutDTO, userId);
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
     LocalDateTime localDateTime = LocalDateTime.now();
     onboarding.setCriteriaConsensusTimestamp(localDateTime);
     onboarding.setUpdateDate(localDateTime);
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
+    // ServiceID Setter
+    onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
   }
 
-  private void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
+  private void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId) {
     if (initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty()) {
       return;
     }
 
     Map<String, Boolean> selfDeclarationBool = consentPutDTO.getSelfDeclarationList().stream()
-        .filter(item -> item.getClass().equals(SelfConsentBoolDTO.class))
-        .map(SelfConsentBoolDTO.class::cast)
-        .collect(Collectors.toMap(SelfConsentBoolDTO::getCode, SelfConsentBoolDTO::isAccepted));
+            .filter(item -> item.getClass().equals(SelfConsentBoolDTO.class))
+            .map(SelfConsentBoolDTO.class::cast)
+            .collect(Collectors.toMap(SelfConsentBoolDTO::getCode, SelfConsentBoolDTO::isAccepted));
 
     Map<String, String> selfDeclarationMulti = consentPutDTO.getSelfDeclarationList().stream()
-        .filter(item -> item.getClass().equals(SelfConsentMultiDTO.class))
-        .map(SelfConsentMultiDTO.class::cast)
-        .collect(Collectors.toMap(SelfConsentMultiDTO::getCode, SelfConsentMultiDTO::getValue));
+            .filter(item -> item.getClass().equals(SelfConsentMultiDTO.class))
+            .map(SelfConsentMultiDTO.class::cast)
+            .collect(Collectors.toMap(SelfConsentMultiDTO::getCode, SelfConsentMultiDTO::getValue));
 
-    if (selfDeclarationBool.size() + selfDeclarationMulti.size()
-        != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size()) {
+    Map<String, String> selfDeclarationText = consentPutDTO.getSelfDeclarationList().stream()
+            .filter(item -> item.getClass().equals(SelfConsentTextDTO.class))
+            .map(SelfConsentTextDTO.class::cast)
+            .collect(Collectors.toMap(SelfConsentTextDTO::getCode, SelfConsentTextDTO::getValue));
+
+    if (sizeCheck(initiativeDTO, selfDeclarationBool, selfDeclarationMulti, selfDeclarationText)) {
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT);
       throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
     }
@@ -465,14 +479,50 @@ public class OnboardingServiceImpl implements OnboardingService {
         bool.setValue(true);
       }
       if (item instanceof SelfCriteriaMultiDTO multi) {
-        String value = selfDeclarationMulti.get(multi.getCode());
-        if (value == null || !multi.getValue().contains(value)) {
+        multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
+      }
+      if (item instanceof SelfCriteriaTextDTO text) {
+        String value = selfDeclarationText.get(text.getCode());
+        if (value == null) {
           auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
           throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
         }
-        multi.setValue(List.of(value));
+        text.setValue(value);
+
+        SelfDeclarationText selfDeclarationTextToSave = selfDeclarationTextRepository.findById(SelfDeclarationText.buildId(initiativeDTO.getInitiativeId(), userId))
+                .orElse(SelfDeclarationText.builder()
+                        .id(SelfDeclarationText.buildId(initiativeDTO.getInitiativeId(), userId))
+                        .initiativeId(initiativeDTO.getInitiativeId())
+                        .userId(userId)
+                        .selfDeclarationTextValues(new ArrayList<>())
+                        .build());
+
+        SelfDeclarationTextValues selfDeclarationValues = new SelfDeclarationTextValues(
+                text.getType(),
+                text.getDescription(),
+                text.getValue(),
+                text.getCode()
+        );
+
+        selfDeclarationTextToSave.getSelfDeclarationTextValues().add(selfDeclarationValues);
+
+        selfDeclarationTextRepository.save(selfDeclarationTextToSave);
       }
     });
+  }
+
+  private void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti) {
+    String value = selfDeclarationMulti.get(multi.getCode());
+    if (value == null || !multi.getValue().contains(value)) {
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
+      throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
+    }
+    multi.setValue(List.of(value));
+  }
+
+  private static boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText) {
+    return selfDeclarationBool.size() + selfDeclarationMulti.size() + selfDeclarationText.size()
+            != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size();
   }
 
   @Override
