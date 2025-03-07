@@ -512,7 +512,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti) {
-    String value = selfDeclarationMulti.get(multi.getCode());
+    //Update for handle AppIO mapping of index
+    String index = selfDeclarationMulti.get(multi.getCode());
+    String value = multi.getValue().get(Integer.parseInt(index));
     if (value == null || !multi.getValue().contains(value)) {
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
       throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
