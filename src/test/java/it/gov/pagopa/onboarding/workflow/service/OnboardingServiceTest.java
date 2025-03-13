@@ -19,7 +19,7 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationTextRepository;
+import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.bson.BsonDocument;
@@ -75,7 +75,7 @@ class OnboardingServiceTest {
   OnboardingRepository onboardingRepositoryMock;
 
   @MockBean
-  SelfDeclarationTextRepository selfDeclarationTextRepository;
+  SelfDeclarationRepository selfDeclarationRepository;
 
   @MockBean
   ConsentMapper consentMapper;
