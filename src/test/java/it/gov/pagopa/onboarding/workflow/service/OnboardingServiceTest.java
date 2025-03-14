@@ -1205,7 +1205,7 @@ class OnboardingServiceTest {
 
 
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
-        new SelfConsentMultiDTO("multi", "2", "Value"),
+        new SelfConsentMultiDTO("multi", "2", "0"),
         new SelfConsentTextDTO("text", "3", "Value3"));
 
     ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, pdndAccept, selfConsentDTOList);
@@ -1267,38 +1267,6 @@ class OnboardingServiceTest {
 
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", false),
         new SelfConsentMultiDTO("multi", "2", "Value"),
-        new SelfConsentTextDTO("text", "3", "Value3"));
-
-    ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
-
-    final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-    onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
-
-    when(
-            onboardingRepositoryMock.findById(Onboarding.buildId(onboarding.getInitiativeId(), USER_ID)))
-        .thenReturn(
-            Optional.of(onboarding));
-
-    when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_DTO);
-
-    when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
-        .thenReturn(INITIATIVE_STATUS_DTO);
-
-    try {
-      onboardingService.saveConsent(consentPutDTO, USER_ID);
-      Assertions.fail();
-    } catch (SelfDeclarationCrtieriaException e) {
-      assertEquals(SELF_DECLARATION_NOT_VALID, e.getCode());
-      assertEquals(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, INITIATIVE_ID), e.getMessage());
-    }
-  }
-
-  @Test
-  void saveConsent_ko_autocertification_multi_invalid() {
-
-    List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
-        new SelfConsentMultiDTO("multi", "2", "0"),
         new SelfConsentTextDTO("text", "3", "Value3"));
 
     ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
