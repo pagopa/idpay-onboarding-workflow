@@ -1,37 +1,57 @@
-name: Release
+name: 🚀 Flow Release
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
   push:
     branches:
+      - develop
+      - uat
       - main
     paths-ignore:
-      - "CODEOWNERS"
-      - "**.md"
-      - ".**"
+      - 'CODEOWNERS'
+      - '**.md'
+      - '.**'
+  workflow_dispatch:
 
 jobs:
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    environment: prod
+
+  checkout:
+    name: 🔖 Checkout Repository
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 #v3.6.0
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
         with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d #v3.8.1
+          ref: ${{ github.ref_name }}
+
+  payments-flow-release:
+    name: 🚀 Release
+    runs-on: ubuntu-22.04
+    needs: checkout
+    steps:
+      - name: 🚀 release + docker
+        # https://github.com/pagopa/github-actions-template/releases/tag/v2.0.0
+        uses: pagopa/github-actions-template/payments-flow-release@b825ee193430395706a4a7e580b8435bdded0227
         with:
-          node-version: 20
-          scope: 'cycjimmy'
-      - name: Release
-        uses: cycjimmy/semantic-release-action@61680d0e9b02ff86f5648ade99e01be17f0260a4 #v4.0.0
+          current_branch: ${{ github.ref_name }}
+
+  azure-devops-trigger:
+    name: 🅰️ Azure DevOps Pipeline Trigger
+    needs: payments-flow-release
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Trigger Azure DevOps Pipeline
+        # https://github.com/pagopa/github-actions-template/releases/tag/v2.1.0
+        uses: pagopa/github-actions-template/azure-devops-trigger-pipeline@cad30356d9046af6e7b0cee43db4cf919cc408f9
         with:
-          extra_plugins: |
-            semantic-release/release-notes-generator#c466b7165be2a0e5988676174e4bc244c991d669 #v11.0.7
-            semantic-release/git#3e934d45f97fd07a63617c0fc098c9ed3e67d97a #v10.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          enable_azure_devops_step: 'true'
+          azure_devops_project_url: 'https://dev.azure.com/pagopaspa/idpay-itn-projects'
+          azure_devops_pipeline_name: 'idpay-deploy-aks.deploy'
+          azure_devops_pat: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+          azure_template_parameters: |
+            {
+              "APPS_TOP": "[idpay-onboarding-workflow]",
+              "APPS_MID": "[]",
+              "APPS_EXT": "[]",
+              "POSTMAN_BRANCH": "${{ github.ref_name }}",
+              "TRIGGER_MESSAGE": "idpay-onboarding-workflow"
+            }
