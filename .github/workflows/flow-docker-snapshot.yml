@@ -3,8 +3,8 @@ name: 📦 Flow Snapshot Docker
 on:
   push:
     branches-ignore:
-      - 'develop'
-      - 'uat'
+      - 'release-dev'
+      - 'release-uat'
       - 'main'
     paths-ignore:
       - 'CODEOWNERS'
@@ -27,7 +27,7 @@ on:
       postman_branch:
         description: postman branch name'
         required: false
-        default: 'develop'
+        default: 'release-dev'
 
 env:
   # branch choosed by workflow_dispatch or by push event
