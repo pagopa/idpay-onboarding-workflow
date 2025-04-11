@@ -95,4 +95,5 @@ public class OnboardingControllerImpl implements OnboardingController {
     OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(initiativeId, userId);
     return new ResponseEntity<>(onboardingFamilyDTO, HttpStatus.OK);
   }
+  
 }
