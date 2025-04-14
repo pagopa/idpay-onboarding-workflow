@@ -19,10 +19,11 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedExcept
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDVInvocationException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.UserSuspensionOrReadmissionException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
-import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationText;
+import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
+import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationMultiValues;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationTextValues;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationTextRepository;
+import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +60,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private final long delayTime;
 
   private final OnboardingRepository onboardingRepository;
-  private final SelfDeclarationTextRepository selfDeclarationTextRepository;
+  private final SelfDeclarationRepository selfDeclarationRepository;
   private final ConsentMapper consentMapper;
   private final OnboardingProducer onboardingProducer;
   private final OutcomeProducer outcomeProducer;
@@ -71,7 +72,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
-                               OnboardingRepository onboardingRepository, SelfDeclarationTextRepository selfDeclarationTextRepository,
+                               OnboardingRepository onboardingRepository, SelfDeclarationRepository selfDeclarationRepository,
                                ConsentMapper consentMapper,
                                OnboardingProducer onboardingProducer,
                                OutcomeProducer outcomeProducer,
@@ -83,7 +84,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.pageSize = pageSize;
     this.delayTime = delayTime;
     this.onboardingRepository = onboardingRepository;
-    this.selfDeclarationTextRepository = selfDeclarationTextRepository;
+    this.selfDeclarationRepository = selfDeclarationRepository;
     this.consentMapper = consentMapper;
     this.onboardingProducer = onboardingProducer;
     this.outcomeProducer = outcomeProducer;
@@ -480,6 +481,19 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
       if (item instanceof SelfCriteriaMultiDTO multi) {
         multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
+
+        SelfDeclarationMultiValues multiValueToSave = new SelfDeclarationMultiValues(
+                multi.getType(),
+                multi.getDescription(),
+                multi.getValue(),
+                multi.getCode()
+        );
+
+        SelfDeclaration selfDeclarationToSave = getOrCreateSelfDeclaration(initiativeDTO.getInitiativeId(), userId);
+
+        selfDeclarationToSave.getSelfDeclarationMultiValues().add(multiValueToSave);
+
+        selfDeclarationRepository.save(selfDeclarationToSave);
       }
       if (item instanceof SelfCriteriaTextDTO text) {
         String value = selfDeclarationText.get(text.getCode());
@@ -489,13 +503,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         }
         text.setValue(value);
 
-        SelfDeclarationText selfDeclarationTextToSave = selfDeclarationTextRepository.findById(SelfDeclarationText.buildId(initiativeDTO.getInitiativeId(), userId))
-                .orElse(SelfDeclarationText.builder()
-                        .id(SelfDeclarationText.buildId(initiativeDTO.getInitiativeId(), userId))
-                        .initiativeId(initiativeDTO.getInitiativeId())
-                        .userId(userId)
-                        .selfDeclarationTextValues(new ArrayList<>())
-                        .build());
+        SelfDeclaration selfDeclarationToSave = getOrCreateSelfDeclaration(initiativeDTO.getInitiativeId(), userId);
 
         SelfDeclarationTextValues selfDeclarationValues = new SelfDeclarationTextValues(
                 text.getType(),
@@ -504,9 +512,9 @@ public class OnboardingServiceImpl implements OnboardingService {
                 text.getCode()
         );
 
-        selfDeclarationTextToSave.getSelfDeclarationTextValues().add(selfDeclarationValues);
+        selfDeclarationToSave.getSelfDeclarationTextValues().add(selfDeclarationValues);
 
-        selfDeclarationTextRepository.save(selfDeclarationTextToSave);
+        selfDeclarationRepository.save(selfDeclarationToSave);
       }
     });
   }
@@ -526,6 +534,17 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT);
       throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
     }
+  }
+
+  private SelfDeclaration getOrCreateSelfDeclaration(String initiativeId, String userId) {
+    return selfDeclarationRepository.findById(SelfDeclaration.buildId(initiativeId, userId))
+            .orElse(SelfDeclaration.builder()
+                    .id(SelfDeclaration.buildId(initiativeId, userId))
+                    .initiativeId(initiativeId)
+                    .userId(userId)
+                    .selfDeclarationTextValues(new ArrayList<>())
+                    .selfDeclarationMultiValues(new ArrayList<>())
+                    .build());
   }
 
   private static boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText) {
