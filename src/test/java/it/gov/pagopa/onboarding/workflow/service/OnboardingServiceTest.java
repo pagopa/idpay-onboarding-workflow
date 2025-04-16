@@ -1205,7 +1205,7 @@ class OnboardingServiceTest {
 
 
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", true),
-        new SelfConsentMultiDTO("multi", "2", "0"),
+        new SelfConsentMultiDTO("multi", "2", "Value"),
         new SelfConsentTextDTO("text", "3", "Value3"));
 
     ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, pdndAccept, selfConsentDTOList);
@@ -1298,7 +1298,7 @@ class OnboardingServiceTest {
   void saveConsent_ko_autocertification_bool_mismatch() {
 
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "3", true),
-        new SelfConsentMultiDTO("multi", "2", "0"),
+        new SelfConsentMultiDTO("multi", "2", "Value"),
         new SelfConsentTextDTO("text", "3", "Value3"));
 
     ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
