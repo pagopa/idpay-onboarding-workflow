@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class SelfDeclarationText {
+public class SelfDeclaration {
 
     public static String buildId(String initiativeId, String userId) {
         return "%s_%s".formatted(userId, initiativeId);
@@ -21,5 +21,6 @@ public class SelfDeclarationText {
     @Id private String id;
     private String initiativeId;
     private String userId;
+    private List<SelfDeclarationMultiValues> selfDeclarationMultiValues;
     private List<SelfDeclarationTextValues> selfDeclarationTextValues;
 }
