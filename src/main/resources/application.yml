@@ -196,6 +196,7 @@ logging:
     org.mongodb.driver: ${LOG_LEVEL_MONGODB_DRIVER:WARN}
     org.apache.kafka: WARN
     org.springframework.boot.autoconfigure: WARN
+    io.lettuce.core: WARN
 
 management:
   health:
