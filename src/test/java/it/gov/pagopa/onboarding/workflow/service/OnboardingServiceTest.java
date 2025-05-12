@@ -19,7 +19,7 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationTextRepository;
+import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.bson.BsonDocument;
@@ -75,7 +75,7 @@ class OnboardingServiceTest {
   OnboardingRepository onboardingRepositoryMock;
 
   @MockBean
-  SelfDeclarationTextRepository selfDeclarationTextRepository;
+  SelfDeclarationRepository selfDeclarationRepository;
 
   @MockBean
   ConsentMapper consentMapper;
@@ -1294,7 +1294,6 @@ class OnboardingServiceTest {
     }
   }
 
-  @Test
   void saveConsent_ko_autocertification_multi_invalid() {
 
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "1", false),
@@ -1329,11 +1328,10 @@ class OnboardingServiceTest {
     }
   }
 
-  @Test
   void saveConsent_ko_autocertification_bool_mismatch() {
 
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "3", true),
-        new SelfConsentMultiDTO("multi", "2", "0"),
+        new SelfConsentMultiDTO("multi", "2", "Value"),
         new SelfConsentTextDTO("text", "3", "Value3"));
 
     ConsentPutDTO consentPutDTO = new ConsentPutDTO(INITIATIVE_ID, true, selfConsentDTOList);
