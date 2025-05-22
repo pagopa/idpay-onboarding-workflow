@@ -21,9 +21,9 @@ on:
         required: false
         default: 'true'
       argocd_target_branch:
-        description: 'argocd target branch name'
-        required: false
-        default: 'main'
+          description: 'argocd target branch name'
+          required: false
+          default: 'main'
       postman_branch:
         description: postman branch name'
         required: false
@@ -79,10 +79,12 @@ jobs:
           azure_devops_pat: ${{ secrets.AZURE_DEVOPS_TOKEN }}
           azure_template_parameters: |
             {
-              "APPS_TOP": "[]",
-              "APPS_MID": "[idpay-timeline]",
+              "APPS_TOP": "[idpay-onboarding-workflow]",
+              "APPS_MID": "[]",
               "APPS_EXT": "[]",
               "ARGOCD_TARGET_BRANCH": "${{ github.event.inputs.argocd_target_branch }}",
               "POSTMAN_BRANCH": "${{ github.event.inputs.postman_branch }}",
-              "TRIGGER_MESSAGE": "idpay-timeline"
+              "TRIGGER_MESSAGE": "idpay-onboarding-workflow"
             }
+
+
