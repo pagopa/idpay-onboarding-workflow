@@ -240,7 +240,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.3</version>
                 <configuration>
-                    <argLine>@{argLine} -Duser.timezone=Europe/Rome</argLine>
+                    <argLine>-Duser.timezone=Europe/Rome</argLine>
                 </configuration>
             </plugin>
             <plugin>
