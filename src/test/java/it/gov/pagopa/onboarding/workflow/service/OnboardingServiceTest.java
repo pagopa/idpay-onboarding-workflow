@@ -249,13 +249,13 @@ class OnboardingServiceTest {
 
     INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
         List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-            new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2"), "2"),
+            new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2","1"), "2"),
             new SelfCriteriaTextDTO("text", "", "Value3", "3")));
     INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(AUTOMATED_CRITERIA_DTO));
 
     INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(
         List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-            new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2"), "2"),
+            new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2","1"), "2"),
             new SelfCriteriaTextDTO("text", "", "Value3", "3")));
     INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setAutomatedCriteria(List.of());
 
