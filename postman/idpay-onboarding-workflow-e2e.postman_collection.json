@@ -320,7 +320,7 @@
 														{
 															"key": "file",
 															"type": "file",
-															"src": "./postman/example_fiscal_code.csv"
+															"src": "{{basePath}}/example_fiscal_code.csv"
 														}
 													]
 												},
@@ -17117,6 +17117,10 @@
 		{
 			"key": "terminalId",
 			"value": ""
+		},
+		{
+			"key": "basePath",
+			"value": "./"
 		}
 	]
 }
