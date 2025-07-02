@@ -37,7 +37,6 @@ public class OnboardingWorkflowConstants {
   public static final String ERROR_BUDGET_TERMINATED = "BUDGET_TERMINATED";
   public static final String ERROR_WHITELIST = "NOT_IN_WHITELIST";
   public static final String ERROR_TECHNICAL = "TECHNICAL_ERROR";
-
   public static final class ExceptionMessage {
     public static final String ERROR_SUSPENSION_STATUS_MSG = "It is not possible to suspend the user on initiative [%s]";
     public static final String ERROR_READMIT_STATUS_MSG = "It is not possible to readmit the user on initiative [%s]";
