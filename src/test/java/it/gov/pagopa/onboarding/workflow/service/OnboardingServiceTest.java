@@ -1328,6 +1328,7 @@ class OnboardingServiceTest {
     }
   }
 
+  @Test
   void saveConsent_ko_autocertification_bool_mismatch() {
 
     List<SelfConsentDTO> selfConsentDTOList = List.of(new SelfConsentBoolDTO("boolean", "3", true),
