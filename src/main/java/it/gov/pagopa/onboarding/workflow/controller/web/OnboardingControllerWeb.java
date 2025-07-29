@@ -9,6 +9,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
 
 
 /**
@@ -28,7 +29,8 @@ public interface OnboardingControllerWeb {
    */
   @GetMapping("/{initiativeId}/detail")
   ResponseEntity<InitiativeWebDTO> getInitiativeWeb(
-          @PathVariable("initiativeId") String initiativeId);
+          @PathVariable("initiativeId") String initiativeId,
+          @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage);
 
 
 }

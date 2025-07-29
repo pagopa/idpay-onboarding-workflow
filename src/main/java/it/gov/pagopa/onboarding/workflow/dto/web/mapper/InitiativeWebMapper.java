@@ -10,7 +10,6 @@ public class InitiativeWebMapper {
   public InitiativeWebDTO map(InitiativeDTO initiativeDTO) {
 
     return InitiativeWebDTO.builder()
-        .initiativeId(initiativeDTO.getInitiativeId())
         .general(initiativeDTO.getGeneral())
         .beneficiaryRule(initiativeDTO.getBeneficiaryRule())
         .build();

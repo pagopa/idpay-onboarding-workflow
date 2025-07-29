@@ -3,7 +3,6 @@ package it.gov.pagopa.onboarding.workflow.service.web;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;

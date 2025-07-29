@@ -13,9 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 public class InitiativeWebDTO {
 
-  @JsonProperty("initiativeId")
-  private String initiativeId;
-
 
   @JsonProperty("general")
   private InitiativeGeneralDTO general;

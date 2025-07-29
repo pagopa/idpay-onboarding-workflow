@@ -15,6 +15,9 @@ public class InitiativeGeneralDTO   {
   @JsonProperty("beneficiaryType")
   private String beneficiaryType;
 
+  @JsonProperty("familyUnitComposition")
+  private String familyUnitComposition;
+
   @JsonProperty("beneficiaryKnown")
   private Boolean beneficiaryKnown;
 
