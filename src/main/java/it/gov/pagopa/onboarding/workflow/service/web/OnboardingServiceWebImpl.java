@@ -2,12 +2,14 @@ package it.gov.pagopa.onboarding.workflow.service.web;
 
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
+import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,16 +24,20 @@ public class OnboardingServiceWebImpl implements OnboardingServiceWeb {
 
   private final InitiativeWebMapper initiativeWebMapper;
   private final GeneralWebMapper generalWebMapper;
+    private final OnboardingService onboardingService;
 
-  private final InitiativeRestConnector initiativeRestConnector;
+
+    private final InitiativeRestConnector initiativeRestConnector;
 
   public OnboardingServiceWebImpl(InitiativeWebMapper initiativeWebMapper,
                                   GeneralWebMapper generalWebMapper,
-                                  InitiativeRestConnector initiativeRestConnector
+                                  InitiativeRestConnector initiativeRestConnector,
+                                  OnboardingService onboardingService
                                   ){
     this.initiativeWebMapper = initiativeWebMapper;
     this.generalWebMapper = generalWebMapper;
     this.initiativeRestConnector = initiativeRestConnector;
+    this.onboardingService = onboardingService;
   }
 
   @Override
@@ -55,5 +61,10 @@ public class OnboardingServiceWebImpl implements OnboardingServiceWeb {
       log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", initiativeId);
       return initiativeDTO;
   }
+
+    @Override
+    public void saveConsentWeb(ConsentPutDTO consentPutDTO, String userId) {
+        onboardingService.saveConsent(consentPutDTO, userId);
+    }
 
 }

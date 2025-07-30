@@ -1,9 +1,12 @@
 package it.gov.pagopa.onboarding.workflow.controller.web;
 
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.service.web.OnboardingServiceWeb;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,5 +34,12 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
   }
 
 
-  
+  @Override
+  public ResponseEntity<Void> saveConsentWeb(
+          @RequestBody @Valid ConsentPutDTO consentPutDTO,
+          @PathVariable("userId") String userId) {
+    onboardingServiceWeb.saveConsentWeb(consentPutDTO, userId);
+    return ResponseEntity.accepted().build();
+  }
+
 }
