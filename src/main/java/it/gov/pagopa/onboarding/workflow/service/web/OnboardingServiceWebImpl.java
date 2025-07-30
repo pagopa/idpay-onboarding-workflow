@@ -3,11 +3,15 @@ package it.gov.pagopa.onboarding.workflow.service.web;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Locale;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
@@ -17,20 +21,24 @@ import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowCons
 public class OnboardingServiceWebImpl implements OnboardingServiceWeb {
 
   private final InitiativeWebMapper initiativeWebMapper;
+  private final GeneralWebMapper generalWebMapper;
 
   private final InitiativeRestConnector initiativeRestConnector;
 
   public OnboardingServiceWebImpl(InitiativeWebMapper initiativeWebMapper,
+                                  GeneralWebMapper generalWebMapper,
                                   InitiativeRestConnector initiativeRestConnector
                                   ){
     this.initiativeWebMapper = initiativeWebMapper;
+    this.generalWebMapper = generalWebMapper;
     this.initiativeRestConnector = initiativeRestConnector;
   }
 
   @Override
-  public InitiativeWebDTO getInitiativeWeb(String initiativeId){
+  public InitiativeWebDTO getInitiativeWeb(String initiativeId, Locale acceptLanguage){
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
-    return  initiativeWebMapper.map(initiativeDTO);
+    InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeDTO.getGeneral(), acceptLanguage);
+    return  initiativeWebMapper.map(initiativeDTO, initiativeGeneralWebDTO);
   }
 
 

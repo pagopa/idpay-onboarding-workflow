@@ -23,7 +23,7 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
   public ResponseEntity<InitiativeWebDTO> getInitiativeWeb(
           @PathVariable("initiativeId") String initiativeId,
           @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage) {
-    InitiativeWebDTO dto = onboardingServiceWeb.getInitiativeWeb(initiativeId);
+    InitiativeWebDTO dto = onboardingServiceWeb.getInitiativeWeb(initiativeId, acceptLanguage);
     if (dto == null) {
       return ResponseEntity.accepted().build();
     }
