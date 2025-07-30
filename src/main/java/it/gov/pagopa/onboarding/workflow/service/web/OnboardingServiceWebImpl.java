@@ -45,15 +45,23 @@ public class OnboardingServiceWebImpl implements OnboardingServiceWeb {
   private InitiativeDTO getInitiative(String initiativeId) {
       log.info("[GET_INITIATIVE] Retrieving information for initiative {}", initiativeId);
       InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
-      log.info(initiativeDTO.toString());
-      if (!initiativeDTO.getStatus().equals(OnboardingWorkflowConstants.PUBLISHED)) {
-        log.info("[GET_INITIATIVE] Initiative {} is not active PUBLISHED! Status: {}", initiativeId,
-            initiativeDTO.getStatus());
-        throw new InitiativeInvalidException(INITIATIVE_NOT_PUBLISHED,
-                String.format(ERROR_INITIATIVE_NOT_ACTIVE_MSG, initiativeId));
+      if (initiativeDTO != null) {
+          log.info("Initiative DTO: {}", initiativeDTO);
+          if (!OnboardingWorkflowConstants.PUBLISHED.equals(initiativeDTO.getStatus())) {
+              log.info("[GET_INITIATIVE] Initiative {} is not PUBLISHED! Status: {}", initiativeId, initiativeDTO.getStatus());
+              throw new InitiativeInvalidException(INITIATIVE_NOT_PUBLISHED,
+                      String.format(ERROR_INITIATIVE_NOT_ACTIVE_MSG, initiativeId));
+          }else {
+              log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", initiativeId);
+              return initiativeDTO;
+          }
+      }else {
+          log.warn("[GET_INITIATIVE] initiativeDTO is null for id {}", initiativeId);
+          return null;
       }
-      log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", initiativeId);
-      return initiativeDTO;
+
   }
+
+
 
 }
