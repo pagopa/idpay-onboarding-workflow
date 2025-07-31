@@ -1,6 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.controller.web;
 
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.service.web.OnboardingServiceWeb;
 import jakarta.validation.Valid;
@@ -36,9 +36,9 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
 
   @Override
   public ResponseEntity<Void> saveConsentWeb(
-          @RequestBody @Valid ConsentPutDTO consentPutDTO,
+          @RequestBody @Valid ConsentPutWebDTO consentPutWebDTO,
           @PathVariable("userId") String userId) {
-    onboardingServiceWeb.saveConsentWeb(consentPutDTO, userId);
+    onboardingServiceWeb.saveConsentWeb(consentPutWebDTO, userId);
     return ResponseEntity.accepted().build();
   }
 

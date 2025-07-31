@@ -2,7 +2,7 @@
 package it.gov.pagopa.onboarding.workflow.controller.web;
 
 
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,12 +35,12 @@ public interface OnboardingControllerWeb {
   /**
    * Save the consents of PDND criteria and Self declaration list
    *
-   * @param consentPutDTO
+   * @param consentPutWebDTO
    * @param userId
    * @return
    */
   @PutMapping("/consent/{userId}")
   ResponseEntity<Void> saveConsentWeb(
-          @RequestBody ConsentPutDTO consentPutDTO,
+          @RequestBody ConsentPutWebDTO consentPutWebDTO,
           @PathVariable("userId") String userId);
 }

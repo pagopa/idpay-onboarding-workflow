@@ -93,6 +93,9 @@ public class OnboardingWorkflowConstants {
 
     public static final String GENERIC_ERROR = "ONBOARDING_GENERIC_ERROR";
 
+    public static final String TOS_NOT_CONFIRMED = "ONBOARDING_TOS_NOT_CONFIRMED";
+    public static final String EMAIL_NOT_MATCHED = "ONBOARDING_EMAIL_NOT_MATCHED";
+
     private ExceptionCode() {}
   }
 
