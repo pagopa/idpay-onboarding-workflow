@@ -83,6 +83,9 @@ public class OnboardingWorkflowConstants {
     public static final String TECHNICAL_ERROR = "ONBOARDING_TECHNICAL_ERROR";
     public static final String UNSATISFIED_REQUIREMENTS = "ONBOARDING_UNSATISFIED_REQUIREMENTS";
 
+    public static final String FAMILY_UNIT_ALREADY_JOINED = "ONBOARDING_FAMILY_UNIT_ALREADY_JOINED";
+    public static final String WAITING_LIST = "ONBOARDING_WAITING_LIST";
+
     public static final String USER_NOT_ONBOARDED = "ONBOARDING_USER_NOT_ONBOARDED";
     public static final String INITIATIVE_NOT_FOUND = "ONBOARDING_INITIATIVE_NOT_FOUND";
 
