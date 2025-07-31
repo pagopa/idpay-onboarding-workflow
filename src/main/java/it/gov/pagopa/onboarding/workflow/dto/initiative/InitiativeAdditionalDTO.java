@@ -1,6 +1,8 @@
 package it.gov.pagopa.onboarding.workflow.dto.initiative;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 
@@ -30,4 +32,13 @@ public class InitiativeAdditionalDTO   {
 
   @JsonProperty("channels")
   private List<ChannelDTO> channels;
+
+  @JsonProperty("logoFileName")
+  private String logoFileName;
+
+  @JsonProperty("logoURL")
+  private String logoURL;
+
+  @JsonProperty("logoUploadDate")
+  private LocalDateTime logoUploadDate;
 }

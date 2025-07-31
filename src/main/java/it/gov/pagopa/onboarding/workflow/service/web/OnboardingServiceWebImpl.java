@@ -37,8 +37,7 @@ public class OnboardingServiceWebImpl implements OnboardingServiceWeb {
   @Override
   public InitiativeWebDTO getInitiativeWeb(String initiativeId, Locale acceptLanguage){
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
-    InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeDTO.getGeneral(), acceptLanguage);
-    return  initiativeWebMapper.map(initiativeDTO, initiativeGeneralWebDTO);
+    return  initiativeWebMapper.map(initiativeDTO);
   }
 
 
