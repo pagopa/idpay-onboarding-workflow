@@ -1,15 +1,16 @@
-package it.gov.pagopa.onboarding.workflow.dto.initiative;
+package it.gov.pagopa.onboarding.workflow.dto.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Map;
 
 @Data
-public class InitiativeGeneralDTO   {
+@Builder
+public class InitiativeGeneralWebDTO {
 
   @JsonProperty("budget")
   private BigDecimal budget;
@@ -41,9 +42,9 @@ public class InitiativeGeneralDTO   {
   @JsonProperty("rankingEnabled")
   private Boolean rankingEnabled;
 
-  @JsonProperty("descriptionMap")
+  @JsonProperty("termAndCondition")
   @Valid
  // @NotEmpty(groups = ValidationApiEnabledGroup.class)
-  private Map<String, String> descriptionMap;
+  private String termAndCondition;
 
 }
