@@ -75,6 +75,11 @@ public class OnboardingServiceCommonImpl implements OnboardingServiceCommon{
     }
 
     @Override
+    public Onboarding findOnboardingByInitiativeIdAndUserId(String initiativeId, String userId) {
+        return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId)).orElse(null);
+    }
+
+    @Override
     public InitiativeDTO getInitiative(String initiativeId) {
         log.info("[GET_INITIATIVE] Retrieving information for initiative {}", initiativeId);
         InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);

@@ -12,6 +12,7 @@ import java.util.Map;
 public interface OnboardingServiceCommon {
 
     Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId);
+    Onboarding findOnboardingByInitiativeIdAndUserId(String initiativeId, String userId);
     InitiativeDTO getInitiative(String initiativeId);
     void checkStatus(Onboarding onboarding);
     void checkDates(InitiativeDTO initiativeDTO, Onboarding onboarding);

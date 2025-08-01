@@ -61,7 +61,7 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
     public void saveConsentWeb(ConsentPutWebDTO consentPutWebDTO, String userId) {
         long startTime = System.currentTimeMillis();
 
-        Onboarding onboarding = findByInitiativeIdAndUserId(consentPutWebDTO.getInitiativeId(), userId);
+        Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutWebDTO.getInitiativeId(), userId);
 
         if (onboarding != null) {
             if (OnboardingWorkflowConstants.STATUS_IDEMPOTENT.contains(onboarding.getStatus())) {
