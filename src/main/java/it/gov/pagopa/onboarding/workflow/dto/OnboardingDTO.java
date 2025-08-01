@@ -25,6 +25,8 @@ public class OnboardingDTO {
 
   String userMail;
 
+  String channel;
+
   LocalDateTime tcAcceptTimestamp;
 
   LocalDateTime criteriaConsensusTimestamp;

@@ -3,12 +3,12 @@ package it.gov.pagopa.onboarding.workflow.service.web;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
-import it.gov.pagopa.onboarding.workflow.dto.web.OnBoardingWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
@@ -109,10 +109,10 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
             onboarding.setUpdateDate(localDateTime);
             onboarding.setUserMail(consentPutWebDTO.getUserMail());
 
-            OnBoardingWebDTO onboardingWebDTO = (OnBoardingWebDTO)consentMapper.map(onboarding);
-            onboardingWebDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
+            OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
+            onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
 
-            onboardingProducer.sendSaveConsent(onboardingWebDTO);
+            onboardingProducer.sendSaveConsent(onboardingDTO);
 
             onboardingRepository.save(onboarding);
 
