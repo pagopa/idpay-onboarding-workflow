@@ -4,11 +4,9 @@ import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
-import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
@@ -20,8 +18,6 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedExcepti
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
-import it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl;
-import it.gov.pagopa.onboarding.workflow.service.common.OnboardingServiceCommonImpl;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -75,8 +71,9 @@ class OnboardingServiceWebTest {
     @Mock
   private InitiativeWebMapper initiativeWebMapper;
 
-  @InjectMocks
-  private OnboardingServiceWebImpl service;
+  @Spy
+    @InjectMocks
+  private OnboardingServiceWebImpl onboardingServiceWeb;
 
   private final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private final Locale ACCEPT_LANGUAGE = Locale.ITALIAN;
@@ -100,42 +97,32 @@ class OnboardingServiceWebTest {
     initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
     initiativeWebDTO = new InitiativeWebDTO(additional, beneficiaryRule);
-      try {
-          Field repoField = OnboardingServiceCommonImpl.class.getDeclaredField("onboardingRepository");
-          repoField.setAccessible(true);
-          repoField.set(onboardingServiceWeb, onboardingRepository);
 
-          Field admissibilityField = OnboardingServiceCommonImpl.class.getDeclaredField("admissibilityRestConnector");
-          admissibilityField.setAccessible(true);
-          admissibilityField.set(onboardingServiceWeb, admissibilityRestConnector);
-      } catch (Exception e) {
-          e.printStackTrace();
-      }
   }
 
   @Test
   void getInitiativeWeb_shouldReturnMappedDto_whenInitiativeExists() {
-    when(onboardingServiceMock.getInitiative(INITIATIVE_ID)).thenReturn(initiativeDTO);
+    when(onboardingServiceWeb.getInitiative(INITIATIVE_ID)).thenReturn(initiativeDTO);
     when(initiativeWebMapper.map(initiativeDTO)).thenReturn(initiativeWebDTO);
 
-    InitiativeWebDTO result = service.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
+    InitiativeWebDTO result = onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
 
     assertNotNull(result);
     assertEquals(initiativeWebDTO, result);
 
-    verify(onboardingServiceMock, times(1)).getInitiative(INITIATIVE_ID);
+    verify(onboardingServiceWeb, times(1)).getInitiative(INITIATIVE_ID);
     verify(initiativeWebMapper, times(1)).map(initiativeDTO);
   }
 
   @Test
   void getInitiativeWeb_shouldReturnNull_whenInitiativeDoesNotExist() {
-    when(onboardingServiceMock.getInitiative(INITIATIVE_ID)).thenReturn(null);
+    when(onboardingServiceWeb.getInitiative(INITIATIVE_ID)).thenReturn(null);
 
-    InitiativeWebDTO result = service.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
+    InitiativeWebDTO result = onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
 
     assertNull(result);
 
-    verify(onboardingServiceMock, times(1)).getInitiative(INITIATIVE_ID);
+    verify(onboardingServiceWeb, times(1)).getInitiative(INITIATIVE_ID);
     verifyNoInteractions(initiativeWebMapper);
   }
 
@@ -176,11 +163,6 @@ class OnboardingServiceWebTest {
         initiativeDTO.setAdditionalInfo(additionalInfo);
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
-
-        InitiativeStatusDTO initiativeStatusDTO = mock(InitiativeStatusDTO.class);
-        when(initiativeStatusDTO.isBudgetAvailable()).thenReturn(true);
-        when(initiativeStatusDTO.getStatus()).thenReturn("ACTIVE");
-        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatusDTO);
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -279,11 +261,6 @@ class OnboardingServiceWebTest {
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
 
-        InitiativeStatusDTO initiativeStatusDTO = mock(InitiativeStatusDTO.class);
-        when(initiativeStatusDTO.isBudgetAvailable()).thenReturn(true);
-        when(initiativeStatusDTO.getStatus()).thenReturn("ACTIVE");
-        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatusDTO);
-
         doNothing().when(onboardingServiceWeb).checkDates(any(), any());
         doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
 
@@ -295,32 +272,6 @@ class OnboardingServiceWebTest {
         ));
 
         verify(auditUtilities, times(1)).logOnboardingKOWithReason(eq(userId), eq(initiativeId), any(), any());
-    }
-
-    @Test
-    void testGetInitiativeWeb_ShouldReturnMappedDTO() {
-        String initiativeId = "TEST_INITIATIVE";
-        Locale locale = Locale.ITALIAN;
-
-        InitiativeDTO initiativeDTO = new InitiativeDTO();
-        InitiativeGeneralDTO generalDTO = new InitiativeGeneralDTO();
-        initiativeDTO.setGeneral(generalDTO);
-
-        InitiativeGeneralWebDTO generalWebDTO = mock(InitiativeGeneralWebDTO.class);
-        InitiativeWebDTO initiativeWebDTO = mock(InitiativeWebDTO.class);
-
-        doReturn(initiativeDTO).when(onboardingServiceWeb).getInitiative(initiativeId);
-        when(generalWebMapper.map(generalDTO, locale)).thenReturn(generalWebDTO);
-        when(initiativeWebMapper.map(initiativeDTO, generalWebDTO)).thenReturn(initiativeWebDTO);
-
-        InitiativeWebDTO result = onboardingServiceWeb.getInitiativeWeb(initiativeId, locale);
-
-        assertNotNull(result);
-        assertEquals(initiativeWebDTO, result);
-
-        verify(onboardingServiceWeb).getInitiative(initiativeId);
-        verify(generalWebMapper).map(generalDTO, locale);
-        verify(initiativeWebMapper).map(initiativeDTO, generalWebDTO);
     }
 
 
@@ -409,11 +360,6 @@ class OnboardingServiceWebTest {
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
 
-        InitiativeStatusDTO initiativeStatusDTO = mock(InitiativeStatusDTO.class);
-        when(initiativeStatusDTO.isBudgetAvailable()).thenReturn(true);
-        when(initiativeStatusDTO.getStatus()).thenReturn("ACTIVE");
-        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatusDTO);
-
         doNothing().when(onboardingServiceWeb).checkDates(any(), any());
         doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
 
@@ -472,11 +418,6 @@ class OnboardingServiceWebTest {
         initiativeDTO.setAdditionalInfo(additional);
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
-
-        InitiativeStatusDTO initiativeStatusDTO = mock(InitiativeStatusDTO.class);
-        when(initiativeStatusDTO.isBudgetAvailable()).thenReturn(true);
-        when(initiativeStatusDTO.getStatus()).thenReturn("ACTIVE");
-        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatusDTO);
 
         doNothing().when(onboardingServiceWeb).checkDates(any(), any());
         doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
