@@ -4,11 +4,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.service.web.OnboardingServiceWeb;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Locale;
@@ -27,8 +23,7 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
 
   @Override
   public ResponseEntity<InitiativeWebDTO> getInitiativeWeb(
-          String initiativeId,
-          @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage) {
+          String initiativeId, Locale acceptLanguage) {
     InitiativeWebDTO dto = onboardingServiceWeb.getInitiativeWeb(initiativeId, acceptLanguage);
     if (dto == null) {
       throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, null);
@@ -39,9 +34,7 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
 
 
   @Override
-  public ResponseEntity<Void> saveConsentWeb(
-          @RequestBody @Valid ConsentPutWebDTO consentPutWebDTO,
-          String userId) {
+  public ResponseEntity<Void> saveConsentWeb(ConsentPutWebDTO consentPutWebDTO, String userId) {
     onboardingServiceWeb.saveConsentWeb(consentPutWebDTO, userId);
     return ResponseEntity.accepted().build();
   }
