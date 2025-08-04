@@ -83,12 +83,18 @@ public class OnboardingWorkflowConstants {
     public static final String TECHNICAL_ERROR = "ONBOARDING_TECHNICAL_ERROR";
     public static final String UNSATISFIED_REQUIREMENTS = "ONBOARDING_UNSATISFIED_REQUIREMENTS";
 
+    public static final String FAMILY_UNIT_ALREADY_JOINED = "ONBOARDING_FAMILY_UNIT_ALREADY_JOINED";
+    public static final String WAITING_LIST = "ONBOARDING_WAITING_LIST";
+
     public static final String USER_NOT_ONBOARDED = "ONBOARDING_USER_NOT_ONBOARDED";
     public static final String INITIATIVE_NOT_FOUND = "ONBOARDING_INITIATIVE_NOT_FOUND";
 
     public static final String TOO_MANY_REQUESTS = "ONBOARDING_TOO_MANY_REQUESTS";
 
     public static final String GENERIC_ERROR = "ONBOARDING_GENERIC_ERROR";
+
+    public static final String TOS_NOT_CONFIRMED = "ONBOARDING_TOS_NOT_CONFIRMED";
+    public static final String EMAIL_NOT_MATCHED = "ONBOARDING_EMAIL_NOT_MATCHED";
 
     private ExceptionCode() {}
   }

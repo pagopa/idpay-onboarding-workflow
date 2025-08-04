@@ -1,11 +1,16 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
 import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OnboardingDTO {
 
   String userId;
@@ -17,6 +22,10 @@ public class OnboardingDTO {
   String status;
 
   Boolean pdndAccept;
+
+  String userMail;
+
+  String channel;
 
   LocalDateTime tcAcceptTimestamp;
 
