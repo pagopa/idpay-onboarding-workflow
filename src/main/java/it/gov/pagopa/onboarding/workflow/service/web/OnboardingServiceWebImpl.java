@@ -7,11 +7,8 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
-import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
-import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
-import it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -35,10 +32,7 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
 
   private final InitiativeWebMapper initiativeWebMapper;
 
-  private final GeneralWebMapper generalWebMapper;
-
   public OnboardingServiceWebImpl(InitiativeWebMapper initiativeWebMapper,
-                                  GeneralWebMapper generalWebMapper,
                                   OnboardingRepository onboardingRepository,
                                   AuditUtilities auditUtilities,
                                   Utilities utilities,
@@ -50,7 +44,6 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
                                   ) {
       super(auditUtilities, utilities, onboardingRepository, admissibilityRestConnector, selfDeclarationRepository, consentMapper, onboardingProducer, initiativeRestConnector);
       this.initiativeWebMapper = initiativeWebMapper;
-      this.generalWebMapper = generalWebMapper;
   }
 
   @Override
@@ -127,5 +120,17 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OnboardingServiceWebImpl that = (OnboardingServiceWebImpl) o;
+        return initiativeWebMapper.equals(that.initiativeWebMapper);
+    }
+
+    @Override
+    public int hashCode() {
+        return initiativeWebMapper.hashCode();
+    }
 
 }
