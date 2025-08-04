@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -69,10 +70,14 @@ class OnboardingControllerWebTest {
     ResponseEntity<InitiativeWebDTO> response =
             controller.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
 
-    // Assert
+      // Assert
+      assertNotNull(response);
+
+
+      // Assert
     assertNotNull(response);
-    assertEquals(200, response.getStatusCodeValue());
-    assertSame(initiativeWebDTO, response.getBody());
+      assertEquals(HttpStatus.OK, response.getStatusCode()); // ✅ nuovo modo
+      assertEquals(initiativeWebDTO, response.getBody());
     verify(onboardingServiceWeb).getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
     verifyNoMoreInteractions(onboardingServiceWeb);
   }
@@ -107,7 +112,8 @@ class OnboardingControllerWebTest {
         ResponseEntity<Void> response = controller.saveConsentWeb(consent, userId);
 
         verify(onboardingServiceWeb, times(1)).saveConsentWeb(consent, userId);
-        assertEquals(202, response.getStatusCodeValue());
+        assertEquals(HttpStatus.ACCEPTED.value(), response.getStatusCode().value()); // ✅
+
     }
 
     @Test

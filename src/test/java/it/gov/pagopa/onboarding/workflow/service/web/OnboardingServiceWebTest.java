@@ -75,8 +75,8 @@ class OnboardingServiceWebTest {
     @InjectMocks
   private OnboardingServiceWebImpl onboardingServiceWeb;
 
-  private final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private final Locale ACCEPT_LANGUAGE = Locale.ITALIAN;
+  private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+  private static final Locale ACCEPT_LANGUAGE = Locale.ITALIAN;
 
   private InitiativeDTO initiativeDTO;
   private InitiativeWebDTO initiativeWebDTO;
@@ -141,14 +141,14 @@ class OnboardingServiceWebTest {
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        InitiativeDTO initiativeDTO = new InitiativeDTO();
-        initiativeDTO.setInitiativeId(initiativeId);
-        initiativeDTO.setStatus("PUBLISHED");
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus("PUBLISHED");
 
         InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
         beneficiaryRule.setAutomatedCriteria(new ArrayList<>());
         beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
-        initiativeDTO.setBeneficiaryRule(beneficiaryRule);
+        initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
         general.setRankingStartDate(LocalDate.of(2025, 7, 31));
@@ -156,13 +156,13 @@ class OnboardingServiceWebTest {
         general.setEndDate(LocalDate.of(2025, 8, 11));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
-        initiativeDTO.setGeneral(general);
+        initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additionalInfo = new InitiativeAdditionalDTO();
         additionalInfo.setServiceId("dummyServiceId");
-        initiativeDTO.setAdditionalInfo(additionalInfo);
+        initiativeTestDTO.setAdditionalInfo(additionalInfo);
 
-        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -235,9 +235,9 @@ class OnboardingServiceWebTest {
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        InitiativeDTO initiativeDTO = new InitiativeDTO();
-        initiativeDTO.setInitiativeId(initiativeId);
-        initiativeDTO.setStatus("PUBLISHED");
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus("PUBLISHED");
 
         InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
         beneficiaryRule.setAutomatedCriteria(new ArrayList<>());
@@ -246,7 +246,7 @@ class OnboardingServiceWebTest {
         beneficiaryRule.getAutomatedCriteria().add(criteria);
 
         beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
-        initiativeDTO.setBeneficiaryRule(beneficiaryRule);
+        initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
         general.setRankingStartDate(LocalDate.of(2025, 7, 31));
@@ -254,12 +254,12 @@ class OnboardingServiceWebTest {
         general.setEndDate(LocalDate.of(2025, 8, 11));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
-        initiativeDTO.setGeneral(general);
+        initiativeTestDTO.setGeneral(general);
 
-        initiativeDTO.setAdditionalInfo(new InitiativeAdditionalDTO());
-        initiativeDTO.getAdditionalInfo().setServiceId("serviceId");
+        initiativeTestDTO.setAdditionalInfo(new InitiativeAdditionalDTO());
+        initiativeTestDTO.getAdditionalInfo().setServiceId("serviceId");
 
-        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
 
         doNothing().when(onboardingServiceWeb).checkDates(any(), any());
         doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
@@ -337,14 +337,14 @@ class OnboardingServiceWebTest {
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        InitiativeDTO initiativeDTO = new InitiativeDTO();
-        initiativeDTO.setInitiativeId(initiativeId);
-        initiativeDTO.setStatus("PUBLISHED");
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus("PUBLISHED");
 
         InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
         beneficiaryRule.setAutomatedCriteria(new ArrayList<>());
         beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
-        initiativeDTO.setBeneficiaryRule(beneficiaryRule);
+        initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
         general.setRankingStartDate(LocalDate.of(2025, 7, 31));
@@ -352,13 +352,13 @@ class OnboardingServiceWebTest {
         general.setEndDate(LocalDate.of(2025, 8, 11));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
-        initiativeDTO.setGeneral(general);
+        initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
         additional.setServiceId("serviceId");
-        initiativeDTO.setAdditionalInfo(additional);
+        initiativeTestDTO.setAdditionalInfo(additional);
 
-        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
 
         doNothing().when(onboardingServiceWeb).checkDates(any(), any());
         doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
@@ -394,16 +394,16 @@ class OnboardingServiceWebTest {
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        InitiativeDTO initiativeDTO = new InitiativeDTO();
-        initiativeDTO.setInitiativeId(initiativeId);
-        initiativeDTO.setStatus("PUBLISHED");
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus("PUBLISHED");
 
         InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
         List<AutomatedCriteriaDTO> autoCriteria = new ArrayList<>();
         autoCriteria.add(new AutomatedCriteriaDTO()); // <-- non vuoto
         beneficiaryRule.setAutomatedCriteria(autoCriteria);
         beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
-        initiativeDTO.setBeneficiaryRule(beneficiaryRule);
+        initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
         general.setRankingStartDate(LocalDate.of(2025, 7, 31));
@@ -411,13 +411,13 @@ class OnboardingServiceWebTest {
         general.setEndDate(LocalDate.of(2025, 8, 11));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
-        initiativeDTO.setGeneral(general);
+        initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
         additional.setServiceId("serviceId");
-        initiativeDTO.setAdditionalInfo(additional);
+        initiativeTestDTO.setAdditionalInfo(additional);
 
-        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
 
         doNothing().when(onboardingServiceWeb).checkDates(any(), any());
         doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
