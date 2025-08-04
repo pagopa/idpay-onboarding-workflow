@@ -28,11 +28,9 @@ public class InitiativeRestConnectorImpl implements InitiativeRestConnector {
       initiativeDTO = initiativeRestClient.getInitiativeBeneficiaryView(initiativeId);
     } catch (FeignException e){
       if (e.status() == 404){
-        log.error("[GET_INITIATIVE_BENEFICIARY_VIEW] Initiative {} was not found.", initiativeId);
         throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, e);
       }
 
-      log.error("[GET_INITIATIVE_BENEFICIARY_VIEW] Initiative {}: something went wrong when invoking the API.", initiativeId);
       throw new InitiativeInvocationException(ERROR_INITIATIVE_INVOCATION_MSG, true, e);
     }
 
