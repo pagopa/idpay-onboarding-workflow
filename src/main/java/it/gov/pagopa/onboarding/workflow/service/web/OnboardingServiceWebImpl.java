@@ -9,6 +9,7 @@ import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
@@ -36,7 +37,7 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
 
   private final GeneralWebMapper generalWebMapper;
 
-  public OnboardingServiceWebImpl(InitiativeWebMapper initiativeWebMapper
+  public OnboardingServiceWebImpl(InitiativeWebMapper initiativeWebMapper,
                                   GeneralWebMapper generalWebMapper,
                                   OnboardingRepository onboardingRepository,
                                   AuditUtilities auditUtilities,
@@ -46,11 +47,11 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
                                   ConsentMapper consentMapper,
                                   OnboardingProducer onboardingProducer,
                                   InitiativeRestConnector initiativeRestConnector
-                                  ){
+                                  ) {
       super(auditUtilities, utilities, onboardingRepository, admissibilityRestConnector, selfDeclarationRepository, consentMapper, onboardingProducer, initiativeRestConnector);
-    this.initiativeWebMapper = initiativeWebMapper;
-}
-    this.generalWebMapper = generalWebMapper;
+      this.initiativeWebMapper = initiativeWebMapper;
+      this.generalWebMapper = generalWebMapper;
+  }
 
   @Override
   public InitiativeWebDTO getInitiativeWeb(String initiativeId, Locale acceptLanguage){
