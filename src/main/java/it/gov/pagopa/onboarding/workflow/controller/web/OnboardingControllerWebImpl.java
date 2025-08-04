@@ -27,7 +27,7 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
 
   @Override
   public ResponseEntity<InitiativeWebDTO> getInitiativeWeb(
-          @PathVariable("initiativeId") String initiativeId,
+          String initiativeId,
           @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage) {
     InitiativeWebDTO dto = onboardingServiceWeb.getInitiativeWeb(initiativeId, acceptLanguage);
     if (dto == null) {
@@ -41,7 +41,7 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
   @Override
   public ResponseEntity<Void> saveConsentWeb(
           @RequestBody @Valid ConsentPutWebDTO consentPutWebDTO,
-          @PathVariable("userId") String userId) {
+          String userId) {
     onboardingServiceWeb.saveConsentWeb(consentPutWebDTO, userId);
     return ResponseEntity.accepted().build();
   }

@@ -39,7 +39,7 @@ public interface OnboardingControllerWeb {
    * @param userId
    * @return
    */
-  @PutMapping("/consent/{userId}")
+  @PutMapping("/{userId}")
   ResponseEntity<Void> saveConsentWeb(
           @RequestBody ConsentPutWebDTO consentPutWebDTO,
           @PathVariable("userId") String userId);
