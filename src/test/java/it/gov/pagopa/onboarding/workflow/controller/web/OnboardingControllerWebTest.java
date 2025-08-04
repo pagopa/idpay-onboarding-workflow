@@ -89,4 +89,5 @@ class OnboardingControllerWebTest {
     verify(onboardingServiceWeb).getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
     verifyNoMoreInteractions(onboardingServiceWeb);
   }
+
 }
