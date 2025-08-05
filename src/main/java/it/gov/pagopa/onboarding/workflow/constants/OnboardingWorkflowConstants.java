@@ -56,6 +56,8 @@ public class OnboardingWorkflowConstants {
     public static final String INITIATIVE_NOT_FOUND_MSG = "Cannot find initiative [%s]";
     public static final String ID_S_NOT_FOUND_MSG = "The current user is not onboarded on initiative [%s]";
 
+    public static final String EMAIL_NOT_MATCHED_MSG = "Email and confirmation email do not match.";
+    public static final String TOS_NOT_CONFIRMED_MSG = "Terms and Conditions not accepted.";
     public static final String PDV_DECRYPT_ERROR_MSG = "An error occurred during decrypt";
     public static final String ERROR_INITIATIVE_INVOCATION_MSG = "An error occurred in the microservice initiative";
     public static final String ERROR_ADMISSIBILITY_INVOCATION_MSG = "An error occurred in the microservice admissibility";

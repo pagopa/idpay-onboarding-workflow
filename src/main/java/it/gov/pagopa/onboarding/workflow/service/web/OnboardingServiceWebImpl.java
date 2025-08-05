@@ -71,11 +71,11 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
         } else {
 
             if (!consentPutWebDTO.getUserMail().equals(consentPutWebDTO.getUserMailConfirmation())) {
-                throw new EmailNotMatchedException("Email and confirmation email do not match.");
+                throw new EmailNotMatchedException(EMAIL_NOT_MATCHED_MSG);
             }
 
             if (Boolean.FALSE.equals(consentPutWebDTO.getConfirmedTos())) {
-                throw new TosNotConfirmedException("Terms and Conditions not accepted.");
+                throw new TosNotConfirmedException(TOS_NOT_CONFIRMED_MSG);
             }
 
             InitiativeDTO initiativeDTO = getInitiative(consentPutWebDTO.getInitiativeId());

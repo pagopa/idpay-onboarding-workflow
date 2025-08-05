@@ -50,8 +50,8 @@ class OnboardingControllerWebTest {
     beneficiaryRuleDTO.setSelfDeclarationCriteria(
             List.of(new SelfCriteriaBooleanTypeDTO(
                     "boolean_type",
-                    "ciao",
-                    "ciao ciao",
+                    "test description",
+                    "test sub description",
                     true,
                     SelfCriteriaBooleanTypeCode.ISEE
             ))
@@ -62,33 +62,25 @@ class OnboardingControllerWebTest {
 
   @Test
   void getInitiativeWeb_ok() {
-    // Arrange
     when(onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE))
             .thenReturn(initiativeWebDTO);
 
-    // Act
     ResponseEntity<InitiativeWebDTO> response =
             controller.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
 
-      // Assert
-      assertNotNull(response);
-
-
-      // Assert
     assertNotNull(response);
-      assertEquals(HttpStatus.OK, response.getStatusCode()); // ✅ nuovo modo
-      assertEquals(initiativeWebDTO, response.getBody());
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(initiativeWebDTO, response.getBody());
     verify(onboardingServiceWeb).getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
     verifyNoMoreInteractions(onboardingServiceWeb);
   }
 
   @Test
   void getInitiativeWeb_ko() {
-    // Arrange
     when(onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE))
             .thenReturn(null);
 
-    // Act & Assert
     InitiativeNotFoundException exception = assertThrows(
             InitiativeNotFoundException.class,
             () -> controller.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE)
@@ -112,7 +104,7 @@ class OnboardingControllerWebTest {
         ResponseEntity<Void> response = controller.saveConsentWeb(consent, userId);
 
         verify(onboardingServiceWeb, times(1)).saveConsentWeb(consent, userId);
-        assertEquals(HttpStatus.ACCEPTED.value(), response.getStatusCode().value()); // ✅
+        assertEquals(HttpStatus.ACCEPTED.value(), response.getStatusCode().value());
 
     }
 
