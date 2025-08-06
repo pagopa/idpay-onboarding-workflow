@@ -2,6 +2,7 @@
 package it.gov.pagopa.onboarding.workflow.controller.web;
 
 
+import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,4 +32,15 @@ public interface OnboardingControllerWeb {
           @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage);
 
 
+  /**
+   * Save the consents of PDND criteria and Self declaration list
+   *
+   * @param consentPutWebDTO
+   * @param userId
+   * @return
+   */
+  @PutMapping("/{userId}")
+  ResponseEntity<Void> saveConsentWeb(
+          @RequestBody ConsentPutWebDTO consentPutWebDTO,
+          @PathVariable("userId") String userId);
 }

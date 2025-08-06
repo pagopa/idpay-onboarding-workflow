@@ -43,7 +43,6 @@ public class InitiativeGeneralDTO   {
 
   @JsonProperty("descriptionMap")
   @Valid
- // @NotEmpty(groups = ValidationApiEnabledGroup.class)
   private Map<String, String> descriptionMap;
 
 }
