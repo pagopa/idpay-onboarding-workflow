@@ -89,7 +89,7 @@ class OnboardingServiceWebTest {
 
     InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
     beneficiaryRule.setSelfDeclarationCriteria(List.of(
-            new SelfCriteriaBooleanTypeDTO("boolean_type", "ciao", "ciao ciao", true, SelfCriteriaBooleanTypeCode.ISEE)
+            new SelfCriteriaBooleanTypeDTO("boolean_type", "test description", "test sub description", true, SelfCriteriaBooleanTypeCode.ISEE)
     ));
 
     initiativeDTO = new InitiativeDTO();
@@ -400,7 +400,7 @@ class OnboardingServiceWebTest {
 
         InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
         List<AutomatedCriteriaDTO> autoCriteria = new ArrayList<>();
-        autoCriteria.add(new AutomatedCriteriaDTO()); // <-- non vuoto
+        autoCriteria.add(new AutomatedCriteriaDTO());
         beneficiaryRule.setAutomatedCriteria(autoCriteria);
         beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
