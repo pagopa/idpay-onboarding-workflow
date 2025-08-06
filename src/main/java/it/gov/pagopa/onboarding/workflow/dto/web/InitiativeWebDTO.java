@@ -22,5 +22,8 @@ public class InitiativeWebDTO {
   @JsonProperty("beneficiaryRule")
   private InitiativeBeneficiaryRuleDTO beneficiaryRule;
 
+  @JsonProperty("general")
+  private InitiativeGeneralWebDTO generalWeb;
+
 
 }

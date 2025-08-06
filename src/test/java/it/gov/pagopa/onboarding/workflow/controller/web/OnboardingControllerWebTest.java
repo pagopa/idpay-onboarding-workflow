@@ -2,9 +2,12 @@ package it.gov.pagopa.onboarding.workflow.controller.web;
 
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBooleanTypeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaBooleanTypeCode;
 import it.gov.pagopa.onboarding.workflow.exception.custom.EmailNotMatchedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
@@ -20,8 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -57,7 +63,17 @@ class OnboardingControllerWebTest {
             ))
     );
 
-    initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO);
+    GeneralWebMapper generalWebMapper = new GeneralWebMapper();
+
+    InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
+    initiativeGeneralDTO.setStartDate(LocalDate.MIN);
+    initiativeGeneralDTO.setEndDate(LocalDate.MAX);
+    Map<String, String> language = new HashMap<>();
+    language.put(Locale.ITALIAN.getLanguage(), "it");
+    initiativeGeneralDTO.setDescriptionMap(language);
+
+    InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
+    initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO, initiativeGeneralWebDTO);
   }
 
   @Test
