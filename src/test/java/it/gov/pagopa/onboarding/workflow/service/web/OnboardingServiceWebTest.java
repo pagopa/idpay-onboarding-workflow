@@ -7,7 +7,6 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
-import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
@@ -32,6 +31,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static org.junit.jupiter.api.Assertions.*;
@@ -411,7 +413,7 @@ class OnboardingServiceWebTest {
 
         InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
         List<AutomatedCriteriaDTO> autoCriteria = new ArrayList<>();
-        autoCriteria.add(new AutomatedCriteriaDTO()); // <-- non vuoto
+        autoCriteria.add(new AutomatedCriteriaDTO());
         beneficiaryRule.setAutomatedCriteria(autoCriteria);
         beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
