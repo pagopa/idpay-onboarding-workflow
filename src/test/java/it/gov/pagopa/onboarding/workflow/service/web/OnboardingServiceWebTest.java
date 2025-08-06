@@ -7,6 +7,7 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
@@ -30,9 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,6 +79,7 @@ class OnboardingServiceWebTest {
 
   private InitiativeDTO initiativeDTO;
   private InitiativeWebDTO initiativeWebDTO;
+  private InitiativeGeneralWebDTO initiativeGeneralWebDTO;
 
   @BeforeEach
   void setUp() {
@@ -96,14 +96,25 @@ class OnboardingServiceWebTest {
     initiativeDTO.setAdditionalInfo(additional);
     initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
-    initiativeWebDTO = new InitiativeWebDTO(additional, beneficiaryRule);
+    GeneralWebMapper generalWebMapper = new GeneralWebMapper();
+
+    InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
+    initiativeGeneralDTO.setStartDate(LocalDate.MIN);
+    initiativeGeneralDTO.setEndDate(LocalDate.MAX);
+    Map<String, String> language = new HashMap<>();
+    language.put(Locale.ITALIAN.getLanguage(), "it");
+    initiativeGeneralDTO.setDescriptionMap(language);
+
+    initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
+
+    initiativeWebDTO = new InitiativeWebDTO(additional, beneficiaryRule, initiativeGeneralWebDTO);
 
   }
 
   @Test
   void getInitiativeWeb_shouldReturnMappedDto_whenInitiativeExists() {
     when(onboardingServiceWeb.getInitiative(INITIATIVE_ID)).thenReturn(initiativeDTO);
-    when(initiativeWebMapper.map(initiativeDTO)).thenReturn(initiativeWebDTO);
+    when(initiativeWebMapper.map(initiativeDTO, initiativeGeneralWebDTO)).thenReturn(initiativeWebDTO);
 
     InitiativeWebDTO result = onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
 
@@ -111,7 +122,7 @@ class OnboardingServiceWebTest {
     assertEquals(initiativeWebDTO, result);
 
     verify(onboardingServiceWeb, times(1)).getInitiative(INITIATIVE_ID);
-    verify(initiativeWebMapper, times(1)).map(initiativeDTO);
+    verify(initiativeWebMapper, times(1)).map(initiativeDTO, initiativeGeneralWebDTO);
   }
 
   @Test
