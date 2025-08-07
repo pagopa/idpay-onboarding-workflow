@@ -32,6 +32,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,14 +92,14 @@ class OnboardingServiceWebTest {
 
     InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
     beneficiaryRule.setSelfDeclarationCriteria(List.of(
-            new SelfCriteriaBooleanTypeDTO("boolean_type", "ciao", "ciao ciao", true, SelfCriteriaBooleanTypeCode.ISEE)
+            new SelfCriteriaBooleanTypeDTO("boolean_type", "test description", "test sub description", true, SelfCriteriaBooleanTypeCode.ISEE)
     ));
 
     initiativeDTO = new InitiativeDTO();
     initiativeDTO.setAdditionalInfo(additional);
     initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
-    GeneralWebMapper generalWebMapper = new GeneralWebMapper();
+    generalWebMapper = new GeneralWebMapper();
 
     InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
     initiativeGeneralDTO.setStartDate(LocalDate.MIN);
@@ -419,7 +422,7 @@ class OnboardingServiceWebTest {
 
         InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
         List<AutomatedCriteriaDTO> autoCriteria = new ArrayList<>();
-        autoCriteria.add(new AutomatedCriteriaDTO()); // <-- non vuoto
+        autoCriteria.add(new AutomatedCriteriaDTO());
         beneficiaryRule.setAutomatedCriteria(autoCriteria);
         beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
