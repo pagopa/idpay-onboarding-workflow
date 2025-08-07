@@ -32,6 +32,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static org.junit.jupiter.api.Assertions.*;
@@ -96,7 +99,7 @@ class OnboardingServiceWebTest {
     initiativeDTO.setAdditionalInfo(additional);
     initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
-    GeneralWebMapper generalWebMapper = new GeneralWebMapper();
+    generalWebMapper = new GeneralWebMapper();
 
     InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
     initiativeGeneralDTO.setStartDate(LocalDate.MIN);
