@@ -33,6 +33,8 @@ public class Onboarding {
 
   private String detailKO;
 
+  private String userMail;
+
   private String channel;
 
   private Boolean tc;
