@@ -7,6 +7,7 @@ import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
@@ -98,7 +99,7 @@ class OnboardingServiceWebTest {
     initiativeDTO.setAdditionalInfo(additional);
     initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
-    GeneralWebMapper generalWebMapper = new GeneralWebMapper();
+    generalWebMapper = new GeneralWebMapper();
 
     InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
     initiativeGeneralDTO.setStartDate(LocalDate.MIN);

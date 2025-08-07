@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class InitiativeWebMapper {
 
-  public InitiativeWebDTO map(InitiativeDTO initiativeDTO) {
+  public InitiativeWebDTO map(InitiativeDTO initiativeDTO, InitiativeGeneralWebDTO initiativeGeneralWebDTO) {
 
 
     return InitiativeWebDTO.builder()
