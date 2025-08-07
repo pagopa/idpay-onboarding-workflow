@@ -3,10 +3,7 @@ package it.gov.pagopa.onboarding.workflow.service.common;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
-import it.gov.pagopa.onboarding.workflow.dto.SelfConsentTextDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
@@ -201,7 +198,7 @@ public class OnboardingServiceCommonImpl implements OnboardingServiceCommon{
     }
 
     @Override
-    public void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId) {
+    public void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutUnifiedDTO consentPutDTO, String userId) {
         if (initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty()) {
             return;
         }

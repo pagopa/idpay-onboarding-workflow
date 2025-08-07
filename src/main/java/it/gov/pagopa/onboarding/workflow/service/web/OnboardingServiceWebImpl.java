@@ -3,10 +3,10 @@ package it.gov.pagopa.onboarding.workflow.service.web;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
-import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
@@ -63,68 +63,98 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
     }
   }
 
-    public void saveConsentWeb(ConsentPutWebDTO consentPutWebDTO, String userId) {
+    @Override
+    public void saveConsentUnified(ConsentPutUnifiedDTO consentPutUnifiedDTO, String userId) {
         long startTime = System.currentTimeMillis();
 
-        Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutWebDTO.getInitiativeId(), userId);
+        log.info("DTO received: confirmedTos={}, PdndAccept={}, channel={}",
+                consentPutUnifiedDTO.getConfirmedTos(),
+                consentPutUnifiedDTO.isPdndAccept(),
+                consentPutUnifiedDTO.getChannel());
+
+
+        Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutUnifiedDTO.getInitiativeId(), userId);
 
         if (onboarding != null) {
-            if (OnboardingWorkflowConstants.STATUS_IDEMPOTENT.contains(onboarding.getStatus())) {
-                return;
-            }
-
-            checkStatus(onboarding);
-
-        } else {
-
-            if (!consentPutWebDTO.getUserMail().equals(consentPutWebDTO.getUserMailConfirmation())) {
-                throw new EmailNotMatchedException(EMAIL_NOT_MATCHED_MSG);
-            }
-
-            if (Boolean.FALSE.equals(consentPutWebDTO.getConfirmedTos())) {
-                throw new TosNotConfirmedException(TOS_NOT_CONFIRMED_MSG);
-            }
-
-            InitiativeDTO initiativeDTO = getInitiative(consentPutWebDTO.getInitiativeId());
-
-            onboarding = new Onboarding(consentPutWebDTO.getInitiativeId(), userId);
-
-            checkDates(initiativeDTO, onboarding);
-            checkBudget(initiativeDTO, onboarding);
-
-            if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
-                    && !consentPutWebDTO.isPdndAccept()) {
-                performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
-                auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
-                        OnboardingWorkflowConstants.ERROR_PDND_AUDIT);
-                onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-                onboarding.setDetailKO(PDND_CONSENT_DENIED);
-                onboardingRepository.save(onboarding);
-                throw new PDNDConsentDeniedException(String.format(ERROR_PDND_MSG, consentPutWebDTO.getInitiativeId()));
-            }
-
-            selfDeclaration(initiativeDTO, consentPutWebDTO, userId);
-
-            onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
-            onboarding.setPdndAccept(consentPutWebDTO.isPdndAccept());
-            LocalDateTime localDateTime = LocalDateTime.now();
-            onboarding.setCriteriaConsensusTimestamp(localDateTime);
-            onboarding.setTc(consentPutWebDTO.getConfirmedTos());
-            onboarding.setPdndAccept(true);
-            onboarding.setUpdateDate(localDateTime);
-            onboarding.setUserMail(consentPutWebDTO.getUserMail());
-
-
-
-            OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
-            onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
-
-            onboardingProducer.sendSaveConsent(onboardingDTO);
-
-            onboardingRepository.save(onboarding);
-
-            performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
+            handleExistingOnboarding(onboarding);
+            return;
         }
+
+        validateInput(consentPutUnifiedDTO);
+
+        InitiativeDTO initiativeDTO = getInitiative(consentPutUnifiedDTO.getInitiativeId());
+        log.info("InitiativeDTO received: {}", initiativeDTO);
+        onboarding = new Onboarding(consentPutUnifiedDTO.getInitiativeId(), userId);
+
+        checkDates(initiativeDTO, onboarding);
+        checkBudget(initiativeDTO, onboarding);
+
+        if (hasAutomatedCriteriaAndPdndNotAccepted(initiativeDTO, consentPutUnifiedDTO)) {
+            handlePdndDenied(onboarding, userId, initiativeDTO, startTime);
+        }
+
+        selfDeclaration(initiativeDTO, consentPutUnifiedDTO, userId);
+
+        fillOnboardingData(onboarding, consentPutUnifiedDTO);
+        onboarding.setUserMail("WEB".equalsIgnoreCase(consentPutUnifiedDTO.getChannel()) ? consentPutUnifiedDTO.getUserMail() : null);
+
+        OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
+        onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
+
+        onboardingProducer.sendSaveConsent(onboardingDTO);
+        onboardingRepository.save(onboarding);
+
+        performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
+    }
+
+    @Override
+    public void handleExistingOnboarding(Onboarding onboarding) {
+        if (OnboardingWorkflowConstants.STATUS_IDEMPOTENT.contains(onboarding.getStatus())) {
+            return;
+        }
+        checkStatus(onboarding);
+    }
+
+    @Override
+    public void validateInput(ConsentPutUnifiedDTO dto) {
+        if ("WEB".equalsIgnoreCase(dto.getChannel()) &&
+                (dto.getUserMail() == null ||
+                        dto.getUserMailConfirmation() == null ||
+                        !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim()))) {
+            throw new EmailNotMatchedException(EMAIL_NOT_MATCHED_MSG);
+        }
+
+        if (dto.getConfirmedTos() == null || !dto.getConfirmedTos()) {
+            throw new TosNotConfirmedException(TOS_NOT_CONFIRMED_MSG);
+        }
+    }
+
+    @Override
+    public boolean hasAutomatedCriteriaAndPdndNotAccepted(InitiativeDTO initiativeDTO, ConsentPutUnifiedDTO dto) {
+        return !initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty() && !dto.isPdndAccept();
+    }
+
+
+    @Override
+    public void handlePdndDenied(Onboarding onboarding, String userId, InitiativeDTO initiativeDTO, long startTime) {
+        performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
+        auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
+                OnboardingWorkflowConstants.ERROR_PDND_AUDIT);
+        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+        onboarding.setDetailKO(PDND_CONSENT_DENIED);
+        onboardingRepository.save(onboarding);
+        throw new PDNDConsentDeniedException(String.format(ERROR_PDND_MSG, initiativeDTO.getInitiativeId()));
+    }
+
+    @Override
+    public void fillOnboardingData(Onboarding onboarding, ConsentPutUnifiedDTO dto) {
+        onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
+        onboarding.setPdndAccept(dto.isPdndAccept());
+        onboarding.setTc(dto.getConfirmedTos());
+
+        LocalDateTime now = LocalDateTime.now();
+        onboarding.setCriteriaConsensusTimestamp(now);
+        onboarding.setUpdateDate(now);
     }
 
     @Override

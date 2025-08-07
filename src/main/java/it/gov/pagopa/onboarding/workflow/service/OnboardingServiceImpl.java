@@ -308,7 +308,7 @@ public class OnboardingServiceImpl extends OnboardingServiceCommonImpl implement
       throw new PDNDConsentDeniedException(String.format(ERROR_PDND_MSG, consentPutDTO.getInitiativeId()));
     }
 
-    selfDeclaration(initiativeDTO, consentPutDTO, userId);
+    //selfDeclaration(initiativeDTO, consentPutDTO, userId);
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
     onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
     LocalDateTime localDateTime = LocalDateTime.now();

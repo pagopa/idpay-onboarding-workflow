@@ -1,6 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.controller.web;
 
-import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.service.web.OnboardingServiceWeb;
@@ -33,10 +33,11 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
   }
 
 
+
   @Override
-  public ResponseEntity<Void> saveConsentWeb(ConsentPutWebDTO consentPutWebDTO, String userId) {
-    onboardingServiceWeb.saveConsentWeb(consentPutWebDTO, userId);
+  public ResponseEntity<Void> saveConsentUnified(ConsentPutUnifiedDTO consentPutUnifiedDTO, String channel, String userId) {
+    consentPutUnifiedDTO.setChannel(channel);
+    onboardingServiceWeb.saveConsentUnified(consentPutUnifiedDTO, userId);
     return ResponseEntity.accepted().build();
   }
-
 }
