@@ -1,6 +1,8 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -23,14 +25,14 @@ public class ConsentPutUnifiedDTO {
     private String userMailConfirmation;
     private Boolean confirmedTos;
 
-    @NotBlank(message = "Channel is mandatory")
-    private String channel;
+    @NotNull(message = "Channel is mandatory")
+    private ChannelType channel;
 
     public boolean isWebChannel() {
-        return "WEB".equalsIgnoreCase(channel);
+        return ChannelType.WEB == channel;
     }
 
     public boolean isIoChannel() {
-        return "IO".equalsIgnoreCase(channel);
+        return ChannelType.APP_IO == channel;
     }
 }

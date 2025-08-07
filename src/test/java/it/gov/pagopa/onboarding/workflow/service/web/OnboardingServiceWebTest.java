@@ -11,6 +11,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaBooleanTypeCode;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.EmailNotMatchedException;
@@ -148,11 +149,11 @@ class OnboardingServiceWebTest {
 
         ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
         consent.setInitiativeId(initiativeId);
-        consent.setUserMail("test@mail.com");
-        consent.setUserMailConfirmation("test@mail.com");
+        consent.setUserMail(mail);
+        consent.setUserMailConfirmation(mail);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -209,7 +210,7 @@ class OnboardingServiceWebTest {
         consent.setUserMailConfirmation("test2@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -229,7 +230,7 @@ class OnboardingServiceWebTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(false);
         consent.setPdndAccept(true);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -249,7 +250,7 @@ class OnboardingServiceWebTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(false);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -305,7 +306,7 @@ class OnboardingServiceWebTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus(OnboardingWorkflowConstants.STATUS_IDEMPOTENT.iterator().next());
@@ -329,7 +330,7 @@ class OnboardingServiceWebTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus("NON_IDEMPOTENT_STATUS");
@@ -354,7 +355,7 @@ class OnboardingServiceWebTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(false);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -412,7 +413,7 @@ class OnboardingServiceWebTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        consent.setChannel("WEB");
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 

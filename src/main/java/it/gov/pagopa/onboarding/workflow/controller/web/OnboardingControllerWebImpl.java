@@ -2,6 +2,7 @@ package it.gov.pagopa.onboarding.workflow.controller.web;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.service.web.OnboardingServiceWeb;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class OnboardingControllerWebImpl implements OnboardingControllerWeb {
 
 
   @Override
-  public ResponseEntity<Void> saveConsentUnified(ConsentPutUnifiedDTO consentPutUnifiedDTO, String channel, String userId) {
+  public ResponseEntity<Void> saveConsentUnified(ConsentPutUnifiedDTO consentPutUnifiedDTO, ChannelType channel, String userId) {
     consentPutUnifiedDTO.setChannel(channel);
     onboardingServiceWeb.saveConsentUnified(consentPutUnifiedDTO, userId);
     return ResponseEntity.accepted().build();

@@ -11,6 +11,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -67,12 +68,6 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
     public void saveConsentUnified(ConsentPutUnifiedDTO consentPutUnifiedDTO, String userId) {
         long startTime = System.currentTimeMillis();
 
-        log.info("DTO received: confirmedTos={}, PdndAccept={}, channel={}",
-                consentPutUnifiedDTO.getConfirmedTos(),
-                consentPutUnifiedDTO.isPdndAccept(),
-                consentPutUnifiedDTO.getChannel());
-
-
         Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutUnifiedDTO.getInitiativeId(), userId);
 
         if (onboarding != null) {
@@ -83,7 +78,6 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
         validateInput(consentPutUnifiedDTO);
 
         InitiativeDTO initiativeDTO = getInitiative(consentPutUnifiedDTO.getInitiativeId());
-        log.info("InitiativeDTO received: {}", initiativeDTO);
         onboarding = new Onboarding(consentPutUnifiedDTO.getInitiativeId(), userId);
 
         checkDates(initiativeDTO, onboarding);
@@ -96,7 +90,8 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
         selfDeclaration(initiativeDTO, consentPutUnifiedDTO, userId);
 
         fillOnboardingData(onboarding, consentPutUnifiedDTO);
-        onboarding.setUserMail("WEB".equalsIgnoreCase(consentPutUnifiedDTO.getChannel()) ? consentPutUnifiedDTO.getUserMail() : null);
+        onboarding.setUserMail(consentPutUnifiedDTO.isWebChannel() ? consentPutUnifiedDTO.getUserMail() : null);
+
 
         OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
         onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
@@ -117,7 +112,7 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
 
     @Override
     public void validateInput(ConsentPutUnifiedDTO dto) {
-        if ("WEB".equalsIgnoreCase(dto.getChannel()) &&
+        if (ChannelType.WEB.equals(dto.getChannel()) &&
                 (dto.getUserMail() == null ||
                         dto.getUserMailConfirmation() == null ||
                         !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim()))) {
@@ -128,6 +123,7 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
             throw new TosNotConfirmedException(TOS_NOT_CONFIRMED_MSG);
         }
     }
+
 
     @Override
     public boolean hasAutomatedCriteriaAndPdndNotAccepted(InitiativeDTO initiativeDTO, ConsentPutUnifiedDTO dto) {

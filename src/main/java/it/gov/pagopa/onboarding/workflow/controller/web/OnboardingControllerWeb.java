@@ -4,6 +4,7 @@ package it.gov.pagopa.onboarding.workflow.controller.web;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,6 @@ public interface OnboardingControllerWeb {
   @PutMapping("/{userId}")
   ResponseEntity<Void> saveConsentUnified(
           @RequestBody ConsentPutUnifiedDTO consentPutUnifiedDTO,
-          @RequestHeader("X-Channel") String channel,
+          @RequestHeader("X-Channel") ChannelType channel,
           @PathVariable("userId") String userId);
 }
