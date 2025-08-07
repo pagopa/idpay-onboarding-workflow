@@ -206,7 +206,7 @@ public class OnboardingServiceCommonImpl implements OnboardingServiceCommon{
         Map<String, Boolean> selfDeclarationBool = consentPutDTO.getSelfDeclarationList().stream()
                 .filter(item -> item.getClass().equals(SelfConsentBoolDTO.class))
                 .map(SelfConsentBoolDTO.class::cast)
-                .collect(Collectors.toMap(SelfConsentBoolDTO::getCode, SelfConsentBoolDTO::isAccepted));
+                .collect(Collectors.toMap(SelfConsentBoolDTO::getCode, SelfConsentBoolDTO::isValue));
 
         Map<String, String> selfDeclarationMulti = consentPutDTO.getSelfDeclarationList().stream()
                 .filter(item -> item.getClass().equals(SelfConsentMultiDTO.class))

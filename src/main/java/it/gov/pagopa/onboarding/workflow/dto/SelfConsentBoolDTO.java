@@ -17,7 +17,7 @@ public class SelfConsentBoolDTO implements SelfConsentDTO {
 
   String code;
 
-  boolean accepted;
+  boolean value;
 
 }
 
