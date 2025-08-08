@@ -11,7 +11,6 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
-import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaBooleanTypeCode;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.EmailNotMatchedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
@@ -91,10 +90,15 @@ class  OnboardingServiceWebTest  {
         additional.setPrivacyLink("privacyLink");
         additional.setTcLink("TcLink");
 
+        List<SelfCriteriaMultiConsentValueDTO> listCriteria = new ArrayList<SelfCriteriaMultiConsentValueDTO>();
+        SelfCriteriaMultiConsentValueDTO selfCriteriaMultiConsentValueDTO = new SelfCriteriaMultiConsentValueDTO();
+        listCriteria.add(selfCriteriaMultiConsentValueDTO);
         InitiativeBeneficiaryRuleDTO  beneficiaryRule  =  new InitiativeBeneficiaryRuleDTO();
         beneficiaryRule.setSelfDeclarationCriteria(List.of(
-                new  SelfCriteriaBooleanTypeDTO("boolean_type", "ciao",  "ciao  ciao",  true, SelfCriteriaBooleanTypeCode.ISEE)
+                new SelfCriteriaMultiConsentDTO("multi_consent", "descpriptionTest", "subDescriptionTest",
+                        listCriteria, "Isee")
         ));
+
 
         initiativeDTO =  new  InitiativeDTO();
         initiativeDTO.setAdditionalInfo(additional);
