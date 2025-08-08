@@ -1,0 +1,232 @@
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+parameters:
+  - name: 'executeBuild'
+    displayName: 'Launch maven and docker build'
+    type: boolean
+    default: true
+
+trigger:
+  branches:
+    include:
+      - release-*
+      - main
+  paths:
+    include:
+      - src/*
+      - helm/*
+      - pom.xml
+      - Dockerfile
+
+pr: none
+
+resources:
+  - repo: self
+
+variables:
+
+#  vmImageNameDefault: 'ubuntu-latest'
+  vmImageNameDefault: ubuntu-22.04
+
+  imageRepository: '$(K8S_IMAGE_REPOSITORY_NAME)'
+  deployNamespace: '$(DEPLOY_NAMESPACE)'
+  helmReleaseName : '$(HELM_RELEASE_NAME)'
+  settingsXmlROsecureFileName: '$(SETTINGS_XML_RO_SECURE_FILE_NAME)'
+  settingsXmlSecureFileName: '$(SETTINGS_XML_RO_SECURE_FILE_NAME)'
+  canDeploy: true
+
+  # If the branch is develop or a feature branch starting with CEN, deploy in DEV environment
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release-dev') }}:
+    environment: 'DEV'
+    dockerRegistryServiceConnection: '$(DEV_CONTAINER_REGISTRY_SERVICE_CONN)'
+    kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
+    containerRegistry: '$(DEV_CONTAINER_REGISTRY_NAME)'
+    selfHostedAgentPool: $(DEV_AGENT_POOL)
+    postmanEnvFile: idpay_dev.postman_environment.json
+
+  ${{ elseif startsWith(variables['Build.SourceBranch'], 'refs/heads/release-uat') }}:
+    environment: 'UAT'
+    dockerRegistryServiceConnection: '$(UAT_CONTAINER_REGISTRY_SERVICE_CONN)'
+    kubernetesServiceConnection: '$(UAT_KUBERNETES_SERVICE_CONN)'
+    containerRegistry: '$(UAT_CONTAINER_REGISTRY_NAME)'
+    selfHostedAgentPool: $(UAT_AGENT_POOL)
+    postmanEnvFile: idpay_uat.postman_environment.json
+
+  ${{ elseif or(eq(variables['Build.SourceBranch'], 'refs/heads/main'),eq(variables['Build.SourceBranch'], 'refs/heads/release-prod')) }}:
+    environment: 'PROD'
+    dockerRegistryServiceConnection: '$(PROD_CONTAINER_REGISTRY_SERVICE_CONN)'
+    kubernetesServiceConnection: '$(PROD_KUBERNETES_SERVICE_CONN)'
+    containerRegistry: '$(PROD_CONTAINER_REGISTRY_NAME)'
+    selfHostedAgentPool: $(PROD_AGENT_POOL)
+    # postman environment secure file - not used in prod
+    postmanEnvFile: idpay_uat.postman_environment.json
+
+  ${{ else }}:
+    environment: 'DEV'
+    dockerRegistryServiceConnection: '$(DEV_CONTAINER_REGISTRY_SERVICE_CONN)'
+    kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
+    containerRegistry: '$(DEV_CONTAINER_REGISTRY_NAME)'
+    selfHostedAgentPool: $(DEV_AGENT_POOL)
+    postmanEnvFile: idpay_dev.postman_environment.json
+
+stages:
+  - stage: 'pom_version'
+    displayName: Release
+    condition: eq(variables.canDeploy, true)
+    jobs:
+      - job: POM
+        displayName: POM
+        pool:
+          vmImage: $(vmImageNameDefault)
+        steps:
+          - task: Bash@3
+            displayName: Get POM version
+            name: getpomversion
+            condition: and(succeeded(), eq(variables.canDeploy, true))
+            inputs:
+              targetType: 'inline'
+              script: |
+                version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+                echo "##vso[task.setvariable variable=outputpomversion;isOutput=true]$version"
+              failOnStderr: true
+
+  - stage: 'build'
+    displayName: 'Build_and_Publish_to_${{ variables.environment }}'
+    dependsOn: 'pom_version'
+    variables:
+      pomversion: $[ stageDependencies.Release.POM.outputs['getpomversion.outputpomversion'] ]
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: $(vmImageNameDefault)
+        steps:
+          - task: Docker@2
+            condition: and(succeeded(), ${{ parameters.executeBuild }})
+            displayName: 'Publish_image_to_${{ variables.environment }}'
+            inputs:
+              containerRegistry: '$(dockerRegistryServiceConnection)'
+              repository: '$(imageRepository)'
+              command: 'buildAndPush'
+              tags: |
+                $(Build.BuildId)
+                latest
+                $(pomversion)
+          # - task: PublishPipelineArtifact@1
+          #   displayName: 'Publish Artifact manifests'
+          #   condition: and(succeeded(), eq(variables.canDeploy, true))
+          #   inputs:
+          #     targetPath: '$(Build.Repository.LocalPath)/manifests'
+          #     artifact: 'manifests'
+          #     publishLocation: 'pipeline'
+
+  - stage: 'publish_artifact_helm'
+    displayName: 'Publish_artifact_Helm'
+    dependsOn: ['build']
+    jobs:
+      - job: Publish_artifact_helm
+        displayName: Publish_artifact_helm
+        pool:
+          vmImage: $(vmImageNameDefault)
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Artifact manifests'
+            condition: succeeded()
+            inputs:
+              targetPath: '$(Build.Repository.LocalPath)/helm'
+              artifact: 'helm'
+              publishLocation: 'pipeline'
+
+  - stage: 'deploy'
+    displayName: 'Deploy to ${{ variables.environment }} K8S'
+    dependsOn: ['publish_artifact_helm']
+    condition: and(succeeded(), eq(variables.canDeploy, true))
+    variables:
+      pomversion: $[ stageDependencies.Release.POM.outputs['getpomversion.outputpomversion'] ]
+    jobs:
+      - deployment: 'Deploy_to_${{ variables.environment }}'
+        displayName: 'Deploy to ${{ variables.environment }} K8S'
+        pool:
+          name: $(selfHostedAgentPool)
+        environment: '$(environment)'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: none
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: 'current'
+                    artifactName: 'helm'
+                    targetPath: '$(Pipeline.Workspace)/helm'
+                - task: KubectlInstaller@0
+                - task: Bash@3
+                  name: helm_dependency_build
+                  displayName: Helm dependency build
+                  inputs:
+                    workingDirectory: '$(Pipeline.Workspace)/helm'
+                    targetType: 'inline'
+                    script: |
+                      helm repo add pagopa-microservice https://pagopa.github.io/aks-microservice-chart-blueprint
+                      helm dep build
+                    failOnStderr: true
+                - task: HelmDeploy@0
+                  displayName: Helm upgrade
+                  inputs:
+                    kubernetesServiceEndpoint: ${{ variables.kubernetesServiceConnection }}
+                    namespace: '$(deployNamespace)'
+                    command: upgrade
+                    chartType: filepath
+                    chartPath: $(Pipeline.Workspace)/helm
+                    chartName: ${{ variables.helmReleaseName }}
+                    releaseName: ${{ variables.helmReleaseName }}
+                    valueFile: "$(Pipeline.Workspace)/helm/values-${{ lower(variables.environment) }}.yaml"
+                    install: true
+                    waitForExecution: true
+                    arguments: "--timeout 6m0s --debug"
+                - task: KubernetesManifest@0
+                  displayName: Patch
+                  inputs:
+                    kubernetesServiceConnection: ${{ variables.kubernetesServiceConnection }}
+                    namespace: '$(deployNamespace)'
+                    action: patch
+                    kind: deployment
+                    name: '$(helmReleaseName)-microservice-chart'
+                    mergeStrategy: strategic
+                    patch: '{"spec":{"template":{"metadata":{"annotations":{"buildNumber":"$(Build.BuildNumber)"}}}}}'
+  - stage: Test_e2e
+    displayName: 'Test_e2e_on_${{ variables.environment }}'
+    # TODO: before merging into release-dev modify the following condition
+    #       to depend on previous stages exit status
+    condition: or(eq(variables.environment, 'DEV'), eq(variables.environment, 'UAT'))
+    jobs:
+      - job: 'Run_Postman_collection_on_${{ variables.environment }}'
+        displayName: 'Run_Postman_collection_on_${{ variables.environment }}'
+        pool:
+          name: $(selfHostedAgentPool)
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '16.x'
+          - task: Npm@1
+            displayName: Install newman
+            inputs:
+              command: custom
+              customCommand: install -g newman
+          - task: DownloadSecureFile@1
+            displayName: 'download postman environment'
+            name: postman_env
+            inputs:
+              secureFile: $(postmanEnvFile)
+          - task: CmdLine@2
+            displayName: Run newman
+            continueOnError: true # Useful to avoid the skipping of result publishing task
+            inputs:
+              script: newman run postman/idpay-merchant-e2e.postman_collection.json -e $(postman_env.secureFilePath) --reporters cli,junit --reporter-junit-export result/test-result.xml
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/test-*.xml'
+              searchFolder: '$(System.DefaultWorkingDirectory)/result/'
+              testRunTitle: 'Publish Newman Test Results'
