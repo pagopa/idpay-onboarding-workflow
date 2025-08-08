@@ -59,11 +59,11 @@ steps:
     displayName: finding jacoco.xml
   - script: |
       echo "Verifica contenuto della cartella JaCoCo:"
-      ls -la $(System.DefaultWorkingDirectory)/target/site/jacoco
+      ls -la $(System.DefaultWorkingDirectory)/target/site/jacoco || echo "Cartella non trovata"
       echo "Contenuto del file jacoco.xml:"
-      cat $(System.DefaultWorkingDirectory)/target/site/jacoco/jacoco.xml
-      displayName: 'Check JaCoCo XML Report'
-      continueOnError: true
+      cat $(System.DefaultWorkingDirectory)/target/site/jacoco/jacoco.xml || echo "File non trovato"
+    displayName: 'Check JaCoCo XML Report'
+    continueOnError: true
 
 #       options: '-B -s $(settingsxml.secureFilePath) -Dsonar.coverage.jacoco.xmlReportPaths=$(xmlReportPaths)'
 
