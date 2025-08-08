@@ -5,6 +5,7 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
@@ -54,8 +55,10 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
   @Override
   public InitiativeWebDTO getInitiativeWeb(String initiativeId, Locale acceptLanguage){
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
-    if(initiativeDTO != null) {
-    InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeDTO.getGeneral(), acceptLanguage);
+      if(initiativeDTO != null) {
+
+        InitiativeGeneralDTO initiativeGeneralDTO = initiativeDTO.getGeneral();
+        InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, acceptLanguage);
 
         return initiativeWebMapper.map(initiativeDTO, initiativeGeneralWebDTO);
     } else {
