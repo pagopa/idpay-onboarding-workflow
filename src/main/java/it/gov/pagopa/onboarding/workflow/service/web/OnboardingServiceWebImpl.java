@@ -56,10 +56,8 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
   public InitiativeWebDTO getInitiativeWeb(String initiativeId, Locale acceptLanguage){
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
       if(initiativeDTO != null) {
-
         InitiativeGeneralDTO initiativeGeneralDTO = initiativeDTO.getGeneral();
         InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, acceptLanguage);
-
         return initiativeWebMapper.map(initiativeDTO, initiativeGeneralWebDTO);
     } else {
         return null;
