@@ -5,6 +5,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.PathVariable;
 
 public interface InitiativeRestConnector {
-  //@Cacheable(value = "initiativeBeneficiaryView", key = "#initiativeId")
+  @Cacheable(value = "initiativeBeneficiaryView", key = "#initiativeId")
   InitiativeDTO getInitiativeBeneficiaryView(@PathVariable("initiativeId") String initiativeId);
 }

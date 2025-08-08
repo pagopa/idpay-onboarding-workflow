@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.controller.web;
 
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
@@ -7,8 +8,12 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBooleanTypeD
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaBooleanTypeCode;
+import it.gov.pagopa.onboarding.workflow.exception.custom.EmailNotMatchedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedException;
 import it.gov.pagopa.onboarding.workflow.service.web.OnboardingServiceWeb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -103,75 +108,142 @@ class OnboardingControllerWebTest {
     verifyNoMoreInteractions(onboardingServiceWeb);
   }
 
-//    @Test
-//    void saveConsentWeb_ShouldCallServiceAndReturnAccepted() {
-//        String userId = "USER123";
-//        ConsentPutWebDTO consent = new ConsentPutWebDTO();
-//        consent.setInitiativeId("INITIATIVE_1");
-//        consent.setUserMail("test@mail.com");
-//        consent.setUserMailConfirmation("test@mail.com");
-//        consent.setConfirmedTos(true);
-//        consent.setPdndAccept(true);
-//
-//        ResponseEntity<Void> response = controller.saveConsentWeb(consent, userId);
-//
-//        verify(onboardingServiceWeb, times(1)).saveConsentWeb(consent, userId);
-//        assertEquals(HttpStatus.ACCEPTED.value(), response.getStatusCode().value());
-//
-//    }
-//
-//    @Test
-//    void saveConsentWeb_ShouldThrowTosNotConfirmedException_WhenTosFalse() {
-//        String userId = "USER123";
-//        ConsentPutWebDTO consent = new ConsentPutWebDTO();
-//        consent.setInitiativeId("INITIATIVE_1");
-//        consent.setUserMail("test@mail.com");
-//        consent.setUserMailConfirmation("test@mail.com");
-//        consent.setConfirmedTos(false);
-//        consent.setPdndAccept(true);
-//
-//        doThrow(new TosNotConfirmedException("Terms and Conditions not accepted."))
-//                .when(onboardingServiceWeb).saveConsentWeb(consent, userId);
-//
-//        assertThrows(TosNotConfirmedException.class, () -> controller.saveConsentWeb(consent, userId));
-//
-//        verify(onboardingServiceWeb, times(1)).saveConsentWeb(consent, userId);
-//    }
-//
-//
-//    @Test
-//    void saveConsentWeb_ShouldThrowEmailNotMatchedException_WhenEmailsNotMatch() {
-//        String userId = "USER123";
-//        ConsentPutWebDTO consent = new ConsentPutWebDTO();
-//        consent.setInitiativeId("INITIATIVE_1");
-//        consent.setUserMail("test@mail.com");
-//        consent.setUserMailConfirmation("wrong@mail.com");
-//        consent.setConfirmedTos(true);
-//        consent.setPdndAccept(true);
-//
-//        doThrow(new EmailNotMatchedException("Email and confirmation email do not match."))
-//                .when(onboardingServiceWeb).saveConsentWeb(consent, userId);
-//
-//        assertThrows(EmailNotMatchedException.class, () -> controller.saveConsentWeb(consent, userId));
-//
-//        verify(onboardingServiceWeb, times(1)).saveConsentWeb(consent, userId);
-//    }
-//
-//    @Test
-//    void saveConsentWeb_ShouldThrowPDNDConsentDeniedException_WhenPdndNotAccepted() {
-//        String userId = "USER123";
-//        ConsentPutWebDTO consent = new ConsentPutWebDTO();
-//        consent.setInitiativeId("INITIATIVE_1");
-//        consent.setUserMail("test@mail.com");
-//        consent.setUserMailConfirmation("test@mail.com");
-//        consent.setConfirmedTos(true);
-//        consent.setPdndAccept(false);
-//
-//        doThrow(new PDNDConsentDeniedException("PDND Consent denied"))
-//                .when(onboardingServiceWeb).saveConsentWeb(consent, userId);
-//
-//        assertThrows(PDNDConsentDeniedException.class, () -> controller.saveConsentWeb(consent, userId));
-//
-//        verify(onboardingServiceWeb, times(1)).saveConsentWeb(consent, userId);
-//    }
+  @Test
+  void saveConsentUnifiedWeb_ShouldCallServiceAndReturnAccepted() {
+    String userId = "USER123";
+    ChannelType channel = ChannelType.WEB;
+
+    ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+    consent.setInitiativeId("INITIATIVE_1");
+    consent.setUserMail("test@mail.com");
+    consent.setUserMailConfirmation("test@mail.com");
+    consent.setConfirmedTos(true);
+    consent.setPdndAccept(true);
+
+    ResponseEntity<Void> response = controller.saveConsentUnified(consent, channel, userId);
+
+    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+    verify(onboardingServiceWeb, times(1)).saveConsentUnified(consent, userId);
+  }
+
+  @Test
+  void saveConsentUnifiedAppIo_ShouldCallServiceAndReturnAccepted() {
+    String userId = "USER123";
+    ChannelType channel = ChannelType.APP_IO;
+
+    ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+    consent.setInitiativeId("INITIATIVE_1");
+    consent.setConfirmedTos(true);
+    consent.setPdndAccept(true);
+
+    ResponseEntity<Void> response = controller.saveConsentUnified(consent, channel, userId);
+
+    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+    verify(onboardingServiceWeb, times(1)).saveConsentUnified(consent, userId);
+  }
+
+
+  @Test
+  void saveConsentUnifiedWeb_ShouldThrowTosNotConfirmedException_WhenTosFalse() {
+    String userId = "USER123";
+    ChannelType channel = ChannelType.WEB;
+
+    ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+    consent.setInitiativeId("INITIATIVE_1");
+    consent.setUserMail("test@mail.com");
+    consent.setUserMailConfirmation("test@mail.com");
+    consent.setConfirmedTos(false);
+    consent.setPdndAccept(true);
+
+    doThrow(new TosNotConfirmedException("Terms and Conditions not accepted."))
+            .when(onboardingServiceWeb).saveConsentUnified(consent, userId);
+
+    assertThrows(TosNotConfirmedException.class, () -> controller.saveConsentUnified(consent, channel, userId));
+
+    verify(onboardingServiceWeb, times(1)).saveConsentUnified(consent, userId);
+  }
+
+  @Test
+  void saveConsentUnifiedAppIo_ShouldThrowTosNotConfirmedException_WhenTosIsFalse() {
+    String userId = "USER789";
+    ChannelType channel = ChannelType.APP_IO;
+
+    ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+    consent.setInitiativeId("INITIATIVE_2");
+    consent.setConfirmedTos(false);
+    consent.setPdndAccept(true);
+
+    doThrow(new TosNotConfirmedException("Terms and Conditions not accepted."))
+            .when(onboardingServiceWeb).saveConsentUnified(consent, userId);
+
+    assertThrows(TosNotConfirmedException.class, () ->
+            controller.saveConsentUnified(consent, channel, userId)
+    );
+
+    verify(onboardingServiceWeb).saveConsentUnified(consent, userId);
+  }
+
+
+  @Test
+  void saveConsentUnifiedWeb_ShouldThrowEmailNotMatchedException_WhenEmailsNotMatch() {
+    String userId = "USER123";
+    ChannelType channel = ChannelType.WEB;
+
+    ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+    consent.setInitiativeId("INITIATIVE_1");
+    consent.setUserMail("test@mail.com");
+    consent.setUserMailConfirmation("wrong@mail.com");
+    consent.setConfirmedTos(true);
+    consent.setPdndAccept(true);
+
+    doThrow(new EmailNotMatchedException("Email and confirmation email do not match."))
+            .when(onboardingServiceWeb).saveConsentUnified(consent, userId);
+
+    assertThrows(EmailNotMatchedException.class, () -> controller.saveConsentUnified(consent, channel, userId));
+
+    verify(onboardingServiceWeb, times(1)).saveConsentUnified(consent, userId);
+  }
+
+
+  @Test
+  void saveConsentUnifiedWeb_ShouldThrowPDNDConsentDeniedException_WhenPdndNotAccepted() {
+    String userId = "USER123";
+    ChannelType channel = ChannelType.WEB;
+
+    ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+    consent.setInitiativeId("INITIATIVE_1");
+    consent.setUserMail("test@mail.com");
+    consent.setUserMailConfirmation("test@mail.com");
+    consent.setConfirmedTos(true);
+    consent.setPdndAccept(false);
+
+    doThrow(new PDNDConsentDeniedException("PDND Consent denied"))
+            .when(onboardingServiceWeb).saveConsentUnified(consent, userId);
+
+    assertThrows(PDNDConsentDeniedException.class, () -> controller.saveConsentUnified(consent, channel, userId));
+
+    verify(onboardingServiceWeb, times(1)).saveConsentUnified(consent, userId);
+  }
+
+  @Test
+  void saveConsentUnifiedAppIo_ShouldThrowPDNDConsentDeniedException_WhenPdndNotAccepted() {
+    String userId = "USER987";
+    ChannelType channel = ChannelType.APP_IO;
+
+    ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+    consent.setInitiativeId("INITIATIVE_3");
+    consent.setConfirmedTos(true);
+    consent.setPdndAccept(false);
+
+    doThrow(new PDNDConsentDeniedException("PDND Consent denied"))
+            .when(onboardingServiceWeb).saveConsentUnified(consent, userId);
+
+    assertThrows(PDNDConsentDeniedException.class, () ->
+            controller.saveConsentUnified(consent, channel, userId)
+    );
+
+    verify(onboardingServiceWeb).saveConsentUnified(consent, userId);
+  }
+
+
 }
