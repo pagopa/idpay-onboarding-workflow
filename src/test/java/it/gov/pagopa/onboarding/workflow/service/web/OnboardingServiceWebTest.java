@@ -200,6 +200,61 @@ class OnboardingServiceWebTest {
     }
 
     @Test
+    void testSaveConsentAppIO_SaveIsCalled_WhenOnboardingNotExists() {
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
+
+        ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+        consent.setChannel(ChannelType.APP_IO);
+
+        doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus("PUBLISHED");
+
+        InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
+        beneficiaryRule.setAutomatedCriteria(new ArrayList<>());
+        beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>());
+        initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
+
+        InitiativeGeneralDTO general = new InitiativeGeneralDTO();
+        general.setRankingStartDate(LocalDate.of(2025, 7, 31));
+        general.setStartDate(LocalDate.of(2025, 7, 27));
+        general.setEndDate(LocalDate.of(2025, 8, 11));
+        general.setBeneficiaryKnown(false);
+        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        initiativeTestDTO.setGeneral(general);
+
+        InitiativeAdditionalDTO additionalInfo = new InitiativeAdditionalDTO();
+        additionalInfo.setServiceId("dummyServiceId");
+        initiativeTestDTO.setAdditionalInfo(additionalInfo);
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+
+        when(consentMapper.map(any())).thenAnswer(invocation -> {
+            Onboarding onboarding = invocation.getArgument(0);
+            return OnboardingDTO.builder()
+                    .userId(onboarding.getUserId())
+                    .initiativeId(onboarding.getInitiativeId())
+                    .status(onboarding.getStatus())
+                    .build();
+        });
+
+        when(onboardingRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        doNothing().when(onboardingServiceWeb).checkBudget(any(InitiativeDTO.class), any(Onboarding.class));
+
+        onboardingServiceWeb.saveConsentUnified(consent, userId);
+
+        verify(onboardingRepository, times(1)).save(any(Onboarding.class));
+        verify(onboardingProducer, times(1)).sendSaveConsent(any(OnboardingDTO.class));
+    }
+
+    @Test
     void testSaveConsentWeb_throwsEmailNotMatchedException_whenEmailsDoNotMatch() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
@@ -238,6 +293,27 @@ class OnboardingServiceWebTest {
 
         verify(onboardingRepository, never()).save(any());
     }
+
+    @Test
+    void testSaveConsentAppIO_throwsTosNotConfirmedException_whenTosNotConfirmed() {
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
+
+        ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(false);
+        consent.setPdndAccept(true);
+        consent.setChannel(ChannelType.APP_IO);
+
+        doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        assertThrows(TosNotConfirmedException.class, () -> onboardingServiceWeb.saveConsentUnified(consent, userId));
+
+        verify(onboardingRepository, never()).save(any());
+        verify(onboardingProducer, never()).sendSaveConsent(any());
+    }
+
+
 
     @Test
     void testSaveConsentWeb_throwsPDNDConsentDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
@@ -293,6 +369,56 @@ class OnboardingServiceWebTest {
         verify(auditUtilities, times(1)).logOnboardingKOWithReason(eq(userId), eq(initiativeId), any(), any());
     }
 
+    @Test
+    void testSaveConsentAppIO_throwsPDNDConsentDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
+
+        ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(false);
+        consent.setChannel(ChannelType.APP_IO);
+
+        doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        initiativeDTO = new InitiativeDTO();
+        initiativeDTO.setInitiativeId(initiativeId);
+        initiativeDTO.setStatus("PUBLISHED");
+
+        InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
+        ruleDTO.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
+        ruleDTO.setSelfDeclarationCriteria(new ArrayList<>());
+        initiativeDTO.setBeneficiaryRule(ruleDTO);
+
+        InitiativeGeneralDTO general = new InitiativeGeneralDTO();
+        general.setRankingStartDate(LocalDate.of(2025, 7, 31));
+        general.setStartDate(LocalDate.of(2025, 7, 27));
+        general.setEndDate(LocalDate.of(2025, 8, 11));
+        general.setBeneficiaryKnown(false);
+        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        initiativeDTO.setGeneral(general);
+
+        InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
+        additional.setServiceId("serviceId");
+        initiativeDTO.setAdditionalInfo(additional);
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
+
+        doNothing().when(onboardingServiceWeb).checkDates(any(), any());
+        doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
+
+        assertThrows(PDNDConsentDeniedException.class, () -> onboardingServiceWeb.saveConsentUnified(consent, userId));
+
+        verify(onboardingRepository).save(argThat(onboarding ->
+                OnboardingWorkflowConstants.ONBOARDING_KO.equals(onboarding.getStatus()) &&
+                        PDND_CONSENT_DENIED.equals(onboarding.getDetailKO())
+        ));
+
+        verify(auditUtilities).logOnboardingKOWithReason(eq(userId), eq(initiativeId), any(), any());
+    }
+
+
 
 
     @Test
@@ -320,6 +446,28 @@ class OnboardingServiceWebTest {
     }
 
     @Test
+    void testSaveConsentAppIO_ReturnsWhenStatusIsIdempotent() {
+        String initiativeId = "INIT";
+        String userId = "USER";
+
+        ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+        consent.setChannel(ChannelType.APP_IO);
+
+        Onboarding onboarding = new Onboarding(initiativeId, userId);
+        onboarding.setStatus(OnboardingWorkflowConstants.STATUS_IDEMPOTENT.getFirst());
+
+        doReturn(onboarding).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        onboardingServiceWeb.saveConsentUnified(consent, userId);
+
+        verify(onboardingRepository, never()).save(any());
+        verify(onboardingProducer, never()).sendSaveConsent(any());
+    }
+
+    @Test
     void testSaveConsentWeb_CallsCheckStatusWhenStatusNotIdempotent() {
         String initiativeId = "INIT";
         String userId = "USER";
@@ -337,6 +485,28 @@ class OnboardingServiceWebTest {
 
         doReturn(onboarding).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
+        doNothing().when(onboardingServiceWeb).checkStatus(onboarding);
+
+        onboardingServiceWeb.saveConsentUnified(consent, userId);
+
+        verify(onboardingServiceWeb).checkStatus(onboarding);
+    }
+
+    @Test
+    void testSaveConsentAppIO_CallsCheckStatusWhenStatusNotIdempotent() {
+        String initiativeId = "INIT";
+        String userId = "USER";
+
+        ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+        consent.setChannel(ChannelType.APP_IO);
+
+        Onboarding onboarding = new Onboarding(initiativeId, userId);
+        onboarding.setStatus("NON_IDEMPOTENT");
+
+        doReturn(onboarding).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
         doNothing().when(onboardingServiceWeb).checkStatus(onboarding);
 
         onboardingServiceWeb.saveConsentUnified(consent, userId);
@@ -461,5 +631,61 @@ class OnboardingServiceWebTest {
 
         verify(onboardingRepository, times(1)).save(any(Onboarding.class));
         verify(onboardingProducer, times(1)).sendSaveConsent(any(OnboardingDTO.class));
+    }
+
+    @Test
+    void testSaveConsentAppIO_AllowsConsent_WhenAutomatedCriteriaPresentAndPdndAccepted() {
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
+
+        ConsentPutUnifiedDTO consent = new ConsentPutUnifiedDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+        consent.setChannel(ChannelType.APP_IO);
+
+        doReturn(null).when(onboardingServiceWeb).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        initiativeDTO = new InitiativeDTO();
+        initiativeDTO.setInitiativeId(initiativeId);
+        initiativeDTO.setStatus("PUBLISHED");
+
+        InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
+        ruleDTO.setAutomatedCriteria(List.of(new AutomatedCriteriaDTO()));
+        ruleDTO.setSelfDeclarationCriteria(new ArrayList<>());
+        initiativeDTO.setBeneficiaryRule(ruleDTO);
+
+        InitiativeGeneralDTO general = new InitiativeGeneralDTO();
+        general.setRankingStartDate(LocalDate.of(2025, 7, 31));
+        general.setStartDate(LocalDate.of(2025, 7, 27));
+        general.setEndDate(LocalDate.of(2025, 8, 11));
+        general.setBeneficiaryKnown(false);
+        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        initiativeDTO.setGeneral(general);
+
+        InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
+        additional.setServiceId("serviceId");
+        initiativeDTO.setAdditionalInfo(additional);
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
+        doNothing().when(onboardingServiceWeb).checkDates(any(), any());
+        doNothing().when(onboardingServiceWeb).checkBudget(any(), any());
+        doNothing().when(onboardingServiceWeb).selfDeclaration(any(), any(), any());
+
+        when(consentMapper.map(any())).thenAnswer(invocation -> {
+            Onboarding onboarding = invocation.getArgument(0);
+            return OnboardingDTO.builder()
+                    .userId(onboarding.getUserId())
+                    .initiativeId(onboarding.getInitiativeId())
+                    .status(onboarding.getStatus())
+                    .build();
+        });
+
+        when(onboardingRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        onboardingServiceWeb.saveConsentUnified(consent, userId);
+
+        verify(onboardingRepository).save(any(Onboarding.class));
+        verify(onboardingProducer).sendSaveConsent(any(OnboardingDTO.class));
     }
 }
