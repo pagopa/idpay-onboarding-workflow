@@ -1,7 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.service.web;
 
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
-import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
@@ -17,9 +16,7 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedExcep
 import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
-import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,15 +41,6 @@ class  OnboardingServiceWebTest  {
 
     @Mock
     private  OnboardingRepository  onboardingRepository;
-
-    @Mock
-    private  Utilities utilities;
-
-    @Mock
-    private AdmissibilityRestConnector  admissibilityRestConnector;
-
-    @Mock
-    private  SelfDeclarationRepository  selfDeclarationRepository;
 
     @Mock
     private  AuditUtilities  auditUtilities;
@@ -90,7 +78,7 @@ class  OnboardingServiceWebTest  {
         additional.setPrivacyLink("privacyLink");
         additional.setTcLink("TcLink");
 
-        List<SelfCriteriaMultiConsentValueDTO> listCriteria = new ArrayList<SelfCriteriaMultiConsentValueDTO>();
+        List<SelfCriteriaMultiConsentValueDTO> listCriteria = new ArrayList<>();
         SelfCriteriaMultiConsentValueDTO selfCriteriaMultiConsentValueDTO = new SelfCriteriaMultiConsentValueDTO();
         listCriteria.add(selfCriteriaMultiConsentValueDTO);
         InitiativeBeneficiaryRuleDTO  beneficiaryRule  =  new InitiativeBeneficiaryRuleDTO();
@@ -175,7 +163,7 @@ class  OnboardingServiceWebTest  {
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
         general.setRankingStartDate(LocalDate.of(2025, 7, 31));
         general.setStartDate(LocalDate.of(2025, 7, 27));
-        general.setEndDate(LocalDate.of(2025, 8, 11));
+        general.setEndDate(LocalDate.now().plusDays(1));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
         initiativeTestDTO.setGeneral(general);
