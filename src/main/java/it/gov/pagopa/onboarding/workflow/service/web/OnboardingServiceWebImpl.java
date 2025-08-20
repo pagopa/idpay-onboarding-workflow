@@ -5,9 +5,12 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
@@ -31,6 +34,7 @@ import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowCons
 public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implements OnboardingServiceWeb {
 
   private final InitiativeWebMapper initiativeWebMapper;
+  private final GeneralWebMapper generalWebMapper;
 
   public OnboardingServiceWebImpl(InitiativeWebMapper initiativeWebMapper,
                                   OnboardingRepository onboardingRepository,
@@ -40,17 +44,21 @@ public class OnboardingServiceWebImpl extends OnboardingServiceCommonImpl implem
                                   SelfDeclarationRepository selfDeclarationRepository,
                                   ConsentMapper consentMapper,
                                   OnboardingProducer onboardingProducer,
-                                  InitiativeRestConnector initiativeRestConnector
+                                  InitiativeRestConnector initiativeRestConnector,
+                                  GeneralWebMapper generalWebMapper
                                   ) {
       super(auditUtilities, utilities, onboardingRepository, admissibilityRestConnector, selfDeclarationRepository, consentMapper, onboardingProducer, initiativeRestConnector);
       this.initiativeWebMapper = initiativeWebMapper;
+      this.generalWebMapper = generalWebMapper;
   }
 
   @Override
   public InitiativeWebDTO getInitiativeWeb(String initiativeId, Locale acceptLanguage){
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
-    if(initiativeDTO != null) {
-        return initiativeWebMapper.map(initiativeDTO);
+      if(initiativeDTO != null) {
+        InitiativeGeneralDTO initiativeGeneralDTO = initiativeDTO.getGeneral();
+        InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, acceptLanguage);
+        return initiativeWebMapper.map(initiativeDTO, initiativeGeneralWebDTO);
     } else {
         return null;
     }

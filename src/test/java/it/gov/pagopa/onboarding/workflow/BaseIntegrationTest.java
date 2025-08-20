@@ -4,8 +4,6 @@ import com.azure.spring.cloud.autoconfigure.implementation.kafka.AzureEventHubsK
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import it.gov.pagopa.common.kafka.KafkaTestUtilitiesService;
-import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
-import it.gov.pagopa.common.mongo.singleinstance.AutoConfigureSingleInstanceMongodb;
 import it.gov.pagopa.common.redis.config.EmbeddedRedisTestConfiguration;
 import it.gov.pagopa.common.utils.TestIntegrationUtils;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -86,7 +84,6 @@ import javax.management.MalformedObjectNameException;
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(stubs = "classpath:/mappings", port = 0)
 @Import(EmbeddedRedisTestConfiguration.class)
-@AutoConfigureSingleInstanceMongodb
 @Disabled
 public abstract class BaseIntegrationTest {
 
@@ -97,8 +94,6 @@ public abstract class BaseIntegrationTest {
 
     @Autowired
     protected KafkaTestUtilitiesService kafkaTestUtilitiesService;
-    @Autowired
-    private MongoTestUtilitiesService mongoTestUtilitiesService;
 
     @Autowired
     private WireMockServer wireMockServer;
@@ -133,14 +128,12 @@ public abstract class BaseIntegrationTest {
     public void logEmbeddedServerConfig() {
         System.out.printf("""
                         ************************
-                        Embedded mongo: %s
                         Wiremock HTTP: http://localhost:%s
                         Wiremock HTTPS: %s
                         Embedded kafka: %s
                         Embedded redis: %s
                         ************************
                         """,
-                mongoTestUtilitiesService.getMongoUrl(),
                 wireMockServer.getOptions().portNumber(),
                 wireMockServer.baseUrl(),
                 kafkaTestUtilitiesService.getKafkaUrls(),
@@ -151,6 +144,6 @@ public abstract class BaseIntegrationTest {
     void configureUniqueIndexes(){
         IndexDefinition index = new CompoundIndexDefinition(new Document().append(Onboarding.Fields.initiativeId, 1).append(Onboarding.Fields.userId, 1))
                 .unique();
-        mongoTemplate.indexOps(Onboarding.class).ensureIndex(index);
+        mongoTemplate.indexOps(Onboarding.class).createIndex(index);
     }
 }

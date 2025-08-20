@@ -1,25 +1,22 @@
 package it.gov.pagopa.onboarding.workflow.service.web;
 
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
-import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.ConsentPutWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
-import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaBooleanTypeCode;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.EmailNotMatchedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
-import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -39,94 +37,106 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class OnboardingServiceWebTest {
+class  OnboardingServiceWebTest  {
 
     @Mock
-    OnboardingRepository onboardingRepository;
+    private  OnboardingRepository  onboardingRepository;
 
     @Mock
-    AuditUtilities auditUtilities;
+    private  AuditUtilities  auditUtilities;
 
     @Mock
-    Utilities utilities;
+    private  ConsentMapper consentMapper;
 
     @Mock
-    AdmissibilityRestConnector admissibilityRestConnector;
+    private OnboardingProducer  onboardingProducer;
 
     @Mock
-    SelfDeclarationRepository selfDeclarationRepository;
+    private  InitiativeRestConnector  initiativeRestConnector;
 
     @Mock
-    ConsentMapper consentMapper;
+    private  GeneralWebMapper  generalWebMapper;
 
     @Mock
-    OnboardingProducer onboardingProducer;
+    private  InitiativeWebMapper initiativeWebMapper;
 
-    @Mock
-    InitiativeRestConnector initiativeRestConnector;
-
-    @Mock
-    GeneralWebMapper generalWebMapper;
-
-    @Mock
-  private InitiativeWebMapper initiativeWebMapper;
-
-  @Spy
+    @Spy
     @InjectMocks
-  private OnboardingServiceWebImpl onboardingServiceWeb;
+    private  OnboardingServiceWebImpl  onboardingServiceWeb;
 
-  private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final Locale ACCEPT_LANGUAGE = Locale.ITALIAN;
+    private  static  final  String INITIATIVE_ID  =  "TEST_INITIATIVE_ID";
+    private static  final  Locale  ACCEPT_LANGUAGE =  Locale.ITALIAN;
 
-  private InitiativeDTO initiativeDTO;
-  private InitiativeWebDTO initiativeWebDTO;
+    private InitiativeDTO  initiativeDTO;
+    private  InitiativeWebDTO initiativeWebDTO;
+    private  InitiativeGeneralDTO  initiativeGeneralDTO;
+    private  InitiativeGeneralWebDTO  initiativeGeneralWebDTO;
 
-  @BeforeEach
-  void setUp() {
-    InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
-    additional.setPrivacyLink("privacyLink");
-    additional.setTcLink("TcLink");
+    @BeforeEach
+    void  setUp()  {
+        InitiativeAdditionalDTO  additional  =  new InitiativeAdditionalDTO();
+        additional.setPrivacyLink("privacyLink");
+        additional.setTcLink("TcLink");
 
-    InitiativeBeneficiaryRuleDTO beneficiaryRule = new InitiativeBeneficiaryRuleDTO();
-    beneficiaryRule.setSelfDeclarationCriteria(List.of(
-            new SelfCriteriaBooleanTypeDTO("boolean_type", "test description", "test sub description", true, SelfCriteriaBooleanTypeCode.ISEE)
-    ));
+        List<SelfCriteriaMultiConsentValueDTO> listCriteria = new ArrayList<>();
+        SelfCriteriaMultiConsentValueDTO selfCriteriaMultiConsentValueDTO = new SelfCriteriaMultiConsentValueDTO();
+        listCriteria.add(selfCriteriaMultiConsentValueDTO);
+        InitiativeBeneficiaryRuleDTO  beneficiaryRule  =  new InitiativeBeneficiaryRuleDTO();
+        beneficiaryRule.setSelfDeclarationCriteria(List.of(
+                new SelfCriteriaMultiConsentDTO("multi_consent", "descpriptionTest", "subDescriptionTest",
+                        listCriteria, "Isee")
+        ));
 
-    initiativeDTO = new InitiativeDTO();
-    initiativeDTO.setAdditionalInfo(additional);
-    initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
-    initiativeWebDTO = new InitiativeWebDTO(additional, beneficiaryRule);
+        initiativeDTO =  new  InitiativeDTO();
+        initiativeDTO.setAdditionalInfo(additional);
+        initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
-  }
+        initiativeGeneralDTO  = new  InitiativeGeneralDTO();
+        initiativeGeneralDTO.setStartDate(LocalDate.MIN);
+        initiativeGeneralDTO.setEndDate(LocalDate.MAX);
+        initiativeGeneralDTO.setDescriptionMap(Map.of(Locale.ITALIAN.getLanguage(),  "it"));
 
-  @Test
-  void getInitiativeWeb_shouldReturnMappedDto_whenInitiativeExists() {
-    when(onboardingServiceWeb.getInitiative(INITIATIVE_ID)).thenReturn(initiativeDTO);
-    when(initiativeWebMapper.map(initiativeDTO)).thenReturn(initiativeWebDTO);
+        initiativeGeneralWebDTO =  InitiativeGeneralWebDTO.builder()
+                .startDate(LocalDate.MIN)
+                .endDate(LocalDate.MAX)
+                .termAndCondition("it")
+                .build();
 
-    InitiativeWebDTO result = onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
-
-    assertNotNull(result);
-    assertEquals(initiativeWebDTO, result);
-
-    verify(onboardingServiceWeb, times(1)).getInitiative(INITIATIVE_ID);
-    verify(initiativeWebMapper, times(1)).map(initiativeDTO);
-  }
-
-  @Test
-  void getInitiativeWeb_shouldReturnNull_whenInitiativeDoesNotExist() {
-    when(onboardingServiceWeb.getInitiative(INITIATIVE_ID)).thenReturn(null);
-
-    InitiativeWebDTO result = onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
-
-    assertNull(result);
-
-    verify(onboardingServiceWeb, times(1)).getInitiative(INITIATIVE_ID);
-    verifyNoInteractions(initiativeWebMapper);
-  }
+        initiativeWebDTO =  new  InitiativeWebDTO(additional,  beneficiaryRule, initiativeGeneralWebDTO);
+    }
 
     @Test
+    void  getInitiativeWeb_shouldReturnMappedDto_whenInitiativeExists()  {
+        doReturn(initiativeDTO).when(onboardingServiceWeb).getInitiative(INITIATIVE_ID);
+        when(generalWebMapper.map(any(),  eq(ACCEPT_LANGUAGE))).thenReturn(initiativeGeneralWebDTO);
+        when(initiativeWebMapper.map(initiativeDTO,  initiativeGeneralWebDTO)).thenReturn(initiativeWebDTO);
+
+        InitiativeWebDTO  result  = onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID,  ACCEPT_LANGUAGE);
+
+        assertNotNull(result);
+        assertEquals(initiativeWebDTO,  result);
+
+
+        verify(onboardingServiceWeb, times(1)).getInitiative(INITIATIVE_ID);
+        verify(initiativeWebMapper,  times(1)).map(initiativeDTO,  initiativeGeneralWebDTO);
+    }
+
+    @Test
+    void getInitiativeWeb_shouldReturnNull_whenInitiativeDoesNotExist()  {
+        doReturn(null).when(onboardingServiceWeb).getInitiative(INITIATIVE_ID);
+
+        InitiativeWebDTO  result  =  onboardingServiceWeb.getInitiativeWeb(INITIATIVE_ID, ACCEPT_LANGUAGE);
+
+        assertNull(result);
+
+        verify(onboardingServiceWeb,  times(1)).getInitiative(INITIATIVE_ID);
+        verifyNoInteractions(initiativeWebMapper);
+    }
+
+
+
+@Test
     void testSaveConsentWeb_SaveIsCalled_WhenOnboardingNotExists() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
@@ -153,7 +163,7 @@ class OnboardingServiceWebTest {
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
         general.setRankingStartDate(LocalDate.of(2025, 7, 31));
         general.setStartDate(LocalDate.of(2025, 7, 27));
-        general.setEndDate(LocalDate.of(2025, 8, 11));
+        general.setEndDate(LocalDate.now().plusWeeks(1));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
         initiativeTestDTO.setGeneral(general);
