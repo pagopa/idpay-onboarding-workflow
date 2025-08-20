@@ -163,7 +163,7 @@ class  OnboardingServiceWebTest  {
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
         general.setRankingStartDate(LocalDate.of(2025, 7, 31));
         general.setStartDate(LocalDate.of(2025, 7, 27));
-        general.setEndDate(LocalDate.now().plusDays(1));
+        general.setEndDate(LocalDate.now().plusWeeks(1));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
         initiativeTestDTO.setGeneral(general);
