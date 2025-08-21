@@ -1,9 +1,9 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import org.springframework.data.domain.Pageable;
 
 public interface OnboardingService {
 

@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 
-
 /**
  * InitiativeWebDTO
  */
@@ -15,15 +14,12 @@ import lombok.Builder;
 @AllArgsConstructor
 public class InitiativeWebDTO {
 
+    @JsonProperty("general")
+    private InitiativeGeneralWebDTO generalWeb;
 
-  @JsonProperty("additionalInfo")
-  private InitiativeAdditionalDTO additionalInfo;
+    @JsonProperty("additionalInfo")
+    private InitiativeAdditionalDTO additionalInfo;
 
-  @JsonProperty("beneficiaryRule")
-  private InitiativeBeneficiaryRuleDTO beneficiaryRule;
-
-  @JsonProperty("general")
-  private InitiativeGeneralWebDTO generalWeb;
-
-
+    @JsonProperty("beneficiaryRule")
+    private InitiativeBeneficiaryRuleDTO beneficiaryRule;
 }

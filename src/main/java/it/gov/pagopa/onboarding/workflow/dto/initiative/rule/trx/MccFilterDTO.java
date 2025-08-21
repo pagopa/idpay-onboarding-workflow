@@ -1,7 +1,8 @@
 package it.gov.pagopa.onboarding.workflow.dto.initiative.rule.trx;
 
-import java.util.Set;
 import lombok.Data;
+
+import java.util.Set;
 
 @Data
 public class MccFilterDTO {

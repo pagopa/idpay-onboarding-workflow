@@ -1,6 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.dto.web.mapper;
 
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import org.springframework.stereotype.Service;
