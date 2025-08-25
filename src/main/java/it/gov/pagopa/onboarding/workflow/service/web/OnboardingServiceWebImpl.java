@@ -7,13 +7,15 @@ import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
-import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
-import it.gov.pagopa.onboarding.workflow.exception.custom.*;
+import it.gov.pagopa.onboarding.workflow.exception.custom.EmailNotMatchedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
@@ -26,7 +28,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 
 @Slf4j

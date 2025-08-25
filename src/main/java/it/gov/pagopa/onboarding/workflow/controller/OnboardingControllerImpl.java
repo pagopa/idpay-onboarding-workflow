@@ -2,13 +2,14 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
-import java.time.LocalDateTime;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
 
 @RestController
 public class OnboardingControllerImpl implements OnboardingController {
@@ -55,13 +56,6 @@ public class OnboardingControllerImpl implements OnboardingController {
         initiativeId, userId, startDate, endDate,
         status, pageable);
     return new ResponseEntity<>(responseInitiativeOnboardingDTO, HttpStatus.OK);
-  }
-
-  @Override
-  public ResponseEntity<Void> saveConsent(@Valid @RequestBody ConsentPutDTO body,
-      String userId) {
-    onboardingService.saveConsent(body, userId);
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   @Override

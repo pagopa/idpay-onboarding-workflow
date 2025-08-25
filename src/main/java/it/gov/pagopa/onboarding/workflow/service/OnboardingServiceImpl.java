@@ -11,8 +11,6 @@ import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
-import it.gov.pagopa.onboarding.workflow.exception.custom.PDVInvocationException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.UserSuspensionOrReadmissionException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
@@ -34,7 +32,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.READMISSION_NOT_ALLOWED;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.SUSPENSION_NOT_ALLOWED;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 
 @Slf4j
