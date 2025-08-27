@@ -4,10 +4,9 @@
  */
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingFamilyDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
-import it.gov.pagopa.onboarding.workflow.dto.UnsubscribeBodyDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 /**
  * IdPay - Citizen Onboarding
@@ -33,6 +33,18 @@ public interface OnboardingController {
      */
 
     /**
+     * Returns the initiative details
+     *
+     * @param initiativeId
+     * @RequestHeader acceptLanguage
+     * @return
+     */
+    @GetMapping("/{initiativeId}/detail")
+    ResponseEntity<InitiativeWebDTO> getInitiative(
+            @PathVariable("initiativeId") String initiativeId,
+            @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage);
+
+    /**
      * Returns the actual onboarding status
      *
      * @param initiativeId
@@ -43,7 +55,21 @@ public interface OnboardingController {
     ResponseEntity<OnboardingStatusDTO> onboardingStatus(
             @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
+    /**
+     * Save the consents of PDND criteria and Self declaration list
+     *
+     * @param consentPutDTO
+     * @param userId
+     * @return
+     */
+    @PutMapping("/{userId}")
+    ResponseEntity<Void> saveConsent(
+            @RequestBody ConsentPutDTO consentPutDTO,
+            @RequestHeader("X-Channel") ChannelType channel,
+            @PathVariable("userId") String userId);
+
     // Servizi non utilizzati nel workflow di IO o WEB
+
 
     /**
      * Returns the onboarding status list

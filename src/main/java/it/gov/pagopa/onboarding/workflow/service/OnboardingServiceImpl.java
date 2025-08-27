@@ -7,6 +7,10 @@ import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
+import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
@@ -51,6 +55,8 @@ public class OnboardingServiceImpl extends OnboardingServiceCommonImpl implement
   private final long delayTime;
   private final OutcomeProducer outcomeProducer;
   private final DecryptRestConnector decryptRestConnector;
+  private final InitiativeWebMapper initiativeWebMapper;
+  private final GeneralWebMapper generalWebMapper;
 
 
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
@@ -64,13 +70,17 @@ public class OnboardingServiceImpl extends OnboardingServiceCommonImpl implement
                                AdmissibilityRestConnector admissibilityRestConnector,
                                AuditUtilities auditUtilities,
                                Utilities utilities,
-                               OnboardingRepository onboardingRepository
+                               OnboardingRepository onboardingRepository,
+                               InitiativeWebMapper initiativeWebMapper,
+                               GeneralWebMapper generalWebMapper
                                ){
     super(auditUtilities, utilities, onboardingRepository, admissibilityRestConnector, selfDeclarationRepository, consentMapper, onboardingProducer, initiativeRestConnector);
     this.pageSize = pageSize;
     this.delayTime = delayTime;
     this.outcomeProducer = outcomeProducer;
     this.decryptRestConnector = decryptRestConnector;
+    this.initiativeWebMapper = initiativeWebMapper;
+    this.generalWebMapper = generalWebMapper;
   }
 
   @Override
@@ -282,42 +292,52 @@ public class OnboardingServiceImpl extends OnboardingServiceCommonImpl implement
   }
 
   @Override
-  public void saveConsent(ConsentPutDTO consentPutDTO, String userId) {
+  public InitiativeWebDTO initiativeDetail(String initiativeId, Locale acceptLanguage){
+    InitiativeDTO initiativeDTO = getInitiative(initiativeId);
+    if(initiativeDTO != null) {
+      InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeDTO.getGeneral(), acceptLanguage);
+
+      return initiativeWebMapper.map(initiativeDTO, initiativeGeneralWebDTO);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public void saveOnboarding(ConsentPutDTO consentPutDTO, String userId) {
     long startTime = System.currentTimeMillis();
 
-    Onboarding onboarding = findByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
+    Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
 
-    if (OnboardingWorkflowConstants.STATUS_IDEMPOTENT.contains(onboarding.getStatus())) {
+    if (onboarding != null) {
+      handleExistingOnboarding(onboarding);
       return;
     }
-    checkStatus(onboarding);
+
+    validateInput(consentPutDTO);
 
     InitiativeDTO initiativeDTO = getInitiative(consentPutDTO.getInitiativeId());
+    onboarding = new Onboarding(consentPutDTO.getInitiativeId(), userId);
 
     checkDates(initiativeDTO, onboarding);
     checkBudget(initiativeDTO, onboarding);
 
-    if (!initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty()
-        && !consentPutDTO.isPdndAccept()) {
-      performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
-      auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
-              OnboardingWorkflowConstants.ERROR_PDND_AUDIT);
-      onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-      onboardingRepository.save(onboarding);
-      throw new PDNDConsentDeniedException(String.format(ERROR_PDND_MSG, consentPutDTO.getInitiativeId()));
+    if (hasAutomatedCriteriaAndPdndNotAccepted(initiativeDTO, consentPutDTO)) {
+      handlePdndDenied(onboarding, userId, initiativeDTO, startTime);
     }
 
-    //selfDeclaration(initiativeDTO, consentPutDTO, userId);
-    onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
-    onboarding.setPdndAccept(consentPutDTO.isPdndAccept());
-    LocalDateTime localDateTime = LocalDateTime.now();
-    onboarding.setCriteriaConsensusTimestamp(localDateTime);
-    onboarding.setUpdateDate(localDateTime);
+    selfDeclaration(initiativeDTO, consentPutDTO, userId);
+
+    fillOnboardingData(onboarding, consentPutDTO);
+    onboarding.setUserMail(consentPutDTO.isWebChannel() ? consentPutDTO.getUserMail() : null);
+
+
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
-    // ServiceID Setter
     onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
+
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
+
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
   }
 

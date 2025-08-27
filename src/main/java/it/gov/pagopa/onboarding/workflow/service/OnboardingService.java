@@ -1,9 +1,11 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 public interface OnboardingService {
 
@@ -13,7 +15,9 @@ public interface OnboardingService {
 
   RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId, String channel);
 
-  void saveConsent(ConsentPutDTO consentPutDTO, String userId);
+  void saveOnboarding(ConsentPutDTO consentPutDTO, String userId);
+
+  InitiativeWebDTO initiativeDetail(String initiativeId, Locale acceptLanguage);
 
   void completeOnboarding(EvaluationDTO evaluationDTO);
   

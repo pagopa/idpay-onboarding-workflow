@@ -1,6 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.service.common;
 
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -19,9 +19,14 @@ public interface OnboardingServiceCommon {
     LocalDate getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding);
     void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding);
     void performanceLog(long startTime, String service, String userId, String initiativeId);
-    void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutUnifiedDTO consentPutUnifiedDTO, String userId);
+    void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId);
     boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText);
     void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti);
     SelfDeclaration getOrCreateSelfDeclaration(String initiativeId, String userId);
+    void handleExistingOnboarding(Onboarding onboarding);
+    void validateInput(ConsentPutDTO dto);
+    boolean hasAutomatedCriteriaAndPdndNotAccepted(InitiativeDTO initiativeDTO, ConsentPutDTO dto);
+    void handlePdndDenied(Onboarding onboarding, String userId, InitiativeDTO initiativeDTO, long startTime);
+    void fillOnboardingData(Onboarding onboarding, ConsentPutDTO dto);
 
 }

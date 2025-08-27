@@ -3,7 +3,7 @@ package it.gov.pagopa.onboarding.workflow.service.common;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutUnifiedDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.SelfConsentTextDTO;
@@ -13,6 +13,7 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaTextDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
@@ -201,7 +202,7 @@ public class OnboardingServiceCommonImpl implements OnboardingServiceCommon{
     }
 
     @Override
-    public void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutUnifiedDTO consentPutDTO, String userId) {
+    public void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId) {
         if (initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty()) {
             return;
         }
@@ -304,4 +305,52 @@ public class OnboardingServiceCommonImpl implements OnboardingServiceCommon{
     }
 
 
+    @Override
+    public void handleExistingOnboarding(Onboarding onboarding) {
+        if (OnboardingWorkflowConstants.STATUS_IDEMPOTENT.contains(onboarding.getStatus())) {
+            return;
+        }
+        checkStatus(onboarding);
+    }
+
+    @Override
+    public void validateInput(ConsentPutDTO dto) {
+        if (ChannelType.WEB.equals(dto.getChannel()) &&
+                (dto.getUserMail() == null ||
+                        dto.getUserMailConfirmation() == null ||
+                        !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim()))) {
+            throw new EmailNotMatchedException(EMAIL_NOT_MATCHED_MSG);
+        }
+
+        if (dto.getConfirmedTos() == null || !dto.getConfirmedTos()) {
+            throw new TosNotConfirmedException(TOS_NOT_CONFIRMED_MSG);
+        }
+    }
+
+    @Override
+    public boolean hasAutomatedCriteriaAndPdndNotAccepted(InitiativeDTO initiativeDTO, ConsentPutDTO dto) {
+        return !initiativeDTO.getBeneficiaryRule().getAutomatedCriteria().isEmpty() && !dto.isPdndAccept();
+    }
+
+    @Override
+    public void handlePdndDenied(Onboarding onboarding, String userId, InitiativeDTO initiativeDTO, long startTime) {
+        performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
+        auditUtilities.logOnboardingKOWithReason(userId, initiativeDTO.getInitiativeId(), onboarding.getChannel(),
+                OnboardingWorkflowConstants.ERROR_PDND_AUDIT);
+        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+        onboarding.setDetailKO(PDND_CONSENT_DENIED);
+        onboardingRepository.save(onboarding);
+        throw new PDNDConsentDeniedException(String.format(ERROR_PDND_MSG, initiativeDTO.getInitiativeId()));
+    }
+
+    @Override
+    public void fillOnboardingData(Onboarding onboarding, ConsentPutDTO dto) {
+        onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
+        onboarding.setPdndAccept(dto.isPdndAccept());
+        onboarding.setTc(dto.getConfirmedTos());
+
+        LocalDateTime now = LocalDateTime.now();
+        onboarding.setCriteriaConsensusTimestamp(now);
+        onboarding.setUpdateDate(now);
+    }
 }
