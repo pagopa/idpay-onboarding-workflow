@@ -29,11 +29,6 @@ public class SelfCriteriaMultiConsentDTO implements SelfDeclarationItemsDTO {
   @JsonProperty("code")
   private String code;
 
-//  @JsonIgnore
- // public String getFirst(){
- //   return value.get(0);
-  //}
-
 }
 
 

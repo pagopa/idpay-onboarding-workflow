@@ -13,16 +13,8 @@ public class GeneralWebMapper {
 
 
     return InitiativeGeneralWebDTO.builder()
-            //.budget(generalDTO.getBudget())
-            //.beneficiaryType(generalDTO.getBeneficiaryType())
-            //.familyUnitComposition(generalDTO.getFamilyUnitComposition())
-            //.beneficiaryKnown(generalDTO.getBeneficiaryKnown())
-            //.beneficiaryBudget(generalDTO.getBeneficiaryBudget())
             .startDate(generalDTO.getStartDate())
             .endDate(generalDTO.getEndDate())
-            //.rankingStartDate(generalDTO.getRankingStartDate())
-            //.rankingEndDate(generalDTO.getRankingEndDate())
-            //.rankingEnabled(generalDTO.getRankingEnabled())
             .termAndCondition(generalDTO.getDescriptionMap().get(acceptLanguage.getLanguage()))
             .build();
   }
