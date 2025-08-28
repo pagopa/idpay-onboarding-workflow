@@ -26,48 +26,48 @@ public class OnboardingControllerImpl implements OnboardingController {
     this.onboardingService = onboardingService;
   }
 
-  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
-      @Valid @RequestBody CheckPutDTO body,
-      String userId) {
-    RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId,
-        body.getChannel());
+  @Override
+  public ResponseEntity<InitiativeWebDTO> getInitiativeDetail(
+          String initiativeId, Locale acceptLanguage) {
+    InitiativeWebDTO dto = onboardingService.initiativeDetail(initiativeId, acceptLanguage);
     if (dto == null) {
-      return ResponseEntity.accepted().build();
+      throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, null);
+
     }
     return ResponseEntity.ok(dto);
   }
 
-  public ResponseEntity<Void> onboardingCitizen(
-      @Valid @RequestBody OnboardingSaveDTO onBoardingSaveDTO,
-      String userId) {
-    onboardingService.putTcConsent(onBoardingSaveDTO.getInitiativeId(),userId);
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-  }
-
   public ResponseEntity<OnboardingStatusDTO> onboardingStatus(
-      String initiativeId, String userId) {
+          String initiativeId, String userId) {
     OnboardingStatusDTO onBoardingStatusDTO = onboardingService.getOnboardingStatus(initiativeId,
-        userId);
+            userId);
     return new ResponseEntity<>(onBoardingStatusDTO, HttpStatus.OK);
   }
 
   @Override
+  public ResponseEntity<Void> saveOnboarding(ConsentPutDTO consentPutDTO, ChannelType channel, String userId) {
+    consentPutDTO.setChannel(channel);
+    onboardingService.saveOnboarding(consentPutDTO, userId);
+    return ResponseEntity.accepted().build();
+  }
+
+  @Override
   public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(String initiativeId,
-      Pageable pageable,
-      String userId,
-      LocalDateTime startDate,
-      LocalDateTime endDate,
-      String status) {
+                                                                              Pageable pageable,
+                                                                              String userId,
+                                                                              LocalDateTime startDate,
+                                                                              LocalDateTime endDate,
+                                                                              String status) {
     ResponseInitiativeOnboardingDTO responseInitiativeOnboardingDTO = onboardingService.getOnboardingStatusList(
-        initiativeId, userId, startDate, endDate,
-        status, pageable);
+            initiativeId, userId, startDate, endDate,
+            status, pageable);
     return new ResponseEntity<>(responseInitiativeOnboardingDTO, HttpStatus.OK);
   }
 
   @Override
   public ResponseEntity<Void> disableOnboarding(UnsubscribeBodyDTO body) {
     onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(),
-        body.getUnsubscribeDate());
+            body.getUnsubscribeDate());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
@@ -95,22 +95,22 @@ public class OnboardingControllerImpl implements OnboardingController {
     return new ResponseEntity<>(onboardingFamilyDTO, HttpStatus.OK);
   }
 
-  @Override
-  public ResponseEntity<InitiativeWebDTO> getInitiative(
-          String initiativeId, Locale acceptLanguage) {
-    InitiativeWebDTO dto = onboardingService.initiativeDetail(initiativeId, acceptLanguage);
+  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
+      @Valid @RequestBody CheckPutDTO body,
+      String userId) {
+    RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId,
+        body.getChannel());
     if (dto == null) {
-      throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, null);
-
+      return ResponseEntity.accepted().build();
     }
     return ResponseEntity.ok(dto);
   }
 
-  @Override
-  public ResponseEntity<Void> saveConsent(ConsentPutDTO consentPutDTO, ChannelType channel, String userId) {
-    consentPutDTO.setChannel(channel);
-    onboardingService.saveOnboarding(consentPutDTO, userId);
-    return ResponseEntity.accepted().build();
+  public ResponseEntity<Void> onboardingCitizen(
+      @Valid @RequestBody OnboardingSaveDTO onBoardingSaveDTO,
+      String userId) {
+    onboardingService.putTcConsent(onBoardingSaveDTO.getInitiativeId(),userId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
   
 }

@@ -40,7 +40,7 @@ public interface OnboardingController {
      * @return
      */
     @GetMapping("/{initiativeId}/detail")
-    ResponseEntity<InitiativeWebDTO> getInitiative(
+    ResponseEntity<InitiativeWebDTO> getInitiativeDetail(
             @PathVariable("initiativeId") String initiativeId,
             @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage);
 
@@ -63,7 +63,7 @@ public interface OnboardingController {
      * @return
      */
     @PutMapping("/{userId}")
-    ResponseEntity<Void> saveConsent(
+    ResponseEntity<Void> saveOnboarding(
             @RequestBody ConsentPutDTO consentPutDTO,
             @RequestHeader("X-Channel") ChannelType channel,
             @PathVariable("userId") String userId);
