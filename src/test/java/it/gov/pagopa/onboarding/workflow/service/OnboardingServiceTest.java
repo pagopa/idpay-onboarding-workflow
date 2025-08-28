@@ -599,7 +599,7 @@ class OnboardingServiceTest {
 
 
     @Test
-    void testSaveConsentWeb_throwsPDNDOnboardingDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
+    void testSaveOnboardingWeb_throwsPDNDOnboardingDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
 
@@ -656,7 +656,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void testSaveConsentAppIO_throwsPDNDOnboardingDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
+    void testSaveOnboardingAppIO_throwsPDNDOnboardingDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
 
@@ -802,7 +802,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void testSaveConsentWeb_AllowsOnboarding_WhenAutomatedCriteriaEmpty() {
+    void testSaveOnboardingWeb_AllowsOnboarding_WhenAutomatedCriteriaEmpty() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
 
@@ -864,7 +864,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void testSaveConsentWeb_AllowsOnboarding_WhenAutomatedCriteriaPresentAndPdndAccepted() {
+    void testSaveOnboardingWeb_AllowsOnboarding_WhenAutomatedCriteriaPresentAndPdndAccepted() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
 
@@ -928,7 +928,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void testSaveConsentAppIO_AllowsOnboarding_WhenAutomatedCriteriaPresentAndPdndAccepted() {
+    void testSaveOnboardingAppIO_AllowsOnboarding_WhenAutomatedCriteriaPresentAndPdndAccepted() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
 
