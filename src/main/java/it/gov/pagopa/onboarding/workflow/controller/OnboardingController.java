@@ -6,7 +6,6 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
-import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -65,7 +64,6 @@ public interface OnboardingController {
     @PutMapping("/{userId}")
     ResponseEntity<Void> saveOnboarding(
             @RequestBody ConsentPutDTO consentPutDTO,
-            @RequestHeader("X-Channel") ChannelType channel,
             @PathVariable("userId") String userId);
 
     // Servizi non utilizzati nel workflow di IO o WEB
