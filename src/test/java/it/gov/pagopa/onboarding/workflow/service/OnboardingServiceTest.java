@@ -391,7 +391,7 @@ class OnboardingServiceTest {
 
         initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
 
-        initiativeWebDTO = new InitiativeWebDTO(initiativeGeneralWebDTO, additional, beneficiaryRule);
+        initiativeWebDTO = new InitiativeWebDTO(additional, beneficiaryRule, initiativeGeneralWebDTO);
     }
 
 
