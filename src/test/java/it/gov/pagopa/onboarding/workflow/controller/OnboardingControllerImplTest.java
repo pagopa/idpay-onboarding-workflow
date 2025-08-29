@@ -73,7 +73,7 @@ class OnboardingControllerImplTest {
     initiativeGeneralDTO.setDescriptionMap(language);
 
     InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
-    initiativeWebDTO = new InitiativeWebDTO(initiativeGeneralWebDTO, additionalDTO, beneficiaryRuleDTO);
+    initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO, initiativeGeneralWebDTO);
   }
 
   @Test

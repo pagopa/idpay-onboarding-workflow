@@ -4,11 +4,9 @@ import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -91,24 +89,6 @@ public class OnboardingControllerImpl implements OnboardingController {
   public  ResponseEntity<OnboardingFamilyDTO> familyUnitComposition(String initiativeId, String userId){
     OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(initiativeId, userId);
     return new ResponseEntity<>(onboardingFamilyDTO, HttpStatus.OK);
-  }
-
-  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
-      @Valid @RequestBody CheckPutDTO body,
-      String userId) {
-    RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId,
-        body.getChannel());
-    if (dto == null) {
-      return ResponseEntity.accepted().build();
-    }
-    return ResponseEntity.ok(dto);
-  }
-
-  public ResponseEntity<Void> onboardingCitizen(
-      @Valid @RequestBody OnboardingSaveDTO onBoardingSaveDTO,
-      String userId) {
-    onboardingService.putTcConsent(onBoardingSaveDTO.getInitiativeId(),userId);
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
   
 }
