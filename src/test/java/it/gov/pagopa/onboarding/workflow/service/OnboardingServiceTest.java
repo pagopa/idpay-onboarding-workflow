@@ -18,7 +18,8 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
-import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
+import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaBooleanTypeCode;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
@@ -354,7 +355,7 @@ class OnboardingServiceTest {
                         "test description",
                         "test sub description",
                         true,
-                        SelfCriteriaMultiTypeCode.ISEE
+                        SelfCriteriaBooleanTypeCode.ISEE
                 )
         ));
 
@@ -434,7 +435,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation(mail);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingService)
                 .findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
@@ -488,7 +489,7 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.APP_IO);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -549,7 +550,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation("test2@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -569,7 +570,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(false);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -587,7 +588,7 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(false);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.APP_IO);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -609,7 +610,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(false);
-        
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -664,7 +665,7 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(false);
-        
+        consent.setChannel(ChannelType.APP_IO);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -719,7 +720,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.WEB);
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus(OnboardingWorkflowConstants.STATUS_IDEMPOTENT.iterator().next());
@@ -741,7 +742,7 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.APP_IO);
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus(OnboardingWorkflowConstants.STATUS_IDEMPOTENT.getFirst());
@@ -765,7 +766,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.WEB);
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus("NON_IDEMPOTENT_STATUS");
@@ -788,7 +789,7 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.APP_IO);
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus("NON_IDEMPOTENT");
@@ -812,7 +813,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(false);
-        
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -874,7 +875,7 @@ class OnboardingServiceTest {
         consent.setUserMailConfirmation("test@mail.com");
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.WEB);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -936,7 +937,7 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        
+        consent.setChannel(ChannelType.APP_IO);
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -2401,7 +2402,7 @@ class OnboardingServiceTest {
     void testSelfDeclaration_WhenCriteriaPresent_ShouldProcessAndSave() {
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
         SelfConsentBoolDTO selfDecl = new SelfConsentBoolDTO();
-        selfDecl.setCode(SelfCriteriaMultiTypeCode.ISEE.name());
+        selfDecl.setCode(SelfCriteriaBooleanTypeCode.ISEE.name());
         selfDecl.setAccepted(true);
         consentPutDTO.setSelfDeclarationList(List.of(selfDecl));
 
@@ -2418,7 +2419,7 @@ class OnboardingServiceTest {
         rule.setSelfDeclarationCriteria(List.of(
                 new SelfCriteriaBooleanTypeDTO(
                         "boolean_type", "desc", "subdesc", true,
-                        SelfCriteriaMultiTypeCode.ISEE
+                        SelfCriteriaBooleanTypeCode.ISEE
                 )
         ));
         initiativeDTO.setBeneficiaryRule(rule);

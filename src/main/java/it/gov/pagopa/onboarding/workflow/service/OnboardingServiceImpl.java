@@ -16,6 +16,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
@@ -217,7 +218,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     selfDeclaration(initiativeDTO, consentPutDTO, userId);
 
     fillOnboardingData(onboarding, consentPutDTO);
-    onboarding.setUserMail(consentPutDTO.getUserMail());
+    onboarding.setUserMail(consentPutDTO.isWebChannel() ? consentPutDTO.getUserMail() : null);
 
 
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
@@ -893,8 +894,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void validateInput(ConsentPutDTO dto) {
-    if (dto.getUserMail() != null &&
-            (dto.getUserMailConfirmation() == null ||
+    if (ChannelType.WEB.equals(dto.getChannel()) &&
+            (dto.getUserMail() == null ||
+                    dto.getUserMailConfirmation() == null ||
                     !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim()))) {
       throw new EmailNotMatchedException(EMAIL_NOT_MATCHED_MSG);
     }
