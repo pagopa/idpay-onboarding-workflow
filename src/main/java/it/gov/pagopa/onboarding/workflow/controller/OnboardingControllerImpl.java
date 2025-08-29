@@ -2,7 +2,6 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
-import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import org.springframework.data.domain.Pageable;
@@ -43,8 +42,7 @@ public class OnboardingControllerImpl implements OnboardingController {
   }
 
   @Override
-  public ResponseEntity<Void> saveOnboarding(ConsentPutDTO consentPutDTO, ChannelType channel, String userId) {
-    consentPutDTO.setChannel(channel);
+  public ResponseEntity<Void> saveOnboarding(ConsentPutDTO consentPutDTO, String userId) {
     onboardingService.saveOnboarding(consentPutDTO, userId);
     return ResponseEntity.accepted().build();
   }

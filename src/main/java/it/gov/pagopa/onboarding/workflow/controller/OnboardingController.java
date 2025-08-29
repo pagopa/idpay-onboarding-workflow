@@ -6,7 +6,6 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
-import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,12 +24,6 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/idpay/onboarding")
 public interface OnboardingController {
-
-    /* TODO: Servizi da aggiungere presenti sullo swagger e non lato codice:
-        /onboarding/service/{serviceId}
-        /onboarding/{initiativeId}/detail presente su web e puntato da IO tramite policy
-        /user/initiative/status da sviluppare
-     */
 
     /**
      * Returns the initiative details
@@ -65,11 +58,15 @@ public interface OnboardingController {
     @PutMapping("/{userId}")
     ResponseEntity<Void> saveOnboarding(
             @RequestBody ConsentPutDTO consentPutDTO,
-            @RequestHeader("X-Channel") ChannelType channel,
             @PathVariable("userId") String userId);
 
     // Servizi non utilizzati nel workflow di IO o WEB
 
+
+     /* TODO: Servizi da aggiungere presenti sullo swagger e non lato codice:
+         /user/initiative/status chiamata di dettaglio di tutte le iniziative in cui l'utente è onboardato con stato Lista di Attesa o in Valutazione
+         Verificare se è utilizzabele/modificabile il servizio sottostante
+     */
 
     /**
      * Returns the onboarding status list
