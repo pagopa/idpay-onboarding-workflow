@@ -218,7 +218,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     selfDeclaration(initiativeDTO, consentPutDTO, userId);
 
     fillOnboardingData(onboarding, consentPutDTO);
-    onboarding.setUserMail(consentPutDTO.isWebChannel() ? consentPutDTO.getUserMail() : null);
+    onboarding.setUserMail(consentPutDTO.getUserMail());
 
 
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
@@ -894,10 +894,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void validateInput(ConsentPutDTO dto) {
-    if (ChannelType.WEB.equals(dto.getChannel()) &&
-            (dto.getUserMail() == null ||
+    if (dto.getUserMail() != null ||
                     dto.getUserMailConfirmation() == null ||
-                    !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim()))) {
+                    !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim())) {
       throw new EmailNotMatchedException(EMAIL_NOT_MATCHED_MSG);
     }
 

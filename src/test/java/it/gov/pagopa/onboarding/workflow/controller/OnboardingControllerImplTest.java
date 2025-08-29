@@ -1,10 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBooleanTypeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
@@ -14,6 +11,7 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundExce
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,18 +50,9 @@ class OnboardingControllerImplTest {
     additionalDTO.setPrivacyLink("privacyLink");
     additionalDTO.setTcLink("TcLink");
 
-    InitiativeBeneficiaryRuleDTO beneficiaryRuleDTO = new InitiativeBeneficiaryRuleDTO();
-    beneficiaryRuleDTO.setSelfDeclarationCriteria(
-            List.of(new SelfCriteriaBooleanTypeDTO(
-                    "boolean_type",
-                    "test description",
-                    "test sub description",
-                    true,
-                    SelfCriteriaMultiTypeCode.ISEE
-            ))
-    );
+      InitiativeBeneficiaryRuleDTO beneficiaryRuleDTO = getInitiativeBeneficiaryRuleDTO();
 
-    GeneralWebMapper generalWebMapper = new GeneralWebMapper();
+      GeneralWebMapper generalWebMapper = new GeneralWebMapper();
 
     InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
     initiativeGeneralDTO.setStartDate(LocalDate.MIN);
@@ -76,7 +65,25 @@ class OnboardingControllerImplTest {
     initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO, initiativeGeneralWebDTO);
   }
 
-  @Test
+    @NotNull
+    private static InitiativeBeneficiaryRuleDTO getInitiativeBeneficiaryRuleDTO() {
+        InitiativeBeneficiaryRuleDTO beneficiaryRuleDTO = new InitiativeBeneficiaryRuleDTO();
+        beneficiaryRuleDTO.setSelfDeclarationCriteria(
+                List.of(new SelfCriteriaMultiTypeDTO(
+                        "multi_type",
+                        "test description",
+                        "test sub description",
+                        List.of(new SelfCriteriaMultiTypeValueDTO(
+                            "description",
+                                "subdescription"
+                        )),
+                        SelfCriteriaMultiTypeCode.ISEE.getDescription()
+                ))
+        );
+        return beneficiaryRuleDTO;
+    }
+
+    @Test
   void getInitiativeWeb_ok() {
     when(onboardingService.initiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE))
             .thenReturn(initiativeWebDTO);
