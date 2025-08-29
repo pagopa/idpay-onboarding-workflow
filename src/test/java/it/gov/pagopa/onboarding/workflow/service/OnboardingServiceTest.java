@@ -2401,7 +2401,7 @@ class OnboardingServiceTest {
     void testSelfDeclaration_WhenCriteriaPresent_ShouldProcessAndSave() {
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
         SelfConsentBoolDTO selfDecl = new SelfConsentBoolDTO();
-        selfDecl.setCode(SelfCriteriaBooleanTypeCode.ISEE.name());
+        selfDecl.setCode(SelfCriteriaMultiTypeCode.ISEE.name());
         selfDecl.setAccepted(true);
         consentPutDTO.setSelfDeclarationList(List.of(selfDecl));
 
@@ -2418,7 +2418,7 @@ class OnboardingServiceTest {
         rule.setSelfDeclarationCriteria(List.of(
                 new SelfCriteriaBooleanTypeDTO(
                         "boolean_type", "desc", "subdesc", true,
-                        SelfCriteriaBooleanTypeCode.ISEE
+                        SelfCriteriaMultiTypeCode.ISEE
                 )
         ));
         initiativeDTO.setBeneficiaryRule(rule);
