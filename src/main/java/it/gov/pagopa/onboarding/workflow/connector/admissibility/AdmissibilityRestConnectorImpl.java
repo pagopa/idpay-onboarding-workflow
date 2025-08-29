@@ -2,15 +2,13 @@ package it.gov.pagopa.onboarding.workflow.connector.admissibility;
 
 import feign.FeignException;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.AdmissibilityInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_FOUND;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ERROR_ADMISSIBILITY_INVOCATION_MSG;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.GENERIC_ERROR;
 
 @Service
 @Slf4j

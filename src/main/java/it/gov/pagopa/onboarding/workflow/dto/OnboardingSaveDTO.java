@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnboardingPutDTO {
+public class OnboardingSaveDTO {
 
   @NotBlank (message="The field is mandatory")
   String initiativeId;

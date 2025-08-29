@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.rule.refund.InitiativeRefundRuleDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.rule.reward.InitiativeRewardRuleDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.rule.trx.InitiativeTrxConditionsDTO;
-import java.time.LocalDateTime;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * InitiativeDTO

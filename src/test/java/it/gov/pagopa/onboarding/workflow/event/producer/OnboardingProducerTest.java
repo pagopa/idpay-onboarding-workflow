@@ -5,7 +5,9 @@ import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.stream.function.StreamBridge;
 
