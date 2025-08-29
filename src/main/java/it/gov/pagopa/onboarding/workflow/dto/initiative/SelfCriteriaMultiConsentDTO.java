@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
 
 @NoArgsConstructor
@@ -29,11 +28,6 @@ public class SelfCriteriaMultiConsentDTO implements SelfDeclarationItemsDTO {
 
   @JsonProperty("code")
   private String code;
-
-//  @JsonIgnore
- // public String getFirst(){
- //   return value.get(0);
-  //}
 
 }
 

@@ -8,14 +8,6 @@ import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingRejectionReason;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -27,6 +19,15 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.util.CollectionUtils;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 @Disabled
 class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
 

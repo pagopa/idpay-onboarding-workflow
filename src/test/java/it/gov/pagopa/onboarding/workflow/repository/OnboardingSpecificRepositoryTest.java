@@ -1,11 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.junit.jupiter.api.Assertions;
@@ -23,6 +17,12 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = OnboardingSpecificRepositoryImpl.class)

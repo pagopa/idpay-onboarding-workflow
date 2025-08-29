@@ -1,21 +1,22 @@
 package it.gov.pagopa.onboarding.workflow.dto.mapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ConsentMapper.class)

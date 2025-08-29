@@ -28,11 +28,6 @@ public class SelfCriteriaBooleanTypeDTO implements SelfDeclarationItemsDTO {
   @JsonProperty("code")
   private SelfCriteriaBooleanTypeCode code;
 
-//  @JsonIgnore
- // public String getFirst(){
- //   return value.get(0);
-  //}
-
 }
 
 

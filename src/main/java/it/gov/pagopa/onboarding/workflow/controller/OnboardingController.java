@@ -5,22 +5,18 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
-
-import java.time.LocalDateTime;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Locale;
 
 /**
  * IdPay - Citizen Onboarding
@@ -30,92 +26,94 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/idpay/onboarding")
 public interface OnboardingController {
 
-  /**
-   * Acceptance of Terms & Conditions
-   *
-   * @param body
-   * @return
-   */
-  @PutMapping("/{userId}")
-  ResponseEntity<Void> onboardingCitizen(@RequestBody OnboardingPutDTO body,
-      @PathVariable("userId") String userId);
+    /* TODO: Servizi da aggiungere presenti sullo swagger e non lato codice:
+        /onboarding/service/{serviceId}
+        /onboarding/{initiativeId}/detail presente su web e puntato da IO tramite policy
+        /user/initiative/status da sviluppare
+     */
 
-  /**
-   * Check the initiative prerequisites
-   *
-   * @param body
-   * @return
-   */
-  @PutMapping("/initiative/{userId}")
-  ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(@RequestBody CheckPutDTO body,
-      @PathVariable("userId") String userId);
+    /**
+     * Returns the initiative details
+     *
+     * @param initiativeId
+     * @RequestHeader acceptLanguage
+     * @return
+     */
+    @GetMapping("/{initiativeId}/detail")
+    ResponseEntity<InitiativeWebDTO> getInitiativeDetail(
+            @PathVariable("initiativeId") String initiativeId,
+            @RequestHeader(value = "Accept-Language", defaultValue = "it_IT") Locale acceptLanguage);
 
+    /**
+     * Returns the actual onboarding status
+     *
+     * @param initiativeId
+     * @param userId
+     * @return
+     */
+    @GetMapping("/{initiativeId}/{userId}/status")
+    ResponseEntity<OnboardingStatusDTO> onboardingStatus(
+            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
-  /**
-   * Returns the actual onboarding status
-   *
-   * @param initiativeId
-   * @param userId
-   * @return
-   */
-  @GetMapping("/{initiativeId}/{userId}/status")
-  ResponseEntity<OnboardingStatusDTO> onboardingStatus(
-      @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+    /**
+     * Save the consents of PDND criteria and Self declaration list
+     *
+     * @param consentPutDTO
+     * @param userId
+     * @return
+     */
+    @PutMapping("/{userId}")
+    ResponseEntity<Void> saveOnboarding(
+            @RequestBody ConsentPutDTO consentPutDTO,
+            @RequestHeader("X-Channel") ChannelType channel,
+            @PathVariable("userId") String userId);
 
-  /**
-   * Returns the onboarding status list
-   *
-   * @param initiativeId
-   * @return
-   */
-  @GetMapping("/{initiativeId}")
-  ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
-      @PathVariable("initiativeId") String initiativeId,
-      @PageableDefault(size = 15,sort = "updateDate",direction= Sort.Direction.DESC) Pageable pageable,
-      @RequestParam(required = false) String userId,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-      @RequestParam(required = false) String status);
+    // Servizi non utilizzati nel workflow di IO o WEB
 
 
-  /**
-   * Save the consents of PDND criteria and Self declaration list
-   *
-   * @param body
-   * @return
-   */
-  @PutMapping("/consent/{userId}")
-  ResponseEntity<Void> saveConsent(@RequestBody ConsentPutDTO body,
-      @PathVariable("userId") String userId);
+    /**
+     * Returns the onboarding status list
+     *
+     * @param initiativeId
+     * @return
+     */
+    @GetMapping("/{initiativeId}")
+    ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
+            @PathVariable("initiativeId") String initiativeId,
+            @PageableDefault(size = 15, sort = "updateDate", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) String status);
 
-  /**
-   * Deactivation onboarding
-   *
-   * @param body
-   * @return
-   */
-  @DeleteMapping("/disable")
-  ResponseEntity<Void> disableOnboarding(
-      @Valid @RequestBody UnsubscribeBodyDTO body);
+    /**
+     * Deactivation onboarding
+     *
+     * @param body
+     * @return
+     */
+    @DeleteMapping("/disable")
+    ResponseEntity<Void> disableOnboarding(
+            @Valid @RequestBody UnsubscribeBodyDTO body);
 
+    /**
+     * rollback onboarding
+     *
+     * @param initiativeId
+     * @param userId
+     * @return
+     */
+    @PutMapping("/rollback/{initiativeId}/{userId}")
+    ResponseEntity<Void> rollback(
+            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
-  /**
-   * rollback onboarding
-   *
-   * @param initiativeId
-   * @param userId
-   * @return
-   */
-  @PutMapping("/rollback/{initiativeId}/{userId}")
-  ResponseEntity<Void> rollback(
-      @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+    @PutMapping("/{initiativeId}/{userId}/suspend")
+    ResponseEntity<Void> suspend(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
-  @PutMapping("/{initiativeId}/{userId}/suspend")
-  ResponseEntity<Void> suspend(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
-  @PutMapping("/{initiativeId}/{userId}/readmit")
-  ResponseEntity<Void> readmit(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+    @PutMapping("/{initiativeId}/{userId}/readmit")
+    ResponseEntity<Void> readmit(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
-  @GetMapping("/{initiativeId}/{userId}/family")
-  ResponseEntity<OnboardingFamilyDTO> familyUnitComposition(
-          @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+    @GetMapping("/{initiativeId}/{userId}/family")
+    ResponseEntity<OnboardingFamilyDTO> familyUnitComposition(
+            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 }

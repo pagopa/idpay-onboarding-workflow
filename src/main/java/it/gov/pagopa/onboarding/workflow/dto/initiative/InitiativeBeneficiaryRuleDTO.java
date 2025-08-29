@@ -1,8 +1,9 @@
 package it.gov.pagopa.onboarding.workflow.dto.initiative;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class InitiativeBeneficiaryRuleDTO   {
