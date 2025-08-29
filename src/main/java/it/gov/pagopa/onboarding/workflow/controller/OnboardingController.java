@@ -26,9 +26,7 @@ import java.util.Locale;
 public interface OnboardingController {
 
     /* TODO: Servizi da aggiungere presenti sullo swagger e non lato codice:
-        /onboarding/service/{serviceId}
-        /onboarding/{initiativeId}/detail presente su web e puntato da IO tramite policy
-        /user/initiative/status da sviluppare
+        /user/initiative/status chiamata di dettaglio di tutte le iniziative in cui l'utente è onboardato con stato Lista di Attesa o in Valutazione
      */
 
     /**

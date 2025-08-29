@@ -894,9 +894,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void validateInput(ConsentPutDTO dto) {
-    if (dto.getUserMail() != null ||
-                    dto.getUserMailConfirmation() == null ||
-                    !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim())) {
+    if (dto.getUserMail() != null &&
+            (dto.getUserMailConfirmation() == null ||
+                    !dto.getUserMail().trim().equalsIgnoreCase(dto.getUserMailConfirmation().trim()))) {
       throw new EmailNotMatchedException(EMAIL_NOT_MATCHED_MSG);
     }
 
