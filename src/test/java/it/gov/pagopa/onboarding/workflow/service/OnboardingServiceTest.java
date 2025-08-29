@@ -24,6 +24,7 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
+import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
@@ -113,7 +114,7 @@ class OnboardingServiceTest {
     private DecryptRestConnector decryptRestConnector;
 
 
-    private static final  int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 10;
     private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
     private static final String USER_ID = "TEST_USER_ID";
     private static final String ONBOARDING_BUDGET_EXHAUSTED = "ONBOARDING_BUDGET_EXHAUSTED";
@@ -260,13 +261,13 @@ class OnboardingServiceTest {
 
         INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
                 List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2","1"), "2"),
+                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2", "1"), "2"),
                         new SelfCriteriaTextDTO("text", "", "Value3", "3")));
         INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(AUTOMATED_CRITERIA_DTO));
 
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(
                 List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2","1"), "2"),
+                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2", "1"), "2"),
                         new SelfCriteriaTextDTO("text", "", "Value3", "3")));
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setAutomatedCriteria(List.of());
 
@@ -1345,7 +1346,7 @@ class OnboardingServiceTest {
         try {
             onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
         } catch (InitiativeInvalidException e) {
-            assertEquals(ONBOARDING_INITIATIVE_ENDED,e.getCode());
+            assertEquals(ONBOARDING_INITIATIVE_ENDED, e.getCode());
         }
     }
 
@@ -1376,7 +1377,7 @@ class OnboardingServiceTest {
             onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
         } catch (UserNotOnboardedException e) {
             assertEquals(USER_NOT_ONBOARDED, e.getCode());
-            assertEquals(String.format(ID_S_NOT_FOUND_MSG,INITIATIVE_ID), e.getMessage());
+            assertEquals(String.format(ID_S_NOT_FOUND_MSG, INITIATIVE_ID), e.getMessage());
         }
 
     }
@@ -1605,7 +1606,7 @@ class OnboardingServiceTest {
             Assertions.fail();
         } catch (InitiativeBudgetExhaustedException e) {
             Assertions.assertEquals(ONBOARDING_BUDGET_EXHAUSTED, e.getCode());
-            Assertions.assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, INITIATIVE_ID),e.getMessage());
+            Assertions.assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, INITIATIVE_ID), e.getMessage());
         }
     }
 
@@ -1630,7 +1631,6 @@ class OnboardingServiceTest {
                 e.getMessage()
         );
     }
-
 
 
     @Test
@@ -1770,8 +1770,9 @@ class OnboardingServiceTest {
         assertDoesNotThrow(() -> onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL));
 
     }
+
     @Test
-    void checkPrerequisites_ok_demanded_outOnboardingRange(){
+    void checkPrerequisites_ok_demanded_outOnboardingRange() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
         onboarding.setTc(true);
@@ -1797,7 +1798,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void checkPrerequisites_KO_Notdemanded_outOnboardingRange_familyInitiative(){
+    void checkPrerequisites_KO_Notdemanded_outOnboardingRange_familyInitiative() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
         onboarding.setTc(true);
@@ -1832,6 +1833,7 @@ class OnboardingServiceTest {
         onboardingService.completeOnboarding(EVALUATION_DTO);
         assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
     }
+
     @Test
     void completeOnboardingDEMANDEDWithOnboardingNotNull() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -1851,18 +1853,19 @@ class OnboardingServiceTest {
         verify(onboardingRepositoryMock, Mockito.times(1))
                 .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
     }
+
     @Test
-    void completeOnboarding_ko_eligible_ko(){
+    void completeOnboarding_ko_eligible_ko() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
         assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
-        assertEquals("CITIZEN_OUT_OF_RANKING" + ','+ INVALID_INITIATIVE, onboarding.getDetailKO());
+        assertEquals("CITIZEN_OUT_OF_RANKING" + ',' + INVALID_INITIATIVE, onboarding.getDetailKO());
     }
 
     @Test
-    void completeOnboarding_ko_no_onb(){
+    void completeOnboarding_ko_no_onb() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
         onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO);
@@ -1871,7 +1874,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void completeOnboarding_ko_no_onb_eligible_ko(){
+    void completeOnboarding_ko_no_onb_eligible_ko() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
         onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
@@ -1886,7 +1889,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void completeOnboarding_genericError_rejectionReason(){
+    void completeOnboarding_genericError_rejectionReason() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
         EVALUATION_DTO.setOnboardingRejectionReasons(List.of(new OnboardingRejectionReason
@@ -1910,6 +1913,7 @@ class OnboardingServiceTest {
         assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
 
     }
+
     @Test
     void checkChangeREJECTEDtatusInToONBOARDING_KO() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -1924,6 +1928,7 @@ class OnboardingServiceTest {
         assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, onboarding.getStatus());
 
     }
+
     @Test
     void deactivateOnboarding_ok() {
 
@@ -1953,7 +1958,7 @@ class OnboardingServiceTest {
             Assertions.fail();
         } catch (UserNotOnboardedException e) {
             assertEquals(USER_NOT_ONBOARDED, e.getCode());
-            assertEquals(String.format(ID_S_NOT_FOUND_MSG,INITIATIVE_ID), e.getMessage());
+            assertEquals(String.format(ID_S_NOT_FOUND_MSG, INITIATIVE_ID), e.getMessage());
         }
     }
 
@@ -2110,11 +2115,11 @@ class OnboardingServiceTest {
     @Test
     void suspend_ko() {
         String mongoFullErrorResponse = """
-        {"ok": 0.0, "errmsg": "Error=16500, RetryAfterMs=34,\s
-        Details='Response status code does not indicate success: TooManyRequests (429) Substatus: 3200 ActivityId: 46ba3855-bc3b-4670-8609-17e1c2c87778 Reason:\s
-        (\\r\\nErrors : [\\r\\n \\"Request rate is large. More Request Units may be needed, so no changes were made. Please retry this request later. Learn more:
-         http://aka.ms/cosmosdb-error-429\\"\\r\\n]\\r\\n) ", "code": 16500, "codeName": "RequestRateTooLarge"}
-        """;
+                {"ok": 0.0, "errmsg": "Error=16500, RetryAfterMs=34,\s
+                Details='Response status code does not indicate success: TooManyRequests (429) Substatus: 3200 ActivityId: 46ba3855-bc3b-4670-8609-17e1c2c87778 Reason:\s
+                (\\r\\nErrors : [\\r\\n \\"Request rate is large. More Request Units may be needed, so no changes were made. Please retry this request later. Learn more:
+                 http://aka.ms/cosmosdb-error-429\\"\\r\\n]\\r\\n) ", "code": 16500, "codeName": "RequestRateTooLarge"}
+                """;
 
         final MongoQueryException mongoQueryException = new MongoQueryException(
                 BsonDocument.parse(mongoFullErrorResponse), new ServerAddress());
@@ -2135,7 +2140,7 @@ class OnboardingServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {OnboardingWorkflowConstants.SUSPENDED,OnboardingWorkflowConstants.ONBOARDING_OK})
+    @ValueSource(strings = {OnboardingWorkflowConstants.SUSPENDED, OnboardingWorkflowConstants.ONBOARDING_OK})
     void readmit_ok(String status) {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(status);
@@ -2147,7 +2152,7 @@ class OnboardingServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {OnboardingWorkflowConstants.ON_EVALUATION,OnboardingWorkflowConstants.INVITED,OnboardingWorkflowConstants.ACCEPTED_TC,OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED,OnboardingWorkflowConstants.ONBOARDING_KO})
+    @ValueSource(strings = {OnboardingWorkflowConstants.ON_EVALUATION, OnboardingWorkflowConstants.INVITED, OnboardingWorkflowConstants.ACCEPTED_TC, OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED, OnboardingWorkflowConstants.ONBOARDING_KO})
     void readmit_wrongStatus(String status) {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(status);
@@ -2272,7 +2277,7 @@ class OnboardingServiceTest {
                         Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
         Map<String, Collection<String>> headers = new HashMap<>();
         headers.put("x-api-key", Collections.singleton("x-api-key"));
-        Mockito.doThrow(new FeignException.InternalServerError("", request, new byte[0],headers )).when(decryptRestConnector).getPiiByToken((USER_ID));
+        Mockito.doThrow(new FeignException.InternalServerError("", request, new byte[0], headers)).when(decryptRestConnector).getPiiByToken((USER_ID));
 
         try {
             onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID);
@@ -2295,7 +2300,7 @@ class OnboardingServiceTest {
 
         List<Onboarding> deletedOnboardingPage = List.of(onboarding);
 
-        if(times == 2){
+        if (times == 2) {
             List<Onboarding> onboardingPage = createOnboardingPage(PAGE_SIZE);
 
             when(onboardingRepositoryMock.deletePaged(queueCommandOperationDTO.getEntityId(), PAGE_SIZE))
@@ -2320,12 +2325,12 @@ class OnboardingServiceTest {
         );
     }
 
-    private List<Onboarding> createOnboardingPage(int pageSize){
+    private List<Onboarding> createOnboardingPage(int pageSize) {
         List<Onboarding> onboardingPage = new ArrayList<>();
 
-        for(int i=0;i<pageSize; i++){
+        for (int i = 0; i < pageSize; i++) {
             Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-            onboarding.setId("ID_ONBOARDING"+i);
+            onboarding.setId("ID_ONBOARDING" + i);
             onboardingPage.add(onboarding);
         }
 
@@ -2341,10 +2346,10 @@ class OnboardingServiceTest {
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
 
         general.setBeneficiaryKnown(false);
-        if(startRankingDate != null){
+        if (startRankingDate != null) {
             general.setRankingStartDate(startRankingDate);
         }
-        if(endRankingDate != null) {
+        if (endRankingDate != null) {
             general.setRankingEndDate(endRankingDate);
         }
         general.setStartDate(startDate);
@@ -2360,6 +2365,220 @@ class OnboardingServiceTest {
         initiative.setBeneficiaryRule(INITIATIVE_BENEFICIARY_RULE_DTO);
         initiative.setInitiativeRewardType(INITIATIVE_REWARD_TYPE_DISCOUNT);
         return initiative;
+    }
+
+    @Test
+    void testFindOnboardingByInitiativeIdAndUserId_ReturnsOnboarding_WhenFound() {
+        String initiativeId = "INIT123";
+        String userId = "USER456";
+        String onboardingId = Onboarding.buildId(initiativeId, userId);
+
+        Onboarding expectedOnboarding = new Onboarding(initiativeId, userId);
+
+        when(onboardingRepositoryMock.findById(onboardingId)).thenReturn(Optional.of(expectedOnboarding));
+
+        Onboarding result = onboardingService.findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        assertNotNull(result);
+        assertEquals(expectedOnboarding, result);
+        verify(onboardingRepositoryMock, times(1)).findById(onboardingId);
+    }
+
+    @Test
+    void testFindOnboardingByInitiativeIdAndUserId_ReturnsNull_WhenNotFound() {
+        String initiativeId = "INIT123";
+        String userId = "USER456";
+        String onboardingId = Onboarding.buildId(initiativeId, userId);
+
+        when(onboardingRepositoryMock.findById(onboardingId)).thenReturn(Optional.empty());
+
+        Onboarding result = onboardingService.findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        assertNull(result);
+        verify(onboardingRepositoryMock, times(1)).findById(onboardingId);
+    }
+
+    @Test
+    void testSelfDeclaration_WhenCriteriaPresent_ShouldProcessAndSave() {
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        SelfConsentBoolDTO selfDecl = new SelfConsentBoolDTO();
+        selfDecl.setCode(SelfCriteriaBooleanTypeCode.ISEE.name());
+        selfDecl.setAccepted(true);
+        consentPutDTO.setSelfDeclarationList(List.of(selfDecl));
+
+        String userId = "USER123";
+
+        onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, userId);
+
+        verify(selfDeclarationRepository, never()).save(any(SelfDeclaration.class));
+    }
+
+    @Test
+    void testSelfDeclaration_SizeMismatch_ShouldThrowException() {
+        InitiativeBeneficiaryRuleDTO rule = new InitiativeBeneficiaryRuleDTO();
+        rule.setSelfDeclarationCriteria(List.of(
+                new SelfCriteriaBooleanTypeDTO(
+                        "boolean_type", "desc", "subdesc", true,
+                        SelfCriteriaBooleanTypeCode.ISEE
+                )
+        ));
+        initiativeDTO.setBeneficiaryRule(rule);
+
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of());
+
+        assertThrows(SelfDeclarationCrtieriaException.class,
+                () -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123"));
+
+        verify(auditUtilities).logOnboardingKOInitiativeId(
+                eq(initiativeDTO.getInitiativeId()),
+                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT)
+        );
+    }
+
+    @Test
+    void testSelfDeclaration_BoolCriteriaNull_ShouldThrowException() {
+        InitiativeBeneficiaryRuleDTO rule = new InitiativeBeneficiaryRuleDTO();
+        SelfCriteriaBoolDTO boolCriteria = new SelfCriteriaBoolDTO();
+        boolCriteria.setCode("ISEE");
+        rule.setSelfDeclarationCriteria(List.of(boolCriteria));
+        initiativeDTO.setBeneficiaryRule(rule);
+
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        SelfConsentBoolDTO selfDecl = new SelfConsentBoolDTO();
+        selfDecl.setCode("ISEE");
+        consentPutDTO.setSelfDeclarationList(List.of(selfDecl));
+
+        assertThrows(SelfDeclarationCrtieriaException.class,
+                () -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123"));
+
+        verify(auditUtilities).logOnboardingKOInitiativeId(
+                eq(initiativeDTO.getInitiativeId()),
+                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT)
+        );
+    }
+
+    @Test
+    void testSelfDeclaration_BoolCriteriaAccepted_ShouldSetValueWithoutException() {
+        SelfCriteriaBoolDTO boolCriteria = new SelfCriteriaBoolDTO();
+        boolCriteria.setCode("ISEE");
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(boolCriteria));
+
+        SelfConsentBoolDTO consentBool = new SelfConsentBoolDTO();
+        consentBool.setCode("ISEE");
+        consentBool.setAccepted(true);
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of(consentBool));
+
+        onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123");
+
+        assertTrue(boolCriteria.getValue());
+        verify(auditUtilities, never()).logOnboardingKOInitiativeId(any(), any());
+        verify(selfDeclarationRepository, never()).save(any());
+    }
+
+    @Test
+    void testSelfDeclaration_MultiCriteria_ShouldCallMultiCheckAndSave() {
+        SelfCriteriaMultiDTO multiCriteria = new SelfCriteriaMultiDTO("multi", "desc", List.of("Value1", "Value2"), "CODE_MULTI");
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(multiCriteria));
+
+        SelfConsentMultiDTO consentMulti = new SelfConsentMultiDTO();
+        consentMulti.setCode("CODE_MULTI");
+        consentMulti.setValue("Value1");
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of(consentMulti));
+
+        doNothing().when(onboardingService).multiCriteriaCheck(eq(initiativeDTO), eq(multiCriteria), anyMap());
+
+        onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123");
+
+        verify(onboardingService).multiCriteriaCheck(eq(initiativeDTO), eq(multiCriteria), anyMap());
+        verify(selfDeclarationRepository).save(any(SelfDeclaration.class));
+    }
+
+    @Test
+    void testSelfDeclaration_TextCriteriaValid_ShouldSaveTextValue() {
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", null, "CODE_TEXT");
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
+
+        SelfConsentTextDTO consentText = new SelfConsentTextDTO();
+        consentText.setCode("CODE_TEXT");
+        consentText.setValue("SomeValue");
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of(consentText));
+
+        onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123");
+
+        assertEquals("SomeValue", textCriteria.getValue());
+        verify(selfDeclarationRepository).save(any(SelfDeclaration.class));
+    }
+
+    @Test
+    void testSelfDeclaration_TextCriteriaNull_ShouldThrowExceptionAndAudit() {
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", null, "CODE_TEXT");
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
+
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of());
+
+        assertThrows(SelfDeclarationCrtieriaException.class,
+                () -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123"));
+
+        verify(auditUtilities).logOnboardingKOInitiativeId(eq(initiativeDTO.getInitiativeId()),
+                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT));
+    }
+
+
+    @Test
+    void testSelfDeclaration_NoCriteria_ShouldReturnImmediately() {
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of());
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of());
+
+        onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123");
+
+        verifyNoInteractions(auditUtilities);
+        verify(selfDeclarationRepository, never()).save(any());
+    }
+
+    @Test
+    void testSelfDeclaration_SizeCheckFails_ShouldThrowExceptionAndAudit() {
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(
+                new SelfCriteriaBoolDTO("bool1", "desc", true, "CODE1")
+        ));
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of());
+
+        doReturn(true).when(onboardingService).sizeCheck(any(), anyMap(), anyMap(), anyMap());
+
+        assertThrows(SelfDeclarationCrtieriaException.class,
+                () -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123"));
+
+        verify(auditUtilities).logOnboardingKOInitiativeId(eq(initiativeDTO.getInitiativeId()),
+                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT));
+    }
+
+    @Test
+    void testSelfDeclaration_TextDTOValueMissing_ShouldThrowExceptionAndAudit() {
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("textType", "desc", null, "TEXT_CODE");
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
+
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of());
+
+        doReturn(false).when(onboardingService).sizeCheck(any(), anyMap(), anyMap(), anyMap());
+
+        SelfDeclarationCrtieriaException exception = assertThrows(
+                SelfDeclarationCrtieriaException.class,
+                () -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, USER_ID)
+        );
+
+        verify(auditUtilities).logOnboardingKOInitiativeId(
+                eq(initiativeDTO.getInitiativeId()),
+                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT)
+        );
+
+        assertTrue(exception.getMessage().contains(initiativeDTO.getInitiativeId()));
     }
 
 
