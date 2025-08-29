@@ -25,10 +25,6 @@ import java.util.Locale;
 @RequestMapping("/idpay/onboarding")
 public interface OnboardingController {
 
-    /* TODO: Servizi da aggiungere presenti sullo swagger e non lato codice:
-        /user/initiative/status chiamata di dettaglio di tutte le iniziative in cui l'utente è onboardato con stato Lista di Attesa o in Valutazione
-     */
-
     /**
      * Returns the initiative details
      *
@@ -66,6 +62,11 @@ public interface OnboardingController {
 
     // Servizi non utilizzati nel workflow di IO o WEB
 
+
+     /* TODO: Servizi da aggiungere presenti sullo swagger e non lato codice:
+         /user/initiative/status chiamata di dettaglio di tutte le iniziative in cui l'utente è onboardato con stato Lista di Attesa o in Valutazione
+         Verificare se è utilizzabele/modificabile il servizio sottostante
+     */
 
     /**
      * Returns the onboarding status list
