@@ -3,12 +3,12 @@ package it.gov.pagopa.onboarding.workflow.enums;
 import lombok.Getter;
 
 @Getter
-public enum SelfCriteriaBooleanTypeCode {
+public enum SelfCriteriaMultiTypeCode {
   ISEE("ISEE");
 
   private final String description;
 
-  SelfCriteriaBooleanTypeCode(String description) {
+  SelfCriteriaMultiTypeCode(String description) {
     this.description = description;
   }
 
