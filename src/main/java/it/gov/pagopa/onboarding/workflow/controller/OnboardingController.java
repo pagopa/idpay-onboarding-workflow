@@ -72,10 +72,10 @@ public interface OnboardingController {
      * @param userId
      * @return
      */
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}/initiative/status")
     ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
             @PageableDefault(size = 15, sort = "updateDate", direction = Sort.Direction.DESC) Pageable pageable,
-            @PathVariable(required = false) String userId);
+            @PathVariable("userId") String userId);
 
     /**
      * Deactivation onboarding
