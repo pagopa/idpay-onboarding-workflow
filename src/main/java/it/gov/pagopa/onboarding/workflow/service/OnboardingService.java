@@ -9,7 +9,6 @@ import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public interface OnboardingService {
   void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO);
   void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
   void rollback(String initiativeId, String userId);
-  ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId, String userId, LocalDateTime startDate, LocalDateTime endDate, String status, Pageable pageable);
+  ResponseInitiativeOnboardingDTO getOnboardingStatusList(String userId, Pageable pageable);
   void suspend(String initiativeId, String userId);
   void readmit(String initiativeId, String userId);
   OnboardingFamilyDTO getfamilyUnitComposition(String initiativeId, String userId);

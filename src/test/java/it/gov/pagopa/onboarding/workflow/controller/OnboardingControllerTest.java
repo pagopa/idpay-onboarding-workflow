@@ -52,8 +52,6 @@ class OnboardingControllerTest {
   private static final String FAMILY_ID = "TEST_FAMILY_ID";
   private static final String CF = "TEST_CF";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final LocalDateTime START_DATE = LocalDateTime.now();
-  private static final LocalDateTime END_DATE = LocalDateTime.now();
   private static final String STATUS = "STATUS";
 
   private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO = new OnboardingStatusCitizenDTO(
@@ -141,8 +139,7 @@ class OnboardingControllerTest {
     @Test
     void onboarding_status_list_ok() throws Exception {
         Mockito.when(
-                onboardingService.getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE,
-                        STATUS, null)).thenReturn(ONBOARDING_DTO);
+                onboardingService.getOnboardingStatusList(USER_ID, null)).thenReturn(ONBOARDING_DTO);
 
         mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -153,7 +150,7 @@ class OnboardingControllerTest {
     @Test
     void onboarding_status_list_ko() throws Exception {
         Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
-                .when(onboardingService).getOnboardingStatusList(INITIATIVE_ID, USER_ID, START_DATE, END_DATE, STATUS, null);
+                .when(onboardingService).getOnboardingStatusList(USER_ID, null);
 
         mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)

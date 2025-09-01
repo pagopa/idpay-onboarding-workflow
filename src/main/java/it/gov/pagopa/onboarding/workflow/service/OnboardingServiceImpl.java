@@ -48,6 +48,7 @@ import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowCons
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_STARTED;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ON_EVALUATION;
 
 @Slf4j
 @Service
@@ -374,32 +375,51 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId,
-                                                                 String userId, LocalDateTime startDate, LocalDateTime endDate, String status,
-                                                                 Pageable pageable) {
+  public ResponseInitiativeOnboardingDTO getOnboardingStatusList(String userId, Pageable pageable) {
     long startTime = System.currentTimeMillis();
 
-    if (pageable != null && pageable.getPageSize() > 15 ){
+    if (pageable != null && pageable.getPageSize() > 15) {
       throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG);
     }
+
     List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS = new ArrayList<>();
-    Criteria criteria = onboardingRepository.getCriteria(initiativeId, userId, status, startDate,
-            endDate);
-    List<Onboarding> onboardinglist = onboardingRepository.findByFilter(criteria, pageable);
+
+    Criteria criteria = new Criteria().andOperator(
+            Criteria.where("userId").is(userId),
+            Criteria.where("status").in(List.of(ON_EVALUATION))
+    );
+
+    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria, pageable);
     long count = onboardingRepository.getCount(criteria);
-    final Page<Onboarding> result = PageableExecutionUtils.getPage(onboardinglist,
-            this.getPageable(pageable), () -> count);
-    for (Onboarding o : onboardinglist) {
+
+    final Page<Onboarding> result = PageableExecutionUtils.getPage(
+            onboardingList,
+            this.getPageable(pageable),
+            () -> count
+    );
+
+    for (Onboarding o : onboardingList) {
       OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
-              o.getUserId(), o.getStatus(),
+              o.getUserId(),
+              o.getStatus(),
               o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
-              o.getFamilyId());
+              o.getFamilyId()
+      );
       onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
     }
-    performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST", userId, initiativeId);
-    return new ResponseInitiativeOnboardingDTO(onboardingStatusCitizenDTOS, result.getNumber(),
-            result.getSize(), (int) result.getTotalElements(), result.getTotalPages());
+
+    performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST", userId, null);
+
+    return new ResponseInitiativeOnboardingDTO(
+            onboardingStatusCitizenDTOS,
+            result.getNumber(),
+            result.getSize(),
+            (int) result.getTotalElements(),
+            result.getTotalPages()
+    );
   }
+
+
 
   @Override
   public void suspend(String initiativeId, String userId){
@@ -503,7 +523,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setOnboardingOkDate(date);
       auditUtilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
-    if (status.equals(OnboardingWorkflowConstants.ON_EVALUATION)) {
+    if (status.equals(ON_EVALUATION)) {
       onboarding.setCriteriaConsensusTimestamp(date);
       auditUtilities.logOnboardingOnEvaluation(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
@@ -524,7 +544,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
     if (OnboardingWorkflowConstants.BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) &&
             onboarding.getDemandedDate() != null) {
-      setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
+      setStatus(onboarding, ON_EVALUATION, LocalDateTime.now(), null);
       outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.JOINED));
     }
   }
@@ -542,7 +562,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logOnboardingKOWhiteList(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), LocalDateTime.now());
       throw new UserNotInWhitelistException(String.format(ERROR_WHITELIST_MSG, initiativeDTO.getInitiativeId()));
     }
-    setStatus(onboarding, OnboardingWorkflowConstants.ON_EVALUATION, LocalDateTime.now(), null);
+    setStatus(onboarding, ON_EVALUATION, LocalDateTime.now(), null);
     outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, OnboardingWorkflowConstants.ONBOARDING_OK));
     return true;
   }
@@ -922,7 +942,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void fillOnboardingData(Onboarding onboarding, ConsentPutDTO dto) {
-    onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
+    onboarding.setStatus(ON_EVALUATION);
     onboarding.setPdndAccept(dto.isPdndAccept());
     onboarding.setTc(dto.getConfirmedTos());
 
