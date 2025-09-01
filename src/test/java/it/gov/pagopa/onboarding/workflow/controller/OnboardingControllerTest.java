@@ -141,7 +141,7 @@ class OnboardingControllerTest {
         Mockito.when(
                 onboardingService.getOnboardingStatusList(USER_ID, null)).thenReturn(ONBOARDING_DTO);
 
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -152,7 +152,7 @@ class OnboardingControllerTest {
         Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
                 .when(onboardingService).getOnboardingStatusList(USER_ID, null);
 
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID)
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
