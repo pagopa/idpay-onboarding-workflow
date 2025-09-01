@@ -16,7 +16,6 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
-import it.gov.pagopa.onboarding.workflow.enums.ChannelType;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
@@ -929,6 +928,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     LocalDateTime now = LocalDateTime.now();
     onboarding.setCriteriaConsensusTimestamp(now);
+    onboarding.setTcAcceptTimestamp(now);
     onboarding.setUpdateDate(now);
   }
 
