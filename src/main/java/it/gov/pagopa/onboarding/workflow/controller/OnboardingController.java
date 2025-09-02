@@ -76,7 +76,6 @@ public interface OnboardingController {
     ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
             @PageableDefault(size = 15, sort = "updateDate", direction = Sort.Direction.DESC) Pageable pageable,
             @PathVariable("userId") String userId);
-
     /**
      * Deactivation onboarding
      *

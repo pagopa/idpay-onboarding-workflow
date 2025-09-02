@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
 
+
 @RestController
 public class OnboardingControllerImpl implements OnboardingController {
 
