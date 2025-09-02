@@ -352,7 +352,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
     onboarding.setUpdateDate(LocalDateTime.parse(deactivationDate));
     onboardingRepository.save(onboarding);
-    log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", deactivationDate);
+    log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
     auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
     performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
   }
@@ -489,7 +489,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     List<OnboardingFamilyDetailDTO> usersListDecrypted = new ArrayList<>();
     OnboardingFamilyDTO onboardingFamilyDecryptDTO = new OnboardingFamilyDTO(usersListDecrypted);
 
-    log.info("[GET_ONBOARDING_FAMILY] Retrieved familyId {} for user {}", onboarding.getFamilyId(), userId);
+    log.info("[GET_ONBOARDING_FAMILY] Retrieved familyId {} for user {}", onboarding.getFamilyId(), sanitize(userId));
 
     if(onboarding.getFamilyId() == null){
       performanceLog(startTime, GET_ONBOARDING_FAMILY, userId, initiativeId);
