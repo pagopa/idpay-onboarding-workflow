@@ -9,7 +9,6 @@ import feign.RequestTemplate;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
-import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
@@ -56,10 +55,10 @@ import java.util.stream.Stream;
 
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static com.mongodb.assertions.Assertions.fail;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ON_EVALUATION;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -140,12 +139,12 @@ class OnboardingServiceTest {
     private static final String BENEFICIARY_TYPE_NF = "NF";
     private static final EvaluationDTO EVALUATION_DTO =
             new EvaluationDTO(
-                    USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
+                    USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_OK,
                     OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
                     500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
     private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING =
             new EvaluationDTO(
-                    USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
+                    USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_KO,
                     OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                     List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null),
                             new OnboardingRejectionReason(OUT_OF_RANKING, "CITIZEN_OUT_OF_RANKING", null, null, null)),
@@ -153,7 +152,7 @@ class OnboardingServiceTest {
 
     private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
             new EvaluationDTO(
-                    USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_KO,
+                    USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_KO,
                     OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
                     List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null)),
                     500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
@@ -185,18 +184,18 @@ class OnboardingServiceTest {
     private static final CitizenStatusDTO CITIZEN_STATUS_DTO_KO = new CitizenStatusDTO();
 
     private static final InitiativeStatusDTO INITIATIVE_STATUS_DTO = InitiativeStatusDTO.builder()
-            .status(OnboardingWorkflowConstants.PUBLISHED)
+            .status(PUBLISHED)
             .budgetAvailable(true)
             .build();
 
     private static final InitiativeStatusDTO INITIATIVE_NOT_BUDGET_DTO = InitiativeStatusDTO.builder()
-            .status(OnboardingWorkflowConstants.PUBLISHED)
+            .status(PUBLISHED)
             .budgetAvailable(false)
             .build();
     private static final OnboardingNotificationDTO ONBOARDING_NOTIFICATION_DTO = OnboardingNotificationDTO.builder()
             .initiativeId(INITIATIVE_ID)
             .serviceId(SERVICE_ID)
-            .operationType(OnboardingWorkflowConstants.ALLOWED_CITIZEN_PUBLISH)
+            .operationType(ALLOWED_CITIZEN_PUBLISH)
             .userId(USER_ID)
             .initiativeName(INITIATIVE_NAME)
             .build();
@@ -648,7 +647,7 @@ class OnboardingServiceTest {
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, userId));
 
         verify(onboardingRepositoryMock, times(1)).save(argThat(onboarding ->
-                OnboardingWorkflowConstants.ONBOARDING_KO.equals(onboarding.getStatus()) &&
+                ONBOARDING_KO.equals(onboarding.getStatus()) &&
                         PDND_CONSENT_DENIED.equals(onboarding.getDetailKO())
         ));
 
@@ -700,7 +699,7 @@ class OnboardingServiceTest {
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, userId));
 
         verify(onboardingRepositoryMock).save(argThat(onboarding ->
-                OnboardingWorkflowConstants.ONBOARDING_KO.equals(onboarding.getStatus()) &&
+                ONBOARDING_KO.equals(onboarding.getStatus()) &&
                         PDND_CONSENT_DENIED.equals(onboarding.getDetailKO())
         ));
 
@@ -722,7 +721,7 @@ class OnboardingServiceTest {
 
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
-        onboarding.setStatus(OnboardingWorkflowConstants.STATUS_IDEMPOTENT.iterator().next());
+        onboarding.setStatus(STATUS_IDEMPOTENT.iterator().next());
 
         doReturn(onboarding).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -744,7 +743,7 @@ class OnboardingServiceTest {
 
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
-        onboarding.setStatus(OnboardingWorkflowConstants.STATUS_IDEMPOTENT.getFirst());
+        onboarding.setStatus(STATUS_IDEMPOTENT.getFirst());
 
         doReturn(onboarding).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -1004,7 +1003,7 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
-            onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+            onboarding.setStatus(ACCEPTED_TC);
             onboarding.setTcAcceptTimestamp(LocalDateTime.now());
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1012,7 +1011,7 @@ class OnboardingServiceTest {
 
         assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
         assertEquals(USER_ID, onboarding.getUserId());
-        assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+        assertEquals(ACCEPTED_TC, onboarding.getStatus());
         assertTrue(onboarding.getTc());
     }
 
@@ -1032,10 +1031,10 @@ class OnboardingServiceTest {
                 .thenReturn(initiativeStatusDTO);
 
         Mockito.doAnswer(invocationOnMock -> {
-            onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+            onboarding.setStatus(ONBOARDING_KO);
             onboarding.setOnboardingKODate(LocalDateTime.now());
             onboarding.setUpdateDate(LocalDateTime.now());
-            onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+            onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
             return onboarding;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         try {
@@ -1045,15 +1044,15 @@ class OnboardingServiceTest {
             assertEquals(ONBOARDING_BUDGET_EXHAUSTED, e.getCode());
         }
 
-        assertEquals(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED, onboarding.getDetailKO());
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, onboarding.getStatus());
+        assertEquals(ERROR_BUDGET_TERMINATED, onboarding.getDetailKO());
+        assertEquals(ONBOARDING_KO, onboarding.getStatus());
     }
 
     @Test
     void putTc_ko_budget() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         final InitiativeStatusDTO initiativeStatusDTO =
-                new InitiativeStatusDTO(OnboardingWorkflowConstants.PUBLISHED, false);
+                new InitiativeStatusDTO(PUBLISHED, false);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(
@@ -1066,10 +1065,10 @@ class OnboardingServiceTest {
                 .thenReturn(initiativeStatusDTO);
 
         Mockito.doAnswer(invocationOnMock -> {
-            onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+            onboarding.setStatus(ONBOARDING_KO);
             onboarding.setOnboardingKODate(LocalDateTime.now());
             onboarding.setUpdateDate(LocalDateTime.now());
-            onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+            onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
             return onboarding;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         try {
@@ -1079,8 +1078,8 @@ class OnboardingServiceTest {
             assertEquals(ONBOARDING_BUDGET_EXHAUSTED, e.getCode());
         }
 
-        assertEquals(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED, onboarding.getDetailKO());
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, onboarding.getStatus());
+        assertEquals(ERROR_BUDGET_TERMINATED, onboarding.getDetailKO());
+        assertEquals(ONBOARDING_KO, onboarding.getStatus());
     }
 
     @Test
@@ -1099,10 +1098,10 @@ class OnboardingServiceTest {
                 .thenReturn(initiativeStatusDTO);
 
         Mockito.doAnswer(invocationOnMock -> {
-            onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+            onboarding.setStatus(ONBOARDING_KO);
             onboarding.setOnboardingKODate(LocalDateTime.now());
             onboarding.setUpdateDate(LocalDateTime.now());
-            onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+            onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
             return onboarding;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         try {
@@ -1112,15 +1111,15 @@ class OnboardingServiceTest {
             assertEquals(ONBOARDING_BUDGET_EXHAUSTED, e.getCode());
         }
 
-        assertEquals(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED, onboarding.getDetailKO());
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, onboarding.getStatus());
+        assertEquals(ERROR_BUDGET_TERMINATED, onboarding.getDetailKO());
+        assertEquals(ONBOARDING_KO, onboarding.getStatus());
     }
 
     @Test
     void putTc_ok_invited() {
 
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.INVITED);
+        onboarding.setStatus(INVITED);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(
@@ -1131,7 +1130,7 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
-            onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+            onboarding.setStatus(ACCEPTED_TC);
             onboarding.setTcAcceptTimestamp(LocalDateTime.now());
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1139,14 +1138,14 @@ class OnboardingServiceTest {
 
         assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
         assertEquals(USER_ID, onboarding.getUserId());
-        assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+        assertEquals(ACCEPTED_TC, onboarding.getStatus());
         assertTrue(onboarding.getTc());
     }
 
     @Test
     void putTc_ok_demanded() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+        onboarding.setStatus(DEMANDED);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -1156,7 +1155,7 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
-            onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+            onboarding.setStatus(ACCEPTED_TC);
             onboarding.setTcAcceptTimestamp(LocalDateTime.now());
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1164,7 +1163,7 @@ class OnboardingServiceTest {
 
         assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
         assertEquals(USER_ID, onboarding.getUserId());
-        assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+        assertEquals(ACCEPTED_TC, onboarding.getStatus());
         assertTrue(onboarding.getTc());
         verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
     }
@@ -1185,7 +1184,7 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
-            onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+            onboarding.setStatus(ACCEPTED_TC);
             onboarding.setTcAcceptTimestamp(LocalDateTime.now());
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1193,14 +1192,14 @@ class OnboardingServiceTest {
 
         assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
         assertEquals(USER_ID, onboarding.getUserId());
-        assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+        assertEquals(ACCEPTED_TC, onboarding.getStatus());
         assertTrue(onboarding.getTc());
     }
 
     @Test
     void putTc_ok_demanded_ranking() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+        onboarding.setStatus(DEMANDED);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -1210,7 +1209,7 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
-            onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+            onboarding.setStatus(ACCEPTED_TC);
             onboarding.setTcAcceptTimestamp(LocalDateTime.now());
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1218,7 +1217,7 @@ class OnboardingServiceTest {
 
         assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
         assertEquals(USER_ID, onboarding.getUserId());
-        assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+        assertEquals(ACCEPTED_TC, onboarding.getStatus());
         assertTrue(onboarding.getTc());
         verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
     }
@@ -1226,7 +1225,7 @@ class OnboardingServiceTest {
     @Test
     void putTc_ok_demanded_outOnboardingRange() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.DEMANDED);
+        onboarding.setStatus(DEMANDED);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -1243,7 +1242,7 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
-            onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+            onboarding.setStatus(ACCEPTED_TC);
             onboarding.setTcAcceptTimestamp(LocalDateTime.now());
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1252,7 +1251,7 @@ class OnboardingServiceTest {
 
         assertEquals(INITIATIVE_ID, onboarding.getInitiativeId());
         assertEquals(USER_ID, onboarding.getUserId());
-        assertEquals(OnboardingWorkflowConstants.ACCEPTED_TC, onboarding.getStatus());
+        assertEquals(ACCEPTED_TC, onboarding.getStatus());
         assertTrue(onboarding.getTc());
         verify(admissibilityRestConnector, Mockito.times(0)).getInitiativeStatus(any());
     }
@@ -1287,7 +1286,7 @@ class OnboardingServiceTest {
 
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setTc(true);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTcAcceptTimestamp(LocalDateTime.now());
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1315,7 +1314,7 @@ class OnboardingServiceTest {
     @Test
     void putTC_ko_unsubscribed() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
+        onboarding.setStatus(STATUS_UNSUBSCRIBED);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(
                         Optional.of(onboarding));
@@ -1332,8 +1331,8 @@ class OnboardingServiceTest {
     @Test
     void putTC_onboardingKO() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_INITIATIVE_END);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+        onboarding.setDetailKO(ERROR_INITIATIVE_END);
+        onboarding.setStatus(ONBOARDING_KO);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(
                         Optional.of(onboarding));
@@ -1354,7 +1353,7 @@ class OnboardingServiceTest {
     @Test
     void getOnboardingStatus_ok() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboarding.setStatus(ONBOARDING_OK);
         onboarding.setUpdateDate(LocalDateTime.now());
         onboarding.setOnboardingOkDate(LocalDateTime.now());
 
@@ -1384,7 +1383,7 @@ class OnboardingServiceTest {
     @Test
     void getOnboardingStatus_nullOnboardingOkDate() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setUpdateDate(LocalDateTime.now());
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1401,7 +1400,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ok_no_whitelist() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1425,7 +1424,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ok_no_whitelist_no_pdnd() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1444,7 +1443,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ok_no_whitelist_no_self() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1463,7 +1462,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ok_whitelist() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         onboarding.setInvitationDate(LocalDateTime.now());
 
@@ -1483,7 +1482,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ko_whitelist() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1505,7 +1504,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ko_start_date() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         INITIATIVE_DTO_KO_START_DATE.setInitiativeId(INITIATIVE_ID);
 
@@ -1526,7 +1525,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ko_ranking_start_date() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         INITIATIVE_DTO_KO_RANKING_START_DATE.setInitiativeId(INITIATIVE_ID);
 
@@ -1547,7 +1546,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ko_end_date() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         INITIATIVE_DTO_KO_END_DATE.setInitiativeId(INITIATIVE_ID);
 
@@ -1568,7 +1567,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ko_ranking_end_date() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         INITIATIVE_DTO_KO_RANKING_END_DATE.setInitiativeId(INITIATIVE_ID);
 
@@ -1589,7 +1588,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ko_budget_terminated() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1635,7 +1634,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ko_whitelist_fail() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(
                         Optional.of(onboarding));
@@ -1653,8 +1652,8 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_onboardingKO() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-        onboarding.setDetailKO(OnboardingWorkflowConstants.ERROR_BUDGET_TERMINATED);
+        onboarding.setStatus(ONBOARDING_KO);
+        onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
 
         doThrow(new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, INITIATIVE_ID)))
                 .when(utilities).throwOnboardingKOException(anyString(), anyString());
@@ -1675,8 +1674,8 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_onboardingKO_birthdateKO() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-        onboarding.setDetailKO(OnboardingWorkflowConstants.REJECTION_REASON_BIRTHDATE_KO);
+        onboarding.setStatus(ONBOARDING_KO);
+        onboarding.setDetailKO(REJECTION_REASON_BIRTHDATE_KO);
         Mockito.when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
@@ -1689,7 +1688,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_onboardingOK_noWhitelist() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboarding.setStatus(ONBOARDING_OK);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
@@ -1702,7 +1701,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_onboardingOK_ranking() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboarding.setStatus(ONBOARDING_OK);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
@@ -1715,7 +1714,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_onboardingOK_whitelist() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboarding.setStatus(ONBOARDING_OK);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
@@ -1728,7 +1727,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ok_familyUnit() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         onboarding.setDemandedDate(LocalDateTime.now());
         INITIATIVE_DTO.getGeneral().setBeneficiaryType(BENEFICIARY_TYPE_NF);
@@ -1750,7 +1749,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ok_familyUnit_ranking() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         onboarding.setDemandedDate(LocalDateTime.now());
         INITIATIVE_DTO.getGeneral().setBeneficiaryType(BENEFICIARY_TYPE_NF);
@@ -1773,7 +1772,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_ok_demanded_outOnboardingRange() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
         onboarding.setDemandedDate(LocalDateTime.now());
 
@@ -1799,7 +1798,7 @@ class OnboardingServiceTest {
     @Test
     void checkPrerequisites_KO_Notdemanded_outOnboardingRange_familyInitiative() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -1830,7 +1829,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         onboardingService.completeOnboarding(EVALUATION_DTO);
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+        assertEquals(ONBOARDING_OK, onboarding.getStatus());
     }
 
     @Test
@@ -1841,7 +1840,7 @@ class OnboardingServiceTest {
                 .thenReturn(Optional.of(onboarding));
         EVALUATION_DTO.setStatus("DEMANDED");
         onboardingService.completeOnboarding(EVALUATION_DTO);
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+        assertEquals(ONBOARDING_OK, onboarding.getStatus());
     }
 
     @Test
@@ -1859,7 +1858,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
-        assertEquals(OnboardingWorkflowConstants.ELIGIBLE_KO, onboarding.getStatus());
+        assertEquals(ELIGIBLE_KO, onboarding.getStatus());
         assertEquals("CITIZEN_OUT_OF_RANKING" + ',' + INVALID_INITIATIVE, onboarding.getDetailKO());
     }
 
@@ -1892,7 +1891,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
         EVALUATION_DTO.setOnboardingRejectionReasons(List.of(new OnboardingRejectionReason
-                (INVALID_INITIATIVE, OnboardingWorkflowConstants.GENERIC_ERROR, null, null, null)));
+                (INVALID_INITIATIVE, GENERIC_ERROR, null, null, null)));
         onboardingService.completeOnboarding(EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING);
         verify(onboardingRepositoryMock, Mockito.times(1))
                 .findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
@@ -1909,7 +1908,7 @@ class OnboardingServiceTest {
 
         onboardingService.completeOnboarding(EVALUATION_DTO);
 
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+        assertEquals(ONBOARDING_OK, onboarding.getStatus());
 
     }
 
@@ -1924,7 +1923,7 @@ class OnboardingServiceTest {
 
         onboardingService.completeOnboarding(EVALUATION_DTO);
 
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_KO, onboarding.getStatus());
+        assertEquals(ONBOARDING_KO, onboarding.getStatus());
 
     }
 
@@ -1938,13 +1937,13 @@ class OnboardingServiceTest {
         Mockito.doAnswer(
                         invocationOnMock -> {
                             onboarding.setRequestDeactivationDate(LocalDateTime.now());
-                            onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
+                            onboarding.setStatus(STATUS_UNSUBSCRIBED);
                             return null;
                         })
                 .when(onboardingRepositoryMock).save(any(Onboarding.class));
         onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
         assertNotNull(onboarding.getRequestDeactivationDate());
-        assertEquals(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED, onboarding.getStatus());
+        assertEquals(STATUS_UNSUBSCRIBED, onboarding.getStatus());
     }
 
     @Test
@@ -1964,12 +1963,12 @@ class OnboardingServiceTest {
     @Test
     void rollback() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED);
+        onboarding.setStatus(STATUS_UNSUBSCRIBED);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         onboardingService.rollback(INITIATIVE_ID, USER_ID);
         assertNull(onboarding.getRequestDeactivationDate());
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+        assertEquals(ONBOARDING_OK, onboarding.getStatus());
     }
 
     @Test
@@ -1983,7 +1982,7 @@ class OnboardingServiceTest {
     @Test
     void rollback_status_ko() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         onboardingService.rollback(INITIATIVE_ID, USER_ID);
@@ -2010,8 +2009,8 @@ class OnboardingServiceTest {
 
             assertNotNull(response);
             assertEquals(1, response.getTotalElements());
-            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().get(0).getStatus());
-            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().get(0).getUserId());
+            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
+            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
         });
     }
 
@@ -2034,8 +2033,8 @@ class OnboardingServiceTest {
 
             assertNotNull(response);
             assertEquals(1, response.getTotalElements());
-            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().get(0).getStatus());
-            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().get(0).getUserId());
+            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
+            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
         });
     }
 
@@ -2058,15 +2057,15 @@ class OnboardingServiceTest {
         int totalElements = response.getTotalElements();
 
         assertEquals(10, totalElements);
-        assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().get(0).getStatus());
-        assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().get(0).getUserId());
+        assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
+        assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
     }
 
 
     @Test
     void getOnboardingStatusList_ko() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
         onboarding.setUpdateDate(LocalDateTime.now());
         Pageable paging = PageRequest.of(0, 20, Sort.by("lastUpdate"));
 
@@ -2115,12 +2114,12 @@ class OnboardingServiceTest {
     @Test
     void suspend_ok() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboarding.setStatus(ONBOARDING_OK);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
         onboardingService.suspend(INITIATIVE_ID, USER_ID);
-        assertEquals(OnboardingWorkflowConstants.SUSPENDED, onboarding.getStatus());
+        assertEquals(SUSPENDED, onboarding.getStatus());
     }
 
     @Test
@@ -2150,7 +2149,7 @@ class OnboardingServiceTest {
                 BsonDocument.parse(mongoFullErrorResponse), new ServerAddress());
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboarding.setStatus(ONBOARDING_OK);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
@@ -2165,7 +2164,7 @@ class OnboardingServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {OnboardingWorkflowConstants.SUSPENDED, OnboardingWorkflowConstants.ONBOARDING_OK})
+    @ValueSource(strings = {SUSPENDED, ONBOARDING_OK})
     void readmit_ok(String status) {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(status);
@@ -2173,11 +2172,11 @@ class OnboardingServiceTest {
                 .thenReturn(Optional.of(onboarding));
 
         onboardingService.readmit(INITIATIVE_ID, USER_ID);
-        assertEquals(OnboardingWorkflowConstants.ONBOARDING_OK, onboarding.getStatus());
+        assertEquals(ONBOARDING_OK, onboarding.getStatus());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {ON_EVALUATION, OnboardingWorkflowConstants.INVITED, OnboardingWorkflowConstants.ACCEPTED_TC, OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED, OnboardingWorkflowConstants.ONBOARDING_KO})
+    @ValueSource(strings = {ON_EVALUATION, INVITED, ACCEPTED_TC, STATUS_UNSUBSCRIBED, ONBOARDING_KO})
     void readmit_wrongStatus(String status) {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(status);
@@ -2194,7 +2193,7 @@ class OnboardingServiceTest {
     @Test
     void readmit_ko() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.SUSPENDED);
+        onboarding.setStatus(SUSPENDED);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
@@ -2212,7 +2211,7 @@ class OnboardingServiceTest {
     void getFamilyUnitComposition_ok() {
         final Onboarding onboardingOk = new Onboarding(INITIATIVE_ID, USER_ID);
         onboardingOk.setFamilyId(FAMILY_ID);
-        onboardingOk.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboardingOk.setStatus(ONBOARDING_OK);
         onboardingOk.setOnboardingOkDate(LocalDateTime.now().minusDays(2));
 
         final Onboarding onboardingDemanded = new Onboarding(INITIATIVE_ID, "USER_ID_2");
@@ -2231,8 +2230,8 @@ class OnboardingServiceTest {
 
         OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID);
 
-        assertEquals(PII, onboardingFamilyDTO.getUsersList().get(0).getFiscalCode());
-        assertEquals(onboardingOk.getFamilyId(), onboardingFamilyDTO.getUsersList().get(0).getFamilyId());
+        assertEquals(PII, onboardingFamilyDTO.getUsersList().getFirst().getFiscalCode());
+        assertEquals(onboardingOk.getFamilyId(), onboardingFamilyDTO.getUsersList().getFirst().getFamilyId());
         assertEquals(onboardingOk.getOnboardingOkDate().toLocalDate(), onboardingFamilyDTO.getUsersList().get(0).getOnboardingDate());
         assertEquals(onboardingOk.getStatus(), onboardingFamilyDTO.getUsersList().get(0).getStatus());
 
@@ -2247,7 +2246,7 @@ class OnboardingServiceTest {
     void getFamilyUnitComposition_ok_onboardingKo() {
         final Onboarding onboardingKo = new Onboarding(INITIATIVE_ID, USER_ID);
         onboardingKo.setFamilyId(FAMILY_ID);
-        onboardingKo.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+        onboardingKo.setStatus(ONBOARDING_KO);
         onboardingKo.setOnboardingKODate(LocalDateTime.now());
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -2260,17 +2259,17 @@ class OnboardingServiceTest {
 
         OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID);
 
-        assertEquals(PII, onboardingFamilyDTO.getUsersList().get(0).getFiscalCode());
-        assertEquals(onboardingKo.getFamilyId(), onboardingFamilyDTO.getUsersList().get(0).getFamilyId());
-        assertEquals(onboardingKo.getOnboardingKODate().toLocalDate(), onboardingFamilyDTO.getUsersList().get(0).getOnboardingDate());
-        assertEquals(onboardingKo.getStatus(), onboardingFamilyDTO.getUsersList().get(0).getStatus());
+        assertEquals(PII, onboardingFamilyDTO.getUsersList().getFirst().getFiscalCode());
+        assertEquals(onboardingKo.getFamilyId(), onboardingFamilyDTO.getUsersList().getFirst().getFamilyId());
+        assertEquals(onboardingKo.getOnboardingKODate().toLocalDate(), onboardingFamilyDTO.getUsersList().getFirst().getOnboardingDate());
+        assertEquals(onboardingKo.getStatus(), onboardingFamilyDTO.getUsersList().getFirst().getStatus());
 
     }
 
     @Test
     void getFamilyUnitComposition_ok_noFamilyId() {
         final Onboarding onboardingKo = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboardingKo.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
+        onboardingKo.setStatus(ONBOARDING_KO);
         onboardingKo.setOnboardingKODate(LocalDateTime.now());
 
         List<OnboardingFamilyDetailDTO> usersList = new ArrayList<>();
@@ -2289,7 +2288,7 @@ class OnboardingServiceTest {
     void getFamilyUnitComposition_ko() {
         final Onboarding onboardingOk = new Onboarding(INITIATIVE_ID, USER_ID);
         onboardingOk.setFamilyId(FAMILY_ID);
-        onboardingOk.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
+        onboardingOk.setStatus(ONBOARDING_OK);
         onboardingOk.setOnboardingOkDate(LocalDateTime.now().minusDays(2));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -2461,7 +2460,7 @@ class OnboardingServiceTest {
 
         verify(auditUtilities).logOnboardingKOInitiativeId(
                 eq(initiativeDTO.getInitiativeId()),
-                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT)
+                eq(ERROR_SELF_DECLARATION_SIZE_AUDIT)
         );
     }
 
@@ -2483,7 +2482,7 @@ class OnboardingServiceTest {
 
         verify(auditUtilities).logOnboardingKOInitiativeId(
                 eq(initiativeDTO.getInitiativeId()),
-                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT)
+                eq(ERROR_SELF_DECLARATION_DENY_AUDIT)
         );
     }
 
@@ -2554,7 +2553,7 @@ class OnboardingServiceTest {
                 () -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123"));
 
         verify(auditUtilities).logOnboardingKOInitiativeId(eq(initiativeDTO.getInitiativeId()),
-                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT));
+                eq(ERROR_SELF_DECLARATION_SIZE_AUDIT));
     }
 
 
@@ -2584,7 +2583,7 @@ class OnboardingServiceTest {
                 () -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123"));
 
         verify(auditUtilities).logOnboardingKOInitiativeId(eq(initiativeDTO.getInitiativeId()),
-                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_SIZE_AUDIT));
+                eq(ERROR_SELF_DECLARATION_SIZE_AUDIT));
     }
 
     @Test
@@ -2604,11 +2603,10 @@ class OnboardingServiceTest {
 
         verify(auditUtilities).logOnboardingKOInitiativeId(
                 eq(initiativeDTO.getInitiativeId()),
-                eq(OnboardingWorkflowConstants.ERROR_SELF_DECLARATION_DENY_AUDIT)
+                eq(ERROR_SELF_DECLARATION_DENY_AUDIT)
         );
 
         assertTrue(exception.getMessage().contains(initiativeDTO.getInitiativeId()));
     }
-
 
 }
