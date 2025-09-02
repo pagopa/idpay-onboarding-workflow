@@ -9,7 +9,6 @@ import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public interface OnboardingService {
   void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO);
   void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
   void rollback(String initiativeId, String userId);
-  ResponseInitiativeOnboardingDTO getOnboardingStatusList(String initiativeId, String userId, LocalDateTime startDate, LocalDateTime endDate, String status, Pageable pageable);
+  ResponseInitiativeOnboardingDTO getOnboardingStatusList(String userId, Pageable pageable);
   void suspend(String initiativeId, String userId);
   void readmit(String initiativeId, String userId);
   OnboardingFamilyDTO getfamilyUnitComposition(String initiativeId, String userId);
@@ -36,7 +35,6 @@ public interface OnboardingService {
   void checkDates(InitiativeDTO initiativeDTO, Onboarding onboarding);
   LocalDate getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding);
   void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding);
-  void performanceLog(long startTime, String service, String userId, String initiativeId);
   void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId);
   boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText);
   void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti);
@@ -46,5 +44,6 @@ public interface OnboardingService {
   boolean hasAutomatedCriteriaAndPdndNotAccepted(InitiativeDTO initiativeDTO, ConsentPutDTO dto);
   void handlePdndDenied(Onboarding onboarding, String userId, InitiativeDTO initiativeDTO, long startTime);
   void fillOnboardingData(Onboarding onboarding, ConsentPutDTO dto);
+  void performanceLog(long startTime, String service, String userId, String initiativeId);
 
 }
