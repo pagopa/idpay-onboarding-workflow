@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
-import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.exception.custom.PageSizeNotAllowedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedException;
@@ -28,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ACCEPTED_TC;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static org.mockito.Mockito.doThrow;
 
@@ -69,10 +69,10 @@ class OnboardingControllerTest {
     void getOnboardingStatus_ok() throws Exception {
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(OnboardingWorkflowConstants.ACCEPTED_TC);
+        onboarding.setStatus(ACCEPTED_TC);
 
         OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
-                OnboardingWorkflowConstants.ACCEPTED_TC, LocalDateTime.now(), null);
+                ACCEPTED_TC, LocalDateTime.now(), null);
 
         Mockito.when(onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDTO);
