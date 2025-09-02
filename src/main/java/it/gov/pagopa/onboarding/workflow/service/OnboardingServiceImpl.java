@@ -790,16 +790,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void performanceLog(long startTime, String service, String userId, String initiativeId) {
-    log.info(
-            "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
-            service,
-            System.currentTimeMillis() - startTime,
-            initiativeId,
-            userId);
-  }
-
-  @Override
   public void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId) {
     if (initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().isEmpty()) {
       return;
@@ -950,6 +940,25 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setCriteriaConsensusTimestamp(now);
     onboarding.setTcAcceptTimestamp(now);
     onboarding.setUpdateDate(now);
+  }
+
+  @Override
+  public void performanceLog(long startTime, String service, String userId, String initiativeId) {
+    String safeService = sanitize(service);
+    String safeUserId = sanitize(userId);
+    String safeInitiativeId = sanitize(initiativeId);
+
+    log.info(
+            "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
+            safeService,
+            System.currentTimeMillis() - startTime,
+            safeUserId,
+            safeInitiativeId);
+  }
+
+  private String sanitize(String input) {
+    if (input == null) return "null";
+    return input.replaceAll("[\r\n\t]", "_");
   }
 
 }
