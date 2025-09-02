@@ -6,35 +6,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class SelfCriteriaMultiConsentDTO implements SelfDeclarationItemsDTO {
+public class SelfCriteriaMultiTypeDTO implements SelfDeclarationItemsDTO {
 
   @JsonProperty("_type")
   private String type;
-
   @JsonProperty("description")
   private String description;
-
   @JsonProperty("subDescription")
   private String subDescription;
-
   @JsonProperty("value")
-  private List<SelfCriteriaMultiConsentValueDTO> value;
-
-
+  private List<SelfCriteriaMultiTypeValueDTO> value;
   @JsonProperty("code")
   private String code;
-
-//  @JsonIgnore
- // public String getFirst(){
- //   return value.get(0);
-  //}
-
 }
 
 

@@ -1,14 +1,18 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
+import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
-import java.time.LocalDateTime;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
+import java.util.Locale;
+
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
 
 @RestController
 public class OnboardingControllerImpl implements OnboardingController {
@@ -19,55 +23,47 @@ public class OnboardingControllerImpl implements OnboardingController {
     this.onboardingService = onboardingService;
   }
 
-  public ResponseEntity<RequiredCriteriaDTO> checkPrerequisites(
-      @Valid @RequestBody CheckPutDTO body,
-      String userId) {
-    RequiredCriteriaDTO dto = onboardingService.checkPrerequisites(body.getInitiativeId(), userId,
-        body.getChannel());
+  @Override
+  public ResponseEntity<InitiativeWebDTO> getInitiativeDetail(
+          String initiativeId, Locale acceptLanguage) {
+    InitiativeWebDTO dto = onboardingService.initiativeDetail(initiativeId, acceptLanguage);
     if (dto == null) {
-      return ResponseEntity.accepted().build();
+      throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, null);
+
     }
     return ResponseEntity.ok(dto);
   }
 
-  public ResponseEntity<Void> onboardingCitizen(
-      @Valid @RequestBody OnboardingPutDTO onBoardingPutDTO,
-      String userId) {
-    onboardingService.putTcConsent(onBoardingPutDTO.getInitiativeId(),userId);
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-  }
-
   public ResponseEntity<OnboardingStatusDTO> onboardingStatus(
-      String initiativeId, String userId) {
+          String initiativeId, String userId) {
     OnboardingStatusDTO onBoardingStatusDTO = onboardingService.getOnboardingStatus(initiativeId,
-        userId);
+            userId);
     return new ResponseEntity<>(onBoardingStatusDTO, HttpStatus.OK);
   }
 
   @Override
-  public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(String initiativeId,
-      Pageable pageable,
-      String userId,
-      LocalDateTime startDate,
-      LocalDateTime endDate,
-      String status) {
-    ResponseInitiativeOnboardingDTO responseInitiativeOnboardingDTO = onboardingService.getOnboardingStatusList(
-        initiativeId, userId, startDate, endDate,
-        status, pageable);
-    return new ResponseEntity<>(responseInitiativeOnboardingDTO, HttpStatus.OK);
+  public ResponseEntity<Void> saveOnboarding(ConsentPutDTO consentPutDTO, String userId) {
+    onboardingService.saveOnboarding(consentPutDTO, userId);
+    return ResponseEntity.accepted().build();
   }
 
   @Override
-  public ResponseEntity<Void> saveConsent(@Valid @RequestBody ConsentPutDTO body,
-      String userId) {
-    onboardingService.saveConsent(body, userId);
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(String initiativeId,
+                                                                              Pageable pageable,
+                                                                              String userId,
+                                                                              LocalDateTime startDate,
+                                                                              LocalDateTime endDate,
+                                                                              String status) {
+    ResponseInitiativeOnboardingDTO responseInitiativeOnboardingDTO = onboardingService.getOnboardingStatusList(
+            initiativeId, userId, startDate, endDate,
+            status, pageable);
+    return new ResponseEntity<>(responseInitiativeOnboardingDTO, HttpStatus.OK);
   }
 
   @Override
   public ResponseEntity<Void> disableOnboarding(UnsubscribeBodyDTO body) {
     onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(),
-        body.getUnsubscribeDate());
+            body.getUnsubscribeDate());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
