@@ -5,7 +5,6 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
-import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode;
 import it.gov.pagopa.onboarding.workflow.exception.custom.EmailNotMatchedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
@@ -17,17 +16,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
+import static java.time.LocalDate.MAX;
+import static java.time.LocalDate.MIN;
+import static java.util.Locale.ITALIAN;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpStatus.ACCEPTED;
+import static org.springframework.http.HttpStatus.OK;
 
 @ExtendWith(MockitoExtension.class)
 class OnboardingControllerImplTest {
@@ -39,7 +42,7 @@ class OnboardingControllerImplTest {
   private OnboardingControllerImpl controller;
 
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final Locale ACCEPT_LANGUAGE = Locale.ITALIAN;
+  private static final Locale ACCEPT_LANGUAGE = ITALIAN;
 
   private InitiativeWebDTO initiativeWebDTO;
 
@@ -59,17 +62,17 @@ class OnboardingControllerImplTest {
                         "description",
                             "subdescription"
                     )),
-                    SelfCriteriaMultiTypeCode.ISEE.getDescription()
+                    ISEE.getDescription()
             ))
     );
 
     GeneralWebMapper generalWebMapper = new GeneralWebMapper();
 
     InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
-    initiativeGeneralDTO.setStartDate(LocalDate.MIN);
-    initiativeGeneralDTO.setEndDate(LocalDate.MAX);
+    initiativeGeneralDTO.setStartDate(MIN);
+    initiativeGeneralDTO.setEndDate(MAX);
     Map<String, String> language = new HashMap<>();
-    language.put(Locale.ITALIAN.getLanguage(), "it");
+    language.put(ITALIAN.getLanguage(), "it");
     initiativeGeneralDTO.setDescriptionMap(language);
 
     InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
@@ -86,7 +89,7 @@ class OnboardingControllerImplTest {
 
     assertNotNull(response);
 
-    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(OK, response.getStatusCode());
     assertEquals(initiativeWebDTO, response.getBody());
     verify(onboardingService).initiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE);
     verifyNoMoreInteractions(onboardingService);
@@ -120,7 +123,7 @@ class OnboardingControllerImplTest {
 
     ResponseEntity<Void> response = controller.saveOnboarding(consent, userId);
 
-    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+    assertEquals(ACCEPTED, response.getStatusCode());
     verify(onboardingService, times(1)).saveOnboarding(consent, userId);
   }
 
@@ -135,7 +138,7 @@ class OnboardingControllerImplTest {
 
     ResponseEntity<Void> response = controller.saveOnboarding(consent, userId);
 
-    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+    assertEquals(ACCEPTED, response.getStatusCode());
     verify(onboardingService, times(1)).saveOnboarding(consent, userId);
   }
 

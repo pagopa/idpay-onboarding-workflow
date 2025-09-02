@@ -17,19 +17,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ACCEPTED_TC;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
+import static java.time.LocalDate.now;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = {
@@ -61,7 +62,7 @@ class OnboardingControllerTest {
   private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(
       onboardingStatusCitizenDTOList, 15, 20, 100, 15);
   private static final OnboardingFamilyDetailDTO ONBOARDING_FAMILY_DETAIL_DTO = new OnboardingFamilyDetailDTO(
-          CF, FAMILY_ID, LocalDate.now(), STATUS);
+          CF, FAMILY_ID, now(), STATUS);
   static List<OnboardingFamilyDetailDTO> onboardingFamilyDetailDTOList = List.of(ONBOARDING_FAMILY_DETAIL_DTO);
   private static final OnboardingFamilyDTO FAMILY_DTO = new OnboardingFamilyDTO(onboardingFamilyDetailDTOList);
 
@@ -79,7 +80,7 @@ class OnboardingControllerTest {
 
         mvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
-                                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+                                .contentType(APPLICATION_JSON_VALUE).accept(APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
 
@@ -91,7 +92,7 @@ class OnboardingControllerTest {
 
         mvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
-                                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+                                .contentType(APPLICATION_JSON_VALUE).accept(APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
     }
 
@@ -103,7 +104,7 @@ class OnboardingControllerTest {
 
         mvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status")
-                                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON))
+                                .contentType(APPLICATION_JSON_VALUE).accept(APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
     }
 
@@ -118,9 +119,9 @@ class OnboardingControllerTest {
 
         mvc.perform(
                         MockMvcRequestBuilders.delete(BASE_URL + DISABLE_URL)
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .contentType(APPLICATION_JSON_VALUE)
                                 .content(objectMapper.writeValueAsString(unsubscribeBodyDTO))
-                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                                .accept(APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
                 .andReturn();
     }
@@ -130,8 +131,8 @@ class OnboardingControllerTest {
         Mockito.doNothing().when(onboardingService).rollback(INITIATIVE_ID, USER_ID);
         mvc.perform(
                         MockMvcRequestBuilders.put(BASE_URL + ROLLBACK_URL + "/" + INITIATIVE_ID + "/" + USER_ID)
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                                .contentType(APPLICATION_JSON_VALUE)
+                                .accept(APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
                 .andReturn();
     }
@@ -142,8 +143,8 @@ class OnboardingControllerTest {
                 onboardingService.getOnboardingStatusList(USER_ID, null)).thenReturn(ONBOARDING_DTO);
 
         mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                        .contentType(APPLICATION_JSON_VALUE)
+                        .accept(APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
 
@@ -153,8 +154,8 @@ class OnboardingControllerTest {
                 .when(onboardingService).getOnboardingStatusList(USER_ID, null);
 
         mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                        .contentType(APPLICATION_JSON_VALUE)
+                        .accept(APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
 
@@ -163,8 +164,8 @@ class OnboardingControllerTest {
         Mockito.doNothing().when(onboardingService).suspend(INITIATIVE_ID, USER_ID);
         mvc.perform(
                         MockMvcRequestBuilders.put(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + SUSPEND_URL)
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                                .contentType(APPLICATION_JSON_VALUE)
+                                .accept(APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
                 .andReturn();
     }
@@ -173,8 +174,8 @@ class OnboardingControllerTest {
         Mockito.doNothing().when(onboardingService).readmit(INITIATIVE_ID, USER_ID);
         mvc.perform(
                         MockMvcRequestBuilders.put(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + READMIT_URL)
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                                .contentType(APPLICATION_JSON_VALUE)
+                                .accept(APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
                 .andReturn();
     }
@@ -185,8 +186,8 @@ class OnboardingControllerTest {
                 onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID)).thenReturn(FAMILY_DTO);
         mvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + FAMILY_URL)
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                                .contentType(APPLICATION_JSON_VALUE)
+                                .accept(APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
     }

@@ -17,7 +17,6 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
-import it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
@@ -29,7 +28,6 @@ import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.bson.BsonDocument;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +57,11 @@ import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowCons
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
+import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
+import static java.lang.Boolean.TRUE;
+import static java.math.BigDecimal.*;
+import static java.time.LocalDate.*;
+import static java.util.Locale.ITALIAN;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -120,10 +123,10 @@ class OnboardingServiceTest {
     private static final String ONBOARDING_USER_UNSUBSCRIBED = "ONBOARDING_USER_UNSUBSCRIBED";
     private static final String ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED = "ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED";
     private static final String ONBOARDING_INITIATIVE_ENDED = "ONBOARDING_INITIATIVE_ENDED";
-    private static final Locale ACCEPT_LANGUAGE = Locale.ITALIAN;
+    private static final Locale ACCEPT_LANGUAGE = ITALIAN;
 
     private static final String FAMILY_ID = "TEST_FAMILY_ID";
-    private static final LocalDate OPERATION_DATE = LocalDate.now();
+    private static final LocalDate OPERATION_DATE = now();
     private static final String SERVICE_ID = "SERVICE_ID";
     private static final String INITIATIVE_NAME = "INITIATIVE_NAME";
     private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
@@ -131,8 +134,8 @@ class OnboardingServiceTest {
     private static final String PII = "PII_TEST";
     public static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
 
-    private static final BigDecimal BUDGET = BigDecimal.TEN;
-    private static final BigDecimal BENEFICIARY_BUDGET = BigDecimal.ONE;
+    private static final BigDecimal BUDGET = TEN;
+    private static final BigDecimal BENEFICIARY_BUDGET = ONE;
     private static final String INVALID_INITIATIVE = "INVALID_INITIATIVE_ID";
     private static final String OUT_OF_RANKING = "OUT_OF_RANKING";
     private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
@@ -216,44 +219,44 @@ class OnboardingServiceTest {
         CITIZEN_STATUS_DTO_KO.setStatus(false);
 
         GENERAL.setBeneficiaryKnown(false);
-        GENERAL.setStartDate(LocalDate.MIN);
-        GENERAL.setEndDate(LocalDate.MAX);
+        GENERAL.setStartDate(MIN);
+        GENERAL.setEndDate(MAX);
         GENERAL.setBudget(BUDGET);
         GENERAL.setBeneficiaryBudget(BENEFICIARY_BUDGET);
         GENERAL.setRankingEnabled(Boolean.FALSE);
 
         GENERAL_RANKING.setBeneficiaryKnown(false);
-        GENERAL_RANKING.setStartDate(LocalDate.MIN);
-        GENERAL_RANKING.setEndDate(LocalDate.MAX);
-        GENERAL_RANKING.setRankingStartDate(LocalDate.MIN);
-        GENERAL_RANKING.setRankingEndDate(LocalDate.MAX);
+        GENERAL_RANKING.setStartDate(MIN);
+        GENERAL_RANKING.setEndDate(MAX);
+        GENERAL_RANKING.setRankingStartDate(MIN);
+        GENERAL_RANKING.setRankingEndDate(MAX);
         GENERAL_RANKING.setBudget(BUDGET);
         GENERAL_RANKING.setBeneficiaryBudget(BENEFICIARY_BUDGET);
-        GENERAL_RANKING.setRankingEnabled(Boolean.TRUE);
+        GENERAL_RANKING.setRankingEnabled(TRUE);
 
         GENERAL_WHITELIST.setBeneficiaryKnown(true);
-        GENERAL_WHITELIST.setStartDate(LocalDate.MIN);
-        GENERAL_WHITELIST.setEndDate(LocalDate.MAX);
+        GENERAL_WHITELIST.setStartDate(MIN);
+        GENERAL_WHITELIST.setEndDate(MAX);
         GENERAL_WHITELIST.setBudget(BUDGET);
         GENERAL_WHITELIST.setBeneficiaryBudget(BENEFICIARY_BUDGET);
 
         GENERAL_KO_START_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_START_DATE.setStartDate(LocalDate.MAX);
-        GENERAL_KO_START_DATE.setEndDate(LocalDate.MAX);
+        GENERAL_KO_START_DATE.setStartDate(MAX);
+        GENERAL_KO_START_DATE.setEndDate(MAX);
 
         GENERAL_KO_RANKING_START_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_RANKING_START_DATE.setRankingStartDate(LocalDate.MAX);
-        GENERAL_KO_RANKING_START_DATE.setRankingEndDate(LocalDate.MAX);
+        GENERAL_KO_RANKING_START_DATE.setRankingStartDate(MAX);
+        GENERAL_KO_RANKING_START_DATE.setRankingEndDate(MAX);
 
         ADDITIONAL_DTO_WHITELIST.setServiceId(INITIATIVE_ID);
 
         GENERAL_KO_END_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_END_DATE.setStartDate(LocalDate.MIN);
-        GENERAL_KO_END_DATE.setEndDate(LocalDate.MIN);
+        GENERAL_KO_END_DATE.setStartDate(MIN);
+        GENERAL_KO_END_DATE.setEndDate(MIN);
 
         GENERAL_KO_RANKING_END_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_RANKING_END_DATE.setRankingStartDate(LocalDate.MIN);
-        GENERAL_KO_RANKING_END_DATE.setRankingEndDate(LocalDate.MIN);
+        GENERAL_KO_RANKING_END_DATE.setRankingStartDate(MIN);
+        GENERAL_KO_RANKING_END_DATE.setRankingEndDate(MIN);
 
         INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
                 List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
@@ -326,14 +329,14 @@ class OnboardingServiceTest {
         long delayTime = 100L;
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        LocalDate today = now();
         general.setStartDate(today.minusDays(1));
         general.setEndDate(today.plusDays(1));
         general.setRankingStartDate(today);
         general.setRankingEndDate(today.plusDays(2));
         general.setBeneficiaryKnown(false);
-        general.setBudget(BigDecimal.valueOf(1000));
-        general.setBeneficiaryBudget(BigDecimal.valueOf(100));
+        general.setBudget(valueOf(1000));
+        general.setBeneficiaryBudget(valueOf(100));
 
         initiativeDTO = new InitiativeDTO();
         initiativeDTO.setGeneral(general);
@@ -354,7 +357,7 @@ class OnboardingServiceTest {
                                 "description",
                                 "subDescription"
                         )),
-                        SelfCriteriaMultiTypeCode.ISEE.getDescription()
+                        ISEE.getDescription()
                 )
         ));
 
@@ -382,11 +385,11 @@ class OnboardingServiceTest {
         generalWebMapper = new GeneralWebMapper();
 
         InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
-        initiativeGeneralDTO.setStartDate(LocalDate.MIN);
-        initiativeGeneralDTO.setEndDate(LocalDate.MAX);
+        initiativeGeneralDTO.setStartDate(MIN);
+        initiativeGeneralDTO.setEndDate(MAX);
 
         Map<String, String> language = new HashMap<>();
-        language.put(Locale.ITALIAN.getLanguage(), "it");
+        language.put(ITALIAN.getLanguage(), "it");
         initiativeGeneralDTO.setDescriptionMap(language);
 
         initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
@@ -501,13 +504,13 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        LocalDate today = now();
         general.setStartDate(today);
         general.setEndDate(today.plusDays(1));
         general.setRankingStartDate(today);
         general.setRankingEndDate(today.plusDays(2));
         general.setBeneficiaryKnown(false);
-        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        general.setBeneficiaryBudget(valueOf(1000));
         initiativeTestDTO.setGeneral(general);
 
 
@@ -626,13 +629,13 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        LocalDate today = now();
         general.setStartDate(today);
         general.setEndDate(today.plusDays(1));
         general.setRankingStartDate(today);
         general.setRankingEndDate(today.plusDays(2));
         general.setBeneficiaryKnown(false);
-        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        general.setBeneficiaryBudget(valueOf(1000));
         initiativeTestDTO.setGeneral(general);
 
 
@@ -677,13 +680,13 @@ class OnboardingServiceTest {
         initiativeDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        LocalDate today = now();
         general.setStartDate(today);
         general.setEndDate(today.plusDays(1));
         general.setRankingStartDate(today);
         general.setRankingEndDate(today.plusDays(2));
         general.setBeneficiaryKnown(false);
-        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        general.setBeneficiaryBudget(valueOf(1000));
         initiativeDTO.setGeneral(general);
 
 
@@ -826,13 +829,13 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        LocalDate today = now();
         general.setStartDate(today);
         general.setEndDate(today.plusDays(1));
         general.setRankingStartDate(today);
         general.setRankingEndDate(today.plusDays(2));
         general.setBeneficiaryKnown(false);
-        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        general.setBeneficiaryBudget(valueOf(1000));
         initiativeTestDTO.setGeneral(general);
 
 
@@ -889,13 +892,13 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        LocalDate today = now();
         general.setStartDate(today);
         general.setEndDate(today.plusDays(1));
         general.setRankingStartDate(today);
         general.setRankingEndDate(today.plusDays(2));
         general.setBeneficiaryKnown(false);
-        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        general.setBeneficiaryBudget(valueOf(1000));
         initiativeTestDTO.setGeneral(general);
 
 
@@ -949,13 +952,13 @@ class OnboardingServiceTest {
         initiativeDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        LocalDate today = now();
         general.setStartDate(today);
         general.setEndDate(today.plusDays(1));
         general.setRankingStartDate(today);
         general.setRankingEndDate(today.plusDays(2));
         general.setBeneficiaryKnown(false);
-        general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
+        general.setBeneficiaryBudget(valueOf(1000));
         initiativeDTO.setGeneral(general);
 
 
@@ -1230,7 +1233,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
-        LocalDate nowLocalDate = LocalDate.now();
+        LocalDate nowLocalDate = now();
         InitiativeDTO initiative = initiativeDetailDTO(BENEFICIARY_TYPE_NF,
                 nowLocalDate.minusDays(25),
                 nowLocalDate.minusDays(20),
@@ -1261,7 +1264,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
 
-        LocalDate nowLocalDate = LocalDate.now();
+        LocalDate nowLocalDate = now();
         InitiativeDTO initiative = initiativeDetailDTO(BENEFICIARY_TYPE_NF,
                 nowLocalDate.minusDays(25),
                 nowLocalDate.minusDays(20),
@@ -1273,7 +1276,7 @@ class OnboardingServiceTest {
 
         try {
             onboardingService.putTcConsent(INITIATIVE_ID, USER_ID);
-            Assertions.fail();
+            fail();
         } catch (InitiativeInvalidException e) {
             assertEquals(ONBOARDING_INITIATIVE_ENDED, e.getCode());
         }
@@ -1493,7 +1496,7 @@ class OnboardingServiceTest {
 
         try {
             onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-            Assertions.fail();
+            fail();
         } catch (UserNotInWhitelistException e) {
             assertEquals(USER_NOT_IN_WHITELIST, e.getCode());
             assertEquals(String.format(ERROR_WHITELIST_MSG, onboarding.getInitiativeId()), e.getMessage());
@@ -1601,7 +1604,7 @@ class OnboardingServiceTest {
 
         try {
             onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-            Assertions.fail();
+            fail();
         } catch (InitiativeBudgetExhaustedException e) {
             assertEquals(ONBOARDING_BUDGET_EXHAUSTED, e.getCode());
             assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, INITIATIVE_ID), e.getMessage());
@@ -1779,7 +1782,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
-        LocalDate localDateNow = LocalDate.now();
+        LocalDate localDateNow = now();
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
                 .thenReturn(initiativeDetailDTO(BENEFICIARY_TYPE_NF,
                         localDateNow.minusDays(30),
@@ -1804,7 +1807,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
-        LocalDate localDateNow = LocalDate.now();
+        LocalDate localDateNow = now();
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
                 .thenReturn(initiativeDetailDTO(BENEFICIARY_TYPE_NF,
                         localDateNow.minusDays(30),
@@ -1814,7 +1817,7 @@ class OnboardingServiceTest {
 
         try {
             onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
-            Assertions.fail();
+            fail();
         } catch (InitiativeInvalidException e) {
             assertEquals(ONBOARDING_INITIATIVE_ENDED, e.getCode());
         }
@@ -1953,7 +1956,7 @@ class OnboardingServiceTest {
         String date = LocalDateTime.now().toString();
         try {
             onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, date);
-            Assertions.fail();
+            fail();
         } catch (UserNotOnboardedException e) {
             assertEquals(USER_NOT_ONBOARDED, e.getCode());
             assertEquals(String.format(ID_S_NOT_FOUND_MSG, INITIATIVE_ID), e.getMessage());
@@ -2426,7 +2429,7 @@ class OnboardingServiceTest {
     void testSelfDeclaration_WhenCriteriaPresent_ShouldProcessAndSave() {
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
         SelfConsentBoolDTO selfDecl = new SelfConsentBoolDTO();
-        selfDecl.setCode(SelfCriteriaMultiTypeCode.ISEE.name());
+        selfDecl.setCode(ISEE.name());
         selfDecl.setAccepted(true);
         consentPutDTO.setSelfDeclarationList(List.of(selfDecl));
 
@@ -2448,7 +2451,7 @@ class OnboardingServiceTest {
                         "description",
                         "subdescription"
                 )),
-                SelfCriteriaMultiTypeCode.ISEE.getDescription()
+                ISEE.getDescription()
         )));
         initiativeDTO.setBeneficiaryRule(rule);
 
