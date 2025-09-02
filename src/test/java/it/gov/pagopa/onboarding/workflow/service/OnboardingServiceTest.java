@@ -721,7 +721,7 @@ class OnboardingServiceTest {
 
 
         Onboarding onboarding = new Onboarding(initiativeId, userId);
-        onboarding.setStatus(STATUS_IDEMPOTENT.iterator().next());
+        onboarding.setStatus(STATUS_IDEMPOTENT.getFirst());
 
         doReturn(onboarding).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
@@ -2607,6 +2607,59 @@ class OnboardingServiceTest {
         );
 
         assertTrue(exception.getMessage().contains(initiativeDTO.getInitiativeId()));
+    }
+
+    @Test
+    void testMultiCriteriaCheck_ValueIsNull_ShouldThrowExceptionAndAudit() {
+        initiativeDTO.setInitiativeId("TEST_INITIATIVE");
+
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+
+        Map<String, String> selfDeclarationMulti = new HashMap<>();
+        selfDeclarationMulti.put(multi.getCode(), null);
+
+        SelfDeclarationCrtieriaException exception = assertThrows(
+                SelfDeclarationCrtieriaException.class,
+                () -> onboardingService.multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti)
+        );
+
+        verify(auditUtilities, times(1)).logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), ERROR_SELF_DECLARATION_DENY_AUDIT);
+        assertTrue(exception.getMessage().contains(initiativeDTO.getInitiativeId()));
+    }
+
+    @Test
+    void testMultiCriteriaCheck_ValueNotAllowed_ShouldThrowExceptionAndAudit() {
+        initiativeDTO.setInitiativeId("TEST_INITIATIVE");
+
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+
+        Map<String, String> selfDeclarationMulti = new HashMap<>();
+        selfDeclarationMulti.put(multi.getCode(), "INVALID_VALUE");
+
+        SelfDeclarationCrtieriaException exception = assertThrows(
+                SelfDeclarationCrtieriaException.class,
+                () -> onboardingService.multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti)
+        );
+
+        verify(auditUtilities, times(1)).logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), ERROR_SELF_DECLARATION_DENY_AUDIT);
+        assertTrue(exception.getMessage().contains(initiativeDTO.getInitiativeId()));
+    }
+
+    @Test
+    void testMultiCriteriaCheck_ValueAllowed_ShouldSetValue() {
+        initiativeDTO.setInitiativeId("TEST_INITIATIVE");
+
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+
+        Map<String, String> selfDeclarationMulti = new HashMap<>();
+        selfDeclarationMulti.put(multi.getCode(), "Value2");
+
+        onboardingService.multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
+
+        assertEquals(1, multi.getValue().size());
+        assertEquals("Value2", multi.getValue().getFirst());
+
+        verify(auditUtilities, never()).logOnboardingKOInitiativeId(any(), any());
     }
 
 }
