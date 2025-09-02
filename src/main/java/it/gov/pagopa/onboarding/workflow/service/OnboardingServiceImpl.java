@@ -958,7 +958,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private String sanitize(String input) {
     if (input == null) return "null";
-    return input.replaceAll("[\r\n\t]", "_");
+    return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
   }
 
 }
