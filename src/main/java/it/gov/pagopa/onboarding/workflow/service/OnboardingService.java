@@ -35,7 +35,6 @@ public interface OnboardingService {
   void checkDates(InitiativeDTO initiativeDTO, Onboarding onboarding);
   LocalDate getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding);
   void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding);
-  void performanceLog(long startTime, String service, String userId, String initiativeId);
   void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId);
   boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText);
   void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti);
@@ -45,5 +44,6 @@ public interface OnboardingService {
   boolean hasAutomatedCriteriaAndPdndNotAccepted(InitiativeDTO initiativeDTO, ConsentPutDTO dto);
   void handlePdndDenied(Onboarding onboarding, String userId, InitiativeDTO initiativeDTO, long startTime);
   void fillOnboardingData(Onboarding onboarding, ConsentPutDTO dto);
+  void performanceLog(long startTime, String service, String userId, String initiativeId);
 
 }
