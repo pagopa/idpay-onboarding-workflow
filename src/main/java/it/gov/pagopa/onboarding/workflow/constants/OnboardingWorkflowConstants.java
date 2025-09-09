@@ -98,6 +98,10 @@ public class OnboardingWorkflowConstants {
     public static final String TOS_NOT_CONFIRMED = "ONBOARDING_TOS_NOT_CONFIRMED";
     public static final String EMAIL_NOT_MATCHED = "ONBOARDING_EMAIL_NOT_MATCHED";
 
+    public static final String ISEE_CODE = "isee";
+
+    public static final String INTEGER_ONE = "1";
+
     private ExceptionCode() {}
   }
 
