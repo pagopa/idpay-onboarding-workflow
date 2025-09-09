@@ -1004,16 +1004,17 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
+
         SelfConsentMultiDTO iseeConsent = new SelfConsentMultiDTO();
-        iseeConsent.setCode("isee");
-        iseeConsent.setValue("1");
+        iseeConsent.setCode(ISEE_CODE);
+        iseeConsent.setValue(INTEGER_ONE);
         consent.setSelfDeclarationList(List.of(iseeConsent));
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
         InitiativeDTO initiativeTestDTO = new InitiativeDTO();
         initiativeTestDTO.setInitiativeId(initiativeId);
-        initiativeTestDTO.setStatus("PUBLISHED");
+        initiativeTestDTO.setStatus(PUBLISHED);
 
         InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
         ruleDTO.setAutomatedCriteria(new ArrayList<>());
@@ -1039,6 +1040,7 @@ class OnboardingServiceTest {
             return OnboardingDTO.builder()
                     .userId(onboarding.getUserId())
                     .initiativeId(onboarding.getInitiativeId())
+                    .verifyIsee(true)
                     .build();
         });
 
@@ -1051,11 +1053,11 @@ class OnboardingServiceTest {
         verify(onboardingRepositoryMock).save(any(Onboarding.class));
 
         OnboardingDTO sentDto = dtoCaptor.getValue();
-        assertTrue(sentDto.getVerifyIsee(), "verifyIsee should be true when ISEE choice is 1");
+        assertTrue(sentDto.getVerifyIsee());
     }
 
     @Test
-    void testSaveOnboarding_VerifyIseeChoice2_SetsVerifyIseeFalse() {
+    void testSaveOnboarding_VerifyIseeChoiceNot1_SetsVerifyIseeFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
 
@@ -1063,8 +1065,9 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
+
         SelfConsentMultiDTO iseeConsent = new SelfConsentMultiDTO();
-        iseeConsent.setCode("isee");
+        iseeConsent.setCode(ISEE_CODE);
         iseeConsent.setValue("2");
         consent.setSelfDeclarationList(List.of(iseeConsent));
 
@@ -1072,7 +1075,7 @@ class OnboardingServiceTest {
 
         InitiativeDTO initiativeTestDTO = new InitiativeDTO();
         initiativeTestDTO.setInitiativeId(initiativeId);
-        initiativeTestDTO.setStatus("PUBLISHED");
+        initiativeTestDTO.setStatus(PUBLISHED);
 
         InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
         ruleDTO.setAutomatedCriteria(new ArrayList<>());
@@ -1098,6 +1101,7 @@ class OnboardingServiceTest {
             return OnboardingDTO.builder()
                     .userId(onboarding.getUserId())
                     .initiativeId(onboarding.getInitiativeId())
+                    .verifyIsee(false)
                     .build();
         });
 
@@ -1110,11 +1114,11 @@ class OnboardingServiceTest {
         verify(onboardingRepositoryMock).save(any(Onboarding.class));
 
         OnboardingDTO sentDto = dtoCaptor.getValue();
-        assertFalse(sentDto.getVerifyIsee(), "verifyIsee should be false when ISEE choice is 2");
+        assertFalse(sentDto.getVerifyIsee());
     }
 
     @Test
-    void testSaveOnboarding_VerifyIseeChoice3_SetsVerifyIseeFalse() {
+    void testSaveOnboarding_NoSelfDeclaration_SetsVerifyIseeFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
 
@@ -1122,16 +1126,13 @@ class OnboardingServiceTest {
         consent.setInitiativeId(initiativeId);
         consent.setConfirmedTos(true);
         consent.setPdndAccept(true);
-        SelfConsentMultiDTO iseeConsent = new SelfConsentMultiDTO();
-        iseeConsent.setCode("isee");
-        iseeConsent.setValue("3");
-        consent.setSelfDeclarationList(List.of(iseeConsent));
+        consent.setSelfDeclarationList(Collections.emptyList());
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
         InitiativeDTO initiativeTestDTO = new InitiativeDTO();
         initiativeTestDTO.setInitiativeId(initiativeId);
-        initiativeTestDTO.setStatus("PUBLISHED");
+        initiativeTestDTO.setStatus(PUBLISHED);
 
         InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
         ruleDTO.setAutomatedCriteria(new ArrayList<>());
@@ -1157,6 +1158,7 @@ class OnboardingServiceTest {
             return OnboardingDTO.builder()
                     .userId(onboarding.getUserId())
                     .initiativeId(onboarding.getInitiativeId())
+                    .verifyIsee(false)
                     .build();
         });
 
@@ -1169,10 +1171,69 @@ class OnboardingServiceTest {
         verify(onboardingRepositoryMock).save(any(Onboarding.class));
 
         OnboardingDTO sentDto = dtoCaptor.getValue();
-        assertFalse(sentDto.getVerifyIsee(), "verifyIsee should be false when ISEE choice is 3");
+        assertFalse(sentDto.getVerifyIsee());
     }
 
+    @Test
+    void testSaveOnboarding_SelfDeclarationWithDifferentCode_SetsVerifyIseeFalse() {
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
 
+        ConsentPutDTO consent = new ConsentPutDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+
+        SelfConsentMultiDTO otherConsent = new SelfConsentMultiDTO();
+        otherConsent.setCode("otherCode");
+        otherConsent.setValue(INTEGER_ONE);
+        consent.setSelfDeclarationList(List.of(otherConsent));
+
+        doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus(PUBLISHED);
+
+        InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
+        ruleDTO.setAutomatedCriteria(new ArrayList<>());
+        ruleDTO.setSelfDeclarationCriteria(new ArrayList<>());
+        initiativeTestDTO.setBeneficiaryRule(ruleDTO);
+
+        InitiativeGeneralDTO general = new InitiativeGeneralDTO();
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        initiativeTestDTO.setGeneral(general);
+
+        InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
+        additional.setServiceId("serviceId");
+        initiativeTestDTO.setAdditionalInfo(additional);
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+        doNothing().when(onboardingService).checkDates(any(), any());
+        doNothing().when(onboardingService).checkBudget(any(), any());
+        doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
+
+        when(consentMapper.map(any())).thenAnswer(invocation -> {
+            Onboarding onboarding = invocation.getArgument(0);
+            return OnboardingDTO.builder()
+                    .userId(onboarding.getUserId())
+                    .initiativeId(onboarding.getInitiativeId())
+                    .verifyIsee(false)
+                    .build();
+        });
+
+        when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        onboardingService.saveOnboarding(consent, userId);
+
+        ArgumentCaptor<OnboardingDTO> dtoCaptor = ArgumentCaptor.forClass(OnboardingDTO.class);
+        verify(onboardingProducer).sendSaveConsent(dtoCaptor.capture());
+        verify(onboardingRepositoryMock).save(any(Onboarding.class));
+
+        OnboardingDTO sentDto = dtoCaptor.getValue();
+        assertFalse(sentDto.getVerifyIsee());
+    }
 
     @Test
     void putTc_ok_OnboardingNull() {
