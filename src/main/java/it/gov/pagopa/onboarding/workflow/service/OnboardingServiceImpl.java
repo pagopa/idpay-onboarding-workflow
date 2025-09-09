@@ -220,9 +220,24 @@ public class OnboardingServiceImpl implements OnboardingService {
     fillOnboardingData(onboarding, consentPutDTO);
     onboarding.setUserMail(consentPutDTO.getUserMail());
 
-
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
+
+    String iseeChoice = consentPutDTO.getSelfDeclarationList().stream()
+            .filter(SelfConsentMultiDTO.class::isInstance)
+            .map(SelfConsentMultiDTO.class::cast)
+            .filter(dto -> "isee".equals(dto.getCode()))
+            .map(SelfConsentMultiDTO::getValue)
+            .findFirst()
+            .orElse(null);
+
+    boolean verifyIsee;
+    if ("1".equals(iseeChoice)) {
+      verifyIsee = true;
+    } else {
+      verifyIsee = false;
+    }
+    onboardingDTO.setVerifyIsee(verifyIsee);
 
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
