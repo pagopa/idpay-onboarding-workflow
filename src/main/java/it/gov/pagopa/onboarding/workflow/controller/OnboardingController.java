@@ -10,11 +10,9 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
@@ -71,18 +69,13 @@ public interface OnboardingController {
     /**
      * Returns the onboarding status list
      *
-     * @param initiativeId
+     * @param userId
      * @return
      */
-    @GetMapping("/{initiativeId}")
+    @GetMapping("/user/{userId}/initiative/status")
     ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
-            @PathVariable("initiativeId") String initiativeId,
             @PageableDefault(size = 15, sort = "updateDate", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(required = false) String userId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam(required = false) String status);
-
+            @PathVariable("userId") String userId);
     /**
      * Deactivation onboarding
      *

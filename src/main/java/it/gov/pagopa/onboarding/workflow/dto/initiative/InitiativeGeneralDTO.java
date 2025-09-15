@@ -26,6 +26,9 @@ public class InitiativeGeneralDTO   {
   @JsonProperty("beneficiaryBudget")
   private BigDecimal beneficiaryBudget;
 
+  @JsonProperty("beneficiaryBudgetMax")
+  private BigDecimal beneficiaryBudgetMax;
+
   @JsonProperty("startDate")
   private LocalDate startDate;
 

@@ -9,10 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.Locale;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
+
 
 @RestController
 public class OnboardingControllerImpl implements OnboardingController {
@@ -48,15 +48,10 @@ public class OnboardingControllerImpl implements OnboardingController {
   }
 
   @Override
-  public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(String initiativeId,
-                                                                              Pageable pageable,
-                                                                              String userId,
-                                                                              LocalDateTime startDate,
-                                                                              LocalDateTime endDate,
-                                                                              String status) {
+  public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(Pageable pageable,
+                                                                              String userId) {
     ResponseInitiativeOnboardingDTO responseInitiativeOnboardingDTO = onboardingService.getOnboardingStatusList(
-            initiativeId, userId, startDate, endDate,
-            status, pageable);
+            userId, pageable);
     return new ResponseEntity<>(responseInitiativeOnboardingDTO, HttpStatus.OK);
   }
 

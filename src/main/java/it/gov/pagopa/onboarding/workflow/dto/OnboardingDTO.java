@@ -19,6 +19,8 @@ public class OnboardingDTO {
 
   Boolean tc;
 
+  Boolean verifyIsee;
+
   String status;
 
   Boolean pdndAccept;
