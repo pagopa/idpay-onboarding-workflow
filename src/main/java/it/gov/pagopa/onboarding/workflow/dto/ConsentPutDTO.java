@@ -21,4 +21,5 @@ public class ConsentPutDTO {
     private String userMail;
     private String userMailConfirmation;
     private Boolean confirmedTos;
+    private String channel;
 }
