@@ -113,6 +113,7 @@ class OnboardingControllerImplTest {
   @Test
   void saveConsentUnifiedWeb_ShouldCallServiceAndReturnAccepted() {
     String userId = "USER123";
+    String channel = "CHANNEL";
 
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
@@ -121,31 +122,35 @@ class OnboardingControllerImplTest {
     consent.setConfirmedTos(true);
     consent.setPdndAccept(true);
 
-    ResponseEntity<Void> response = controller.saveOnboarding(consent, userId);
+    ResponseEntity<Void> response = controller.saveOnboarding(consent, channel, userId);
 
     assertEquals(ACCEPTED, response.getStatusCode());
-    verify(onboardingService, times(1)).saveOnboarding(consent, userId);
+    verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
 
   @Test
   void saveConsentUnifiedAppIo_ShouldCallServiceAndReturnAccepted() {
     String userId = "USER123";
+    String channel = "CHANNEL";
+
 
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
     consent.setConfirmedTos(true);
     consent.setPdndAccept(true);
 
-    ResponseEntity<Void> response = controller.saveOnboarding(consent, userId);
+    ResponseEntity<Void> response = controller.saveOnboarding(consent, channel, userId);
 
     assertEquals(ACCEPTED, response.getStatusCode());
-    verify(onboardingService, times(1)).saveOnboarding(consent, userId);
+    verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
 
 
   @Test
   void saveConsentUnifiedWeb_ShouldThrowTosNotConfirmedException_WhenTosFalse() {
     String userId = "USER123";
+    String channel = "CHANNEL";
+
 
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
@@ -155,16 +160,18 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(true);
 
     doThrow(new TosNotConfirmedException("Terms and Conditions not accepted."))
-            .when(onboardingService).saveOnboarding(consent, userId);
+            .when(onboardingService).saveOnboarding(consent, channel, userId);
 
-    assertThrows(TosNotConfirmedException.class, () -> controller.saveOnboarding(consent, userId));
+    assertThrows(TosNotConfirmedException.class, () -> controller.saveOnboarding(consent, channel, userId));
 
-    verify(onboardingService, times(1)).saveOnboarding(consent, userId);
+    verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
 
   @Test
   void saveConsentUnifiedAppIo_ShouldThrowTosNotConfirmedException_WhenTosIsFalse() {
     String userId = "USER789";
+    String channel = "CHANNEL";
+
 
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_2");
@@ -172,19 +179,21 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(true);
 
     doThrow(new TosNotConfirmedException("Terms and Conditions not accepted."))
-            .when(onboardingService).saveOnboarding(consent, userId);
+            .when(onboardingService).saveOnboarding(consent, channel, userId);
 
     assertThrows(TosNotConfirmedException.class, () ->
-            controller.saveOnboarding(consent, userId)
+            controller.saveOnboarding(consent, channel, userId)
     );
 
-    verify(onboardingService).saveOnboarding(consent, userId);
+    verify(onboardingService).saveOnboarding(consent, channel, userId);
   }
 
 
   @Test
   void saveConsentUnifiedWeb_ShouldThrowEmailNotMatchedException_WhenEmailsNotMatch() {
     String userId = "USER123";
+    String channel = "CHANNEL";
+
 
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
@@ -194,17 +203,19 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(true);
 
     doThrow(new EmailNotMatchedException("Email and confirmation email do not match."))
-            .when(onboardingService).saveOnboarding(consent, userId);
+            .when(onboardingService).saveOnboarding(consent, channel, userId);
 
-    assertThrows(EmailNotMatchedException.class, () -> controller.saveOnboarding(consent, userId));
+    assertThrows(EmailNotMatchedException.class, () -> controller.saveOnboarding(consent, channel, userId));
 
-    verify(onboardingService, times(1)).saveOnboarding(consent, userId);
+    verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
 
 
   @Test
   void saveConsentUnifiedWeb_ShouldThrowPDNDConsentDeniedException_WhenPdndNotAccepted() {
     String userId = "USER123";
+    String channel = "CHANNEL";
+
 
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
@@ -214,16 +225,18 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(false);
 
     doThrow(new PDNDConsentDeniedException("PDND Consent denied"))
-            .when(onboardingService).saveOnboarding(consent, userId);
+            .when(onboardingService).saveOnboarding(consent, channel, userId);
 
-    assertThrows(PDNDConsentDeniedException.class, () -> controller.saveOnboarding(consent, userId));
+    assertThrows(PDNDConsentDeniedException.class, () -> controller.saveOnboarding(consent, channel, userId));
 
-    verify(onboardingService, times(1)).saveOnboarding(consent, userId);
+    verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
 
   @Test
   void saveConsentUnifiedAppIo_ShouldThrowPDNDConsentDeniedException_WhenPdndNotAccepted() {
     String userId = "USER987";
+    String channel = "CHANNEL";
+
 
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_3");
@@ -231,12 +244,12 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(false);
 
     doThrow(new PDNDConsentDeniedException("PDND Consent denied"))
-            .when(onboardingService).saveOnboarding(consent, userId);
+            .when(onboardingService).saveOnboarding(consent, channel, userId);
 
     assertThrows(PDNDConsentDeniedException.class, () ->
-            controller.saveOnboarding(consent, userId)
+            controller.saveOnboarding(consent, channel, userId)
     );
 
-    verify(onboardingService).saveOnboarding(consent, userId);
+    verify(onboardingService).saveOnboarding(consent, channel, userId);
   }
 }

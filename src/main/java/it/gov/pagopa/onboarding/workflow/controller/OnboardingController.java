@@ -56,6 +56,7 @@ public interface OnboardingController {
     @PutMapping("/{userId}")
     ResponseEntity<Void> saveOnboarding(
             @RequestBody ConsentPutDTO consentPutDTO,
+            @RequestHeader ("X-Client-Channel") String channel,
             @PathVariable("userId") String userId);
 
     // Servizi non utilizzati nel workflow di IO o WEB

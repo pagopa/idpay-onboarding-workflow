@@ -431,6 +431,7 @@ class OnboardingServiceTest {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
         String mail = "test@mail.com";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -476,7 +477,7 @@ class OnboardingServiceTest {
         doNothing().when(onboardingService)
                 .checkBudget(any(InitiativeDTO.class), any(Onboarding.class));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel, userId);
 
         ArgumentCaptor<OnboardingDTO> dtoCaptor = ArgumentCaptor.forClass(OnboardingDTO.class);
         verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
@@ -493,6 +494,7 @@ class OnboardingServiceTest {
     void testSaveConsentAppIO_SaveIsCalled_WhenOnboardingNotExists() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -541,7 +543,7 @@ class OnboardingServiceTest {
 
         doNothing().when(onboardingService).checkBudget(any(InitiativeDTO.class), any(Onboarding.class));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
         verify(onboardingProducer, times(1)).sendSaveConsent(any(OnboardingDTO.class));
@@ -552,6 +554,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingWeb_throwsEmailNotMatchedException_whenEmailsDoNotMatch() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -563,7 +566,7 @@ class OnboardingServiceTest {
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        assertThrows(EmailNotMatchedException.class, () -> onboardingService.saveOnboarding(consent, userId));
+        assertThrows(EmailNotMatchedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
         verify(onboardingRepositoryMock, never()).save(any());
     }
@@ -572,6 +575,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingWeb_throwsTosNotConfirmedException_whenTosNotConfirmed() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -583,7 +587,7 @@ class OnboardingServiceTest {
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        assertThrows(TosNotConfirmedException.class, () -> onboardingService.saveOnboarding(consent, userId));
+        assertThrows(TosNotConfirmedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
         verify(onboardingRepositoryMock, never()).save(any());
     }
@@ -592,6 +596,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingAppIO_throwsTosNotConfirmedException_whenTosNotConfirmed() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -601,7 +606,7 @@ class OnboardingServiceTest {
 
         doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        assertThrows(TosNotConfirmedException.class, () -> onboardingService.saveOnboarding(consent, userId));
+        assertThrows(TosNotConfirmedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
         verify(onboardingRepositoryMock, never()).save(any());
         verify(onboardingProducer, never()).sendSaveConsent(any());
@@ -612,6 +617,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingWeb_throwsPDNDOnboardingDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -655,7 +661,7 @@ class OnboardingServiceTest {
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).checkBudget(any(), any());
 
-        assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, userId));
+        assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
         verify(onboardingRepositoryMock, times(1)).save(argThat(onboarding ->
                 ONBOARDING_KO.equals(onboarding.getStatus()) &&
@@ -669,6 +675,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingAppIO_throwsPDNDOnboardingDeniedException_whenAutomatedCriteriaExists_andPdndAcceptFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -707,7 +714,7 @@ class OnboardingServiceTest {
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).checkBudget(any(), any());
 
-        assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, userId));
+        assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
         verify(onboardingRepositoryMock).save(argThat(onboarding ->
                 ONBOARDING_KO.equals(onboarding.getStatus()) &&
@@ -722,6 +729,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingWeb_ReturnsWhenStatusIsIdempotent() {
         String initiativeId = "INIT";
         String userId = "USER";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -736,7 +744,7 @@ class OnboardingServiceTest {
 
         doReturn(onboarding).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingRepositoryMock, never()).save(any());
         verify(onboardingProducer, never()).sendSaveConsent(any());
@@ -746,6 +754,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingAppIO_ReturnsWhenStatusIsIdempotent() {
         String initiativeId = "INIT";
         String userId = "USER";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -758,7 +767,7 @@ class OnboardingServiceTest {
 
         doReturn(onboarding).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingRepositoryMock, never()).save(any());
         verify(onboardingProducer, never()).sendSaveConsent(any());
@@ -768,6 +777,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingWeb_CallsCheckStatusWhenStatusNotIdempotent() {
         String initiativeId = "INIT";
         String userId = "USER";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -784,7 +794,7 @@ class OnboardingServiceTest {
 
         doNothing().when(onboardingService).checkStatus(onboarding);
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingService).checkStatus(onboarding);
     }
@@ -793,6 +803,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingAppIO_CallsCheckStatusWhenStatusNotIdempotent() {
         String initiativeId = "INIT";
         String userId = "USER";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -806,7 +817,7 @@ class OnboardingServiceTest {
         doReturn(onboarding).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
         doNothing().when(onboardingService).checkStatus(onboarding);
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingService).checkStatus(onboarding);
     }
@@ -815,6 +826,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingWeb_AllowsOnboarding_WhenAutomatedCriteriaEmpty() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -866,7 +878,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
         verify(onboardingProducer, times(1)).sendSaveConsent(any(OnboardingDTO.class));
@@ -877,6 +889,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingWeb_AllowsOnboarding_WhenAutomatedCriteriaPresentAndPdndAccepted() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -928,7 +941,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.save(any(Onboarding.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
         verify(onboardingProducer, times(1)).sendSaveConsent(any(OnboardingDTO.class));
@@ -939,6 +952,7 @@ class OnboardingServiceTest {
     void testSaveOnboardingAppIO_AllowsOnboarding_WhenAutomatedCriteriaPresentAndPdndAccepted() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -989,7 +1003,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         verify(onboardingRepositoryMock).save(any(Onboarding.class));
         verify(onboardingProducer).sendSaveConsent(any(OnboardingDTO.class));
@@ -999,6 +1013,7 @@ class OnboardingServiceTest {
     void testSaveOnboarding_VerifyIseeChoice1_SetsVerifyIseeTrue() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -1046,7 +1061,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         ArgumentCaptor<OnboardingDTO> dtoCaptor = ArgumentCaptor.forClass(OnboardingDTO.class);
         verify(onboardingProducer).sendSaveConsent(dtoCaptor.capture());
@@ -1060,6 +1075,7 @@ class OnboardingServiceTest {
     void testSaveOnboarding_VerifyIseeChoiceNot1_SetsVerifyIseeFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -1107,7 +1123,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel,  userId);
 
         ArgumentCaptor<OnboardingDTO> dtoCaptor = ArgumentCaptor.forClass(OnboardingDTO.class);
         verify(onboardingProducer).sendSaveConsent(dtoCaptor.capture());
@@ -1121,6 +1137,7 @@ class OnboardingServiceTest {
     void testSaveOnboarding_NoSelfDeclaration_SetsVerifyIseeFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -1164,7 +1181,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel, userId);
 
         ArgumentCaptor<OnboardingDTO> dtoCaptor = ArgumentCaptor.forClass(OnboardingDTO.class);
         verify(onboardingProducer).sendSaveConsent(dtoCaptor.capture());
@@ -1178,6 +1195,7 @@ class OnboardingServiceTest {
     void testSaveOnboarding_SelfDeclarationWithDifferentCode_SetsVerifyIseeFalse() {
         String initiativeId = "TEST_INITIATIVE";
         String userId = "USER123";
+        String channel = "CHANNEL";
 
         ConsentPutDTO consent = new ConsentPutDTO();
         consent.setInitiativeId(initiativeId);
@@ -1225,7 +1243,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        onboardingService.saveOnboarding(consent, userId);
+        onboardingService.saveOnboarding(consent, channel, userId);
 
         ArgumentCaptor<OnboardingDTO> dtoCaptor = ArgumentCaptor.forClass(OnboardingDTO.class);
         verify(onboardingProducer).sendSaveConsent(dtoCaptor.capture());

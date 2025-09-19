@@ -193,7 +193,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void saveOnboarding(ConsentPutDTO consentPutDTO, String userId) {
+  public void saveOnboarding(ConsentPutDTO consentPutDTO, String channel, String userId) {
     long startTime = System.currentTimeMillis();
 
     Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
@@ -219,6 +219,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     fillOnboardingData(onboarding, consentPutDTO);
     onboarding.setUserMail(consentPutDTO.getUserMail());
+    onboarding.setChannel(channel);
 
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());

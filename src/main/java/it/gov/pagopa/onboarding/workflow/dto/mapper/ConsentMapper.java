@@ -17,6 +17,8 @@ public class ConsentMapper {
         .criteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp())
         .tc(onboarding.getTc())
         .tcAcceptTimestamp(onboarding.getTcAcceptTimestamp())
+        .userMail(onboarding.getUserMail())
+        .channel(onboarding.getChannel())
         .build();
 
   }
