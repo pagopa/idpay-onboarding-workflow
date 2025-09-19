@@ -17,7 +17,7 @@ public interface OnboardingService {
   OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId);
   void putTcConsent(String initiativeId, String userId);
   RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId, String channel);
-  void saveOnboarding(ConsentPutDTO consentPutDTO, String userId);
+  void saveOnboarding(ConsentPutDTO consentPutDTO, String channel, String userId);
   InitiativeWebDTO initiativeDetail(String initiativeId, Locale acceptLanguage);
   void completeOnboarding(EvaluationDTO evaluationDTO);
   void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO);
