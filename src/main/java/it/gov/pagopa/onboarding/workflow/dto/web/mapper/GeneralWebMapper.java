@@ -16,6 +16,7 @@ public class GeneralWebMapper {
             .startDate(generalDTO.getStartDate())
             .endDate(generalDTO.getEndDate())
             .termAndCondition(generalDTO.getDescriptionMap().get(acceptLanguage.getLanguage()))
+            .familyUnitComposition(generalDTO.getFamilyUnitComposition())
             .build();
   }
 
