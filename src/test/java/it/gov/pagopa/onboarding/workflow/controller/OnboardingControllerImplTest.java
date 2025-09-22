@@ -74,7 +74,7 @@ class OnboardingControllerImplTest {
     Map<String, String> language = new HashMap<>();
     language.put(ITALIAN.getLanguage(), "it");
     initiativeGeneralDTO.setDescriptionMap(language);
-
+    initiativeGeneralDTO.setFamilyUnitComposition("ANPR");
     InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
     initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO, initiativeGeneralWebDTO);
   }
