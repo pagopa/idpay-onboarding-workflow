@@ -193,7 +193,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void saveOnboarding(ConsentPutDTO consentPutDTO, String userId) {
+  public void saveOnboarding(ConsentPutDTO consentPutDTO, String channel, String userId) {
     long startTime = System.currentTimeMillis();
 
     Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
@@ -219,6 +219,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     fillOnboardingData(onboarding, consentPutDTO);
     onboarding.setUserMail(consentPutDTO.getUserMail());
+    onboarding.setChannel(channel);
 
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
@@ -425,18 +426,22 @@ public class OnboardingServiceImpl implements OnboardingService {
     );
   }
 
+  public static String sanitizeString(String str){
+    return str == null? null: str.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
+  }
 
 
   @Override
   public void suspend(String initiativeId, String userId){
     long startTime = System.currentTimeMillis();
-    log.info("[SUSPENSION] User suspension from the initiative {} started", initiativeId);
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+    log.info("[SUSPENSION] User suspension from the initiative {} started", sanitizedInitiativeId);
 
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     if (!List.of(ONBOARDING_OK, SUSPENDED).contains(onboarding.getStatus())){
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
-      log.info("[SUSPENSION] User suspension from the initiative {} is not possible", initiativeId);
+      log.info("[SUSPENSION] User suspension from the initiative {} is not possible", sanitizedInitiativeId);
       throw new OperationNotAllowedException(SUSPENSION_NOT_ALLOWED,
               String.format(ERROR_SUSPENSION_STATUS_MSG, initiativeId));
     }
@@ -447,12 +452,12 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setSuspensionDate(updateDate);
       onboardingRepository.save(onboarding);
       auditUtilities.logSuspension(userId, initiativeId);
-      log.info("[SUSPENSION] User is suspended from the initiative {}", initiativeId);
+      log.info("[SUSPENSION] User is suspended from the initiative {}", sanitizedInitiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
     } catch (Exception e){
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
-      log.info("[SUSPENSION] User suspension from the initiative {} is failed", initiativeId);
+      log.info("[SUSPENSION] User suspension from the initiative {} is failed", sanitizedInitiativeId);
       throw new UserSuspensionOrReadmissionException(String.format(ERROR_SUSPENSION_MSG, initiativeId));
     }
   }
@@ -460,13 +465,14 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public void readmit(String initiativeId, String userId){
     long startTime = System.currentTimeMillis();
-    log.info("[READMISSION] User readmission to the initiative {} started", initiativeId);
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+    log.info("[READMISSION] User readmission to the initiative {} started", sanitizedInitiativeId);
 
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     if (!List.of(ONBOARDING_OK, SUSPENDED).contains(onboarding.getStatus())){
       auditUtilities.logReadmissionKO(userId, initiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
-      log.info("[READMISSION] User readmission to the initiative {} is not possible", initiativeId);
+      log.info("[READMISSION] User readmission to the initiative {} is not possible", sanitizedInitiativeId);
       throw new OperationNotAllowedException(READMISSION_NOT_ALLOWED,
               String.format(ERROR_READMIT_STATUS_MSG, initiativeId));
     }
@@ -477,12 +483,12 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboarding.setSuspensionDate(null);
       onboardingRepository.save(onboarding);
       auditUtilities.logReadmission(userId, initiativeId);
-      log.info("[READMISSION] User is readmitted to the initiative {}", initiativeId);
+      log.info("[READMISSION] User is readmitted to the initiative {}", sanitizedInitiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
     } catch (Exception e){
       auditUtilities.logReadmissionKO(userId, initiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
-      log.info("[READMISSION] User readmission to the initiative {} is failed", initiativeId);
+      log.info("[READMISSION] User readmission to the initiative {} is failed", sanitizedInitiativeId);
       throw new UserSuspensionOrReadmissionException(String.format(ERROR_READMISSION_MSG, initiativeId));
     }
   }

@@ -42,8 +42,8 @@ public class OnboardingControllerImpl implements OnboardingController {
   }
 
   @Override
-  public ResponseEntity<Void> saveOnboarding(ConsentPutDTO consentPutDTO, String userId) {
-    onboardingService.saveOnboarding(consentPutDTO, userId);
+  public ResponseEntity<Void> saveOnboarding(ConsentPutDTO consentPutDTO, String channel, String userId) {
+    onboardingService.saveOnboarding(consentPutDTO, channel, userId);
     return ResponseEntity.accepted().build();
   }
 
