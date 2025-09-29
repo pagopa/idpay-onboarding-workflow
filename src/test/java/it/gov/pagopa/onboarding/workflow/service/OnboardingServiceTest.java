@@ -474,9 +474,6 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.save(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        doNothing().when(onboardingService)
-                .checkBudget(any(InitiativeDTO.class), any(Onboarding.class));
-
         onboardingService.saveOnboarding(consent, channel, userId);
 
         ArgumentCaptor<OnboardingDTO> dtoCaptor = ArgumentCaptor.forClass(OnboardingDTO.class);
@@ -540,8 +537,6 @@ class OnboardingServiceTest {
         });
 
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        doNothing().when(onboardingService).checkBudget(any(InitiativeDTO.class), any(Onboarding.class));
 
         onboardingService.saveOnboarding(consent, channel,  userId);
 
@@ -659,7 +654,6 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
 
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
 
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
@@ -712,7 +706,6 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
 
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
 
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
@@ -864,7 +857,6 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
 
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -927,7 +919,6 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
 
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
 
         when(consentMapper.map(any(Onboarding.class))).thenAnswer(invocation -> {
@@ -989,7 +980,6 @@ class OnboardingServiceTest {
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
@@ -1047,7 +1037,6 @@ class OnboardingServiceTest {
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
@@ -1109,7 +1098,6 @@ class OnboardingServiceTest {
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
@@ -1167,7 +1155,6 @@ class OnboardingServiceTest {
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
@@ -1229,7 +1216,6 @@ class OnboardingServiceTest {
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
-        doNothing().when(onboardingService).checkBudget(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {

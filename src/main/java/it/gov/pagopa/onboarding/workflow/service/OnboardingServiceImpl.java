@@ -209,7 +209,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding = new Onboarding(consentPutDTO.getInitiativeId(), userId);
 
     checkDates(initiativeDTO, onboarding);
-    checkBudget(initiativeDTO, onboarding);
+    onboarding.setStatus(ON_EVALUATION);
 
     if (hasAutomatedCriteriaAndPdndNotAccepted(initiativeDTO, consentPutDTO)) {
       handlePdndDenied(onboarding, userId, initiativeDTO, startTime);
