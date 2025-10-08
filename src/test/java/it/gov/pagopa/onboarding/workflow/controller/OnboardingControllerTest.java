@@ -55,9 +55,9 @@ class OnboardingControllerTest {
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private static final String STATUS = "STATUS";
 
-  private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO = new OnboardingStatusCitizenDTO(
-      USER_ID, STATUS, STATUS, null);
-  static List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOList = List.of(
+    private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO =
+            new OnboardingStatusCitizenDTO(USER_ID, STATUS, STATUS, null, "DETAIL_TEST");
+    static List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOList = List.of(
       ONBOARDING_STATUS_CITIZEN_DTO);
   private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(
       onboardingStatusCitizenDTOList, 15, 20, 100, 15);

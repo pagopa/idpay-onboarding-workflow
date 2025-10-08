@@ -389,41 +389,51 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG);
     }
 
-    List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOS = new ArrayList<>();
+    List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
-    Criteria criteria = new Criteria().andOperator(
-            Criteria.where("userId").is(userId),
-            Criteria.where("status").in(List.of(ON_EVALUATION))
-    );
+    Criteria criteria = Criteria.where("userId").is(userId)
+            .and("status").is(ON_EVALUATION);
 
     List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria, pageable);
     long count = onboardingRepository.getCount(criteria);
 
-    final Page<Onboarding> result = PageableExecutionUtils.getPage(
+    final Page<Onboarding> pageResult = PageableExecutionUtils.getPage(
             onboardingList,
             this.getPageable(pageable),
             () -> count
     );
 
     for (Onboarding o : onboardingList) {
-      OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
+      String status = o.getStatus();
+
+      if (shouldBeWaitingList(o)) {
+        status = ON_WAITING_LIST;
+      }
+
+      dtoList.add(new OnboardingStatusCitizenDTO(
               o.getUserId(),
-              o.getStatus(),
+              status,
               o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
-              o.getFamilyId()
-      );
-      onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
+              o.getFamilyId(),
+              o.getDetail()
+      ));
     }
 
-    performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST", userId, null);
+    performanceLog(startTime, "GET_USER_INITIATIVE_STATUS", userId, null);
 
     return new ResponseInitiativeOnboardingDTO(
-            onboardingStatusCitizenDTOS,
-            result.getNumber(),
-            result.getSize(),
-            (int) result.getTotalElements(),
-            result.getTotalPages()
+            dtoList,
+            pageResult.getNumber(),
+            pageResult.getSize(),
+            (int) pageResult.getTotalElements(),
+            pageResult.getTotalPages()
     );
+  }
+
+  @Override
+  public boolean shouldBeWaitingList(Onboarding o) {
+    InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(o.getInitiativeId());
+    return ON_EVALUATION.equals(o.getStatus()) && !initiativeStatusDTO.isBudgetAvailable();
   }
 
   public static String sanitizeString(String str){
