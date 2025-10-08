@@ -2254,9 +2254,13 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(paging)))
                 .thenReturn(onboardingList);
-
         when(onboardingRepositoryMock.getCount(any(Criteria.class)))
                 .thenReturn(count);
+        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
+                .thenReturn(InitiativeStatusDTO.builder()
+                        .status(PUBLISHED)
+                        .budgetAvailable(true)
+                        .build());
 
         assertDoesNotThrow(() -> {
             ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, paging);
@@ -2278,9 +2282,13 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class), isNull()))
                 .thenReturn(onboardingList);
-
         when(onboardingRepositoryMock.getCount(any(Criteria.class)))
                 .thenReturn(count);
+        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
+                .thenReturn(InitiativeStatusDTO.builder()
+                        .status(PUBLISHED)
+                        .budgetAvailable(true)
+                        .build());
 
         assertDoesNotThrow(() -> {
             ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, null);
@@ -2296,6 +2304,9 @@ class OnboardingServiceTest {
     void getOnboardingStatusList_shouldInvokeCountLambda() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
+        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setFamilyId(FAMILY_ID);
+        onboarding.setDetail("detail");
         List<Onboarding> onboardingList = List.of(onboarding);
         long count = 10L;
 
@@ -2305,6 +2316,12 @@ class OnboardingServiceTest {
                 .thenReturn(onboardingList);
         when(onboardingRepositoryMock.getCount(any(Criteria.class)))
                 .thenReturn(count);
+
+        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
+                .thenReturn(InitiativeStatusDTO.builder()
+                        .status(PUBLISHED)
+                        .budgetAvailable(true)
+                        .build());
 
         ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, pageable);
 
@@ -2914,6 +2931,107 @@ class OnboardingServiceTest {
         assertEquals("Value2", multi.getValue().getFirst());
 
         verify(auditUtilities, never()).logOnboardingKOInitiativeId(any(), any());
+    }
+
+    @Test
+    void getOnboardingStatusList_shouldReturnWaitingList_whenBudgetNotAvailable() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+        onboarding.setUpdateDate(LocalDateTime.now());
+        List<Onboarding> onboardingList = List.of(onboarding);
+        Long count = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(pageable)))
+                .thenReturn(onboardingList);
+        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
+                .thenReturn(count);
+        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
+                .thenReturn(InitiativeStatusDTO.builder()
+                        .status(PUBLISHED)
+                        .budgetAvailable(false)
+                        .build());
+
+        ResponseInitiativeOnboardingDTO response =
+                onboardingService.getOnboardingStatusList(USER_ID, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.getTotalElements());
+        assertEquals(ON_WAITING_LIST, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
+        assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+    }
+
+    @Test
+    void shouldBeWaitingList_shouldReturnFalse_whenStatusNotOnEvaluation() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus("COMPLETED");
+
+        InitiativeStatusDTO statusDTO = InitiativeStatusDTO.builder()
+                .status(PUBLISHED)
+                .budgetAvailable(false)
+                .build();
+
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(statusDTO);
+
+        boolean result = onboardingService.shouldBeWaitingList(onboarding);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldBeWaitingList_shouldReturnFalse_whenBudgetAvailable() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+
+        InitiativeStatusDTO statusDTO = InitiativeStatusDTO.builder()
+                .status(PUBLISHED)
+                .budgetAvailable(true)
+                .build();
+
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(statusDTO);
+
+        boolean result = onboardingService.shouldBeWaitingList(onboarding);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldBeWaitingList_shouldReturnTrue_whenOnEvaluationAndBudgetNotAvailable() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+
+        InitiativeStatusDTO statusDTO = InitiativeStatusDTO.builder()
+                .status(PUBLISHED)
+                .budgetAvailable(false)
+                .build();
+
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(statusDTO);
+
+        boolean result = onboardingService.shouldBeWaitingList(onboarding);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void getUserInitiativesStatus_shouldThrowException_whenPageSizeTooLarge() {
+        Pageable pageable = PageRequest.of(0, 20);
+
+        PageSizeNotAllowedException exception = assertThrows(
+                PageSizeNotAllowedException.class,
+                () -> onboardingService.getOnboardingStatusList(USER_ID, pageable)
+        );
+
+        assertTrue(exception.getMessage().contains("Max number for page allowed: 15"));
+    }
+
+    @Test
+    void getUserInitiativesStatus_shouldHandleNullPageable() {
+        ResponseInitiativeOnboardingDTO response =
+                onboardingService.getOnboardingStatusList(USER_ID, null);
+
+        assertNotNull(response);
+        assertEquals(0, response.getOnboardingStatusCitizenDTOList().size());
+        assertEquals(0, response.getTotalElements());
     }
 
     @Test
