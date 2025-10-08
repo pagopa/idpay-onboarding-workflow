@@ -59,6 +59,7 @@ import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowCons
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
+import static it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl.sanitizeString;
 import static java.lang.Boolean.TRUE;
 import static java.math.BigDecimal.*;
 import static java.time.LocalDate.*;
@@ -2353,7 +2354,7 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocation -> {
             Onboarding saved = invocation.getArgument(0, Onboarding.class);
-            saved.setStatus("CREATED"); // qui metti un valore vero, non anyString()
+            saved.setStatus("CREATED");
             saved.setInvitationDate(LocalDateTime.now());
             saved.setUpdateDate(LocalDateTime.now());
             saved.setCreationDate(LocalDateTime.now());
@@ -2915,4 +2916,17 @@ class OnboardingServiceTest {
         verify(auditUtilities, never()).logOnboardingKOInitiativeId(any(), any());
     }
 
+    @Test
+    void sanitizeString_nullInput_returnsNull() {
+        String result = sanitizeString(null);
+        assertEquals(null, result);
+    }
+
+    @Test
+    void sanitizeString_normalString_removesInvalidChars() {
+        String input = "Hello\nWorld!@#";
+        String expected = "HelloWorld";
+        String result = sanitizeString(input);
+        assertEquals(expected, result);
+    }
 }

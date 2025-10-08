@@ -393,7 +393,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     Criteria criteria = new Criteria().andOperator(
             Criteria.where("userId").is(userId),
-            Criteria.where("status").in(List.of(ON_EVALUATION))
+            Criteria.where("status").in(List.of(ON_EVALUATION, ON_WAITING_LIST))
     );
 
     List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria, pageable);
@@ -406,13 +406,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     );
 
     for (Onboarding o : onboardingList) {
-      OnboardingStatusCitizenDTO onboardingStatusCitizenDTO = new OnboardingStatusCitizenDTO(
+      onboardingStatusCitizenDTOS.add(new OnboardingStatusCitizenDTO(
               o.getUserId(),
               o.getStatus(),
               o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
-              o.getFamilyId()
-      );
-      onboardingStatusCitizenDTOS.add(onboardingStatusCitizenDTO);
+              o.getFamilyId(),
+              o.getDetail()
+      ));
     }
 
     performanceLog(startTime, "GET_ONBOARDING_STATUS_LIST", userId, null);

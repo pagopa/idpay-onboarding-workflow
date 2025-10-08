@@ -60,4 +60,6 @@ public class Onboarding {
   private LocalDateTime creationDate;
   private LocalDateTime suspensionDate;
 
+  private String detail;
+
 }

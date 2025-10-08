@@ -15,6 +15,6 @@ public class OnboardingStatusCitizenDTO {
   private String status;
   private String statusDate;
   private String familyId;
-
+  private String detail;
 }
 
