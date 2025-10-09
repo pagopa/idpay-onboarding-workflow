@@ -36,4 +36,8 @@ public class OnboardingDTO {
   //New attribute
   String serviceId;
 
+  String name;
+
+  String surname;
+
 }
