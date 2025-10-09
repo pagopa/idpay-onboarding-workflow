@@ -21,4 +21,6 @@ public class ConsentPutDTO {
     private String userMail;
     private String userMailConfirmation;
     private Boolean confirmedTos;
+    private String name;
+    private String surname;
 }

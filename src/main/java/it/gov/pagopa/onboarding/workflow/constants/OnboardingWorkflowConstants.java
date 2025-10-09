@@ -7,6 +7,7 @@ public class OnboardingWorkflowConstants {
   public static final String ACCEPTED_TC = "ACCEPTED_TC";
   public static final String STATUS_UNSUBSCRIBED = "UNSUBSCRIBED";
   public static final String ON_EVALUATION = "ON_EVALUATION";
+  public static final String ON_WAITING_LIST = "ON_WAITING_LIST";
   public static final String INVITED = "INVITED";
   public static final String DEMANDED = "DEMANDED";
   public static final String JOINED = "JOINED";
