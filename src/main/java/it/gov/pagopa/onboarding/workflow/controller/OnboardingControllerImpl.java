@@ -49,7 +49,8 @@ public class OnboardingControllerImpl implements OnboardingController {
 
   @Override
   public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(Pageable pageable,
-                                                                              String userId) {
+                                                                              String userId,
+                                                                              String acceptLanguage) {
     ResponseInitiativeOnboardingDTO responseInitiativeOnboardingDTO = onboardingService.getOnboardingStatusList(
             userId, pageable);
     return new ResponseEntity<>(responseInitiativeOnboardingDTO, HttpStatus.OK);
