@@ -63,4 +63,6 @@ public class Onboarding {
   private String name;
   private String surname;
 
+  private String detail;
+
 }

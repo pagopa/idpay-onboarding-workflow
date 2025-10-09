@@ -24,6 +24,7 @@ public interface OnboardingService {
   void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
   void rollback(String initiativeId, String userId);
   ResponseInitiativeOnboardingDTO getOnboardingStatusList(String userId, Pageable pageable);
+  boolean shouldBeWaitingList(Onboarding o);
   void suspend(String initiativeId, String userId);
   void readmit(String initiativeId, String userId);
   OnboardingFamilyDTO getfamilyUnitComposition(String initiativeId, String userId);
