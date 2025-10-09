@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -139,13 +140,15 @@ class OnboardingControllerTest {
 
     @Test
     void onboarding_status_list_ok() throws Exception {
-        Mockito.when(
-                onboardingService.getOnboardingStatusList(USER_ID, null)).thenReturn(ONBOARDING_DTO);
+        Mockito.when(onboardingService.getOnboardingStatusList(USER_ID, null))
+                .thenReturn(ONBOARDING_DTO);
 
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
-                        .contentType(APPLICATION_JSON_VALUE)
-                        .accept(APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/initiative/status")
+                        .header("X-User-Id", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
     }
 
     @Test
@@ -153,10 +156,12 @@ class OnboardingControllerTest {
         Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
                 .when(onboardingService).getOnboardingStatusList(USER_ID, null);
 
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/initiative/status")
+                        .header("X-User-Id", USER_ID)
                         .contentType(APPLICATION_JSON_VALUE)
                         .accept(APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
     }
 
     @Test

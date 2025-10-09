@@ -61,16 +61,11 @@ public interface OnboardingController {
 
     // Servizi non utilizzati nel workflow di IO o WEB
 
-    /**
-     * Returns the onboarding status list
-     *
-     * @param userId
-     * @return
-     */
-    @GetMapping("/user/{userId}/initiative/status")
-    ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
+    @GetMapping("/user/initiative/status")
+    public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
             @PageableDefault(size = 15, sort = "updateDate", direction = Sort.Direction.DESC) Pageable pageable,
-            @PathVariable("userId") String userId);
+            @RequestHeader(name = "X-User-Id", required = true) String userId,
+            @RequestHeader(name = "Accept-Language", required = false, defaultValue = "it-IT") String acceptLanguage);
     /**
      * Deactivation onboarding
      *
