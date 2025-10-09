@@ -19,6 +19,8 @@ public class ConsentMapper {
         .tcAcceptTimestamp(onboarding.getTcAcceptTimestamp())
         .userMail(onboarding.getUserMail())
         .channel(onboarding.getChannel())
+        .name(onboarding.getName())
+        .surname(onboarding.getSurname())
         .build();
 
   }
