@@ -220,6 +220,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     fillOnboardingData(onboarding, consentPutDTO);
     onboarding.setUserMail(consentPutDTO.getUserMail());
     onboarding.setChannel(channel);
+    onboarding.setName(consentPutDTO.getName());
+    onboarding.setSurname(consentPutDTO.getSurname());
 
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
