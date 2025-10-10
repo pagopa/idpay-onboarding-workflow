@@ -143,8 +143,8 @@ class OnboardingControllerTest {
         Mockito.when(onboardingService.getOnboardingStatusList(USER_ID, null))
                 .thenReturn(ONBOARDING_DTO);
 
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/initiative/status")
-                        .header("X-User-Id", USER_ID)
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/{userId}/initiative/status", USER_ID)
+                        .header("Accept-Language", "it-IT")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -156,10 +156,10 @@ class OnboardingControllerTest {
         Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
                 .when(onboardingService).getOnboardingStatusList(USER_ID, null);
 
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/initiative/status")
-                        .header("X-User-Id", USER_ID)
-                        .contentType(APPLICATION_JSON_VALUE)
-                        .accept(APPLICATION_JSON_VALUE))
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/{userId}/initiative/status", USER_ID)
+                        .header("Accept-Language", "it-IT")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
     }
