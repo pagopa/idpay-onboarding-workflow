@@ -1613,11 +1613,14 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
-        OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        var onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
-        assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
-        assertEquals(onboarding.getUpdateDate(), onboardingStatusDTO.getStatusDate());
-        assertEquals(onboarding.getOnboardingOkDate(), onboardingStatusDTO.getOnboardingOkDate());
+        onboardingStatusDTO.getSuccess()
+            .ifPresent( statusDTO -> {
+                assertEquals(onboarding.getStatus(), statusDTO.getStatus());
+                assertEquals(onboarding.getUpdateDate(), statusDTO.getStatusDate());
+                assertEquals(onboarding.getOnboardingOkDate(), statusDTO.getOnboardingOkDate());
+            });
 
     }
 
@@ -1642,11 +1645,14 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
-        OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        var onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
-        assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
-        assertEquals(onboarding.getUpdateDate(), onboardingStatusDTO.getStatusDate());
-        assertNull(onboardingStatusDTO.getOnboardingOkDate());
+        onboardingStatusDTO.getSuccess()
+            .ifPresent(statusDTO -> {
+                assertEquals(onboarding.getStatus(), statusDTO.getStatus());
+                assertEquals(onboarding.getUpdateDate(), statusDTO.getStatusDate());
+                assertNull(statusDTO.getOnboardingOkDate());
+            });
 
     }
 

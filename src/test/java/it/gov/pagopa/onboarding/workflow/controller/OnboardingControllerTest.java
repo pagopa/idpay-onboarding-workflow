@@ -1,7 +1,10 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leakyabstractions.result.api.Result;
+import com.leakyabstractions.result.core.Results;
 import it.gov.pagopa.common.config.JsonConfig;
+import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
 import it.gov.pagopa.onboarding.workflow.dto.*;
@@ -73,8 +76,8 @@ class OnboardingControllerTest {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
 
-        OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
-                ACCEPTED_TC, LocalDateTime.now(), null);
+        Result<OnboardingStatusDTO, ErrorDTO> onboardingStatusDTO = Results.success(new OnboardingStatusDTO(
+                ACCEPTED_TC, LocalDateTime.now(), null));
 
         Mockito.when(onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDTO);

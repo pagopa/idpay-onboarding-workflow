@@ -43,8 +43,8 @@ public interface OnboardingController {
      * @return
      */
     @GetMapping("/{initiativeId}/{userId}/status")
-    ResponseEntity<OnboardingStatusDTO> onboardingStatus(
-            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+    ResponseEntity<Object> onboardingStatus(@PathVariable("initiativeId") String initiativeId,
+      @PathVariable("userId") String userId);
 
     /**
      * Save the consents of PDND criteria and Self declaration list

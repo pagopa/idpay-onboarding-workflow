@@ -1,5 +1,8 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
+import com.leakyabstractions.result.api.Result;
+import com.leakyabstractions.result.core.Results;
+import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
@@ -108,12 +111,18 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
-    long startTime = System.currentTimeMillis();
-    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
-    performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
-    log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
-    return new OnboardingStatusDTO(onboarding.getStatus(), onboarding.getUpdateDate(), onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null);
+  public Result<OnboardingStatusDTO, ErrorDTO> getOnboardingStatus(String initiativeId, String userId) {
+    long startTime = System.nanoTime();
+    return findByInitiativeIdAndUserIdOpt(initiativeId, userId)
+            .<Result<OnboardingStatusDTO, ErrorDTO>>map(onboarding -> {
+              performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
+              log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
+              return Results.success(new OnboardingStatusDTO(onboarding.getStatus(), onboarding.getUpdateDate(), onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null));
+            })
+            .orElseGet(() -> {
+              performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
+              return Results.failure(new ErrorDTO("USER_NOT_ONBOARDED", String.format(ID_S_NOT_FOUND_MSG, initiativeId)));
+            });
   }
 
   @Override
@@ -697,6 +706,10 @@ public class OnboardingServiceImpl implements OnboardingService {
             .orElseThrow(() -> new UserNotOnboardedException(String.format(ID_S_NOT_FOUND_MSG, initiativeId)));
   }
 
+  public Optional<Onboarding> findByInitiativeIdAndUserIdOpt(String initiativeId, String userId) {
+    return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId));
+  }
+
   @Override
   public Onboarding findOnboardingByInitiativeIdAndUserId(String initiativeId, String userId) {
     return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId)).orElse(null);
@@ -975,7 +988,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     log.info(
             "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
             safeService,
-            System.currentTimeMillis() - startTime,
+            System.nanoTime() - startTime,
             safeUserId,
             safeInitiativeId);
   }

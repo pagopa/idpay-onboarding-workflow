@@ -1,5 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import com.leakyabstractions.result.api.Result;
+import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
@@ -23,6 +25,14 @@ public class OnboardingControllerImpl implements OnboardingController {
     this.onboardingService = onboardingService;
   }
 
+  private static ResponseEntity<Object> mapErrorToResponse(ErrorDTO error) {
+    HttpStatus status = switch (error.getCode()) {
+      case "USER_NOT_ONBOARDED" -> HttpStatus.NOT_FOUND;
+      default -> HttpStatus.INTERNAL_SERVER_ERROR;
+    };
+    return new ResponseEntity<>(error, status);
+  }
+
   @Override
   public ResponseEntity<InitiativeWebDTO> getInitiativeDetail(
           String initiativeId, Locale acceptLanguage) {
@@ -34,11 +44,16 @@ public class OnboardingControllerImpl implements OnboardingController {
     return ResponseEntity.ok(dto);
   }
 
-  public ResponseEntity<OnboardingStatusDTO> onboardingStatus(
+  @Override
+  public ResponseEntity<Object> onboardingStatus(
           String initiativeId, String userId) {
-    OnboardingStatusDTO onBoardingStatusDTO = onboardingService.getOnboardingStatus(initiativeId,
-            userId);
-    return new ResponseEntity<>(onBoardingStatusDTO, HttpStatus.OK);
+    Result<OnboardingStatusDTO, ErrorDTO> result = onboardingService.getOnboardingStatus(initiativeId, userId);
+    return result.mapSuccess(
+            onBoardingStatusDTO -> new ResponseEntity<Object>(onBoardingStatusDTO, HttpStatus.OK))
+        .getSuccess()
+        .orElse(
+            result.mapFailure(OnboardingControllerImpl::mapErrorToResponse)
+            .getFailure().orElse(ResponseEntity.internalServerError().build()));
   }
 
   @Override
@@ -86,5 +101,5 @@ public class OnboardingControllerImpl implements OnboardingController {
     OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(initiativeId, userId);
     return new ResponseEntity<>(onboardingFamilyDTO, HttpStatus.OK);
   }
-  
+
 }

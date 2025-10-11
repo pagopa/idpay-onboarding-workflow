@@ -1,20 +1,28 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
-import it.gov.pagopa.onboarding.workflow.dto.*;
+import com.leakyabstractions.result.api.Result;
+import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.EvaluationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingFamilyDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingNotificationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
+import it.gov.pagopa.onboarding.workflow.dto.QueueCommandOperationDTO;
+import it.gov.pagopa.onboarding.workflow.dto.RequiredCriteriaDTO;
+import it.gov.pagopa.onboarding.workflow.dto.ResponseInitiativeOnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
+import org.springframework.data.domain.Pageable;
 
 public interface OnboardingService {
 
-  OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId);
+  Result<OnboardingStatusDTO, ErrorDTO> getOnboardingStatus(String initiativeId, String userId);
   void putTcConsent(String initiativeId, String userId);
   RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId, String channel);
   void saveOnboarding(ConsentPutDTO consentPutDTO, String channel, String userId);
