@@ -1,7 +1,10 @@
 package it.gov.pagopa.common.web.exception;
 
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.USER_NOT_ONBOARDED;
+
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +38,9 @@ public class ErrorManager {
       if (error instanceof ClientExceptionWithBody clientExceptionWithBody){
         httpStatus=clientExceptionWithBody.getHttpStatus();
         errorDTO = new ErrorDTO(clientExceptionWithBody.getCode(),  error.getMessage());
+        if (clientExceptionWithBody.getCode().equals(USER_NOT_ONBOARDED)) {
+          log.info("[PERFORMANCE] User not onboarded, time spent: {}us]", TimeUnit.NANOSECONDS.toMicros(System.nanoTime() - Long.parseLong(clientExceptionWithBody.getMessage())) );
+        }
       }
       else {
         httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;

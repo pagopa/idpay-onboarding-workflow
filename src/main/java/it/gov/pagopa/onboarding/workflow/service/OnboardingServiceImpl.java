@@ -26,6 +26,7 @@ import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -109,7 +110,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
-    long startTime = System.currentTimeMillis();
+    long startTime = System.nanoTime();
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
     log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
@@ -693,8 +694,9 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public Onboarding findByInitiativeIdAndUserId(String initiativeId, String userId) {
+    long startTime = System.nanoTime();
     return onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
-            .orElseThrow(() -> new UserNotOnboardedException(String.format(ID_S_NOT_FOUND_MSG, initiativeId)));
+            .orElseThrow(() -> new UserNotOnboardedException(String.valueOf(startTime)));
   }
 
   @Override
@@ -973,9 +975,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     String safeInitiativeId = sanitize(initiativeId);
 
     log.info(
-            "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
+            "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} us on initiativeId: {}, and userId: {}",
             safeService,
-            System.currentTimeMillis() - startTime,
+            TimeUnit.NANOSECONDS.toMicros(System.nanoTime() - startTime),
             safeUserId,
             safeInitiativeId);
   }
