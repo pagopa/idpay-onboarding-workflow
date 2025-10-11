@@ -16,6 +16,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <argLine>-Duser.timezone=Europe/Rome</argLine>
     </properties>
 
     <dependencyManagement>
@@ -135,6 +136,11 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.leakyabstractions</groupId>
+            <artifactId>result</artifactId>
+            <version>1.0.0.0</version>
         </dependency>
 
 
