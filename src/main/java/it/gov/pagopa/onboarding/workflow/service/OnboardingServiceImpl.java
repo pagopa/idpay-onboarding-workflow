@@ -987,9 +987,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     String safeInitiativeId = sanitize(initiativeId);
 
     log.info(
-            "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
+            "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} us on initiativeId: {}, and userId: {}",
             safeService,
-            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
+            TimeUnit.NANOSECONDS.toMicros(System.nanoTime() - startTime),
             safeInitiativeId,
             safeUserId);
   }
