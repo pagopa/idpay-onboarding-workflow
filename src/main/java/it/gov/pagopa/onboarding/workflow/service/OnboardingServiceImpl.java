@@ -29,6 +29,7 @@ import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -988,7 +989,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     log.info(
             "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
             safeService,
-            System.nanoTime() - startTime,
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime),
             safeInitiativeId,
             safeUserId);
   }
