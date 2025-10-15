@@ -110,10 +110,24 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
+
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
-    log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
-    return new OnboardingStatusDTO(onboarding.getStatus(), onboarding.getUpdateDate(), onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null);
+
+    String status = onboarding.getStatus();
+
+    if (JOINED.equals(status)) {
+      status = FAMILY_UNIT_ALREADY_JOINED;
+    }
+
+    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", userId, initiativeId, status);
+
+    return new OnboardingStatusDTO(
+            status,
+            onboarding.getUpdateDate(),
+            onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null
+    );
   }
 
   @Override
@@ -271,33 +285,6 @@ public class OnboardingServiceImpl implements OnboardingService {
               evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons);
       log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is: {}",
               onboarding.getUserId(), evaluationDTO.getInitiativeId(), evaluationDTO.getStatus());
-    }
-
-    if (onboarding == null && DEMANDED.equals(evaluationDTO.getStatus())) {
-      log.info("[COMPLETE_ONBOARDING] New onboarding for user {} on initiative {} with status DEMANDED",
-              evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
-      Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
-              evaluationDTO.getUserId());
-      newOnboarding.setStatus(DEMANDED);
-      LocalDateTime localDateTime = LocalDateTime.now();
-      newOnboarding.setDemandedDate(localDateTime);
-      newOnboarding.setUpdateDate(localDateTime);
-      newOnboarding.setCreationDate(localDateTime);
-      newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
-      onboardingRepository.save(newOnboarding);
-    }
-
-    if (onboarding != null && DEMANDED.equals(evaluationDTO.getStatus())) {
-      LocalDateTime localDateTime = LocalDateTime.now();
-      onboarding.setDemandedDate(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
-      onboarding.setFamilyId(evaluationDTO.getFamilyId());
-      onboarding.setStatus(ONBOARDING_OK);
-      onboardingRepository.save(onboarding);
-      evaluationDTO.setStatus(JOINED);
-      outcomeProducer.sendOutcome(evaluationDTO);
-      log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is ONBOARDING_OK",
-              onboarding.getUserId(), evaluationDTO.getInitiativeId());
     }
 
     if (onboarding == null && ONBOARDING_KO.equals(evaluationDTO.getStatus())) {
@@ -535,23 +522,23 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date, String rejectionReasons) {
-    if (status.equals(JOINED)) {
-      status = ONBOARDING_OK;
-    }
-    if (status.equals(REJECTED)) {
+    if (REJECTED.equals(status)) {
       status = ONBOARDING_KO;
     }
 
     onboarding.setStatus(status);
-    if (status.equals(ONBOARDING_OK)) {
+
+    if (ONBOARDING_OK.equals(status)) {
       onboarding.setOnboardingOkDate(date);
       auditUtilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
-    if (status.equals(ON_EVALUATION)) {
+
+    if (ON_EVALUATION.equals(status)) {
       onboarding.setCriteriaConsensusTimestamp(date);
       auditUtilities.logOnboardingOnEvaluation(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
-    if (status.equals(ONBOARDING_KO)) {
+
+    if (ONBOARDING_KO.equals(status)) {
       onboarding.setOnboardingKODate(date);
       onboarding.setDetailKO(rejectionReasons);
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), rejectionReasons);
@@ -562,7 +549,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setUpdateDate(LocalDateTime.now());
     onboardingRepository.save(onboarding);
     auditUtilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(),
-        onboarding.getChannel(), date);
+            onboarding.getChannel(), date);
   }
 
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
