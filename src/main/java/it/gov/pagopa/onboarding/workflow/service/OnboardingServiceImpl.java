@@ -121,7 +121,9 @@ public class OnboardingServiceImpl implements OnboardingService {
       status = FAMILY_UNIT_ALREADY_JOINED;
     }
 
-    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", userId, initiativeId, status);
+    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
+            sanitize(initiativeId),
+            sanitize(status));
 
     return new OnboardingStatusDTO(
             status,

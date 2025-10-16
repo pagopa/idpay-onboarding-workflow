@@ -3078,6 +3078,23 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void getOnboardingStatus_shouldReturnFamilyUnitAlreadyJoined_whenStatusIsJoined() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setStatus("JOINED");
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+
+        OnboardingStatusDTO result = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+        assertEquals(FAMILY_UNIT_ALREADY_JOINED, result.getStatus());
+        assertEquals(statusDate, result.getStatusDate());
+        assertNull(result.getOnboardingOkDate());
+    }
+
+    @Test
     void sanitizeString_nullInput_returnsNull() {
         String result = sanitizeString(null);
         assertEquals(null, result);
