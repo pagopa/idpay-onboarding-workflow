@@ -965,8 +965,8 @@ public class OnboardingServiceImpl implements OnboardingService {
             "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
             safeService,
             System.currentTimeMillis() - startTime,
-            safeUserId,
-            safeInitiativeId);
+            safeInitiativeId,
+            safeUserId);
   }
 
   private String sanitize(String input) {
