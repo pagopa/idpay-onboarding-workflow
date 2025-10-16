@@ -19,6 +19,7 @@ public class ServiceExceptionConfig {
         // BadRequest
         exceptionMap.put(PageSizeNotAllowedException.class, HttpStatus.BAD_REQUEST);
         exceptionMap.put(OperationNotAllowedException.class, HttpStatus.BAD_REQUEST);
+        exceptionMap.put(OnboardingStatusException.class, HttpStatus.BAD_REQUEST);
 
         // Forbidden
         exceptionMap.put(UserNotInWhitelistException.class, HttpStatus.FORBIDDEN);

@@ -118,7 +118,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     String status = onboarding.getStatus();
 
     if (JOINED.equals(status)) {
-      status = FAMILY_UNIT_ALREADY_JOINED;
+      throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
+    } else if (ONBOARDING_KO.equals(status)){
+      throw new OnboardingStatusException("ONBOARDING_" + onboarding.getDetailKO(), "Something went wrong handling the request");
     }
 
     log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
