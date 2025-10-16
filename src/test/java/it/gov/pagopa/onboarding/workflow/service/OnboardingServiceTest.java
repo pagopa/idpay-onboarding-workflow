@@ -46,6 +46,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -2080,22 +2081,33 @@ class OnboardingServiceTest {
     @Test
     void completeOnboarding_ok() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
+
+        EVALUATION_DTO.setStatus("JOINED");
+
         onboardingService.completeOnboarding(EVALUATION_DTO);
-        assertEquals(ONBOARDING_OK, onboarding.getStatus());
+
+        assertEquals("JOINED", onboarding.getStatus(),
+                "Expected onboarding to remain JOINED after processing evaluationDTO with status JOINED");
     }
 
     @Test
     void completeOnboardingDEMANDEDWithOnboardingNotNull() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus("DEMANDED");
+
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
+
         EVALUATION_DTO.setStatus("DEMANDED");
+
         onboardingService.completeOnboarding(EVALUATION_DTO);
-        assertEquals(ONBOARDING_OK, onboarding.getStatus());
+
+        assertEquals("DEMANDED", onboarding.getStatus());
     }
+
 
     @Test
     void completeOnboarding_noOnboardingFound() {
@@ -2152,7 +2164,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void checkChangeJOINEDStatusInToONBOARDING_OK() {
+    void checkJOINEDStatusIsPreserved() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -2162,8 +2174,7 @@ class OnboardingServiceTest {
 
         onboardingService.completeOnboarding(EVALUATION_DTO);
 
-        assertEquals(ONBOARDING_OK, onboarding.getStatus());
-
+        assertEquals("JOINED", onboarding.getStatus());
     }
 
     @Test
@@ -3032,6 +3043,55 @@ class OnboardingServiceTest {
         assertNotNull(response);
         assertEquals(0, response.getOnboardingStatusCitizenDTOList().size());
         assertEquals(0, response.getTotalElements());
+    }
+
+    @Test
+    void setStatus_shouldSetOnboardingOkDateAndLog_whenStatusIsOnboardingOk() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setChannel("WEB");
+
+        LocalDateTime now = LocalDateTime.now();
+
+        when(onboardingRepositoryMock.save(any(Onboarding.class))).thenReturn(onboarding);
+
+        try {
+            Method method = OnboardingServiceImpl.class.getDeclaredMethod(
+                    "setStatus",
+                    Onboarding.class,
+                    String.class,
+                    LocalDateTime.class,
+                    String.class
+            );
+            method.setAccessible(true);
+            method.invoke(onboardingService, onboarding, ONBOARDING_OK, now, null);
+        } catch (Exception e) {
+            fail("Reflection invocation failed: " + e.getMessage());
+        }
+
+        assertEquals(ONBOARDING_OK, onboarding.getStatus());
+        assertEquals(now, onboarding.getOnboardingOkDate());
+
+        verify(auditUtilities, atLeastOnce())
+                .logOnboardingComplete(INITIATIVE_ID, USER_ID, "WEB", now);
+
+        verify(onboardingRepositoryMock).save(onboarding);
+    }
+
+    @Test
+    void getOnboardingStatus_shouldReturnFamilyUnitAlreadyJoined_whenStatusIsJoined() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setStatus("JOINED");
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+
+        OnboardingStatusDTO result = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+        assertEquals(FAMILY_UNIT_ALREADY_JOINED, result.getStatus());
+        assertEquals(statusDate, result.getStatusDate());
+        assertNull(result.getOnboardingOkDate());
     }
 
     @Test
