@@ -9,7 +9,7 @@ import java.util.List;
 
 
 public interface OnboardingSpecificRepository {
-  List<Onboarding> findByFilter(Criteria criteria, Pageable pageable);
+  List<Onboarding> findByFilter(Criteria criteria);
   Criteria getCriteria(String initiativeId, String userId, String status,
       LocalDateTime startDate, LocalDateTime endDate);
   long getCount(Criteria criteria);

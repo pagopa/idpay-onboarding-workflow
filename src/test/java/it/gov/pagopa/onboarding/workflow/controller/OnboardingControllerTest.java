@@ -139,7 +139,7 @@ class OnboardingControllerTest {
 
     @Test
     void onboarding_status_list_ok() throws Exception {
-        Mockito.when(onboardingService.getOnboardingStatusList(USER_ID, null))
+        Mockito.when(onboardingService.getOnboardingStatusList(USER_ID))
                 .thenReturn(ONBOARDING_DTO);
 
         mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/{userId}/initiative/status", USER_ID)
@@ -150,18 +150,6 @@ class OnboardingControllerTest {
                 .andReturn();
     }
 
-    @Test
-    void onboarding_status_list_ko() throws Exception {
-        Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
-                .when(onboardingService).getOnboardingStatusList(USER_ID, null);
-
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/{userId}/initiative/status", USER_ID)
-                        .header("Accept-Language", "it-IT")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn();
-    }
 
     @Test
     void suspend() throws Exception {

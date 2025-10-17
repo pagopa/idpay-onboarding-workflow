@@ -22,10 +22,9 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
   }
 
 @Override
-  public List<Onboarding> findByFilter(Criteria criteria, Pageable pageable) {
+  public List<Onboarding> findByFilter(Criteria criteria) {
     return mongoTemplate.find(
-        Query.query(criteria)
-            .with(this.getPageable(pageable)),
+        Query.query(criteria),
         Onboarding.class);
   }
 

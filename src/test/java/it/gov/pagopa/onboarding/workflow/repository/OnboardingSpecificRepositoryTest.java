@@ -9,9 +9,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -46,9 +43,8 @@ class OnboardingSpecificRepositoryTest {
   @Test
   void findByFilter(){
     Criteria criteria = new Criteria();
-    Pageable paging = PageRequest.of(0, 20, Sort.by("lastUpdate"));
 
-    onboardingSpecificRepository.findByFilter(criteria,paging);
+    onboardingSpecificRepository.findByFilter(criteria);
     Mockito.verify(mongoTemplate, Mockito.times(1)).find(Mockito.any(),Mockito.any());
   }
 
@@ -56,7 +52,7 @@ class OnboardingSpecificRepositoryTest {
   void findByFilter_criteria_null(){
     Criteria criteria = new Criteria();
 
-    onboardingSpecificRepository.findByFilter(criteria,null);
+    onboardingSpecificRepository.findByFilter(criteria);
     Mockito.verify(mongoTemplate, Mockito.times(1)).find(Mockito.any(),Mockito.any());
   }
 

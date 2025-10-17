@@ -64,7 +64,6 @@ public interface OnboardingController {
 
     @GetMapping("/user/{userId}/initiative/status")
     public ResponseEntity<List<OnboardingStatusCitizenDTO>> onboardingStatusList(
-            @PageableDefault(size = 15, sort = "updateDate", direction = Sort.Direction.DESC) Pageable pageable,
             @PathVariable("userId") String userId,
             @RequestHeader(name = "Accept-Language", required = false, defaultValue = "it-IT") String acceptLanguage);
     /**

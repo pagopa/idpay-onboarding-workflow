@@ -380,19 +380,16 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId, Pageable pageable) {
+  public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId) {
     long startTime = System.currentTimeMillis();
 
-    if (pageable != null && pageable.getPageSize() > 15) {
-      throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG);
-    }
 
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
     Criteria criteria = Criteria.where("userId").is(userId)
             .and("status").is(ON_EVALUATION);
 
-    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria, pageable);
+    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria);
 
     for (Onboarding o : onboardingList) {
       InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
@@ -403,8 +400,6 @@ public class OnboardingServiceImpl implements OnboardingService {
       if (shouldBeWaitingList(o)) {
         status = ON_WAITING_LIST;
       }
-
-
 
       dtoList.add(new OnboardingStatusCitizenDTO(
               initiativeName,
