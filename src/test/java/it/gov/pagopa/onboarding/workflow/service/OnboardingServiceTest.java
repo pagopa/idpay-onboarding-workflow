@@ -3087,11 +3087,28 @@ class OnboardingServiceTest {
 
         doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
 
-        OnboardingStatusDTO result = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+        );
 
-        assertEquals(FAMILY_UNIT_ALREADY_JOINED, result.getStatus());
-        assertEquals(statusDate, result.getStatusDate());
-        assertNull(result.getOnboardingOkDate());
+        assertEquals(FAMILY_UNIT_ALREADY_JOINED, exception.getCode());
+    }
+
+    @Test
+    void getOnboardingStatus_shouldThrowException_whenStatusIsOnboardingKO() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setStatus("ONBOARDING_KO");
+        onboarding.setDetailKO("REASON_XYZ");
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+
+        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+        );
+        assertEquals("ONBOARDING_REASON_XYZ", exception.getCode());
     }
 
     @Test
