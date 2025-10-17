@@ -1,6 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnectorImpl;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
@@ -76,6 +77,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
 
+  protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
+
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
                                SelfDeclarationRepository selfDeclarationRepository,
@@ -89,8 +92,9 @@ public class OnboardingServiceImpl implements OnboardingService {
                                Utilities utilities,
                                OnboardingRepository onboardingRepository,
                                InitiativeWebMapper initiativeWebMapper,
-                               GeneralWebMapper generalWebMapper
-                               ){
+                               GeneralWebMapper generalWebMapper,
+                               InitiativeRestConnectorImpl initiativeRestConnectorImpl
+  ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
     this.outcomeProducer = outcomeProducer;
@@ -105,6 +109,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.initiativeRestConnector = initiativeRestConnector;
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
+    this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
   }
 
   @Override
@@ -118,7 +123,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     String status = onboarding.getStatus();
 
     if (JOINED.equals(status)) {
-      status = FAMILY_UNIT_ALREADY_JOINED;
+      throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
+    } else if (ONBOARDING_KO.equals(status)){
+      throw new OnboardingStatusException("ONBOARDING_" + onboarding.getDetailKO(), "Something went wrong handling the request");
     }
 
     log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
@@ -373,7 +380,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public ResponseInitiativeOnboardingDTO getOnboardingStatusList(String userId, Pageable pageable) {
+  public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId, Pageable pageable) {
     long startTime = System.currentTimeMillis();
 
     if (pageable != null && pageable.getPageSize() > 15) {
@@ -386,39 +393,31 @@ public class OnboardingServiceImpl implements OnboardingService {
             .and("status").is(ON_EVALUATION);
 
     List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria, pageable);
-    long count = onboardingRepository.getCount(criteria);
-
-    final Page<Onboarding> pageResult = PageableExecutionUtils.getPage(
-            onboardingList,
-            this.getPageable(pageable),
-            () -> count
-    );
 
     for (Onboarding o : onboardingList) {
+      InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
+      String initiativeName = initiative.getInitiativeName();
+      String serviceId = initiative.getAdditionalInfo().getServiceId();
       String status = o.getStatus();
 
       if (shouldBeWaitingList(o)) {
         status = ON_WAITING_LIST;
       }
 
+
+
       dtoList.add(new OnboardingStatusCitizenDTO(
-              o.getUserId(),
+              initiativeName,
+              serviceId,
+              o.getInitiativeId(),
               status,
-              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
-              o.getFamilyId(),
-              o.getDetail()
+              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY
       ));
     }
 
     performanceLog(startTime, "GET_USER_INITIATIVE_STATUS", userId, null);
 
-    return new ResponseInitiativeOnboardingDTO(
-            dtoList,
-            pageResult.getNumber(),
-            pageResult.getSize(),
-            (int) pageResult.getTotalElements(),
-            pageResult.getTotalPages()
-    );
+    return dtoList;
   }
 
   @Override

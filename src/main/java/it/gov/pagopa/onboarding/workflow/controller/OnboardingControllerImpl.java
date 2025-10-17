@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Locale;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
@@ -48,12 +49,12 @@ public class OnboardingControllerImpl implements OnboardingController {
   }
 
   @Override
-  public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(Pageable pageable,
-                                                                              String userId,
-                                                                              String acceptLanguage) {
-    ResponseInitiativeOnboardingDTO responseInitiativeOnboardingDTO = onboardingService.getOnboardingStatusList(
+  public ResponseEntity<List<OnboardingStatusCitizenDTO>> onboardingStatusList(Pageable pageable,
+                                                                               String userId,
+                                                                               String acceptLanguage) {
+    List<OnboardingStatusCitizenDTO> list = onboardingService.getOnboardingStatusList(
             userId, pageable);
-    return new ResponseEntity<>(responseInitiativeOnboardingDTO, HttpStatus.OK);
+    return new ResponseEntity<>(list, HttpStatus.OK);
   }
 
   @Override
