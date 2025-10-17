@@ -24,6 +24,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ACCEPTED_TC;
@@ -58,10 +60,7 @@ class OnboardingControllerTest {
 
     private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO =
             new OnboardingStatusCitizenDTO(USER_ID, STATUS, STATUS, null, "DETAIL_TEST");
-    static List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOList = List.of(
-      ONBOARDING_STATUS_CITIZEN_DTO);
-  private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(
-      onboardingStatusCitizenDTOList, 15, 20, 100, 15);
+  private static final List<OnboardingStatusCitizenDTO> ONBOARDING_DTO = Collections.singletonList(ONBOARDING_STATUS_CITIZEN_DTO);
   private static final OnboardingFamilyDetailDTO ONBOARDING_FAMILY_DETAIL_DTO = new OnboardingFamilyDetailDTO(
           CF, FAMILY_ID, now(), STATUS);
   static List<OnboardingFamilyDetailDTO> onboardingFamilyDetailDTOList = List.of(ONBOARDING_FAMILY_DETAIL_DTO);

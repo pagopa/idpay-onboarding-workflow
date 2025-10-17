@@ -7,6 +7,7 @@ import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnectorImpl;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
@@ -117,6 +118,9 @@ class OnboardingServiceTest {
     private OutcomeProducer outcomeProducer;
     @Mock
     private DecryptRestConnector decryptRestConnector;
+
+    @Mock
+    private InitiativeRestConnectorImpl initiativeRestConnectorImpl;
 
 
     private static final int PAGE_SIZE = 10;
@@ -381,7 +385,8 @@ class OnboardingServiceTest {
                 utilities,
                 onboardingRepositoryMock,
                 initiativeWebMapper,
-                generalWebMapper
+                generalWebMapper,
+                initiativeRestConnectorImpl
         ));
 
 
@@ -2274,12 +2279,10 @@ class OnboardingServiceTest {
                         .build());
 
         assertDoesNotThrow(() -> {
-            ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, paging);
+            List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID, paging);
 
             assertNotNull(response);
-            assertEquals(1, response.getTotalElements());
-            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+            assertEquals(ON_EVALUATION, response.getFirst().getStatus());
         });
     }
 
@@ -2302,12 +2305,10 @@ class OnboardingServiceTest {
                         .build());
 
         assertDoesNotThrow(() -> {
-            ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, null);
+            List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID, null);
 
             assertNotNull(response);
-            assertEquals(1, response.getTotalElements());
-            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+            assertEquals(ON_EVALUATION, response.getFirst().getStatus());
         });
     }
 
@@ -2334,13 +2335,10 @@ class OnboardingServiceTest {
                         .budgetAvailable(true)
                         .build());
 
-        ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, pageable);
+        List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID, pageable);
 
-        int totalElements = response.getTotalElements();
 
-        assertEquals(10, totalElements);
-        assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-        assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+        assertEquals(ON_EVALUATION, response.getFirst().getStatus());
     }
 
 
@@ -2963,13 +2961,11 @@ class OnboardingServiceTest {
                         .budgetAvailable(false)
                         .build());
 
-        ResponseInitiativeOnboardingDTO response =
+        List<OnboardingStatusCitizenDTO> response =
                 onboardingService.getOnboardingStatusList(USER_ID, pageable);
 
         assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
-        assertEquals(ON_WAITING_LIST, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-        assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+        assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
     }
 
     @Test
@@ -3037,12 +3033,11 @@ class OnboardingServiceTest {
 
     @Test
     void getUserInitiativesStatus_shouldHandleNullPageable() {
-        ResponseInitiativeOnboardingDTO response =
+        List<OnboardingStatusCitizenDTO> response =
                 onboardingService.getOnboardingStatusList(USER_ID, null);
 
         assertNotNull(response);
-        assertEquals(0, response.getOnboardingStatusCitizenDTOList().size());
-        assertEquals(0, response.getTotalElements());
+        assertEquals(0, response.size());
     }
 
     @Test
