@@ -29,12 +29,7 @@ import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -647,12 +642,6 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private Pageable getPageable(Pageable pageable) {
-    if (pageable == null) {
-      return PageRequest.of(0, 15, Sort.by("lastUpdate"));
-    }
-    return pageable;
-  }
 
   private String decryptCF(String userId) {
     String fiscalCode;
