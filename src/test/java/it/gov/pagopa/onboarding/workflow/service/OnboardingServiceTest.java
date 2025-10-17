@@ -2270,13 +2270,17 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(paging)))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
+
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
                         .status(PUBLISHED)
                         .budgetAvailable(true)
                         .build());
+
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
 
         assertDoesNotThrow(() -> {
             List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID, paging);
@@ -2296,13 +2300,18 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class), isNull()))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
+
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
                         .status(PUBLISHED)
                         .budgetAvailable(true)
                         .build());
+
+
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
 
         assertDoesNotThrow(() -> {
             List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID, null);
@@ -2320,20 +2329,22 @@ class OnboardingServiceTest {
         onboarding.setFamilyId(FAMILY_ID);
         onboarding.setDetail("detail");
         List<Onboarding> onboardingList = List.of(onboarding);
-        long count = 10L;
 
         Pageable pageable = PageRequest.of(0, 1);
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(pageable)))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
 
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
                         .status(PUBLISHED)
                         .budgetAvailable(true)
                         .build());
+
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
 
         List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID, pageable);
 
@@ -2953,13 +2964,17 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(pageable)))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
+
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
                         .status(PUBLISHED)
                         .budgetAvailable(false)
                         .build());
+
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
 
         List<OnboardingStatusCitizenDTO> response =
                 onboardingService.getOnboardingStatusList(USER_ID, pageable);
