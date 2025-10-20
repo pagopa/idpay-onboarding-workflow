@@ -5,7 +5,6 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding.Fields;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -74,12 +73,5 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
           .lte(endDate);
     }
     return criteria;
-  }
-
-  private Pageable getPageable(Pageable pageable) {
-    if (pageable == null) {
-      return PageRequest.of(0, 15, Sort.by("lastUpdate"));
-    }
-    return pageable;
   }
 }

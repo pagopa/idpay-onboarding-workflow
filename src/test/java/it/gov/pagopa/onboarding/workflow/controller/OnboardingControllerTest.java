@@ -5,7 +5,6 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
 import it.gov.pagopa.onboarding.workflow.dto.*;
-import it.gov.pagopa.onboarding.workflow.exception.custom.PageSizeNotAllowedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
@@ -28,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ACCEPTED_TC;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ID_S_NOT_FOUND_MSG;
 import static java.time.LocalDate.now;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.http.MediaType.APPLICATION_JSON;

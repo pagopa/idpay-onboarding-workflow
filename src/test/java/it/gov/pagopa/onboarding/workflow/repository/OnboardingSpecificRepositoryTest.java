@@ -49,14 +49,6 @@ class OnboardingSpecificRepositoryTest {
   }
 
   @Test
-  void findByFilter_criteria_null(){
-    Criteria criteria = new Criteria();
-
-    onboardingSpecificRepository.findByFilter(criteria);
-    Mockito.verify(mongoTemplate, Mockito.times(1)).find(Mockito.any(),Mockito.any());
-  }
-
-  @Test
   void getCount(){
     Criteria criteria = new Criteria();
     onboardingSpecificRepository.getCount(criteria);
