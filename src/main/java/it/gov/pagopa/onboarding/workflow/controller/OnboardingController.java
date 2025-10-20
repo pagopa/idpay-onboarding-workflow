@@ -7,12 +7,10 @@ package it.gov.pagopa.onboarding.workflow.controller;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -62,8 +60,7 @@ public interface OnboardingController {
     // Servizi non utilizzati nel workflow di IO o WEB
 
     @GetMapping("/user/{userId}/initiative/status")
-    public ResponseEntity<ResponseInitiativeOnboardingDTO> onboardingStatusList(
-            @PageableDefault(size = 15, sort = "updateDate", direction = Sort.Direction.DESC) Pageable pageable,
+    public ResponseEntity<List<OnboardingStatusCitizenDTO>> onboardingStatusList(
             @PathVariable("userId") String userId,
             @RequestHeader(name = "Accept-Language", required = false, defaultValue = "it-IT") String acceptLanguage);
     /**
