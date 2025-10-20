@@ -7,6 +7,7 @@ import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnectorImpl;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
@@ -40,9 +41,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -56,8 +54,8 @@ import java.util.stream.Stream;
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static com.mongodb.assertions.Assertions.fail;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
 import static it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl.sanitizeString;
@@ -117,6 +115,9 @@ class OnboardingServiceTest {
     private OutcomeProducer outcomeProducer;
     @Mock
     private DecryptRestConnector decryptRestConnector;
+
+    @Mock
+    private InitiativeRestConnectorImpl initiativeRestConnectorImpl;
 
 
     private static final int PAGE_SIZE = 10;
@@ -381,7 +382,8 @@ class OnboardingServiceTest {
                 utilities,
                 onboardingRepositoryMock,
                 initiativeWebMapper,
-                generalWebMapper
+                generalWebMapper,
+                initiativeRestConnectorImpl
         ));
 
 
@@ -2260,26 +2262,26 @@ class OnboardingServiceTest {
         onboarding.setStatus(ON_EVALUATION);
         onboarding.setUpdateDate(LocalDateTime.now());
         List<Onboarding> onboardingList = List.of(onboarding);
-        Long count = 1L;
-        Pageable paging = PageRequest.of(0, 15, Sort.by("lastUpdate"));
 
-        when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(paging)))
+        when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
+
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
                         .status(PUBLISHED)
                         .budgetAvailable(true)
                         .build());
 
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
+
         assertDoesNotThrow(() -> {
-            ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, paging);
+            List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
 
             assertNotNull(response);
-            assertEquals(1, response.getTotalElements());
-            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+            assertEquals(ON_EVALUATION, response.getFirst().getStatus());
         });
     }
 
@@ -2289,25 +2291,27 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
         List<Onboarding> onboardingList = List.of(onboarding);
-        Long count = 1L;
 
-        when(onboardingRepositoryMock.findByFilter(any(Criteria.class), isNull()))
+        when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
+
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
                         .status(PUBLISHED)
                         .budgetAvailable(true)
                         .build());
 
+
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
+
         assertDoesNotThrow(() -> {
-            ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, null);
+            List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
 
             assertNotNull(response);
-            assertEquals(1, response.getTotalElements());
-            assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-            assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+            assertEquals(ON_EVALUATION, response.getFirst().getStatus());
         });
     }
 
@@ -2319,14 +2323,10 @@ class OnboardingServiceTest {
         onboarding.setFamilyId(FAMILY_ID);
         onboarding.setDetail("detail");
         List<Onboarding> onboardingList = List.of(onboarding);
-        long count = 10L;
 
-        Pageable pageable = PageRequest.of(0, 1);
 
-        when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(pageable)))
+        when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
 
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
@@ -2334,31 +2334,17 @@ class OnboardingServiceTest {
                         .budgetAvailable(true)
                         .build());
 
-        ResponseInitiativeOnboardingDTO response = onboardingService.getOnboardingStatusList(USER_ID, pageable);
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
 
-        int totalElements = response.getTotalElements();
+        List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
 
-        assertEquals(10, totalElements);
-        assertEquals(ON_EVALUATION, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-        assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+
+        assertEquals(ON_EVALUATION, response.getFirst().getStatus());
     }
 
-
-    @Test
-    void getOnboardingStatusList_ko() {
-        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(ACCEPTED_TC);
-        onboarding.setUpdateDate(LocalDateTime.now());
-        Pageable paging = PageRequest.of(0, 20, Sort.by("lastUpdate"));
-
-        try {
-            onboardingService.getOnboardingStatusList(USER_ID, paging);
-            fail();
-        } catch (PageSizeNotAllowedException e) {
-            assertEquals(PAGE_SIZE_NOT_ALLOWED, e.getCode());
-            assertEquals(String.format(ERROR_MAX_NUMBER_FOR_PAGE_MSG), e.getMessage());
-        }
-    }
 
     @Test
     void allowedInitiative_ok() {
@@ -2950,26 +2936,26 @@ class OnboardingServiceTest {
         onboarding.setStatus(ON_EVALUATION);
         onboarding.setUpdateDate(LocalDateTime.now());
         List<Onboarding> onboardingList = List.of(onboarding);
-        Long count = 1L;
-        Pageable pageable = PageRequest.of(0, 10);
 
-        when(onboardingRepositoryMock.findByFilter(any(Criteria.class), eq(pageable)))
+        when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
-        when(onboardingRepositoryMock.getCount(any(Criteria.class)))
-                .thenReturn(count);
+
         when(admissibilityRestConnector.getInitiativeStatus(anyString()))
                 .thenReturn(InitiativeStatusDTO.builder()
                         .status(PUBLISHED)
                         .budgetAvailable(false)
                         .build());
 
-        ResponseInitiativeOnboardingDTO response =
-                onboardingService.getOnboardingStatusList(USER_ID, pageable);
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
+
+        List<OnboardingStatusCitizenDTO> response =
+                onboardingService.getOnboardingStatusList(USER_ID);
 
         assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
-        assertEquals(ON_WAITING_LIST, response.getOnboardingStatusCitizenDTOList().getFirst().getStatus());
-        assertEquals(USER_ID, response.getOnboardingStatusCitizenDTOList().getFirst().getUserId());
+        assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
     }
 
     @Test
@@ -3023,27 +3009,7 @@ class OnboardingServiceTest {
         assertTrue(result);
     }
 
-    @Test
-    void getUserInitiativesStatus_shouldThrowException_whenPageSizeTooLarge() {
-        Pageable pageable = PageRequest.of(0, 20);
 
-        PageSizeNotAllowedException exception = assertThrows(
-                PageSizeNotAllowedException.class,
-                () -> onboardingService.getOnboardingStatusList(USER_ID, pageable)
-        );
-
-        assertTrue(exception.getMessage().contains("Max number for page allowed: 15"));
-    }
-
-    @Test
-    void getUserInitiativesStatus_shouldHandleNullPageable() {
-        ResponseInitiativeOnboardingDTO response =
-                onboardingService.getOnboardingStatusList(USER_ID, null);
-
-        assertNotNull(response);
-        assertEquals(0, response.getOnboardingStatusCitizenDTOList().size());
-        assertEquals(0, response.getTotalElements());
-    }
 
     @Test
     void setStatus_shouldSetOnboardingOkDateAndLog_whenStatusIsOnboardingOk() {

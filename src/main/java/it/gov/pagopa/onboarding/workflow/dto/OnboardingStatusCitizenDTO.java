@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OnboardingStatusCitizenDTO {
 
-  private String userId;
+  private String initiativeName;
+  private String serviceId;
+  private String initiativeId;
   private String status;
   private String statusDate;
-  private String familyId;
-  private String detail;
 }
 

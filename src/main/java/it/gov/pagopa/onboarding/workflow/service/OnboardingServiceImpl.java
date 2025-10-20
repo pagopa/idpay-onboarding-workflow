@@ -1,6 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnectorImpl;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
@@ -28,12 +29,7 @@ import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -76,6 +72,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
 
+  protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
+
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
                                SelfDeclarationRepository selfDeclarationRepository,
@@ -89,8 +87,9 @@ public class OnboardingServiceImpl implements OnboardingService {
                                Utilities utilities,
                                OnboardingRepository onboardingRepository,
                                InitiativeWebMapper initiativeWebMapper,
-                               GeneralWebMapper generalWebMapper
-                               ){
+                               GeneralWebMapper generalWebMapper,
+                               InitiativeRestConnectorImpl initiativeRestConnectorImpl
+  ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
     this.outcomeProducer = outcomeProducer;
@@ -105,6 +104,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.initiativeRestConnector = initiativeRestConnector;
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
+    this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
   }
 
   @Override
@@ -375,28 +375,21 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public ResponseInitiativeOnboardingDTO getOnboardingStatusList(String userId, Pageable pageable) {
+  public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId) {
     long startTime = System.currentTimeMillis();
 
-    if (pageable != null && pageable.getPageSize() > 15) {
-      throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG);
-    }
 
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
     Criteria criteria = Criteria.where("userId").is(userId)
             .and("status").is(ON_EVALUATION);
 
-    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria, pageable);
-    long count = onboardingRepository.getCount(criteria);
-
-    final Page<Onboarding> pageResult = PageableExecutionUtils.getPage(
-            onboardingList,
-            this.getPageable(pageable),
-            () -> count
-    );
+    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria);
 
     for (Onboarding o : onboardingList) {
+      InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
+      String initiativeName = initiative.getInitiativeName();
+      String serviceId = initiative.getAdditionalInfo().getServiceId();
       String status = o.getStatus();
 
       if (shouldBeWaitingList(o)) {
@@ -404,23 +397,17 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
 
       dtoList.add(new OnboardingStatusCitizenDTO(
-              o.getUserId(),
+              initiativeName,
+              serviceId,
+              o.getInitiativeId(),
               status,
-              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
-              o.getFamilyId(),
-              o.getDetail()
+              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY
       ));
     }
 
     performanceLog(startTime, "GET_USER_INITIATIVE_STATUS", userId, null);
 
-    return new ResponseInitiativeOnboardingDTO(
-            dtoList,
-            pageResult.getNumber(),
-            pageResult.getSize(),
-            (int) pageResult.getTotalElements(),
-            pageResult.getTotalPages()
-    );
+    return dtoList;
   }
 
   @Override
@@ -655,12 +642,6 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private Pageable getPageable(Pageable pageable) {
-    if (pageable == null) {
-      return PageRequest.of(0, 15, Sort.by("lastUpdate"));
-    }
-    return pageable;
-  }
 
   private String decryptCF(String userId) {
     String fiscalCode;
