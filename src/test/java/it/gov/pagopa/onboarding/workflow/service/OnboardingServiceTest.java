@@ -263,15 +263,15 @@ class OnboardingServiceTest {
         GENERAL_KO_RANKING_END_DATE.setRankingEndDate(MIN);
 
         INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
-                List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2", "1"), "2"),
-                        new SelfCriteriaTextDTO("text", "", "Value3", "3")));
+                List.of(new SelfCriteriaBoolDTO("boolean", "", "",  true, "1"),
+                        new SelfCriteriaMultiDTO("multi", "", "", List.of("Value", "Value2", "1"), "2"),
+                        new SelfCriteriaTextDTO("text", "", "", "Value3", "3")));
         INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(AUTOMATED_CRITERIA_DTO));
 
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(
-                List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2", "1"), "2"),
-                        new SelfCriteriaTextDTO("text", "", "Value3", "3")));
+                List.of(new SelfCriteriaBoolDTO("boolean", "", "", true, "1"),
+                        new SelfCriteriaMultiDTO("multi", "", "", List.of("Value", "Value2", "1"), "2"),
+                        new SelfCriteriaTextDTO("text", "", "", "Value3", "3")));
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setAutomatedCriteria(List.of());
 
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setSelfDeclarationCriteria(List.of());
@@ -2775,7 +2775,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_MultiCriteria_ShouldCallMultiCheckAndSave() {
-        SelfCriteriaMultiDTO multiCriteria = new SelfCriteriaMultiDTO("multi", "desc", List.of("Value1", "Value2"), "CODE_MULTI");
+        SelfCriteriaMultiDTO multiCriteria = new SelfCriteriaMultiDTO("multi", "desc","subDescr", List.of("Value1", "Value2"), "CODE_MULTI");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(multiCriteria));
 
         SelfConsentMultiDTO consentMulti = new SelfConsentMultiDTO();
@@ -2794,7 +2794,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_TextCriteriaValid_ShouldSaveTextValue() {
-        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", null, "CODE_TEXT");
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", "subDescr", null, "CODE_TEXT");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
 
         SelfConsentTextDTO consentText = new SelfConsentTextDTO();
@@ -2811,7 +2811,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_TextCriteriaNull_ShouldThrowExceptionAndAudit() {
-        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", null, "CODE_TEXT");
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", "subDescr",null, "CODE_TEXT");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
 
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
@@ -2840,7 +2840,7 @@ class OnboardingServiceTest {
     @Test
     void testSelfDeclaration_SizeCheckFails_ShouldThrowExceptionAndAudit() {
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(
-                new SelfCriteriaBoolDTO("bool1", "desc", true, "CODE1")
+                new SelfCriteriaBoolDTO("bool1", "desc", "subDescr", true, "CODE1")
         ));
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
         consentPutDTO.setSelfDeclarationList(List.of());
@@ -2856,7 +2856,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_TextDTOValueMissing_ShouldThrowExceptionAndAudit() {
-        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("textType", "desc", null, "TEXT_CODE");
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("textType", "desc", "subDescr" , null, "TEXT_CODE");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
 
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
@@ -2881,7 +2881,7 @@ class OnboardingServiceTest {
     void testMultiCriteriaCheck_ValueIsNull_ShouldThrowExceptionAndAudit() {
         initiativeDTO.setInitiativeId("TEST_INITIATIVE");
 
-        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", "subdescr" , List.of("Value1", "Value2"), "1");
 
         Map<String, String> selfDeclarationMulti = new HashMap<>();
         selfDeclarationMulti.put(multi.getCode(), null);
@@ -2899,7 +2899,7 @@ class OnboardingServiceTest {
     void testMultiCriteriaCheck_ValueNotAllowed_ShouldThrowExceptionAndAudit() {
         initiativeDTO.setInitiativeId("TEST_INITIATIVE");
 
-        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", "subdescr" , List.of("Value1", "Value2"), "1");
 
         Map<String, String> selfDeclarationMulti = new HashMap<>();
         selfDeclarationMulti.put(multi.getCode(), "INVALID_VALUE");
@@ -2917,7 +2917,7 @@ class OnboardingServiceTest {
     void testMultiCriteriaCheck_ValueAllowed_ShouldSetValue() {
         initiativeDTO.setInitiativeId("TEST_INITIATIVE");
 
-        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", "subdescr" , List.of("Value1", "Value2"), "1");
 
         Map<String, String> selfDeclarationMulti = new HashMap<>();
         selfDeclarationMulti.put(multi.getCode(), "Value2");
