@@ -111,9 +111,18 @@ public class OnboardingServiceImpl implements OnboardingService {
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
 
+
     Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    InitiativeDTO initiativeDTO = getInitiative(initiativeId);
 
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
+
+    try {
+      checkDates(initiativeDTO, onboarding);
+      checkBudget(initiativeDTO, onboarding);
+    }catch(InitiativeInvalidException | InitiativeBudgetExhaustedException e){
+      throw new OnboardingStatusException(onboarding.getDetailKO(), e.getMessage());
+    }
 
     String status = onboarding.getStatus();
 
@@ -728,6 +737,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (requestDate.isBefore(startDate)){
       auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
               ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
+      onboarding.setDetailKO(INITIATIVE_NOT_STARTED);
+      onboardingRepository.save(onboarding);
       throw new InitiativeInvalidException(INITIATIVE_NOT_STARTED,
               String.format(ERROR_INITIATIVE_NOT_STARTED_MSG, initiativeDTO.getInitiativeId()));
     }
@@ -741,6 +752,8 @@ public class OnboardingServiceImpl implements OnboardingService {
       onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               ERROR_INITIATIVE_END_MSG_AUDIT);
+      onboarding.setDetailKO(INITIATIVE_ENDED);
+      onboardingRepository.save(onboarding);
       throw new InitiativeInvalidException(INITIATIVE_ENDED,
               String.format(ERROR_INITIATIVE_END_MSG, initiativeDTO.getInitiativeId()));
     }
@@ -782,6 +795,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
             onboarding.getUserId(), onboarding.getChannel(),
             ERROR_BUDGET_TERMINATED_MSG_AUDIT);
+    onboarding.setDetailKO(BUDGET_EXHAUSTED);
     throw new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeDTO.getInitiativeId()));
   }
 
