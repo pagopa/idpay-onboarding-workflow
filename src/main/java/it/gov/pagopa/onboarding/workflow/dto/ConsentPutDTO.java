@@ -1,23 +1,26 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
-import java.util.List;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ConsentPutDTO {
 
-  @NotBlank(message="The field is mandatory")
-  String initiativeId;
-
-  boolean pdndAccept;
-
-  List<SelfConsentDTO> selfDeclarationList;
+    @NotBlank(message = "The initiativeId is mandatory")
+    private String initiativeId;
+    private boolean pdndAccept;
+    private List<SelfConsentDTO> selfDeclarationList;
+    private String userMail;
+    private String userMailConfirmation;
+    private Boolean confirmedTos;
+    private String name;
+    private String surname;
 }
-

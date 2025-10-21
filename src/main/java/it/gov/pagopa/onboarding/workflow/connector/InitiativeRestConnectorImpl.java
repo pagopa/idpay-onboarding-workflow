@@ -2,8 +2,8 @@ package it.gov.pagopa.onboarding.workflow.connector;
 
 import feign.FeignException;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +28,9 @@ public class InitiativeRestConnectorImpl implements InitiativeRestConnector {
       initiativeDTO = initiativeRestClient.getInitiativeBeneficiaryView(initiativeId);
     } catch (FeignException e){
       if (e.status() == 404){
-        log.error("[GET_INITIATIVE_BENEFICIARY_VIEW] Initiative {} was not found.", initiativeId);
         throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, e);
       }
 
-      log.error("[GET_INITIATIVE_BENEFICIARY_VIEW] Initiative {}: something went wrong when invoking the API.", initiativeId);
       throw new InitiativeInvocationException(ERROR_INITIATIVE_INVOCATION_MSG, true, e);
     }
 

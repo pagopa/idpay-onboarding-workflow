@@ -2,12 +2,6 @@ package it.gov.pagopa.onboarding.workflow.config;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
-import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.AdmissibilityInvocationException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeInvocationException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.PDVInvocationException;
-import it.gov.pagopa.onboarding.workflow.exception.custom.UserSuspensionOrReadmissionException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -25,6 +19,7 @@ public class ServiceExceptionConfig {
         // BadRequest
         exceptionMap.put(PageSizeNotAllowedException.class, HttpStatus.BAD_REQUEST);
         exceptionMap.put(OperationNotAllowedException.class, HttpStatus.BAD_REQUEST);
+        exceptionMap.put(OnboardingStatusException.class, HttpStatus.BAD_REQUEST);
 
         // Forbidden
         exceptionMap.put(UserNotInWhitelistException.class, HttpStatus.FORBIDDEN);

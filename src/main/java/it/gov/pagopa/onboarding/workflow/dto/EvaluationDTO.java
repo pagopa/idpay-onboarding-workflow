@@ -1,13 +1,14 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor

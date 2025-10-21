@@ -1,11 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.junit.jupiter.api.Assertions;
@@ -15,14 +9,17 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = OnboardingSpecificRepositoryImpl.class)
@@ -46,17 +43,8 @@ class OnboardingSpecificRepositoryTest {
   @Test
   void findByFilter(){
     Criteria criteria = new Criteria();
-    Pageable paging = PageRequest.of(0, 20, Sort.by("lastUpdate"));
 
-    onboardingSpecificRepository.findByFilter(criteria,paging);
-    Mockito.verify(mongoTemplate, Mockito.times(1)).find(Mockito.any(),Mockito.any());
-  }
-
-  @Test
-  void findByFilter_criteria_null(){
-    Criteria criteria = new Criteria();
-
-    onboardingSpecificRepository.findByFilter(criteria,null);
+    onboardingSpecificRepository.findByFilter(criteria);
     Mockito.verify(mongoTemplate, Mockito.times(1)).find(Mockito.any(),Mockito.any());
   }
 

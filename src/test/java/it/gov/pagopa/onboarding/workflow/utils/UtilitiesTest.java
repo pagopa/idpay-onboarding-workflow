@@ -7,7 +7,6 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeOnboardingEx
 import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotInWhitelistException;
 import org.junit.jupiter.api.Test;
 
-
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

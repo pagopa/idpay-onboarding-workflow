@@ -1,10 +1,11 @@
 package it.gov.pagopa.onboarding.workflow.model;
 
-import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
 
 @Data
 @FieldNameConstants
@@ -33,6 +34,8 @@ public class Onboarding {
 
   private String detailKO;
 
+  private String userMail;
+
   private String channel;
 
   private Boolean tc;
@@ -56,5 +59,10 @@ public class Onboarding {
 
   private LocalDateTime creationDate;
   private LocalDateTime suspensionDate;
+
+  private String name;
+  private String surname;
+
+  private String detail;
 
 }
