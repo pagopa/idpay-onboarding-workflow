@@ -1630,6 +1630,8 @@ class OnboardingServiceTest {
     void getOnboardingStatus_ko() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(INITIATIVE_STATUS_DTO);
         try {
             onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
         } catch (UserNotOnboardedException e) {
