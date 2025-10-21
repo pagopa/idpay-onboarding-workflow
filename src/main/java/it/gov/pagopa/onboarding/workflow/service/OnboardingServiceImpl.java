@@ -111,18 +111,22 @@ public class OnboardingServiceImpl implements OnboardingService {
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
 
+    performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);
 
-    performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
-
+    Onboarding onboarding = null;
     try {
-      checkDates(initiativeDTO, null);
-      checkBudget(initiativeDTO, null);
-    }catch(InitiativeInvalidException | InitiativeBudgetExhaustedException e){
-      throw new OnboardingStatusException(e.getCode() , e.getMessage());
+      onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    } catch(UserNotOnboardedException e){
+      try {
+        checkDates(initiativeDTO, null);
+        checkBudget(initiativeDTO, null);
+      }catch(InitiativeInvalidException | InitiativeBudgetExhaustedException e1){
+        throw new OnboardingStatusException(e1.getCode() , e1.getMessage());
+      }
+      throw e;
     }
 
-    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
     String status = onboarding.getStatus();
 
     if (JOINED.equals(status)) {
@@ -130,6 +134,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     } else if (ONBOARDING_KO.equals(status)){
       throw new OnboardingStatusException("ONBOARDING_" + onboarding.getDetailKO(), "Something went wrong handling the request");
     }
+
 
     log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
             sanitize(initiativeId),
