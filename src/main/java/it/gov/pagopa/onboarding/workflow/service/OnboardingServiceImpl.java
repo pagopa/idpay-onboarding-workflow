@@ -111,9 +111,21 @@ public class OnboardingServiceImpl implements OnboardingService {
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
 
-    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
-
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
+    InitiativeDTO initiativeDTO = getInitiative(initiativeId);
+
+    Onboarding onboarding = null;
+    try {
+      onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    } catch(UserNotOnboardedException e){
+      try {
+        checkDates(initiativeDTO, null);
+        checkBudget(initiativeDTO, null);
+      }catch(InitiativeInvalidException | InitiativeBudgetExhaustedException e1){
+        throw new OnboardingStatusException(e1.getCode() , e1.getMessage());
+      }
+      throw e;
+    }
 
     String status = onboarding.getStatus();
 
@@ -122,6 +134,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     } else if (ONBOARDING_KO.equals(status)){
       throw new OnboardingStatusException("ONBOARDING_" + onboarding.getDetailKO(), "Something went wrong handling the request");
     }
+
 
     log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
             sanitize(initiativeId),
@@ -726,21 +739,25 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDate endDate = getEndDate(initiativeDTO, onboarding);
 
     if (requestDate.isBefore(startDate)){
-      auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
-              ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
+      if(onboarding != null){
+        auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
+                ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
+    }
       throw new InitiativeInvalidException(INITIATIVE_NOT_STARTED,
               String.format(ERROR_INITIATIVE_NOT_STARTED_MSG, initiativeDTO.getInitiativeId()));
     }
 
     if (requestDate.isAfter(endDate)){
-      LocalDateTime localDateTime = LocalDateTime.now();
-      onboarding.setStatus(ONBOARDING_KO);
-      onboarding.setOnboardingKODate(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
-      onboarding.setDetailKO(ERROR_INITIATIVE_END);
-      onboardingRepository.save(onboarding);
-      auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
-              ERROR_INITIATIVE_END_MSG_AUDIT);
+      if(onboarding != null) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        onboarding.setStatus(ONBOARDING_KO);
+        onboarding.setOnboardingKODate(localDateTime);
+        onboarding.setUpdateDate(localDateTime);
+        onboarding.setDetailKO(ERROR_INITIATIVE_END);
+        onboardingRepository.save(onboarding);
+        auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
+                ERROR_INITIATIVE_END_MSG_AUDIT);
+      }
       throw new InitiativeInvalidException(INITIATIVE_ENDED,
               String.format(ERROR_INITIATIVE_END_MSG, initiativeDTO.getInitiativeId()));
     }
@@ -751,13 +768,15 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDate endDate = initiativeDTO.getGeneral()
             .getEndDate();
 
-    if(initiativeDTO.getGeneral().getRankingEndDate() != null &&
-            (!BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
-                    || (!initiativeDTO.getGeneral().getRankingEnabled()
-                    && !(DEMANDED.equals(onboarding.getStatus())
-                    || onboarding.getDemandedDate() != null)))
-    ){
-      endDate = initiativeDTO.getGeneral().getRankingEndDate();
+    if(onboarding != null) {
+      if (initiativeDTO.getGeneral().getRankingEndDate() != null &&
+              (!BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
+                      || (!initiativeDTO.getGeneral().getRankingEnabled()
+                      && !(DEMANDED.equals(onboarding.getStatus())
+                      || onboarding.getDemandedDate() != null)))
+      ) {
+        endDate = initiativeDTO.getGeneral().getRankingEndDate();
+      }
     }
     return endDate;
   }
@@ -773,15 +792,18 @@ public class OnboardingServiceImpl implements OnboardingService {
             .equals(PUBLISHED)) {
       return;
     }
-    LocalDateTime localDateTime = LocalDateTime.now();
-    onboarding.setStatus(ONBOARDING_KO);
-    onboarding.setOnboardingKODate(localDateTime);
-    onboarding.setUpdateDate(localDateTime);
-    onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
-    onboardingRepository.save(onboarding);
-    auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
-            onboarding.getUserId(), onboarding.getChannel(),
-            ERROR_BUDGET_TERMINATED_MSG_AUDIT);
+
+    if(onboarding != null) {
+      LocalDateTime localDateTime = LocalDateTime.now();
+      onboarding.setStatus(ONBOARDING_KO);
+      onboarding.setOnboardingKODate(localDateTime);
+      onboarding.setUpdateDate(localDateTime);
+      onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
+      onboardingRepository.save(onboarding);
+      auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
+              onboarding.getUserId(), onboarding.getChannel(),
+              ERROR_BUDGET_TERMINATED_MSG_AUDIT);
+    }
     throw new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeDTO.getInitiativeId()));
   }
 

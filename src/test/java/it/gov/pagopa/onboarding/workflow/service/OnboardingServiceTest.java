@@ -1727,6 +1727,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
         OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
         assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
@@ -1739,6 +1740,8 @@ class OnboardingServiceTest {
     void getOnboardingStatus_ko() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(INITIATIVE_STATUS_DTO);
         try {
             onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
         } catch (UserNotOnboardedException e) {
@@ -1749,6 +1752,45 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void getOnboardingStatus_ko_InitiativeNotStarted() throws InitiativeInvalidException {
+        doThrow(new InitiativeInvalidException(INITIATIVE_NOT_STARTED, INITIATIVE_ID))
+                .when(onboardingService).checkDates(INITIATIVE_DTO_KO_START_DATE, null);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO_KO_START_DATE);
+
+        OnboardingStatusException thrown = assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        });
+
+        assertEquals(INITIATIVE_NOT_STARTED, thrown.getCode());
+    }
+
+    @Test
+    void getOnboardingStatus_ko_InitiativeEnded() throws InitiativeInvalidException {
+        doThrow(new InitiativeInvalidException(INITIATIVE_ENDED, INITIATIVE_ID))
+                .when(onboardingService).checkDates(INITIATIVE_DTO_KO_END_DATE, null);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO_KO_END_DATE);
+
+        OnboardingStatusException thrown = assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        });
+
+        assertEquals(INITIATIVE_ENDED, thrown.getCode());
+    }
+
+    @Test
+    void getOnboardingStatus_ko_InitiativeBudgetExhausted() throws  InitiativeBudgetExhaustedException {
+        doThrow(new InitiativeBudgetExhaustedException(ONBOARDING_BUDGET_EXHAUSTED, INITIATIVE_ID))
+                .when(onboardingService).checkBudget(INITIATIVE_DTO, null);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+
+        OnboardingStatusException thrown = assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        });
+
+        assertEquals(ONBOARDING_BUDGET_EXHAUSTED, thrown.getCode());
+    }
+
+    @Test
     void getOnboardingStatus_nullOnboardingOkDate() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
@@ -1756,6 +1798,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
         OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
         assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
@@ -3163,6 +3206,7 @@ class OnboardingServiceTest {
         onboarding.setOnboardingOkDate(null);
 
         doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
 
         OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
                 onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
@@ -3181,6 +3225,7 @@ class OnboardingServiceTest {
         onboarding.setOnboardingOkDate(null);
 
         doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
 
         OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
                 onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
