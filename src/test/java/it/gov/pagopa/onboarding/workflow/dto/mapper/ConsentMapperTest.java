@@ -30,8 +30,8 @@ class ConsentMapperTest {
   @Test
   void map_ok() {
     List<SelfDeclarationItemsDTO> selfConsent = List.of(
-        new SelfCriteriaBoolDTO("boolean", "descr", true, "1"),
-        new SelfCriteriaMultiDTO("multi", "descr", List.of("Value"), "2"));
+        new SelfCriteriaBoolDTO("boolean", "descr", "subDescr", true, "1"),
+        new SelfCriteriaMultiDTO("multi", "descr", "subDescr", List.of("Value"), "2"));
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID_OK);
     onboarding.setPdndAccept(true);
     onboarding.setTc(true);
