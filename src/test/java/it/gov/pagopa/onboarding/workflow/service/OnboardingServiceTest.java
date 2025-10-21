@@ -475,6 +475,11 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
         when(onboardingRepositoryMock.save(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -529,6 +534,12 @@ class OnboardingServiceTest {
         initiativeTestDTO.setAdditionalInfo(additionalInfo);
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -659,6 +670,12 @@ class OnboardingServiceTest {
 
         doNothing().when(onboardingService).checkDates(any(), any());
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
         verify(onboardingRepositoryMock, times(1)).save(argThat(onboarding ->
@@ -710,6 +727,12 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
 
         doNothing().when(onboardingService).checkDates(any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
 
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
@@ -872,6 +895,12 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel,  userId);
@@ -921,6 +950,11 @@ class OnboardingServiceTest {
         initiativeTestDTO.setAdditionalInfo(additional);
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
 
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
@@ -995,6 +1029,12 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel,  userId);
@@ -1042,6 +1082,11 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -1113,6 +1158,11 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel,  userId);
@@ -1160,6 +1210,12 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -1231,6 +1287,11 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel, userId);
@@ -1241,6 +1302,56 @@ class OnboardingServiceTest {
 
         OnboardingDTO sentDto = dtoCaptor.getValue();
         assertFalse(sentDto.getVerifyIsee());
+    }
+
+    @Test
+    void testSaveOnboarding_notAllowBudget(){
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
+        String channel = "CHANNEL";
+
+        ConsentPutDTO consent = new ConsentPutDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+        consent.setSelfDeclarationList(Collections.emptyList());
+
+        doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus(PUBLISHED);
+
+        InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
+        ruleDTO.setAutomatedCriteria(new ArrayList<>());
+        ruleDTO.setSelfDeclarationCriteria(new ArrayList<>());
+        initiativeTestDTO.setBeneficiaryRule(ruleDTO);
+
+        InitiativeGeneralDTO general = new InitiativeGeneralDTO();
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        initiativeTestDTO.setGeneral(general);
+
+        InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
+        additional.setServiceId("serviceId");
+        initiativeTestDTO.setAdditionalInfo(additional);
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+        doNothing().when(onboardingService).checkDates(any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(false);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
+        when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        InitiativeBudgetExhaustedException resultException = assertThrows(InitiativeBudgetExhaustedException.class, () -> onboardingService.saveOnboarding(consent, channel, userId));
+
+        assertEquals(ONBOARDING_BUDGET_EXHAUSTED, resultException.getCode());
+        assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeId), resultException.getMessage());
+
     }
 
     @Test
