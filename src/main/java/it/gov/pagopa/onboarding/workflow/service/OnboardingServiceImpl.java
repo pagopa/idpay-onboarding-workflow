@@ -112,7 +112,12 @@ public class OnboardingServiceImpl implements OnboardingService {
     long startTime = System.currentTimeMillis();
 
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
-    InitiativeDTO initiativeDTO = getInitiative(initiativeId);
+    InitiativeDTO initiativeDTO = null;
+    try {
+      initiativeDTO = getInitiative(initiativeId);
+    }catch(InitiativeInvalidException e){
+      throw new OnboardingStatusException(e.getCode() , e.getMessage());
+    }
 
     Onboarding onboarding = null;
     try {
