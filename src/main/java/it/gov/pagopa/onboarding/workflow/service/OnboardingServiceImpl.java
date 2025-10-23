@@ -113,16 +113,13 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
     InitiativeDTO initiativeDTO = null;
-    try {
-      initiativeDTO = getInitiative(initiativeId);
-    }catch(InitiativeInvalidException e){
-      throw new OnboardingStatusException(e.getCode() , e.getMessage());
-    }
-
     Onboarding onboarding = null;
     try {
+      initiativeDTO = getInitiative(initiativeId);
       onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
-    } catch(UserNotOnboardedException e){
+    }catch (InitiativeInvalidException e){
+      throw new OnboardingStatusException(e.getCode() , e.getMessage());
+    }catch(UserNotOnboardedException e){
       try {
         checkDates(initiativeDTO, null);
         checkBudget(initiativeDTO, null);
@@ -137,7 +134,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     if (JOINED.equals(status)) {
       throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
     } else if (ONBOARDING_KO.equals(status)){
-      throw new OnboardingStatusException("ONBOARDING_" + onboarding.getDetailKO(), "Something went wrong handling the request");
+      throw new OnboardingStatusException(onboarding.getDetailKO() != null ? "ONBOARDING_" + onboarding.getDetailKO() : "ONBOARDING_" + GENERIC_ERROR , "Something went wrong handling the request");
     }
 
 
