@@ -19,6 +19,9 @@ public class SelfCriteriaMultiDTO implements SelfDeclarationItemsDTO {
   @JsonProperty("description")
   private String description;
 
+  @JsonProperty("subDescription")
+  private String subDescription;
+
   @JsonProperty("value")
   private List<String> value;
 

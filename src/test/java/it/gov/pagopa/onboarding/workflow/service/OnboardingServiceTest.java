@@ -263,15 +263,15 @@ class OnboardingServiceTest {
         GENERAL_KO_RANKING_END_DATE.setRankingEndDate(MIN);
 
         INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
-                List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2", "1"), "2"),
-                        new SelfCriteriaTextDTO("text", "", "Value3", "3")));
+                List.of(new SelfCriteriaBoolDTO("boolean", "", "",  true, "1"),
+                        new SelfCriteriaMultiDTO("multi", "", "", List.of("Value", "Value2", "1"), "2"),
+                        new SelfCriteriaTextDTO("text", "", "", "Value3", "3")));
         INITIATIVE_BENEFICIARY_RULE_DTO.setAutomatedCriteria(List.of(AUTOMATED_CRITERIA_DTO));
 
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setSelfDeclarationCriteria(
-                List.of(new SelfCriteriaBoolDTO("boolean", "", true, "1"),
-                        new SelfCriteriaMultiDTO("multi", "", List.of("Value", "Value2", "1"), "2"),
-                        new SelfCriteriaTextDTO("text", "", "Value3", "3")));
+                List.of(new SelfCriteriaBoolDTO("boolean", "", "", true, "1"),
+                        new SelfCriteriaMultiDTO("multi", "", "", List.of("Value", "Value2", "1"), "2"),
+                        new SelfCriteriaTextDTO("text", "", "", "Value3", "3")));
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_PDND.setAutomatedCriteria(List.of());
 
         INITIATIVE_BENEFICIARY_RULE_DTO_NO_SELF.setSelfDeclarationCriteria(List.of());
@@ -475,6 +475,11 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
         when(onboardingRepositoryMock.save(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -529,6 +534,12 @@ class OnboardingServiceTest {
         initiativeTestDTO.setAdditionalInfo(additionalInfo);
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -659,6 +670,12 @@ class OnboardingServiceTest {
 
         doNothing().when(onboardingService).checkDates(any(), any());
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
         verify(onboardingRepositoryMock, times(1)).save(argThat(onboarding ->
@@ -710,6 +727,12 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeDTO);
 
         doNothing().when(onboardingService).checkDates(any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
 
         assertThrows(PDNDConsentDeniedException.class, () -> onboardingService.saveOnboarding(consent, channel,  userId));
 
@@ -872,6 +895,12 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel,  userId);
@@ -921,6 +950,11 @@ class OnboardingServiceTest {
         initiativeTestDTO.setAdditionalInfo(additional);
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
 
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
@@ -995,6 +1029,12 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel,  userId);
@@ -1042,6 +1082,11 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -1113,6 +1158,11 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel,  userId);
@@ -1160,6 +1210,12 @@ class OnboardingServiceTest {
         when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
         doNothing().when(onboardingService).checkDates(any(), any());
         doNothing().when(onboardingService).selfDeclaration(any(), any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
 
         when(consentMapper.map(any())).thenAnswer(invocation -> {
             Onboarding onboarding = invocation.getArgument(0);
@@ -1231,6 +1287,11 @@ class OnboardingServiceTest {
                     .build();
         });
 
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(true);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
         when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         onboardingService.saveOnboarding(consent, channel, userId);
@@ -1241,6 +1302,56 @@ class OnboardingServiceTest {
 
         OnboardingDTO sentDto = dtoCaptor.getValue();
         assertFalse(sentDto.getVerifyIsee());
+    }
+
+    @Test
+    void testSaveOnboarding_notAllowBudget(){
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
+        String channel = "CHANNEL";
+
+        ConsentPutDTO consent = new ConsentPutDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+        consent.setSelfDeclarationList(Collections.emptyList());
+
+        doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        InitiativeDTO initiativeTestDTO = new InitiativeDTO();
+        initiativeTestDTO.setInitiativeId(initiativeId);
+        initiativeTestDTO.setStatus(PUBLISHED);
+
+        InitiativeBeneficiaryRuleDTO ruleDTO = new InitiativeBeneficiaryRuleDTO();
+        ruleDTO.setAutomatedCriteria(new ArrayList<>());
+        ruleDTO.setSelfDeclarationCriteria(new ArrayList<>());
+        initiativeTestDTO.setBeneficiaryRule(ruleDTO);
+
+        InitiativeGeneralDTO general = new InitiativeGeneralDTO();
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        initiativeTestDTO.setGeneral(general);
+
+        InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
+        additional.setServiceId("serviceId");
+        initiativeTestDTO.setAdditionalInfo(additional);
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+        doNothing().when(onboardingService).checkDates(any(), any());
+
+        InitiativeStatusDTO initiativeStatus = new InitiativeStatusDTO();
+        initiativeStatus.setStatus(PUBLISHED);
+        initiativeStatus.setBudgetAvailable(false);
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+
+        when(onboardingRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        InitiativeBudgetExhaustedException resultException = assertThrows(InitiativeBudgetExhaustedException.class, () -> onboardingService.saveOnboarding(consent, channel, userId));
+
+        assertEquals(ONBOARDING_BUDGET_EXHAUSTED, resultException.getCode());
+        assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeId), resultException.getMessage());
+
     }
 
     @Test
@@ -1616,6 +1727,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
         OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
         assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
@@ -1628,6 +1740,8 @@ class OnboardingServiceTest {
     void getOnboardingStatus_ko() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(INITIATIVE_STATUS_DTO);
         try {
             onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
         } catch (UserNotOnboardedException e) {
@@ -1638,6 +1752,45 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void getOnboardingStatus_ko_InitiativeNotStarted() throws InitiativeInvalidException {
+        doThrow(new InitiativeInvalidException(INITIATIVE_NOT_STARTED, INITIATIVE_ID))
+                .when(onboardingService).checkDates(INITIATIVE_DTO_KO_START_DATE, null);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO_KO_START_DATE);
+
+        OnboardingStatusException thrown = assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        });
+
+        assertEquals(INITIATIVE_NOT_STARTED, thrown.getCode());
+    }
+
+    @Test
+    void getOnboardingStatus_ko_InitiativeEnded() throws InitiativeInvalidException {
+        doThrow(new InitiativeInvalidException(INITIATIVE_ENDED, INITIATIVE_ID))
+                .when(onboardingService).checkDates(INITIATIVE_DTO_KO_END_DATE, null);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO_KO_END_DATE);
+
+        OnboardingStatusException thrown = assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        });
+
+        assertEquals(INITIATIVE_ENDED, thrown.getCode());
+    }
+
+    @Test
+    void getOnboardingStatus_ko_InitiativeBudgetExhausted() throws  InitiativeBudgetExhaustedException {
+        doThrow(new InitiativeBudgetExhaustedException(ONBOARDING_BUDGET_EXHAUSTED, INITIATIVE_ID))
+                .when(onboardingService).checkBudget(INITIATIVE_DTO, null);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+
+        OnboardingStatusException thrown = assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        });
+
+        assertEquals(ONBOARDING_BUDGET_EXHAUSTED, thrown.getCode());
+    }
+
+    @Test
     void getOnboardingStatus_nullOnboardingOkDate() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
@@ -1645,6 +1798,7 @@ class OnboardingServiceTest {
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
         OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
 
         assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
@@ -2775,7 +2929,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_MultiCriteria_ShouldCallMultiCheckAndSave() {
-        SelfCriteriaMultiDTO multiCriteria = new SelfCriteriaMultiDTO("multi", "desc", List.of("Value1", "Value2"), "CODE_MULTI");
+        SelfCriteriaMultiDTO multiCriteria = new SelfCriteriaMultiDTO("multi", "desc","subDescr", List.of("Value1", "Value2"), "CODE_MULTI");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(multiCriteria));
 
         SelfConsentMultiDTO consentMulti = new SelfConsentMultiDTO();
@@ -2794,7 +2948,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_TextCriteriaValid_ShouldSaveTextValue() {
-        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", null, "CODE_TEXT");
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", "subDescr", null, "CODE_TEXT");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
 
         SelfConsentTextDTO consentText = new SelfConsentTextDTO();
@@ -2811,7 +2965,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_TextCriteriaNull_ShouldThrowExceptionAndAudit() {
-        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", null, "CODE_TEXT");
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("text", "desc", "subDescr",null, "CODE_TEXT");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
 
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
@@ -2840,7 +2994,7 @@ class OnboardingServiceTest {
     @Test
     void testSelfDeclaration_SizeCheckFails_ShouldThrowExceptionAndAudit() {
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(
-                new SelfCriteriaBoolDTO("bool1", "desc", true, "CODE1")
+                new SelfCriteriaBoolDTO("bool1", "desc", "subDescr", true, "CODE1")
         ));
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
         consentPutDTO.setSelfDeclarationList(List.of());
@@ -2856,7 +3010,7 @@ class OnboardingServiceTest {
 
     @Test
     void testSelfDeclaration_TextDTOValueMissing_ShouldThrowExceptionAndAudit() {
-        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("textType", "desc", null, "TEXT_CODE");
+        SelfCriteriaTextDTO textCriteria = new SelfCriteriaTextDTO("textType", "desc", "subDescr" , null, "TEXT_CODE");
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(textCriteria));
 
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
@@ -2881,7 +3035,7 @@ class OnboardingServiceTest {
     void testMultiCriteriaCheck_ValueIsNull_ShouldThrowExceptionAndAudit() {
         initiativeDTO.setInitiativeId("TEST_INITIATIVE");
 
-        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", "subdescr" , List.of("Value1", "Value2"), "1");
 
         Map<String, String> selfDeclarationMulti = new HashMap<>();
         selfDeclarationMulti.put(multi.getCode(), null);
@@ -2899,7 +3053,7 @@ class OnboardingServiceTest {
     void testMultiCriteriaCheck_ValueNotAllowed_ShouldThrowExceptionAndAudit() {
         initiativeDTO.setInitiativeId("TEST_INITIATIVE");
 
-        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", "subdescr" , List.of("Value1", "Value2"), "1");
 
         Map<String, String> selfDeclarationMulti = new HashMap<>();
         selfDeclarationMulti.put(multi.getCode(), "INVALID_VALUE");
@@ -2917,7 +3071,7 @@ class OnboardingServiceTest {
     void testMultiCriteriaCheck_ValueAllowed_ShouldSetValue() {
         initiativeDTO.setInitiativeId("TEST_INITIATIVE");
 
-        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", List.of("Value1", "Value2"), "1");
+        SelfCriteriaMultiDTO multi = new SelfCriteriaMultiDTO("code1", "desc", "subdescr" , List.of("Value1", "Value2"), "1");
 
         Map<String, String> selfDeclarationMulti = new HashMap<>();
         selfDeclarationMulti.put(multi.getCode(), "Value2");
@@ -3052,6 +3206,7 @@ class OnboardingServiceTest {
         onboarding.setOnboardingOkDate(null);
 
         doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
 
         OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
                 onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
@@ -3070,6 +3225,7 @@ class OnboardingServiceTest {
         onboarding.setOnboardingOkDate(null);
 
         doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
 
         OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
                 onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
