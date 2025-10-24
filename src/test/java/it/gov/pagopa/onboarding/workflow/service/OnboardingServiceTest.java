@@ -1752,6 +1752,18 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void getOnboardingStatus_ko_InitiativeNotPublished() throws InitiativeInvalidException {
+        doThrow(new InitiativeInvalidException(INITIATIVE_NOT_PUBLISHED, INITIATIVE_ID))
+                .when(onboardingService).getInitiative(INITIATIVE_ID);
+
+        OnboardingStatusException thrown = assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+        });
+
+        assertEquals(INITIATIVE_NOT_PUBLISHED, thrown.getCode());
+    }
+
+    @Test
     void getOnboardingStatus_ko_InitiativeNotStarted() throws InitiativeInvalidException {
         doThrow(new InitiativeInvalidException(INITIATIVE_NOT_STARTED, INITIATIVE_ID))
                 .when(onboardingService).checkDates(INITIATIVE_DTO_KO_START_DATE, null);
