@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
+import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -14,4 +15,5 @@ public interface OnboardingSpecificRepository {
   long getCount(Criteria criteria);
   List<Onboarding> deletePaged(String initiativeId, int pageSize);
 
+  UpdateResult disableAllFamilyMembers(String initiativeId, String familyId, LocalDateTime deactivationTime);
 }

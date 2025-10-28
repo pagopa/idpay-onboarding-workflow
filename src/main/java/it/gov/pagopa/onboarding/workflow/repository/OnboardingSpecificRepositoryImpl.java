@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
+import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding.Fields;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -74,4 +76,24 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     }
     return criteria;
   }
+
+  @Override
+  public UpdateResult disableAllFamilyMembers(String initiativeId, String familyId, LocalDateTime deactivationTime){
+    Query query = Query.query(Criteria
+            .where(Fields.initiativeId).is(initiativeId)
+            .and(Fields.familyId).is(familyId)
+    );
+
+    Update update = new Update()
+            .set(Fields.status, OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)
+            .set(Fields.requestDeactivationDate, deactivationTime)
+            .set(Fields.updateDate, deactivationTime);
+
+    return mongoTemplate.updateMulti(
+            query,
+            update,
+            Onboarding.class
+    );
+  }
+
 }

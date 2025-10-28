@@ -29,6 +29,7 @@ import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.bson.BsonDocument;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -2364,6 +2365,7 @@ class OnboardingServiceTest {
     void deactivateOnboarding_ok() {
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setFamilyId(FAMILY_ID);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
@@ -2373,7 +2375,7 @@ class OnboardingServiceTest {
                             onboarding.setStatus(STATUS_UNSUBSCRIBED);
                             return null;
                         })
-                .when(onboardingRepositoryMock).save(any(Onboarding.class));
+                .when(onboardingRepositoryMock).disableAllFamilyMembers(eq(INITIATIVE_ID),eq(FAMILY_ID),any());
         onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
         assertNotNull(onboarding.getRequestDeactivationDate());
         assertEquals(STATUS_UNSUBSCRIBED, onboarding.getStatus());
@@ -2391,6 +2393,20 @@ class OnboardingServiceTest {
             assertEquals(USER_NOT_ONBOARDED, e.getCode());
             assertEquals(String.format(ID_S_NOT_FOUND_MSG, INITIATIVE_ID), e.getMessage());
         }
+    }
+
+    @Test
+    void deactivateOnboarding_updateKo() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setFamilyId(FAMILY_ID);
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+                .thenReturn(Optional.of(onboarding));
+
+        Mockito.doThrow(new RuntimeException("test"))
+                .when(onboardingRepositoryMock).disableAllFamilyMembers(eq(INITIATIVE_ID),eq(FAMILY_ID),any());
+        Assertions.assertThrows(UserUnsubscribedException.class, () ->
+                onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString()));
+
     }
 
     @Test

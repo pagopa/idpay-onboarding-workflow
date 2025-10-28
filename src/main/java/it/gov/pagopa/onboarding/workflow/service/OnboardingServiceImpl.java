@@ -361,15 +361,21 @@ public class OnboardingServiceImpl implements OnboardingService {
   public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate) {
     long startTime = System.currentTimeMillis();
 
-    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+      Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+      LocalDateTime localDeactivationDate = LocalDateTime.parse(deactivationDate);
 
-    onboarding.setStatus(STATUS_UNSUBSCRIBED);
-    onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
-    onboarding.setUpdateDate(LocalDateTime.parse(deactivationDate));
-    onboardingRepository.save(onboarding);
-    log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
-    auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
-    performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
+      try {
+        onboardingRepository.disableAllFamilyMembers(initiativeId, onboarding.getFamilyId(), localDeactivationDate);
+        log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
+        auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
+        performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
+      } catch (Exception e){
+        auditUtilities.logDeactivateKO(userId, initiativeId, onboarding.getChannel(), localDeactivationDate);
+        performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
+        log.info("[SUSPENSION] User deactivation from the initiative {} is failed", sanitizeString(initiativeId));
+        throw new UserUnsubscribedException(String.format(ERROR_UNSUBSCRIBED_INITIATIVE_MSG, sanitizeString(initiativeId)));
+      }
+
   }
 
   @Override
