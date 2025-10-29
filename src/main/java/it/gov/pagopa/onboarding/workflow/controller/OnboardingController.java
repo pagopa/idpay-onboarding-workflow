@@ -4,6 +4,7 @@
  */
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import com.azure.core.annotation.QueryParam;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import jakarta.validation.Valid;
@@ -82,7 +83,8 @@ public interface OnboardingController {
      */
     @PutMapping("/rollback/{initiativeId}/{userId}")
     ResponseEntity<Void> rollback(
-            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId,
+            @RequestParam(value = "updateFamilyMember", required = false, defaultValue = "true") Boolean updateFamilyMembers);
 
     @PutMapping("/{initiativeId}/{userId}/suspend")
     ResponseEntity<Void> suspend(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);

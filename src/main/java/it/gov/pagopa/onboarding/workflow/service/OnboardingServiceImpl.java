@@ -358,14 +358,15 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate) {
+  public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate, Boolean updateFamilyMembers) {
     long startTime = System.currentTimeMillis();
 
       Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
       LocalDateTime localDeactivationDate = LocalDateTime.parse(deactivationDate);
 
       try {
-        onboardingRepository.disableAllFamilyMembers(initiativeId, onboarding.getFamilyId(), localDeactivationDate);
+        onboardingRepository.disableAllFamilyMembers(
+                initiativeId, userId, onboarding.getFamilyId(), localDeactivationDate, updateFamilyMembers);
         log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
         auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
         performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
@@ -379,16 +380,14 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void rollback(String initiativeId, String userId) {
+  public void rollback(String initiativeId, String userId, Boolean updateFamilyMembers) {
     Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
             .orElse(null);
     if (onboarding != null && onboarding.getStatus()
             .equals(STATUS_UNSUBSCRIBED)) {
       log.info("[ROLLBACK] Onboarding before rollback: {}", onboarding);
-      onboarding.setStatus(ONBOARDING_OK);
-      onboarding.setRequestDeactivationDate(null);
-      onboarding.setUpdateDate(onboarding.getOnboardingOkDate());
-      onboardingRepository.save(onboarding);
+      onboardingRepository.reactivateAllFamilyMembers(initiativeId, userId,
+              onboarding.getFamilyId(), onboarding.getOnboardingOkDate(), updateFamilyMembers);
       log.info("[ROLLBACK] Onboarding after rollback: {}", onboarding);
       auditUtilities.logRollback(userId, initiativeId, onboarding.getChannel());
     }

@@ -110,10 +110,10 @@ class OnboardingControllerTest {
     void disableOnboarding_ok() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         UnsubscribeBodyDTO unsubscribeBodyDTO = new UnsubscribeBodyDTO(INITIATIVE_ID, USER_ID,
-                LocalDateTime.now().toString());
+                LocalDateTime.now().toString(),true);
 
         Mockito.doNothing().when(onboardingService)
-                .deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
+                .deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString(),true);
 
         mvc.perform(
                         MockMvcRequestBuilders.delete(BASE_URL + DISABLE_URL)
@@ -126,7 +126,7 @@ class OnboardingControllerTest {
 
     @Test
     void rollback() throws Exception {
-        Mockito.doNothing().when(onboardingService).rollback(INITIATIVE_ID, USER_ID);
+        Mockito.doNothing().when(onboardingService).rollback(INITIATIVE_ID, USER_ID, true);
         mvc.perform(
                         MockMvcRequestBuilders.put(BASE_URL + ROLLBACK_URL + "/" + INITIATIVE_ID + "/" + USER_ID)
                                 .contentType(APPLICATION_JSON_VALUE)
