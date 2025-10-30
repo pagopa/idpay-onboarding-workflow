@@ -133,14 +133,14 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (JOINED.equals(status)) {
       throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
-    } else if (ONBOARDING_KO.equals(status)){
-      try {
-        checkStatus(onboarding);
-      } catch (InitiativeInvalidException | InitiativeBudgetExhaustedException | UserNotInWhitelistException | InitiativeOnboardingException e){
-          throw new OnboardingStatusException(e.getCode(), e.getMessage());
-      }
     }
 
+    try {
+      checkStatus(onboarding);
+    } catch (InitiativeInvalidException | InitiativeBudgetExhaustedException | UserNotInWhitelistException |
+             InitiativeOnboardingException | UserUnsubscribedException e) {
+      throw new OnboardingStatusException(e.getCode(), e.getMessage());
+    }
 
     log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
             sanitize(initiativeId),
