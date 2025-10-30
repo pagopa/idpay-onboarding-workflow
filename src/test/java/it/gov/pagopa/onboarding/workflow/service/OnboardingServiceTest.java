@@ -3231,7 +3231,7 @@ class OnboardingServiceTest {
     void getOnboardingStatus_shouldThrowException_whenStatusIsOnboardingKO() {
         Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
         onboarding.setStatus("ONBOARDING_KO");
-        onboarding.setDetailKO("REASON_XYZ");
+        onboarding.setDetailKO("BUDGET_TERMINATED");
         LocalDateTime statusDate = LocalDateTime.now();
         onboarding.setUpdateDate(statusDate);
         onboarding.setOnboardingOkDate(null);
@@ -3239,10 +3239,12 @@ class OnboardingServiceTest {
         doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
 
+        doThrow(new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, onboarding.getInitiativeId())))
+                .when(utilities).throwOnboardingKOException(onboarding.getDetailKO(), onboarding.getInitiativeId());
         OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
                 onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
         );
-        assertEquals("ONBOARDING_REASON_XYZ", exception.getCode());
+        assertEquals("ONBOARDING_BUDGET_EXHAUSTED", exception.getCode());
     }
 
     @Test
