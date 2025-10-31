@@ -2510,6 +2510,12 @@ class OnboardingServiceTest {
         onboarding.setUpdateDate(LocalDateTime.now());
         List<Onboarding> onboardingList = List.of(onboarding);
 
+        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
+        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
+        initiativeIssuerDTO.setInitiativeId("id");
+        initiativeIssuerDTOS.add(initiativeIssuerDTO);
+        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
+
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
 
@@ -2538,6 +2544,12 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
         List<Onboarding> onboardingList = List.of(onboarding);
+
+        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
+        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
+        initiativeIssuerDTO.setInitiativeId("id");
+        initiativeIssuerDTOS.add(initiativeIssuerDTO);
+        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
@@ -2570,6 +2582,12 @@ class OnboardingServiceTest {
         onboarding.setFamilyId(FAMILY_ID);
         onboarding.setDetail("detail");
         List<Onboarding> onboardingList = List.of(onboarding);
+
+        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
+        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
+        initiativeIssuerDTO.setInitiativeId("id");
+        initiativeIssuerDTOS.add(initiativeIssuerDTO);
+        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
 
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
@@ -3183,6 +3201,12 @@ class OnboardingServiceTest {
         onboarding.setStatus(ON_EVALUATION);
         onboarding.setUpdateDate(LocalDateTime.now());
         List<Onboarding> onboardingList = List.of(onboarding);
+
+        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
+        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
+        initiativeIssuerDTO.setInitiativeId("id");
+        initiativeIssuerDTOS.add(initiativeIssuerDTO);
+        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);

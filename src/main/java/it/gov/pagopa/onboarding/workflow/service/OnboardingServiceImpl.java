@@ -6,10 +6,7 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaTextDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
@@ -40,9 +37,6 @@ import java.util.stream.Collectors;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_ENDED;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_STARTED;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.GENERIC_ERROR;
 
@@ -397,15 +391,25 @@ public class OnboardingServiceImpl implements OnboardingService {
   public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId) {
     long startTime = System.currentTimeMillis();
 
-
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
-    Criteria criteria = Criteria.where("userId").is(userId)
-            .and("status").is(ON_EVALUATION);
+    List<InitiativeIssuerDTO> initiativeList = initiativeRestConnector.getInitiativeIssuerList();
 
-    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria);
+    List<Onboarding> validOnboardings = new ArrayList<>();
 
-    for (Onboarding o : onboardingList) {
+    for (InitiativeIssuerDTO initiativeIssuer : initiativeList) {
+      String id = userId + "_" + initiativeIssuer.getInitiativeId();
+      Criteria criteria = Criteria.where("_id").is(id);
+      List<Onboarding> onboardings = onboardingRepository.findByFilter(criteria);
+
+      for (Onboarding onboarding : onboardings) {
+        if (ON_EVALUATION.equals(onboarding.getStatus())) {
+          validOnboardings.add(onboarding);
+        }
+      }
+    }
+
+    for (Onboarding o : validOnboardings) {
       InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
       String initiativeName = initiative.getInitiativeName();
       String serviceId = initiative.getAdditionalInfo().getServiceId();
