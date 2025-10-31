@@ -229,7 +229,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
 
-    if (onboarding != null) {
+    if (onboarding != null && !USER_UNSUBSCRIBED.contains(onboarding.getStatus())) {
       handleExistingOnboarding(onboarding);
       return;
     }
@@ -729,11 +729,6 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               utilities.getMessageOnboardingKO(onboarding.getDetailKO()));
       utilities.throwOnboardingKOException(onboarding.getDetailKO(), onboarding.getInitiativeId());
-    }
-    if (status.equals(STATUS_UNSUBSCRIBED)) {
-      auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
-              ERROR_UNSUBSCRIBED_INITIATIVE_AUDIT);
-      throw new UserUnsubscribedException(String.format(ERROR_UNSUBSCRIBED_INITIATIVE_MSG, onboarding.getInitiativeId()));
     }
   }
 
