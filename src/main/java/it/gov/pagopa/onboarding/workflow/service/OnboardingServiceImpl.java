@@ -6,7 +6,10 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaTextDTO;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
@@ -65,6 +68,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final InitiativeRestConnector initiativeRestConnector;
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
+  protected final String initiativeConfig;
 
   protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
 
@@ -82,7 +86,8 @@ public class OnboardingServiceImpl implements OnboardingService {
                                OnboardingRepository onboardingRepository,
                                InitiativeWebMapper initiativeWebMapper,
                                GeneralWebMapper generalWebMapper,
-                               InitiativeRestConnectorImpl initiativeRestConnectorImpl
+                               InitiativeRestConnectorImpl initiativeRestConnectorImpl,
+                               @Value("${INITIATIVE_IDS}") String initiativeConfig
   ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
@@ -99,6 +104,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
     this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
+    this.initiativeConfig= initiativeConfig;
   }
 
   @Override
@@ -393,12 +399,15 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
-    List<InitiativeIssuerDTO> initiativeList = initiativeRestConnector.getInitiativeIssuerList();
+    List<String> initiativeIds = Arrays.stream(initiativeConfig.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toList();
 
     List<Onboarding> validOnboardings = new ArrayList<>();
 
-    for (InitiativeIssuerDTO initiativeIssuer : initiativeList) {
-      String id = userId + "_" + initiativeIssuer.getInitiativeId();
+    for (String initiativeId : initiativeIds) {
+      String id = userId + "_" + initiativeId;
       Criteria criteria = Criteria.where("_id").is(id);
       List<Onboarding> onboardings = onboardingRepository.findByFilter(criteria);
 

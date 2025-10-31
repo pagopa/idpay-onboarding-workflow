@@ -54,8 +54,8 @@ import java.util.stream.Stream;
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static com.mongodb.assertions.Assertions.fail;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
 import static it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl.sanitizeString;
@@ -368,6 +368,8 @@ class OnboardingServiceTest {
         initiativeDTO.setAdditionalInfo(additional);
         initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
+        String initiativeMap = "68dd003ccce8c534d1da22bc,68de7fc681ce9e35a476e985,68dd003ccce8c534d1da22bb,68fb9937f0f9ee401031a0c7,68fb9cb9f0f9ee401031a0c8,68fb9ceaf0f9ee401031a0c9";
+
         onboardingService = Mockito.spy(new OnboardingServiceImpl(
                 PAGE_SIZE,
                 delayTime,
@@ -383,7 +385,8 @@ class OnboardingServiceTest {
                 onboardingRepositoryMock,
                 initiativeWebMapper,
                 generalWebMapper,
-                initiativeRestConnectorImpl
+                initiativeRestConnectorImpl,
+                initiativeMap
         ));
 
 
@@ -2513,11 +2516,7 @@ class OnboardingServiceTest {
         onboarding.setUpdateDate(LocalDateTime.now());
         List<Onboarding> onboardingList = List.of(onboarding);
 
-        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
-        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
-        initiativeIssuerDTO.setInitiativeId("id");
-        initiativeIssuerDTOS.add(initiativeIssuerDTO);
-        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
+
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
@@ -2548,11 +2547,7 @@ class OnboardingServiceTest {
         onboarding.setStatus(ON_EVALUATION);
         List<Onboarding> onboardingList = List.of(onboarding);
 
-        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
-        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
-        initiativeIssuerDTO.setInitiativeId("id");
-        initiativeIssuerDTOS.add(initiativeIssuerDTO);
-        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
+
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
@@ -2586,11 +2581,7 @@ class OnboardingServiceTest {
         onboarding.setDetail("detail");
         List<Onboarding> onboardingList = List.of(onboarding);
 
-        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
-        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
-        initiativeIssuerDTO.setInitiativeId("id");
-        initiativeIssuerDTOS.add(initiativeIssuerDTO);
-        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
+
 
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
@@ -3204,12 +3195,6 @@ class OnboardingServiceTest {
         onboarding.setStatus(ON_EVALUATION);
         onboarding.setUpdateDate(LocalDateTime.now());
         List<Onboarding> onboardingList = List.of(onboarding);
-
-        List<InitiativeIssuerDTO> initiativeIssuerDTOS = new ArrayList<>();
-        InitiativeIssuerDTO initiativeIssuerDTO = new InitiativeIssuerDTO();
-        initiativeIssuerDTO.setInitiativeId("id");
-        initiativeIssuerDTOS.add(initiativeIssuerDTO);
-        when(initiativeRestConnector.getInitiativeIssuerList()).thenReturn(initiativeIssuerDTOS);
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
