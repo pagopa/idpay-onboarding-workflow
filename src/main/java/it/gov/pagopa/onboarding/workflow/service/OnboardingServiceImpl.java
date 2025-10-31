@@ -1,6 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnector;
+import it.gov.pagopa.onboarding.workflow.connector.InitiativeRestConnectorImpl;
 import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRestConnector;
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
@@ -28,12 +29,7 @@ import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -76,6 +72,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
 
+  protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
+
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
                                SelfDeclarationRepository selfDeclarationRepository,
@@ -89,8 +87,9 @@ public class OnboardingServiceImpl implements OnboardingService {
                                Utilities utilities,
                                OnboardingRepository onboardingRepository,
                                InitiativeWebMapper initiativeWebMapper,
-                               GeneralWebMapper generalWebMapper
-                               ){
+                               GeneralWebMapper generalWebMapper,
+                               InitiativeRestConnectorImpl initiativeRestConnectorImpl
+  ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
     this.outcomeProducer = outcomeProducer;
@@ -105,15 +104,53 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.initiativeRestConnector = initiativeRestConnector;
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
+    this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
   }
 
   @Override
   public OnboardingStatusDTO getOnboardingStatus(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
-    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+
     performanceLog(startTime, "GET_ONBOARDING_STATUS", userId, initiativeId);
-    log.info("[ONBOARDING_STATUS] Onboarding status is: {}", onboarding.getStatus());
-    return new OnboardingStatusDTO(onboarding.getStatus(), onboarding.getUpdateDate(), onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null);
+    InitiativeDTO initiativeDTO = null;
+    Onboarding onboarding = null;
+    try {
+      initiativeDTO = getInitiative(initiativeId);
+      onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    }catch (InitiativeInvalidException e){
+      throw new OnboardingStatusException(e.getCode() , e.getMessage());
+    }catch(UserNotOnboardedException e){
+      try {
+        checkDates(initiativeDTO, null);
+        checkBudget(initiativeDTO, null);
+      }catch(InitiativeInvalidException | InitiativeBudgetExhaustedException e1){
+        throw new OnboardingStatusException(e1.getCode() , e1.getMessage());
+      }
+      throw e;
+    }
+
+    String status = onboarding.getStatus();
+
+    if (JOINED.equals(status)) {
+      throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
+    }
+
+    try {
+      checkStatus(onboarding);
+    } catch (InitiativeInvalidException | InitiativeBudgetExhaustedException | UserNotInWhitelistException |
+             InitiativeOnboardingException | UserUnsubscribedException e) {
+      throw new OnboardingStatusException(e.getCode(), e.getMessage());
+    }
+
+    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
+            sanitize(initiativeId),
+            sanitize(status));
+
+    return new OnboardingStatusDTO(
+            status,
+            onboarding.getUpdateDate(),
+            onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null
+    );
   }
 
   @Override
@@ -209,7 +246,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding = new Onboarding(consentPutDTO.getInitiativeId(), userId);
 
     checkDates(initiativeDTO, onboarding);
-    onboarding.setStatus(ON_EVALUATION);
+    checkBudget(initiativeDTO, onboarding);
 
     if (hasAutomatedCriteriaAndPdndNotAccepted(initiativeDTO, consentPutDTO)) {
       handlePdndDenied(onboarding, userId, initiativeDTO, startTime);
@@ -271,33 +308,6 @@ public class OnboardingServiceImpl implements OnboardingService {
               evaluationDTO.getAdmissibilityCheckDate(), rejectionReasons);
       log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is: {}",
               onboarding.getUserId(), evaluationDTO.getInitiativeId(), evaluationDTO.getStatus());
-    }
-
-    if (onboarding == null && DEMANDED.equals(evaluationDTO.getStatus())) {
-      log.info("[COMPLETE_ONBOARDING] New onboarding for user {} on initiative {} with status DEMANDED",
-              evaluationDTO.getUserId(), evaluationDTO.getInitiativeId());
-      Onboarding newOnboarding = new Onboarding(evaluationDTO.getInitiativeId(),
-              evaluationDTO.getUserId());
-      newOnboarding.setStatus(DEMANDED);
-      LocalDateTime localDateTime = LocalDateTime.now();
-      newOnboarding.setDemandedDate(localDateTime);
-      newOnboarding.setUpdateDate(localDateTime);
-      newOnboarding.setCreationDate(localDateTime);
-      newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
-      onboardingRepository.save(newOnboarding);
-    }
-
-    if (onboarding != null && DEMANDED.equals(evaluationDTO.getStatus())) {
-      LocalDateTime localDateTime = LocalDateTime.now();
-      onboarding.setDemandedDate(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
-      onboarding.setFamilyId(evaluationDTO.getFamilyId());
-      onboarding.setStatus(ONBOARDING_OK);
-      onboardingRepository.save(onboarding);
-      evaluationDTO.setStatus(JOINED);
-      outcomeProducer.sendOutcome(evaluationDTO);
-      log.info("[COMPLETE_ONBOARDING] [RESULT] The onboarding status of user {} on initiative {} is ONBOARDING_OK",
-              onboarding.getUserId(), evaluationDTO.getInitiativeId());
     }
 
     if (onboarding == null && ONBOARDING_KO.equals(evaluationDTO.getStatus())) {
@@ -384,28 +394,21 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public ResponseInitiativeOnboardingDTO getOnboardingStatusList(String userId, Pageable pageable) {
+  public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId) {
     long startTime = System.currentTimeMillis();
 
-    if (pageable != null && pageable.getPageSize() > 15) {
-      throw new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG);
-    }
 
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
     Criteria criteria = Criteria.where("userId").is(userId)
             .and("status").is(ON_EVALUATION);
 
-    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria, pageable);
-    long count = onboardingRepository.getCount(criteria);
-
-    final Page<Onboarding> pageResult = PageableExecutionUtils.getPage(
-            onboardingList,
-            this.getPageable(pageable),
-            () -> count
-    );
+    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria);
 
     for (Onboarding o : onboardingList) {
+      InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
+      String initiativeName = initiative.getInitiativeName();
+      String serviceId = initiative.getAdditionalInfo().getServiceId();
       String status = o.getStatus();
 
       if (shouldBeWaitingList(o)) {
@@ -413,23 +416,17 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
 
       dtoList.add(new OnboardingStatusCitizenDTO(
-              o.getUserId(),
+              initiativeName,
+              serviceId,
+              o.getInitiativeId(),
               status,
-              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY,
-              o.getFamilyId(),
-              o.getDetail()
+              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY
       ));
     }
 
     performanceLog(startTime, "GET_USER_INITIATIVE_STATUS", userId, null);
 
-    return new ResponseInitiativeOnboardingDTO(
-            dtoList,
-            pageResult.getNumber(),
-            pageResult.getSize(),
-            (int) pageResult.getTotalElements(),
-            pageResult.getTotalPages()
-    );
+    return dtoList;
   }
 
   @Override
@@ -535,23 +532,23 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   private void setStatus(Onboarding onboarding, String status, LocalDateTime date, String rejectionReasons) {
-    if (status.equals(JOINED)) {
-      status = ONBOARDING_OK;
-    }
-    if (status.equals(REJECTED)) {
+    if (REJECTED.equals(status)) {
       status = ONBOARDING_KO;
     }
 
     onboarding.setStatus(status);
-    if (status.equals(ONBOARDING_OK)) {
+
+    if (ONBOARDING_OK.equals(status)) {
       onboarding.setOnboardingOkDate(date);
       auditUtilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
-    if (status.equals(ON_EVALUATION)) {
+
+    if (ON_EVALUATION.equals(status)) {
       onboarding.setCriteriaConsensusTimestamp(date);
       auditUtilities.logOnboardingOnEvaluation(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), date);
     }
-    if (status.equals(ONBOARDING_KO)) {
+
+    if (ONBOARDING_KO.equals(status)) {
       onboarding.setOnboardingKODate(date);
       onboarding.setDetailKO(rejectionReasons);
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), rejectionReasons);
@@ -562,7 +559,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setUpdateDate(LocalDateTime.now());
     onboardingRepository.save(onboarding);
     auditUtilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(),
-        onboarding.getChannel(), date);
+            onboarding.getChannel(), date);
   }
 
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
@@ -664,12 +661,6 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
   }
 
-  private Pageable getPageable(Pageable pageable) {
-    if (pageable == null) {
-      return PageRequest.of(0, 15, Sort.by("lastUpdate"));
-    }
-    return pageable;
-  }
 
   private String decryptCF(String userId) {
     String fiscalCode;
@@ -754,21 +745,25 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDate endDate = getEndDate(initiativeDTO, onboarding);
 
     if (requestDate.isBefore(startDate)){
-      auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
-              ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
+      if(onboarding != null){
+        auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
+                ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
+    }
       throw new InitiativeInvalidException(INITIATIVE_NOT_STARTED,
               String.format(ERROR_INITIATIVE_NOT_STARTED_MSG, initiativeDTO.getInitiativeId()));
     }
 
     if (requestDate.isAfter(endDate)){
-      LocalDateTime localDateTime = LocalDateTime.now();
-      onboarding.setStatus(ONBOARDING_KO);
-      onboarding.setOnboardingKODate(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
-      onboarding.setDetailKO(ERROR_INITIATIVE_END);
-      onboardingRepository.save(onboarding);
-      auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
-              ERROR_INITIATIVE_END_MSG_AUDIT);
+      if(onboarding != null) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        onboarding.setStatus(ONBOARDING_KO);
+        onboarding.setOnboardingKODate(localDateTime);
+        onboarding.setUpdateDate(localDateTime);
+        onboarding.setDetailKO(ERROR_INITIATIVE_END);
+        onboardingRepository.save(onboarding);
+        auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
+                ERROR_INITIATIVE_END_MSG_AUDIT);
+      }
       throw new InitiativeInvalidException(INITIATIVE_ENDED,
               String.format(ERROR_INITIATIVE_END_MSG, initiativeDTO.getInitiativeId()));
     }
@@ -779,13 +774,15 @@ public class OnboardingServiceImpl implements OnboardingService {
     LocalDate endDate = initiativeDTO.getGeneral()
             .getEndDate();
 
-    if(initiativeDTO.getGeneral().getRankingEndDate() != null &&
-            (!BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
-                    || (!initiativeDTO.getGeneral().getRankingEnabled()
-                    && !(DEMANDED.equals(onboarding.getStatus())
-                    || onboarding.getDemandedDate() != null)))
-    ){
-      endDate = initiativeDTO.getGeneral().getRankingEndDate();
+    if(onboarding != null) {
+      if (initiativeDTO.getGeneral().getRankingEndDate() != null &&
+              (!BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType())
+                      || (!initiativeDTO.getGeneral().getRankingEnabled()
+                      && !(DEMANDED.equals(onboarding.getStatus())
+                      || onboarding.getDemandedDate() != null)))
+      ) {
+        endDate = initiativeDTO.getGeneral().getRankingEndDate();
+      }
     }
     return endDate;
   }
@@ -801,15 +798,18 @@ public class OnboardingServiceImpl implements OnboardingService {
             .equals(PUBLISHED)) {
       return;
     }
-    LocalDateTime localDateTime = LocalDateTime.now();
-    onboarding.setStatus(ONBOARDING_KO);
-    onboarding.setOnboardingKODate(localDateTime);
-    onboarding.setUpdateDate(localDateTime);
-    onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
-    onboardingRepository.save(onboarding);
-    auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
-            onboarding.getUserId(), onboarding.getChannel(),
-            ERROR_BUDGET_TERMINATED_MSG_AUDIT);
+
+    if(onboarding != null) {
+      LocalDateTime localDateTime = LocalDateTime.now();
+      onboarding.setStatus(ONBOARDING_KO);
+      onboarding.setOnboardingKODate(localDateTime);
+      onboarding.setUpdateDate(localDateTime);
+      onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
+      onboardingRepository.save(onboarding);
+      auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
+              onboarding.getUserId(), onboarding.getChannel(),
+              ERROR_BUDGET_TERMINATED_MSG_AUDIT);
+    }
     throw new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeDTO.getInitiativeId()));
   }
 
@@ -976,8 +976,8 @@ public class OnboardingServiceImpl implements OnboardingService {
             "[PERFORMANCE_LOG] [{}] Time occurred to perform business logic: {} ms on initiativeId: {}, and userId: {}",
             safeService,
             System.currentTimeMillis() - startTime,
-            safeUserId,
-            safeInitiativeId);
+            safeInitiativeId,
+            safeUserId);
   }
 
   private String sanitize(String input) {

@@ -5,7 +5,6 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
 import it.gov.pagopa.onboarding.workflow.dto.*;
-import it.gov.pagopa.onboarding.workflow.exception.custom.PageSizeNotAllowedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.UserNotOnboardedException;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
@@ -17,16 +16,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ACCEPTED_TC;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ID_S_NOT_FOUND_MSG;
 import static java.time.LocalDate.now;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -57,10 +58,7 @@ class OnboardingControllerTest {
 
     private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO =
             new OnboardingStatusCitizenDTO(USER_ID, STATUS, STATUS, null, "DETAIL_TEST");
-    static List<OnboardingStatusCitizenDTO> onboardingStatusCitizenDTOList = List.of(
-      ONBOARDING_STATUS_CITIZEN_DTO);
-  private static final ResponseInitiativeOnboardingDTO ONBOARDING_DTO = new ResponseInitiativeOnboardingDTO(
-      onboardingStatusCitizenDTOList, 15, 20, 100, 15);
+  private static final List<OnboardingStatusCitizenDTO> ONBOARDING_DTO = Collections.singletonList(ONBOARDING_STATUS_CITIZEN_DTO);
   private static final OnboardingFamilyDetailDTO ONBOARDING_FAMILY_DETAIL_DTO = new OnboardingFamilyDetailDTO(
           CF, FAMILY_ID, now(), STATUS);
   static List<OnboardingFamilyDetailDTO> onboardingFamilyDetailDTOList = List.of(ONBOARDING_FAMILY_DETAIL_DTO);
@@ -139,25 +137,17 @@ class OnboardingControllerTest {
 
     @Test
     void onboarding_status_list_ok() throws Exception {
-        Mockito.when(
-                onboardingService.getOnboardingStatusList(USER_ID, null)).thenReturn(ONBOARDING_DTO);
+        Mockito.when(onboardingService.getOnboardingStatusList(USER_ID))
+                .thenReturn(ONBOARDING_DTO);
 
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
-                        .contentType(APPLICATION_JSON_VALUE)
-                        .accept(APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/{userId}/initiative/status", USER_ID)
+                        .header("Accept-Language", "it-IT")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
     }
 
-    @Test
-    void onboarding_status_list_ko() throws Exception {
-        Mockito.doThrow(new PageSizeNotAllowedException(ERROR_MAX_NUMBER_FOR_PAGE_MSG))
-                .when(onboardingService).getOnboardingStatusList(USER_ID, null);
-
-        mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/" + USER_ID + "/initiative/status")
-                        .contentType(APPLICATION_JSON_VALUE)
-                        .accept(APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-    }
 
     @Test
     void suspend() throws Exception {

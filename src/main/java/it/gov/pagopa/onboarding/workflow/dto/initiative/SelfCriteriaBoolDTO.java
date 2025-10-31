@@ -16,6 +16,9 @@ public class SelfCriteriaBoolDTO implements SelfDeclarationItemsDTO {
   @JsonProperty("description")
   private String description;
 
+  @JsonProperty("subDescription")
+  private String subDescription;
+
   @JsonProperty("value")
   private Boolean value;
 
