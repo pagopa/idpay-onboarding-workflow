@@ -77,4 +77,15 @@ class InitiativeRestClientTest extends BaseWireMockTest {
     assertEquals(ERROR_INITIATIVE_INVOCATION_MSG, exception.getMessage());
   }
 
+
+
+  @Test
+  void getInitiativeIssuerList_GENERIC_ERROR(){
+    // When
+    InitiativeInvocationException exception = assertThrows(InitiativeInvocationException.class,
+            () -> restConnector.getInitiativeIssuerList());
+
+    // Then
+    assertEquals(GENERIC_ERROR,exception.getCode());
+  }
 }
