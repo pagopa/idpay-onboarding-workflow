@@ -15,8 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 import static it.gov.pagopa.common.wiremock.BaseWireMockTest.WIREMOCK_TEST_PROP2BASEPATH_MAP_PREFIX;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_FOUND;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ERROR_INITIATIVE_INVOCATION_MSG;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.INITIATIVE_NOT_FOUND_MSG;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -77,7 +76,16 @@ class InitiativeRestClientTest extends BaseWireMockTest {
     assertEquals(ERROR_INITIATIVE_INVOCATION_MSG, exception.getMessage());
   }
 
+  @Test
+  void getInitiativeIssuerList_NOT_FOUND(){
 
+    // When
+    InitiativeNotFoundException exception = assertThrows(InitiativeNotFoundException.class,
+            () -> restConnector.getInitiativeIssuerList());
+
+    // Then
+    assertEquals(String.format(INITIATIVES_NOT_FOUND_MSG), exception.getMessage());
+  }
 
   @Test
   void getInitiativeIssuerList_GENERIC_ERROR(){

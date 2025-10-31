@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/initiatives"
+  },
+  "response": {
+    "status": "404",
+    "jsonBody": [
+      {
+        "initiativeId": "INITIATIVE_001",
+        "initiativeName": "Cashback Natale",
+        "organizationName": "Comune di Roma",
+        "descriptionMap": {
+          "it": "Iniziativa per promuovere gli acquisti locali durante le festività",
+          "en": "Initiative to promote local shopping during the holidays"
+        },
+        "startDate": "2025-12-01",
+        "endDate": "2025-12-31",
+        "rankingEnabled": true,
+        "rankingStartDate": "2025-12-05",
+        "rankingEndDate": "2025-12-30",
+        "beneficiaryKnown": true,
+        "status": "ACTIVE",
+        "tcLink": "https://example.com/tc",
+        "privacyLink": "https://example.com/privacy",
+        "logoURL": "https://example.com/logo.png"
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
