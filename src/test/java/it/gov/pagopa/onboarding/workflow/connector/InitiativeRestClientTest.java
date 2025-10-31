@@ -77,4 +77,5 @@ class InitiativeRestClientTest extends BaseWireMockTest {
     assertEquals(ERROR_INITIATIVE_INVOCATION_MSG, exception.getMessage());
   }
 
+
 }
