@@ -55,7 +55,6 @@ public class OnboardingWorkflowConstants {
     public static final String ERROR_SELF_DECLARATION_NOT_VALID_MSG = "The self-declaration criteria are not valid or those inserted by the user do not match those required by the initiative [%s]";
 
     public static final String INITIATIVE_NOT_FOUND_MSG = "Cannot find initiative [%s]";
-    public static final String INITIATIVES_NOT_FOUND_MSG = "Cannot find initiatives";
     public static final String ID_S_NOT_FOUND_MSG = "The current user is not onboarded on initiative [%s]";
 
     public static final String EMAIL_NOT_MATCHED_MSG = "Email and confirmation email do not match.";
