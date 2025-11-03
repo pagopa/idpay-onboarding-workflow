@@ -1882,22 +1882,25 @@ class OnboardingServiceTest {
         assertEquals("ONBOARDING_BUDGET_EXHAUSTED", exception.getCode());
     }
 
-    @Test
-    void getOnboardingStatus_shouldThrowException_whenStatusUnsubscribed() {
-        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
-        onboarding.setStatus("UNSUBSCRIBED");
-        LocalDateTime statusDate = LocalDateTime.now();
-        onboarding.setUpdateDate(statusDate);
-        onboarding.setOnboardingOkDate(null);
-
-        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
-        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
-
-        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
-                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
-        );
-        assertEquals("ONBOARDING_USER_UNSUBSCRIBED", exception.getCode());
-    }
+/**
+ * Test removed due to change to checks on UNSUBSCRIBED status (does not throw exception anymore)
+ */
+//    @Test
+//    void getOnboardingStatus_shouldThrowException_whenStatusUnsubscribed() {
+//        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+//        onboarding.setStatus("UNSUBSCRIBED");
+//        LocalDateTime statusDate = LocalDateTime.now();
+//        onboarding.setUpdateDate(statusDate);
+//        onboarding.setOnboardingOkDate(null);
+//
+//        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+//        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+//
+//        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+//                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+//        );
+//        assertEquals("ONBOARDING_USER_UNSUBSCRIBED", exception.getCode());
+//    }
     //endregion
 
     //region Pre-Requisites case test
