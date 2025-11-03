@@ -40,9 +40,6 @@ import java.util.stream.Collectors;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_ENDED;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_STARTED;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.GENERIC_ERROR;
 
@@ -71,6 +68,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final InitiativeRestConnector initiativeRestConnector;
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
+  protected final String initiativeConfig;
 
   protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
 
@@ -88,7 +86,8 @@ public class OnboardingServiceImpl implements OnboardingService {
                                OnboardingRepository onboardingRepository,
                                InitiativeWebMapper initiativeWebMapper,
                                GeneralWebMapper generalWebMapper,
-                               InitiativeRestConnectorImpl initiativeRestConnectorImpl
+                               InitiativeRestConnectorImpl initiativeRestConnectorImpl,
+                               @Value("${configMap.initiative_ids}") String initiativeConfig
   ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
@@ -105,6 +104,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
     this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
+    this.initiativeConfig= initiativeConfig;
   }
 
   @Override
@@ -397,15 +397,28 @@ public class OnboardingServiceImpl implements OnboardingService {
   public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId) {
     long startTime = System.currentTimeMillis();
 
-
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
-    Criteria criteria = Criteria.where("userId").is(userId)
-            .and("status").is(ON_EVALUATION);
+    List<String> initiativeIds = Arrays.stream(initiativeConfig.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toList();
 
-    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria);
+    List<Onboarding> validOnboardings = new ArrayList<>();
 
-    for (Onboarding o : onboardingList) {
+    for (String initiativeId : initiativeIds) {
+      String id = userId + "_" + initiativeId;
+      Criteria criteria = Criteria.where("_id").is(id);
+      List<Onboarding> onboardings = onboardingRepository.findByFilter(criteria);
+
+      for (Onboarding onboarding : onboardings) {
+        if (ON_EVALUATION.equals(onboarding.getStatus())) {
+          validOnboardings.add(onboarding);
+        }
+      }
+    }
+
+    for (Onboarding o : validOnboardings) {
       InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
       String initiativeName = initiative.getInitiativeName();
       String serviceId = initiative.getAdditionalInfo().getServiceId();

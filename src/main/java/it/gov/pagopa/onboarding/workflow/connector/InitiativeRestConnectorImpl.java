@@ -36,4 +36,5 @@ public class InitiativeRestConnectorImpl implements InitiativeRestConnector {
 
     return initiativeDTO;
   }
+
 }
