@@ -87,7 +87,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                                InitiativeWebMapper initiativeWebMapper,
                                GeneralWebMapper generalWebMapper,
                                InitiativeRestConnectorImpl initiativeRestConnectorImpl,
-                               @Value("${INITIATIVE_IDS}") String initiativeConfig
+                               @Value("${configMap.initiative_ids}") String initiativeConfig
   ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
