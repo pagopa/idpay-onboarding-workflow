@@ -30,7 +30,7 @@ public class RedisConfig {
                 .serializeValuesWith(
                     SerializationPair.fromSerializer(serializer)))
         .withCacheConfiguration("initiativeIdBudget",
-            RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1))
+            RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30))
                 .serializeValuesWith(
                         SerializationPair.fromSerializer(statusSerializer)));
   }
