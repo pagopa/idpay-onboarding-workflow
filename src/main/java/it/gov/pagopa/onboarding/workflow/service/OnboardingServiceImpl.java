@@ -53,6 +53,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
+  private static final String ISEE_PREFIX_ACCENT   = "S\u00EC, inferiore a 25.000"; // "Sì, inferiore a 25.000"
+  private static final String ISEE_PREFIX_ASCII    = "Si, inferiore a 25.000";      // senza accento
+  private static final String ISEE_PREFIX_MOJIBAKE = "SÃ¬, inferiore a 25.000";     // accento rotto
 
   private final int pageSize;
   private final long delayTime;
@@ -266,7 +269,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     boolean verifyIsee = consentPutDTO.getSelfDeclarationList().stream()
             .filter(SelfConsentMultiDTO.class::isInstance)
             .map(SelfConsentMultiDTO.class::cast)
-            .anyMatch(dto -> ISEE_CODE.equals(dto.getCode()) && INTEGER_ONE.equals(dto.getValue()));
+            .anyMatch(dto -> ISEE_CODE.equals(dto.getCode()) && (INTEGER_ONE.equals(dto.getValue()) || isIseeUnder25kLabel(String.valueOf(dto.getValue()))));
 
     onboardingDTO.setVerifyIsee(verifyIsee);
 
@@ -991,6 +994,14 @@ public class OnboardingServiceImpl implements OnboardingService {
   private String sanitize(String input) {
     if (input == null) return "null";
     return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
+  }
+
+  private boolean isIseeUnder25kLabel(String raw) {
+    if (raw == null) return false;
+    String s = raw.stripLeading();
+    return s.startsWith(ISEE_PREFIX_ACCENT)
+            || s.startsWith(ISEE_PREFIX_ASCII)
+            || s.startsWith(ISEE_PREFIX_MOJIBAKE);
   }
 
 }
