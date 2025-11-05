@@ -2500,11 +2500,21 @@ class OnboardingServiceTest {
     void rollback() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(STATUS_UNSUBSCRIBED);
+        onboarding.setFamilyId("FAM1");
+        onboarding.setOnboardingOkDate(LocalDateTime.now());
+
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
+        when(onboardingRepositoryMock.reactivateAllFamilyMembers(
+                eq(INITIATIVE_ID), eq(USER_ID), eq("FAM1"), eq(onboarding.getOnboardingOkDate()), eq(true)))
+                .thenReturn(mock(com.mongodb.bulk.BulkWriteResult.class));
+
         onboardingService.rollback(INITIATIVE_ID, USER_ID, true);
-        assertNull(onboarding.getRequestDeactivationDate());
-        assertEquals(ONBOARDING_OK, onboarding.getStatus());
+
+        verify(onboardingRepositoryMock).findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+        verify(onboardingRepositoryMock).reactivateAllFamilyMembers(
+                INITIATIVE_ID, USER_ID, "FAM1", onboarding.getOnboardingOkDate(), true);
+
     }
 
     @Test
