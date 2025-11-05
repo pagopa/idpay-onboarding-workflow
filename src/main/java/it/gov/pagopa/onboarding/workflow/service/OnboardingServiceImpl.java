@@ -715,13 +715,12 @@ public class OnboardingServiceImpl implements OnboardingService {
     log.info("[GET_INITIATIVE] Retrieving information for initiative {}", sanitizedInitiativeId);
     InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
     if (initiativeDTO != null) {
-      log.info("Initiative DTO: {}", initiativeDTO);
       if (!PUBLISHED.equals(initiativeDTO.getStatus())) {
         log.info("[GET_INITIATIVE] Initiative {} is not PUBLISHED! Status: {}", sanitizedInitiativeId,
                 initiativeDTO.getStatus());
         throw new InitiativeInvalidException(INITIATIVE_NOT_PUBLISHED,
                 String.format(ERROR_INITIATIVE_NOT_ACTIVE_MSG, initiativeId));
-      }else {
+      } else {
         log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", sanitizedInitiativeId);
         return initiativeDTO;
       }
