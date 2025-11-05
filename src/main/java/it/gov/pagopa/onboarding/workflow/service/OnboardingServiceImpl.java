@@ -40,9 +40,6 @@ import java.util.stream.Collectors;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_ENDED;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.INITIATIVE_NOT_STARTED;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.PDND_CONSENT_DENIED;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.GENERIC_ERROR;
 
@@ -56,6 +53,9 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
+  private static final String ISEE_PREFIX_ACCENT   = "S\u00EC, inferiore a 25.000"; // "Sì, inferiore a 25.000"
+  private static final String ISEE_PREFIX_ASCII    = "Si, inferiore a 25.000";      // senza accento
+  private static final String ISEE_PREFIX_MOJIBAKE = "SÃ¬, inferiore a 25.000";     // accento rotto
 
   private final int pageSize;
   private final long delayTime;
@@ -71,6 +71,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final InitiativeRestConnector initiativeRestConnector;
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
+  protected final String initiativeConfig;
 
   protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
 
@@ -88,7 +89,8 @@ public class OnboardingServiceImpl implements OnboardingService {
                                OnboardingRepository onboardingRepository,
                                InitiativeWebMapper initiativeWebMapper,
                                GeneralWebMapper generalWebMapper,
-                               InitiativeRestConnectorImpl initiativeRestConnectorImpl
+                               InitiativeRestConnectorImpl initiativeRestConnectorImpl,
+                               @Value("${configMap.initiative_ids}") String initiativeConfig
   ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
@@ -105,6 +107,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
     this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
+    this.initiativeConfig= initiativeConfig;
   }
 
   @Override
@@ -133,10 +136,14 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     if (JOINED.equals(status)) {
       throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
-    } else if (ONBOARDING_KO.equals(status)){
-      throw new OnboardingStatusException(onboarding.getDetailKO() != null ? "ONBOARDING_" + onboarding.getDetailKO() : "ONBOARDING_" + GENERIC_ERROR , "Something went wrong handling the request");
     }
 
+    try {
+      checkStatus(onboarding);
+    } catch (InitiativeInvalidException | InitiativeBudgetExhaustedException | UserNotInWhitelistException |
+             InitiativeOnboardingException | UserUnsubscribedException e) {
+      throw new OnboardingStatusException(e.getCode(), e.getMessage());
+    }
 
     log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
             sanitize(initiativeId),
@@ -231,7 +238,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
 
-    if (onboarding != null) {
+    if (onboarding != null && !USER_UNSUBSCRIBED.contains(onboarding.getStatus())) {
       handleExistingOnboarding(onboarding);
       return;
     }
@@ -262,7 +269,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     boolean verifyIsee = consentPutDTO.getSelfDeclarationList().stream()
             .filter(SelfConsentMultiDTO.class::isInstance)
             .map(SelfConsentMultiDTO.class::cast)
-            .anyMatch(dto -> ISEE_CODE.equals(dto.getCode()) && INTEGER_ONE.equals(dto.getValue()));
+            .anyMatch(dto -> ISEE_CODE.equals(dto.getCode()) && (INTEGER_ONE.equals(dto.getValue()) || isIseeUnder25kLabel(String.valueOf(dto.getValue()))));
 
     onboardingDTO.setVerifyIsee(verifyIsee);
 
@@ -398,15 +405,28 @@ public class OnboardingServiceImpl implements OnboardingService {
   public List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId) {
     long startTime = System.currentTimeMillis();
 
-
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
-    Criteria criteria = Criteria.where("userId").is(userId)
-            .and("status").is(ON_EVALUATION);
+    List<String> initiativeIds = Arrays.stream(initiativeConfig.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toList();
 
-    List<Onboarding> onboardingList = onboardingRepository.findByFilter(criteria);
+    List<Onboarding> validOnboardings = new ArrayList<>();
 
-    for (Onboarding o : onboardingList) {
+    for (String initiativeId : initiativeIds) {
+      String id = userId + "_" + initiativeId;
+      Criteria criteria = Criteria.where("_id").is(id);
+      List<Onboarding> onboardings = onboardingRepository.findByFilter(criteria);
+
+      for (Onboarding onboarding : onboardings) {
+        if (ON_EVALUATION.equals(onboarding.getStatus())) {
+          validOnboardings.add(onboarding);
+        }
+      }
+    }
+
+    for (Onboarding o : validOnboardings) {
       InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
       String initiativeName = initiative.getInitiativeName();
       String serviceId = initiative.getAdditionalInfo().getServiceId();
@@ -700,13 +720,12 @@ public class OnboardingServiceImpl implements OnboardingService {
     log.info("[GET_INITIATIVE] Retrieving information for initiative {}", sanitizedInitiativeId);
     InitiativeDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
     if (initiativeDTO != null) {
-      log.info("Initiative DTO: {}", initiativeDTO);
       if (!PUBLISHED.equals(initiativeDTO.getStatus())) {
         log.info("[GET_INITIATIVE] Initiative {} is not PUBLISHED! Status: {}", sanitizedInitiativeId,
                 initiativeDTO.getStatus());
         throw new InitiativeInvalidException(INITIATIVE_NOT_PUBLISHED,
                 String.format(ERROR_INITIATIVE_NOT_ACTIVE_MSG, initiativeId));
-      }else {
+      } else {
         log.info("[GET_INITIATIVE] Initiative {} is PUBLISHED", sanitizedInitiativeId);
         return initiativeDTO;
       }
@@ -726,11 +745,6 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
               utilities.getMessageOnboardingKO(onboarding.getDetailKO()));
       utilities.throwOnboardingKOException(onboarding.getDetailKO(), onboarding.getInitiativeId());
-    }
-    if (status.equals(STATUS_UNSUBSCRIBED)) {
-      auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
-              ERROR_UNSUBSCRIBED_INITIATIVE_AUDIT);
-      throw new UserUnsubscribedException(String.format(ERROR_UNSUBSCRIBED_INITIATIVE_MSG, onboarding.getInitiativeId()));
     }
   }
 
@@ -984,6 +998,14 @@ public class OnboardingServiceImpl implements OnboardingService {
   private String sanitize(String input) {
     if (input == null) return "null";
     return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
+  }
+
+  private boolean isIseeUnder25kLabel(String raw) {
+    if (raw == null) return false;
+    String s = raw.stripLeading();
+    return s.startsWith(ISEE_PREFIX_ACCENT)
+            || s.startsWith(ISEE_PREFIX_ASCII)
+            || s.startsWith(ISEE_PREFIX_MOJIBAKE);
   }
 
 }

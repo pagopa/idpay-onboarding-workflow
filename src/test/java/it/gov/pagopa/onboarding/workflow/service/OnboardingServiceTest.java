@@ -55,8 +55,8 @@ import java.util.stream.Stream;
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static com.mongodb.assertions.Assertions.fail;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.*;
-import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.*;
+import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionCode.GENERIC_ERROR;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.*;
 import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
 import static it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl.sanitizeString;
@@ -369,6 +369,8 @@ class OnboardingServiceTest {
         initiativeDTO.setAdditionalInfo(additional);
         initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
+        String initiativeMap = "68dd003ccce8c534d1da22bc,68de7fc681ce9e35a476e985,68dd003ccce8c534d1da22bb,68fb9937f0f9ee401031a0c7,68fb9cb9f0f9ee401031a0c8,68fb9ceaf0f9ee401031a0c9";
+
         onboardingService = Mockito.spy(new OnboardingServiceImpl(
                 PAGE_SIZE,
                 delayTime,
@@ -384,7 +386,8 @@ class OnboardingServiceTest {
                 onboardingRepositoryMock,
                 initiativeWebMapper,
                 generalWebMapper,
-                initiativeRestConnectorImpl
+                initiativeRestConnectorImpl,
+                initiativeMap
         ));
 
 
@@ -403,7 +406,7 @@ class OnboardingServiceTest {
         initiativeWebDTO = new InitiativeWebDTO(additional, beneficiaryRule, initiativeGeneralWebDTO);
     }
 
-
+    //region InitiativeDetail
     @Test
     void initiativeDetailExists() {
         when(onboardingService.getInitiative(INITIATIVE_ID)).thenReturn(initiativeDTO);
@@ -431,6 +434,9 @@ class OnboardingServiceTest {
         verifyNoInteractions(initiativeWebMapper);
     }
 
+    //endregion
+
+    //region saveConsent
     @Test
     void testSaveConsent_SaveIsCalled_WhenOnboardingNotExists() {
         String initiativeId = "TEST_INITIATIVE";
@@ -495,8 +501,6 @@ class OnboardingServiceTest {
         assertEquals(initiativeId, sentDto.getInitiativeId());
     }
 
-
-
     @Test
     void testSaveConsentAppIO_SaveIsCalled_WhenOnboardingNotExists() {
         String initiativeId = "TEST_INITIATIVE";
@@ -559,8 +563,9 @@ class OnboardingServiceTest {
         verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
         verify(onboardingProducer, times(1)).sendSaveConsent(any(OnboardingDTO.class));
     }
+    //endregion
 
-
+    //region saveOnboarding
     @Test
     void testSaveOnboardingWeb_throwsEmailNotMatchedException_whenEmailsDoNotMatch() {
         String initiativeId = "TEST_INITIATIVE";
@@ -1354,6 +1359,7 @@ class OnboardingServiceTest {
         assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeId), resultException.getMessage());
 
     }
+    //enregion
 
     @Test
     void putTc_ok_OnboardingNull() {
@@ -1719,6 +1725,7 @@ class OnboardingServiceTest {
 
     //endregion     DA QUI
 
+    //region onboardingStatus
     @Test
     void getOnboardingStatus_ok() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -1819,6 +1826,86 @@ class OnboardingServiceTest {
         assertNull(onboardingStatusDTO.getOnboardingOkDate());
 
     }
+
+    @Test
+    void getOnboardingStatus_shouldReturnFamilyUnitAlreadyJoined_whenStatusIsJoined() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setStatus("JOINED");
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+
+        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+        );
+
+        assertEquals(FAMILY_UNIT_ALREADY_JOINED, exception.getCode());
+    }
+
+    @Test
+    void getOnboardingStatus_shouldThrowException_whenStatusIsOnboardingKO() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setStatus("ONBOARDING_KO");
+        onboarding.setDetailKO("BUDGET_TERMINATED");
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+
+        doThrow(new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, onboarding.getInitiativeId())))
+                .when(utilities).throwOnboardingKOException(onboarding.getDetailKO(), onboarding.getInitiativeId());
+        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+        );
+        assertEquals("ONBOARDING_BUDGET_EXHAUSTED", exception.getCode());
+    }
+    //endregion
+
+    @Test
+    void getOnboardingStatus_shouldThrowException_whenStatusIsOnboardingKOAndThrowDetailInitiativeInvalid() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setStatus("ONBOARDING_KO");
+        onboarding.setDetailKO("INITIATIVE_END");
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+
+        doThrow(new InitiativeBudgetExhaustedException(String.format(ERROR_BUDGET_TERMINATED_MSG, onboarding.getInitiativeId())))
+                .when(utilities).throwOnboardingKOException(onboarding.getDetailKO(), onboarding.getInitiativeId());
+        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+        );
+        assertEquals("ONBOARDING_BUDGET_EXHAUSTED", exception.getCode());
+    }
+
+/**
+ * Test removed due to change to checks on UNSUBSCRIBED status (does not throw exception anymore)
+ */
+//    @Test
+//    void getOnboardingStatus_shouldThrowException_whenStatusUnsubscribed() {
+//        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+//        onboarding.setStatus("UNSUBSCRIBED");
+//        LocalDateTime statusDate = LocalDateTime.now();
+//        onboarding.setUpdateDate(statusDate);
+//        onboarding.setOnboardingOkDate(null);
+//
+//        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+//        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+//
+//        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+//                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+//        );
+//        assertEquals("ONBOARDING_USER_UNSUBSCRIBED", exception.getCode());
+//    }
+    //endregion
 
     //region Pre-Requisites case test
     @Test
@@ -2445,6 +2532,8 @@ class OnboardingServiceTest {
         onboarding.setUpdateDate(LocalDateTime.now());
         List<Onboarding> onboardingList = List.of(onboarding);
 
+
+
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
 
@@ -2473,6 +2562,8 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
         List<Onboarding> onboardingList = List.of(onboarding);
+
+
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
@@ -2505,6 +2596,8 @@ class OnboardingServiceTest {
         onboarding.setFamilyId(FAMILY_ID);
         onboarding.setDetail("detail");
         List<Onboarding> onboardingList = List.of(onboarding);
+
+
 
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
@@ -3225,41 +3318,7 @@ class OnboardingServiceTest {
         verify(onboardingRepositoryMock).save(onboarding);
     }
 
-    @Test
-    void getOnboardingStatus_shouldReturnFamilyUnitAlreadyJoined_whenStatusIsJoined() {
-        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
-        onboarding.setStatus("JOINED");
-        LocalDateTime statusDate = LocalDateTime.now();
-        onboarding.setUpdateDate(statusDate);
-        onboarding.setOnboardingOkDate(null);
 
-        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
-        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
-
-        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
-                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
-        );
-
-        assertEquals(FAMILY_UNIT_ALREADY_JOINED, exception.getCode());
-    }
-
-    @Test
-    void getOnboardingStatus_shouldThrowException_whenStatusIsOnboardingKO() {
-        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
-        onboarding.setStatus("ONBOARDING_KO");
-        onboarding.setDetailKO("REASON_XYZ");
-        LocalDateTime statusDate = LocalDateTime.now();
-        onboarding.setUpdateDate(statusDate);
-        onboarding.setOnboardingOkDate(null);
-
-        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
-        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
-
-        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
-                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
-        );
-        assertEquals("ONBOARDING_REASON_XYZ", exception.getCode());
-    }
 
     @Test
     void sanitizeString_nullInput_returnsNull() {

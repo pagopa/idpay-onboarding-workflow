@@ -8,14 +8,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @FeignClient(
-    name = "${rest-client.initiative.serviceCode}",
-    url = "${rest-client.initiative.baseUrl}")
+        name = "${rest-client.initiative.serviceCode}",
+        url = "${rest-client.initiative.baseUrl}")
 public interface InitiativeRestClient {
 
   @GetMapping(
-      value = "/idpay/initiative/{initiativeId}/beneficiary/view",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+          value = "/idpay/initiative/{initiativeId}/beneficiary/view",
+          produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   InitiativeDTO getInitiativeBeneficiaryView(
-      @PathVariable("initiativeId") String initiativeId);
+          @PathVariable("initiativeId") String initiativeId);
+
+
 }

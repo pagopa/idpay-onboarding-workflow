@@ -1,6 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +22,16 @@ public class RedisConfig {
 
     Jackson2JsonRedisSerializer<InitiativeDTO> serializer = new Jackson2JsonRedisSerializer<>(mapper, InitiativeDTO.class);
 
+    Jackson2JsonRedisSerializer<InitiativeStatusDTO> statusSerializer = new Jackson2JsonRedisSerializer<>(mapper, InitiativeStatusDTO.class);
+
     return builder -> builder
         .withCacheConfiguration("initiativeBeneficiaryView",
             RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1))
                 .serializeValuesWith(
-                    SerializationPair.fromSerializer(serializer)));
+                    SerializationPair.fromSerializer(serializer)))
+        .withCacheConfiguration("initiativeIdBudget",
+            RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30))
+                .serializeValuesWith(
+                        SerializationPair.fromSerializer(statusSerializer)));
   }
 }
