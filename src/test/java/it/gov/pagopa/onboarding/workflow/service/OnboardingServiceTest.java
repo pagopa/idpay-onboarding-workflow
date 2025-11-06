@@ -29,6 +29,7 @@ import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import org.bson.BsonDocument;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -2451,6 +2452,7 @@ class OnboardingServiceTest {
     void deactivateOnboarding_ok() {
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setFamilyId(FAMILY_ID);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
@@ -2460,8 +2462,8 @@ class OnboardingServiceTest {
                             onboarding.setStatus(STATUS_UNSUBSCRIBED);
                             return null;
                         })
-                .when(onboardingRepositoryMock).save(any(Onboarding.class));
-        onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString());
+                .when(onboardingRepositoryMock).disableAllFamilyMembers(eq(INITIATIVE_ID), eq(USER_ID), eq(FAMILY_ID),any(), any());
+        onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString(), true);
         assertNotNull(onboarding.getRequestDeactivationDate());
         assertEquals(STATUS_UNSUBSCRIBED, onboarding.getStatus());
     }
@@ -2472,7 +2474,7 @@ class OnboardingServiceTest {
                 .thenReturn(Optional.empty());
         String date = LocalDateTime.now().toString();
         try {
-            onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, date);
+            onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, date, true);
             fail();
         } catch (UserNotOnboardedException e) {
             assertEquals(USER_NOT_ONBOARDED, e.getCode());
@@ -2481,21 +2483,46 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void deactivateOnboarding_updateKo() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setFamilyId(FAMILY_ID);
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+                .thenReturn(Optional.of(onboarding));
+
+        Mockito.doThrow(new RuntimeException("test"))
+                .when(onboardingRepositoryMock).disableAllFamilyMembers(eq(INITIATIVE_ID), eq(USER_ID), eq(FAMILY_ID),any(),eq(true));
+        String nowDateString = LocalDateTime.now().toString();
+        Assertions.assertThrows(UserUnsubscribedException.class, () ->
+                onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, nowDateString, true));
+
+    }
+
+    @Test
     void rollback() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(STATUS_UNSUBSCRIBED);
+        onboarding.setFamilyId("FAM1");
+        onboarding.setOnboardingOkDate(LocalDateTime.now());
+
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
-        onboardingService.rollback(INITIATIVE_ID, USER_ID);
-        assertNull(onboarding.getRequestDeactivationDate());
-        assertEquals(ONBOARDING_OK, onboarding.getStatus());
+        when(onboardingRepositoryMock.reactivateAllFamilyMembers(
+                INITIATIVE_ID, USER_ID, "FAM1", onboarding.getOnboardingOkDate(), true))
+                .thenReturn(mock(com.mongodb.bulk.BulkWriteResult.class));
+
+        onboardingService.rollback(INITIATIVE_ID, USER_ID, true);
+
+        verify(onboardingRepositoryMock).findById(Onboarding.buildId(INITIATIVE_ID, USER_ID));
+        verify(onboardingRepositoryMock).reactivateAllFamilyMembers(
+                INITIATIVE_ID, USER_ID, "FAM1", onboarding.getOnboardingOkDate(), true);
+
     }
 
     @Test
     void rollback_null() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
-        onboardingService.rollback(INITIATIVE_ID, USER_ID);
+        onboardingService.rollback(INITIATIVE_ID, USER_ID, true);
         verify(onboardingRepositoryMock, Mockito.times(0)).save(any());
     }
 
@@ -2505,7 +2532,7 @@ class OnboardingServiceTest {
         onboarding.setStatus(ACCEPTED_TC);
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
-        onboardingService.rollback(INITIATIVE_ID, USER_ID);
+        onboardingService.rollback(INITIATIVE_ID, USER_ID, true);
         verify(onboardingRepositoryMock, Mockito.times(0)).save(any());
     }
 

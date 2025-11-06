@@ -1,13 +1,16 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
+import com.mongodb.bulk.BulkWriteResult;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding.Fields;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -74,4 +77,71 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
     }
     return criteria;
   }
+
+  @Override
+  public BulkWriteResult disableAllFamilyMembers(
+          String initiativeId, String userId, String familyId, LocalDateTime deactivationTime, Boolean updateFamilyMembers){
+
+    BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Onboarding.class);
+
+    Query queryOne = Query.query(Criteria
+            .where(Fields.initiativeId).is(initiativeId)
+            .and(Fields.userId).is(userId)
+    );
+    Update updateOne = new Update()
+            .set(Fields.status, OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)
+            .set(Fields.requestDeactivationDate, deactivationTime)
+            .set(Fields.updateDate, deactivationTime);
+    bulkOps.updateOne(queryOne, updateOne);
+
+    if (Boolean.TRUE.equals(updateFamilyMembers)) {
+      Query queryMany = Query.query(Criteria
+              .where(Fields.initiativeId).is(initiativeId)
+              .and(Fields.familyId).is(familyId)
+              .and(Fields.userId).ne(userId)
+      );
+      Update updateMany = new Update()
+              .set(Fields.status, OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)
+              .set(Fields.requestDeactivationDate, deactivationTime)
+              .set(Fields.updateDate, deactivationTime);
+      bulkOps.updateMulti(queryMany, updateMany);
+    }
+
+    return bulkOps.execute();
+
+  }
+
+  @Override
+  public BulkWriteResult reactivateAllFamilyMembers(
+          String initiativeId, String userId, String familyId, LocalDateTime onboardingOkDate, Boolean updateFamilyMembers) {
+
+    BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Onboarding.class);
+
+    Query queryOne = Query.query(Criteria
+            .where(Fields.initiativeId).is(initiativeId)
+            .and(Fields.userId).is(userId)
+    );
+    Update updateOne = new Update()
+            .set(Fields.status, OnboardingWorkflowConstants.ONBOARDING_OK)
+            .set(Fields.requestDeactivationDate, null)
+            .set(Fields.updateDate, onboardingOkDate);
+    bulkOps.updateOne(queryOne, updateOne);
+
+    if (Boolean.TRUE.equals(updateFamilyMembers)) {
+      Query queryMany = Query.query(Criteria
+              .where(Fields.initiativeId).is(initiativeId)
+              .and(Fields.familyId).is(familyId)
+              .and(Fields.userId).ne(userId)
+      );
+      Update updateMany = new Update()
+              .set(Fields.status, OnboardingWorkflowConstants.JOINED)
+              .set(Fields.requestDeactivationDate, null)
+              .set(Fields.updateDate, onboardingOkDate);
+      bulkOps.updateMulti(queryMany, updateMany);
+    }
+
+    return bulkOps.execute();
+
+  }
+
 }

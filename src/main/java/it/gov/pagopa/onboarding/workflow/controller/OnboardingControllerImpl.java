@@ -57,13 +57,13 @@ public class OnboardingControllerImpl implements OnboardingController {
   @Override
   public ResponseEntity<Void> disableOnboarding(UnsubscribeBodyDTO body) {
     onboardingService.deactivateOnboarding(body.getInitiativeId(), body.getUserId(),
-            body.getUnsubscribeDate());
+            body.getUnsubscribeDate(), body.getUpdateFamilyMembers());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
-  public ResponseEntity<Void> rollback(String initiativeId, String userId) {
-    onboardingService.rollback(initiativeId, userId);
+  public ResponseEntity<Void> rollback(String initiativeId, String userId, Boolean updateFamilyMembers) {
+    onboardingService.rollback(initiativeId, userId, updateFamilyMembers);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
