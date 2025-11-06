@@ -2491,8 +2491,9 @@ class OnboardingServiceTest {
 
         Mockito.doThrow(new RuntimeException("test"))
                 .when(onboardingRepositoryMock).disableAllFamilyMembers(eq(INITIATIVE_ID), eq(USER_ID), eq(FAMILY_ID),any(),eq(true));
+        String nowDateString = LocalDateTime.now().toString();
         Assertions.assertThrows(UserUnsubscribedException.class, () ->
-                onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString(), true));
+                onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, nowDateString, true));
 
     }
 
@@ -2506,7 +2507,7 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         when(onboardingRepositoryMock.reactivateAllFamilyMembers(
-                eq(INITIATIVE_ID), eq(USER_ID), eq("FAM1"), eq(onboarding.getOnboardingOkDate()), eq(true)))
+                INITIATIVE_ID, USER_ID, "FAM1", onboarding.getOnboardingOkDate(), true))
                 .thenReturn(mock(com.mongodb.bulk.BulkWriteResult.class));
 
         onboardingService.rollback(INITIATIVE_ID, USER_ID, true);

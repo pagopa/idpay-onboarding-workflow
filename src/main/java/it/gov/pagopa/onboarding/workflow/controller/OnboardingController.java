@@ -4,7 +4,6 @@
  */
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import com.azure.core.annotation.QueryParam;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import jakarta.validation.Valid;

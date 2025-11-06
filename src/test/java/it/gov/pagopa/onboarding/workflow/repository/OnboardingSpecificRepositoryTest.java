@@ -5,11 +5,9 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -128,8 +126,19 @@ class OnboardingSpecificRepositoryTest {
   }
 
   @Test
-  void reactivateFamilyMembers() {
+  void disableFamilyMembersWithoutUpdateFamilies() {
+    BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
+    when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
+    Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.disableAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
+            LocalDateTime.now(), false));
+  }
 
+  @Test
+  void rollbackFamilyMembersWithoutUpdateFamilies() {
+    BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
+    when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
+    Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.reactivateAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
+            LocalDateTime.now(), false));
   }
 
 }
