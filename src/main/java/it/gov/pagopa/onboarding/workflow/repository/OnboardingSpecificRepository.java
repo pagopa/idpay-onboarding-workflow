@@ -1,7 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.springframework.data.mongodb.core.query.Criteria;
 

@@ -1,7 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding.Fields;
@@ -95,7 +94,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
             .set(Fields.updateDate, deactivationTime);
     bulkOps.updateOne(queryOne, updateOne);
 
-    if (updateFamilyMembers) {
+    if (Boolean.TRUE.equals(updateFamilyMembers)) {
       Query queryMany = Query.query(Criteria
               .where(Fields.initiativeId).is(initiativeId)
               .and(Fields.familyId).is(familyId)
@@ -128,7 +127,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
             .set(Fields.updateDate, onboardingOkDate);
     bulkOps.updateOne(queryOne, updateOne);
 
-    if (updateFamilyMembers) {
+    if (Boolean.TRUE.equals(updateFamilyMembers)) {
       Query queryMany = Query.query(Criteria
               .where(Fields.initiativeId).is(initiativeId)
               .and(Fields.familyId).is(familyId)
