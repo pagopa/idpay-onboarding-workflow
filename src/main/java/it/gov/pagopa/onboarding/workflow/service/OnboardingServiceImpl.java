@@ -365,31 +365,36 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
-  public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate) {
+  public void deactivateOnboarding(String initiativeId, String userId, String deactivationDate, Boolean updateFamilyMembers) {
     long startTime = System.currentTimeMillis();
 
-    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+      Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+      LocalDateTime localDeactivationDate = LocalDateTime.parse(deactivationDate);
 
-    onboarding.setStatus(STATUS_UNSUBSCRIBED);
-    onboarding.setRequestDeactivationDate(LocalDateTime.parse(deactivationDate));
-    onboarding.setUpdateDate(LocalDateTime.parse(deactivationDate));
-    onboardingRepository.save(onboarding);
-    log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
-    auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
-    performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
+      try {
+        onboardingRepository.disableAllFamilyMembers(
+                initiativeId, userId, onboarding.getFamilyId(), localDeactivationDate, updateFamilyMembers);
+        log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
+        auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
+        performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
+      } catch (Exception e){
+        auditUtilities.logDeactivateKO(userId, initiativeId, onboarding.getChannel(), localDeactivationDate);
+        performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
+        log.info("[SUSPENSION] User deactivation from the initiative {} is failed", sanitizeString(initiativeId));
+        throw new UserUnsubscribedException(String.format(ERROR_UNSUBSCRIBED_INITIATIVE_MSG, sanitizeString(initiativeId)));
+      }
+
   }
 
   @Override
-  public void rollback(String initiativeId, String userId) {
+  public void rollback(String initiativeId, String userId, Boolean updateFamilyMembers) {
     Onboarding onboarding = onboardingRepository.findById(Onboarding.buildId(initiativeId, userId))
             .orElse(null);
     if (onboarding != null && onboarding.getStatus()
             .equals(STATUS_UNSUBSCRIBED)) {
       log.info("[ROLLBACK] Onboarding before rollback: {}", onboarding);
-      onboarding.setStatus(ONBOARDING_OK);
-      onboarding.setRequestDeactivationDate(null);
-      onboarding.setUpdateDate(onboarding.getOnboardingOkDate());
-      onboardingRepository.save(onboarding);
+      onboardingRepository.reactivateAllFamilyMembers(initiativeId, userId,
+              onboarding.getFamilyId(), onboarding.getOnboardingOkDate(), updateFamilyMembers);
       log.info("[ROLLBACK] Onboarding after rollback: {}", onboarding);
       auditUtilities.logRollback(userId, initiativeId, onboarding.getChannel());
     }

@@ -5,14 +5,17 @@ import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = OnboardingSpecificRepositoryImpl.class)
@@ -28,10 +32,10 @@ class OnboardingSpecificRepositoryTest {
   @Autowired
   OnboardingSpecificRepository onboardingSpecificRepository;
 
-  @MockBean
+  @MockitoBean
   MongoTemplate mongoTemplate;
 
-  @MockBean
+  @MockitoBean
   Criteria criteria;
 
   private static final String USER_ID = "TEST_USER_ID";
@@ -97,7 +101,7 @@ class OnboardingSpecificRepositoryTest {
     onboardingList.add(onboarding2);
     onboardingList.add(onboarding3);
 
-    Mockito.when(mongoTemplate.findAllAndRemove(Mockito.any(Query.class), Mockito.eq(Onboarding.class)))
+    when(mongoTemplate.findAllAndRemove(Mockito.any(Query.class), Mockito.eq(Onboarding.class)))
             .thenReturn(onboardingList);
 
     List<Onboarding> deletedGroups = onboardingSpecificRepository.deletePaged(initiativeId, pageSize);
@@ -106,4 +110,26 @@ class OnboardingSpecificRepositoryTest {
 
     Assertions.assertEquals(onboardingList, deletedGroups);
   }
+
+  @Test
+  void disableFamilyMembers() {
+    BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
+    when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
+    Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.disableAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
+            LocalDateTime.now(), true));
+  }
+
+  @Test
+  void rollbackFamilyMembers() {
+    BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
+    when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
+    Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.reactivateAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
+            LocalDateTime.now(), true));
+  }
+
+  @Test
+  void reactivateFamilyMembers() {
+
+  }
+
 }
