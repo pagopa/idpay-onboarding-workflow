@@ -125,4 +125,20 @@ class OnboardingSpecificRepositoryTest {
             LocalDateTime.now(), true));
   }
 
+  @Test
+  void disableFamilyMembersWithoutUpdateFamilies() {
+    BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
+    when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
+    Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.disableAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
+            LocalDateTime.now(), false));
+  }
+
+  @Test
+  void rollbackFamilyMembersWithoutUpdateFamilies() {
+    BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
+    when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
+    Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.reactivateAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
+            LocalDateTime.now(), false));
+  }
+
 }
