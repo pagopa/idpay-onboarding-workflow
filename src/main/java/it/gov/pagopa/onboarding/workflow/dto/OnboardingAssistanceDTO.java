@@ -13,17 +13,17 @@ import java.time.LocalDateTime;
 @Builder
 public class OnboardingAssistanceDTO {
 
-    String userId;
-    String initiativeId;
-    String status;
-    String userMail;
-    String channel;
-    String name;
-    String detailKO;
-    String surname;
-    Boolean tc;
-    Boolean pdndAccept;
-    LocalDateTime tcAcceptTimestamp;
-    LocalDateTime criteriaConsensusTimestamp;
-    LocalDateTime onboardingOkDate;
+    private String userId;
+    private String initiativeId;
+    private String status;
+    private String userMail;
+    private String channel;
+    private String name;
+    private String detailKO;
+    private String surname;
+    private Boolean tc;
+    private Boolean pdndAccept;
+    private LocalDateTime tcAcceptTimestamp;
+    private LocalDateTime criteriaConsensusTimestamp;
+    private LocalDateTime onboardingOkDate;
 }
