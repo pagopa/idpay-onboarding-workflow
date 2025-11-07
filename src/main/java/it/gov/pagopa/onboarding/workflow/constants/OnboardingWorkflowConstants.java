@@ -65,6 +65,7 @@ public class OnboardingWorkflowConstants {
     public static final String ERROR_ADMISSIBILITY_INVOCATION_MSG = "An error occurred in the microservice admissibility";
     public static final String ERROR_SUSPENSION_MSG = "Error while suspending the user on initiative [%s]";
     public static final String ERROR_READMISSION_MSG = "Error while readmitting the user on initiative [%s]";
+    public static final String ERROR_ONBOARDING_WAITING_LIST = "The user is on the waiting list until budget becomes available for allocation.";
 
     private ExceptionMessage() {}
 

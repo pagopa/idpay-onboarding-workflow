@@ -1847,7 +1847,7 @@ class OnboardingServiceTest {
 
     @Test
     void getOnboardingStatus_shouldThrowException_whenStatusIsOnboardingKO() {
-        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID,USER_ID);
         onboarding.setStatus("ONBOARDING_KO");
         onboarding.setDetailKO("BUDGET_TERMINATED");
         LocalDateTime statusDate = LocalDateTime.now();
@@ -1863,6 +1863,55 @@ class OnboardingServiceTest {
                 onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
         );
         assertEquals("ONBOARDING_BUDGET_EXHAUSTED", exception.getCode());
+    }
+
+    @Test
+    void getOnboardingStatus_okWhenStatusOnEvaluation() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setOnboardingOkDate(LocalDateTime.now());
+
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+                .thenReturn(Optional.of(onboarding));
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+        InitiativeStatusDTO initiativeStatus = InitiativeStatusDTO.builder()
+                .status(PUBLISHED)
+                .budgetAvailable(true)
+                .residualBudgetAvailable(true)
+                .build();
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(initiativeStatus);
+
+        OnboardingStatusDTO onboardingStatusDTO = onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID);
+
+        assertEquals(onboarding.getStatus(), onboardingStatusDTO.getStatus());
+        assertEquals(onboarding.getUpdateDate(), onboardingStatusDTO.getStatusDate());
+        assertEquals(onboarding.getOnboardingOkDate(), onboardingStatusDTO.getOnboardingOkDate());
+
+    }
+
+    @Test
+    void getOnboardingStatus_shouldThrowException_whenStatusIsWaitingList(){
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+        InitiativeStatusDTO initiativeStatus = InitiativeStatusDTO.builder()
+                .status(PUBLISHED)
+                .budgetAvailable(true)
+                .residualBudgetAvailable(false)
+                .build();
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID)).thenReturn(initiativeStatus);
+
+        OnboardingStatusException exception = assertThrows(OnboardingStatusException.class, () ->
+                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+        );
+        assertEquals(WAITING_LIST, exception.getCode());
+
     }
     //endregion
 
