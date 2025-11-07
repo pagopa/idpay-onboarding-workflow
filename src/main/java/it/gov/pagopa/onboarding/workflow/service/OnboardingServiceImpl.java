@@ -161,6 +161,42 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
+  public OnboardingAssistanceDTO getOnboardingStatusAssistance(String initiativeId, String userId) {
+
+    InitiativeDTO initiativeDTO = getInitiative(initiativeId);
+
+    Onboarding onboarding;
+    try {
+      onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    } catch(UserNotOnboardedException e){
+      try {
+        checkDates(initiativeDTO, null);
+        checkBudget(initiativeDTO, null);
+      }catch(InitiativeInvalidException | InitiativeBudgetExhaustedException e1){
+        throw new OnboardingStatusException(e1.getCode() , e1.getMessage());
+      }
+      throw e;
+    }
+
+    return  OnboardingAssistanceDTO.builder()
+            .tc(onboarding.getTc())
+            .onboardingOkDate(onboarding.getOnboardingOkDate())
+            .channel(onboarding.getChannel())
+            .name(onboarding.getName())
+            .criteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp())
+            .detailKO(onboarding.getDetailKO())
+            .initiativeId(onboarding.getInitiativeId())
+            .pdndAccept(onboarding.getPdndAccept())
+            .status(onboarding.getStatus())
+            .surname(onboarding.getSurname())
+            .tcAcceptTimestamp(onboarding.getTcAcceptTimestamp())
+            .userId(onboarding.getUserId())
+            .userMail(onboarding.getUserMail())
+            .build();
+  }
+
+
+  @Override
   public void putTcConsent(String initiativeId, String userId) {
     long startTime = System.currentTimeMillis();
 

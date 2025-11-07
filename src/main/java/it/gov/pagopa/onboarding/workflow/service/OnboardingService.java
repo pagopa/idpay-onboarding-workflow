@@ -47,4 +47,5 @@ public interface OnboardingService {
   void fillOnboardingData(Onboarding onboarding, ConsentPutDTO dto);
   void performanceLog(long startTime, String service, String userId, String initiativeId);
 
+  OnboardingAssistanceDTO getOnboardingStatusAssistance(String initiativeId, String userId);
 }
