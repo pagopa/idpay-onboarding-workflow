@@ -360,7 +360,7 @@ class OnboardingServiceTest {
                         "test sub description",
                         List.of(new SelfCriteriaMultiTypeValueDTO(
                                 "description",
-                                "subDescription"
+                                "subDescription", "1"
                         )),
                         ISEE.getDescription()
                 )
@@ -3037,7 +3037,7 @@ class OnboardingServiceTest {
                 "test sub description",
                 List.of(new SelfCriteriaMultiTypeValueDTO(
                         "description",
-                        "subdescription"
+                        "subdescription", "1"
                 )),
                 ISEE.getDescription()
         )));

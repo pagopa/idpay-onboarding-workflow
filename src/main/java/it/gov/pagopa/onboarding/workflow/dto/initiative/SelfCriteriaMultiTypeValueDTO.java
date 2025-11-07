@@ -13,4 +13,6 @@ public class SelfCriteriaMultiTypeValueDTO {
 
   private String subDescription;
 
+  private String value;
+
 }
