@@ -453,7 +453,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public boolean shouldBeWaitingList(Onboarding o) {
     InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(o.getInitiativeId());
-    return ON_EVALUATION.equals(o.getStatus()) && !initiativeStatusDTO.isBudgetAvailable();
+    return ON_EVALUATION.equals(o.getStatus()) && !initiativeStatusDTO.isResidualBudgetAvailable();
   }
 
   public static String sanitizeString(String str){
