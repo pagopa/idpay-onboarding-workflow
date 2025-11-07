@@ -138,6 +138,10 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
     }
 
+    if (shouldBeWaitingList(onboarding)) {
+      throw new OnboardingStatusException(WAITING_LIST, ERROR_ONBOARDING_WAITING_LIST);
+    }
+
     try {
       checkStatus(onboarding);
     } catch (InitiativeInvalidException | InitiativeBudgetExhaustedException | UserNotInWhitelistException |
@@ -453,7 +457,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   @Override
   public boolean shouldBeWaitingList(Onboarding o) {
     InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(o.getInitiativeId());
-    return ON_EVALUATION.equals(o.getStatus()) && !initiativeStatusDTO.isBudgetAvailable();
+    return ON_EVALUATION.equals(o.getStatus()) && !initiativeStatusDTO.isResidualBudgetAvailable();
   }
 
   public static String sanitizeString(String str){

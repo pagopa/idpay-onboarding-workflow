@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class InitiativeStatusDTO {
   private String status;
   private boolean budgetAvailable;
+  private boolean residualBudgetAvailable;
 }
