@@ -60,7 +60,7 @@ class OnboardingControllerImplTest {
                     "test sub description",
                     List.of(new SelfCriteriaMultiTypeValueDTO(
                         "description",
-                            "subdescription"
+                            "subdescription", "1"
                     )),
                     ISEE.getDescription()
             ))
