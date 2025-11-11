@@ -138,6 +138,10 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
     }
 
+    if (STATUS_UNSUBSCRIBED.equals(status)) {
+      throw new UserNotOnboardedException(USER_NOT_ONBOARDED, ERROR_UNSUBSCRIBED_INITIATIVE_MSG);
+    }
+
     if (shouldBeWaitingList(onboarding)) {
       throw new OnboardingStatusException(WAITING_LIST, ERROR_ONBOARDING_WAITING_LIST);
     }
@@ -159,6 +163,42 @@ public class OnboardingServiceImpl implements OnboardingService {
             onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null
     );
   }
+
+  @Override
+  public OnboardingAssistanceDTO getOnboardingStatusAssistance(String initiativeId, String userId) {
+
+    InitiativeDTO initiativeDTO = getInitiative(initiativeId);
+
+    Onboarding onboarding;
+    try {
+      onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+    } catch(UserNotOnboardedException e){
+      try {
+        checkDates(initiativeDTO, null);
+        checkBudget(initiativeDTO, null);
+      }catch(InitiativeInvalidException | InitiativeBudgetExhaustedException e1){
+        throw new OnboardingStatusException(e1.getCode() , e1.getMessage());
+      }
+      throw e;
+    }
+
+    return  OnboardingAssistanceDTO.builder()
+            .tc(onboarding.getTc())
+            .onboardingOkDate(onboarding.getOnboardingOkDate())
+            .channel(onboarding.getChannel())
+            .name(onboarding.getName())
+            .criteriaConsensusTimestamp(onboarding.getCriteriaConsensusTimestamp())
+            .detailKO(onboarding.getDetailKO())
+            .initiativeId(onboarding.getInitiativeId())
+            .pdndAccept(onboarding.getPdndAccept())
+            .status(onboarding.getStatus())
+            .surname(onboarding.getSurname())
+            .tcAcceptTimestamp(onboarding.getTcAcceptTimestamp())
+            .userId(onboarding.getUserId())
+            .userMail(onboarding.getUserMail())
+            .build();
+  }
+
 
   @Override
   public void putTcConsent(String initiativeId, String userId) {
