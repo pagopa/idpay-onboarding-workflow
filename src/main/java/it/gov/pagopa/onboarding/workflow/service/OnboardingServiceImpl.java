@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,6 +60,10 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   private final int pageSize;
   private final long delayTime;
+
+  private final String initiativeStartTime;
+
+
   private final OutcomeProducer outcomeProducer;
   private final DecryptRestConnector decryptRestConnector;
   private final InitiativeWebMapper initiativeWebMapper;
@@ -77,6 +82,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
+                               @Value("${app.initiativeStartTime}") String initiativeStartTime,
                                SelfDeclarationRepository selfDeclarationRepository,
                                ConsentMapper consentMapper,
                                OnboardingProducer onboardingProducer,
@@ -94,6 +100,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   ){
     this.pageSize = pageSize;
     this.delayTime = delayTime;
+    this.initiativeStartTime = initiativeStartTime;
     this.outcomeProducer = outcomeProducer;
     this.decryptRestConnector = decryptRestConnector;
     this.initiativeWebMapper = initiativeWebMapper;
@@ -794,6 +801,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void checkDates(InitiativeDTO initiativeDTO, Onboarding onboarding) {
+    LocalDateTime requestDateTime = LocalDateTime.now();
     LocalDate requestDate = LocalDate.now();
 
     LocalDate startDate =
@@ -801,9 +809,12 @@ public class OnboardingServiceImpl implements OnboardingService {
                     .getRankingStartDate() : initiativeDTO.getGeneral()
                     .getStartDate();
 
+    LocalTime startTime = LocalTime.parse(initiativeStartTime);
+    LocalDateTime startDateTime = startDate.atTime(startTime);
+
     LocalDate endDate = getEndDate(initiativeDTO, onboarding);
 
-    if (requestDate.isBefore(startDate)){
+    if (requestDateTime.isBefore(startDateTime)){
       if(onboarding != null){
         auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
                 ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
