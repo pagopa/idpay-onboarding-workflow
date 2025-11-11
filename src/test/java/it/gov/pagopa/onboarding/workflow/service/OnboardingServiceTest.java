@@ -1846,6 +1846,24 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void getOnboardingStatus_shouldReturnUserNotOnboarded_whenStatusIsUnsubscribed() {
+        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
+        onboarding.setStatus("UNSUBSCRIBED");
+        LocalDateTime statusDate = LocalDateTime.now();
+        onboarding.setUpdateDate(statusDate);
+        onboarding.setOnboardingOkDate(null);
+
+        doReturn(onboarding).when(onboardingService).findByInitiativeIdAndUserId(INITIATIVE_ID, USER_ID);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+
+        UserNotOnboardedException exception = assertThrows(UserNotOnboardedException.class, () ->
+                onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID)
+        );
+
+        assertEquals(USER_NOT_ONBOARDED, exception.getCode());
+    }
+
+    @Test
     void getOnboardingStatus_shouldThrowException_whenStatusIsOnboardingKO() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID,USER_ID);
         onboarding.setStatus("ONBOARDING_KO");
