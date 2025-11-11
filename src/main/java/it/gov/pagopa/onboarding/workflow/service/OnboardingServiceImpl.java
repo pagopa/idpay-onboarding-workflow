@@ -138,6 +138,10 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new OnboardingStatusException(FAMILY_UNIT_ALREADY_JOINED, "Something went wrong handling the request");
     }
 
+    if (STATUS_UNSUBSCRIBED.equals(status)) {
+      throw new UserNotOnboardedException(USER_NOT_ONBOARDED, ERROR_UNSUBSCRIBED_INITIATIVE_MSG);
+    }
+
     if (shouldBeWaitingList(onboarding)) {
       throw new OnboardingStatusException(WAITING_LIST, ERROR_ONBOARDING_WAITING_LIST);
     }
