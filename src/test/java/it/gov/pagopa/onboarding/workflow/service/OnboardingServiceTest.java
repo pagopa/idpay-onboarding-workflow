@@ -122,6 +122,7 @@ class OnboardingServiceTest {
 
 
     private static final int PAGE_SIZE = 10;
+    private static final String INITIATIVE_START_TIME = "07:00:00";
     private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
     private static final String USER_ID = "TEST_USER_ID";
     private static final String ONBOARDING_BUDGET_EXHAUSTED = "ONBOARDING_BUDGET_EXHAUSTED";
@@ -374,6 +375,7 @@ class OnboardingServiceTest {
         onboardingService = Mockito.spy(new OnboardingServiceImpl(
                 PAGE_SIZE,
                 delayTime,
+                INITIATIVE_START_TIME,
                 selfDeclarationRepository,
                 consentMapper,
                 onboardingProducer,
