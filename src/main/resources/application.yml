@@ -233,6 +233,7 @@ app:
   delete:
     paginationSize: ${DELETE_PAGINATION_SIZE:100}
     delayTime: ${DELETE_DELAY_TIME:1000}
+  initiativeStartTime: ${INITIATIVE_START_TIME:07:00:00}
 
 configMap:
   initiative_ids: ${INITIATIVE_IDS:""}
