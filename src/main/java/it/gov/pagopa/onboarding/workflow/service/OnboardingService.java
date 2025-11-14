@@ -21,8 +21,8 @@ public interface OnboardingService {
   InitiativeWebDTO initiativeDetail(String initiativeId, Locale acceptLanguage);
   void completeOnboarding(EvaluationDTO evaluationDTO);
   void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO);
-  void deactivateOnboarding(String initiativeId, String userId, String deactivationDate);
-  void rollback(String initiativeId, String userId);
+  void deactivateOnboarding(String initiativeId, String userId, String deactivationDate, Boolean updateFamilyMembers);
+  void rollback(String initiativeId, String userId, Boolean updateFamilyMembers);
   List<OnboardingStatusCitizenDTO> getOnboardingStatusList(String userId);
   boolean shouldBeWaitingList(Onboarding o);
   void suspend(String initiativeId, String userId);
@@ -47,4 +47,5 @@ public interface OnboardingService {
   void fillOnboardingData(Onboarding onboarding, ConsentPutDTO dto);
   void performanceLog(long startTime, String service, String userId, String initiativeId);
 
+  OnboardingAssistanceDTO getOnboardingStatusAssistance(String initiativeId, String userId);
 }

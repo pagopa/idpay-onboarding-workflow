@@ -45,6 +45,17 @@ public interface OnboardingController {
             @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
     /**
+     * Returns the actual onboarding status for assistance api
+     *
+     * @param initiativeId
+     * @param userId
+     * @return
+     */
+    @GetMapping("/{initiativeId}/{userId}/assistance")
+    ResponseEntity<OnboardingAssistanceDTO> onboardingStatusAssistance(
+            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+    /**
      * Save the consents of PDND criteria and Self declaration list
      *
      * @param consentPutDTO
@@ -82,7 +93,8 @@ public interface OnboardingController {
      */
     @PutMapping("/rollback/{initiativeId}/{userId}")
     ResponseEntity<Void> rollback(
-            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId,
+            @RequestParam(value = "updateFamilyMember", required = false, defaultValue = "true") Boolean updateFamilyMembers);
 
     @PutMapping("/{initiativeId}/{userId}/suspend")
     ResponseEntity<Void> suspend(@PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);

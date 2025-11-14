@@ -39,6 +39,7 @@ public class OnboardingWorkflowConstants {
   public static final String ERROR_WHITELIST = "NOT_IN_WHITELIST";
   public static final String ERROR_TECHNICAL = "TECHNICAL_ERROR";
   public static final class ExceptionMessage {
+    public static final String ERROR_DISABLING_STATUS_MSG = "It is not possible to disable the user on initiative [%s]";
     public static final String ERROR_SUSPENSION_STATUS_MSG = "It is not possible to suspend the user on initiative [%s]";
     public static final String ERROR_READMIT_STATUS_MSG = "It is not possible to readmit the user on initiative [%s]";
     public static final String ERROR_MAX_NUMBER_FOR_PAGE_MSG = "Max number for page allowed: 15";
@@ -64,6 +65,7 @@ public class OnboardingWorkflowConstants {
     public static final String ERROR_ADMISSIBILITY_INVOCATION_MSG = "An error occurred in the microservice admissibility";
     public static final String ERROR_SUSPENSION_MSG = "Error while suspending the user on initiative [%s]";
     public static final String ERROR_READMISSION_MSG = "Error while readmitting the user on initiative [%s]";
+    public static final String ERROR_ONBOARDING_WAITING_LIST = "The user is on the waiting list until budget becomes available for allocation.";
 
     private ExceptionMessage() {}
 
@@ -72,6 +74,7 @@ public class OnboardingWorkflowConstants {
   public static final class ExceptionCode {
     public static final String INVALID_REQUEST = "ONBOARDING_INVALID_REQUEST";
     public static final String PAGE_SIZE_NOT_ALLOWED = "ONBOARDING_PAGE_SIZE_NOT_ALLOWED";
+    public static final String DEACTIVATION_NOT_ALLOWED = "ONBOARDING_DEACTIVATION_NOT_ALLOWED_FOR_USER_STATUS";
     public static final String SUSPENSION_NOT_ALLOWED = "ONBOARDING_SUSPENSION_NOT_ALLOWED_FOR_USER_STATUS";
     public static final String READMISSION_NOT_ALLOWED = "ONBOARDING_READMISSION_NOT_ALLOWED_FOR_USER_STATUS";
 

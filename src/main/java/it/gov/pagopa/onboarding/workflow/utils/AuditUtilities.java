@@ -121,6 +121,13 @@ public class AuditUtilities {
     );
   }
 
+  public void logDeactivateKO(String userId, String initiativeId, String channel, LocalDateTime date) {
+    logAuditString(
+            CEF_DATE_PATTERN,
+            "Onboarding disabling failed", userId, initiativeId, channel, date.toString()
+    );
+  }
+
   public void logSuspension(String userId, String initiativeId) {
     logAuditString(
             CEF_PATTERN_BASE,
