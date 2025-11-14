@@ -146,7 +146,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     if (STATUS_UNSUBSCRIBED.equals(status)) {
-      throw new UserNotOnboardedException(USER_NOT_ONBOARDED, ERROR_UNSUBSCRIBED_INITIATIVE_MSG);
+      throw new UserNotOnboardedException(USER_NOT_ONBOARDED, String.format(ERROR_UNSUBSCRIBED_INITIATIVE_MSG, sanitizeString(initiativeId)));
     }
 
     if (shouldBeWaitingList(onboarding)) {
