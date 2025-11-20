@@ -481,17 +481,12 @@ public class OnboardingServiceImpl implements OnboardingService {
       InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
       String initiativeName = initiative.getInitiativeName();
       String serviceId = initiative.getAdditionalInfo().getServiceId();
-      String status = o.getStatus();
 
-      if (shouldBeWaitingList(o)) {
-        status = ON_WAITING_LIST;
-      }
-
-      dtoList.add(new OnboardingStatusCitizenDTO(
+        dtoList.add(new OnboardingStatusCitizenDTO(
               initiativeName,
               serviceId,
               o.getInitiativeId(),
-              status,
+                ON_WAITING_LIST,
               o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY
       ));
     }
