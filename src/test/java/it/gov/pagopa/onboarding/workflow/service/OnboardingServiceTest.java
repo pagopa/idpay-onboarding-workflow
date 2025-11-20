@@ -2615,12 +2615,6 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
 
-        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
-                .thenReturn(InitiativeStatusDTO.builder()
-                        .status(PUBLISHED)
-                        .residualBudgetAvailable(true)
-                        .build());
-
         InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
         INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
         when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
@@ -2630,7 +2624,7 @@ class OnboardingServiceTest {
             List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
 
             assertNotNull(response);
-            assertEquals(ON_EVALUATION, response.getFirst().getStatus());
+            assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
         });
     }
 
@@ -2644,12 +2638,6 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
 
-        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
-                .thenReturn(InitiativeStatusDTO.builder()
-                        .status(PUBLISHED)
-                        .residualBudgetAvailable(true)
-                        .build());
-
         InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
         INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
         when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
@@ -2659,7 +2647,7 @@ class OnboardingServiceTest {
             List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
 
             assertNotNull(response);
-            assertEquals(ON_EVALUATION, response.getFirst().getStatus());
+            assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
         });
     }
 
@@ -2675,12 +2663,6 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(onboardingList);
 
-        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
-                .thenReturn(InitiativeStatusDTO.builder()
-                        .status(PUBLISHED)
-                        .residualBudgetAvailable(true)
-                        .build());
-
         InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
         INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
         when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
@@ -2688,7 +2670,7 @@ class OnboardingServiceTest {
 
         List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
 
-        assertEquals(ON_EVALUATION, response.getFirst().getStatus());
+        assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
     }
 
     @Test
@@ -2719,12 +2701,6 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(List.of(onboarding));
 
-        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
-                .thenReturn(InitiativeStatusDTO.builder()
-                        .status(PUBLISHED)
-                        .residualBudgetAvailable(true)
-                        .build());
-
         InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
         INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
         when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
@@ -2734,7 +2710,7 @@ class OnboardingServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.size(), "Deve esserci un solo onboarding valido");
-        assertEquals(ON_EVALUATION, result.getFirst().getStatus(), "Lo stato deve restare ON_EVALUATION");
+        assertEquals(ON_WAITING_LIST, result.getFirst().getStatus(), "Lo stato deve diventare ON_WAITING_LIST");
     }
 
 
@@ -3323,31 +3299,19 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void getOnboardingStatusList_shouldReturnWaitingList_whenBudgetNotAvailable() {
+    void getOnboardingStatusList_shouldSkipNonOnEvaluation() {
+        ReflectionTestUtils.setField(onboardingService, "initiativeConfig", INITIATIVE_ID);
+
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
-        onboarding.setStatus(ON_EVALUATION);
-        onboarding.setUpdateDate(LocalDateTime.now());
-        List<Onboarding> onboardingList = List.of(onboarding);
+        onboarding.setStatus("JOINED");
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
-                .thenReturn(onboardingList);
+                .thenReturn(List.of(onboarding));
 
-        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
-                .thenReturn(InitiativeStatusDTO.builder()
-                        .status(PUBLISHED)
-                        .budgetAvailable(false)
-                        .build());
+        List<OnboardingStatusCitizenDTO> result = onboardingService.getOnboardingStatusList(USER_ID);
 
-        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
-        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
-        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
-                .thenReturn(INITIATIVE_DTO);
-
-        List<OnboardingStatusCitizenDTO> response =
-                onboardingService.getOnboardingStatusList(USER_ID);
-
-        assertNotNull(response);
-        assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Gli onboardings non ON_EVALUATION non devono essere aggiunti alla lista");
     }
 
     @Test
