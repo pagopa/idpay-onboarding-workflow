@@ -107,6 +107,42 @@ class OnboardingControllerTest {
     }
 
     @Test
+    void getOnboardingStatusAssistance_ok() throws Exception {
+
+        OnboardingAssistanceDTO onboardingStatusDTO = new OnboardingAssistanceDTO();
+
+        Mockito.when(onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID))
+                .thenReturn(onboardingStatusDTO);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/assistance")
+                                .contentType(APPLICATION_JSON_VALUE).accept(APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    }
+    @Test
+    void getOnboardingStatuAssistance_ko() throws Exception {
+
+        Mockito.doThrow(new UserNotOnboardedException(ID_S_NOT_FOUND_MSG, INITIATIVE_ID))
+                .when(onboardingService).getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/assistance")
+                                .contentType(APPLICATION_JSON_VALUE).accept(APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+    }
+
+    @Test
+    void getOnboardingStatusAssistance_ko_genericServiceException() throws Exception {
+
+        doThrow(new ServiceException("DUMMY_EXCEPTION_CODE", "DUMMY_EXCEPTION_STACK_TRACE"))
+                .when(onboardingService).getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/assistance")
+                                .contentType(APPLICATION_JSON_VALUE).accept(APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+    }
+    @Test
     void disableOnboarding_ok() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         UnsubscribeBodyDTO unsubscribeBodyDTO = new UnsubscribeBodyDTO(INITIATIVE_ID, USER_ID,
@@ -147,6 +183,8 @@ class OnboardingControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
     }
+
+
 
 
     @Test
