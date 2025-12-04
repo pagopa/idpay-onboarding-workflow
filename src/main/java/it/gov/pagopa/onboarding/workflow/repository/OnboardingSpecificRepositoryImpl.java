@@ -82,33 +82,41 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
   public BulkWriteResult disableAllFamilyMembers(
           String initiativeId, String userId, String familyId, LocalDateTime deactivationTime, Boolean updateFamilyMembers){
 
-    BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Onboarding.class);
 
-    Query queryOne = Query.query(Criteria
-            .where(Fields.initiativeId).is(initiativeId)
-            .and(Fields.userId).is(userId)
-    );
-    Update updateOne = new Update()
+    Update update = new Update()
             .set(Fields.status, OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)
             .set(Fields.requestDeactivationDate, deactivationTime)
             .set(Fields.updateDate, deactivationTime);
-    bulkOps.updateOne(queryOne, updateOne);
+
+    BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Onboarding.class);
 
     if (Boolean.TRUE.equals(updateFamilyMembers)) {
-      Query queryMany = Query.query(Criteria
+      Query familyQuery = Query.query(Criteria
               .where(Fields.initiativeId).is(initiativeId)
               .and(Fields.familyId).is(familyId)
-              .and(Fields.userId).ne(userId)
       );
-      Update updateMany = new Update()
-              .set(Fields.status, OnboardingWorkflowConstants.STATUS_UNSUBSCRIBED)
-              .set(Fields.requestDeactivationDate, deactivationTime)
-              .set(Fields.updateDate, deactivationTime);
-      bulkOps.updateMulti(queryMany, updateMany);
+      familyQuery.fields().include("_id");
+
+      List<String> familyMemberIds = mongoTemplate
+              .find(familyQuery, Onboarding.class)
+              .stream()
+              .map(Onboarding::getId)
+              .toList();
+
+      for (String id : familyMemberIds) {
+        bulkOps.updateOne(
+                Query.query(Criteria.where(Fields.id).is(id)),
+                update
+        );
+      }
+    } else {
+        bulkOps.updateOne(
+                Query.query(Criteria.where(Fields.id).is(userId+"_"+initiativeId)),
+                update
+        );
     }
 
     return bulkOps.execute();
-
   }
 
   @Override
