@@ -90,13 +90,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
 
     BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Onboarding.class);
 
-    bulkOps.updateOne(
-            Query.query(Criteria.where(Fields.userId).is(userId)),
-            update
-    );
-
     if (Boolean.TRUE.equals(updateFamilyMembers)) {
-
       Query familyQuery = Query.query(Criteria
               .where(Fields.initiativeId).is(initiativeId)
               .and(Fields.familyId).is(familyId)
@@ -110,13 +104,17 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
               .toList();
 
       for (String id : familyMemberIds) {
-        if (!id.equals(userId)) {
-          bulkOps.updateOne(
-                  Query.query(Criteria.where(Fields.id).is(id)),
-                  update
-          );
-        }
+        bulkOps.updateOne(
+                Query.query(Criteria.where(Fields.id).is(id)),
+                update
+        );
       }
+    }
+    else {
+        bulkOps.updateOne(
+                Query.query(Criteria.where(Fields.userId).is(userId)),
+                update
+        );
     }
 
     return bulkOps.execute();
