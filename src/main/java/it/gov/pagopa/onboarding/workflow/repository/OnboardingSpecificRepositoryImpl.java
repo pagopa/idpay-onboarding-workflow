@@ -109,10 +109,9 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
                 update
         );
       }
-    }
-    else {
+    } else {
         bulkOps.updateOne(
-                Query.query(Criteria.where(Fields.userId).is(userId)),
+                Query.query(Criteria.where(Fields.id).is(userId+"_"+initiativeId)),
                 update
         );
     }
