@@ -3397,4 +3397,62 @@ class OnboardingServiceTest {
         String result = sanitizeString(input);
         assertEquals(expected, result);
     }
+
+    @Test
+    void getOnboardingStatusAssistance_ok() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+        onboarding.setUpdateDate(LocalDateTime.now());
+
+        when(onboardingRepositoryMock.findById("%s_%s".formatted(USER_ID,INITIATIVE_ID)))
+                .thenReturn(Optional.of(onboarding));
+
+        InitiativeAdditionalDTO initiativeAdditionalDTO = new InitiativeAdditionalDTO();
+        INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
+        assertDoesNotThrow(() -> {
+            OnboardingAssistanceDTO response = onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID);
+            assertNotNull(response);
+        });
+    }
+
+
+    @Test
+    void getOnboardingStatusAssistance_userNotOnboarded_rethrowsException() {
+
+        when(onboardingRepositoryMock.findById("%s_%s".formatted(USER_ID, INITIATIVE_ID)))
+                .thenReturn(Optional.empty());
+
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
+
+        InitiativeStatusDTO statusDTO = new InitiativeStatusDTO();
+        statusDTO.setBudgetAvailable(true);
+        statusDTO.setStatus("PUBLISHED");
+        when(admissibilityRestConnector.getInitiativeStatus(anyString()))
+                .thenReturn(statusDTO);
+
+        assertThrows(UserNotOnboardedException.class, () -> {
+            onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID);
+        });
+    }
+
+    @Test
+    void getOnboardingStatusAssistance_OnboardingStatusException_rethrowsException() {
+
+        when(onboardingRepositoryMock.findById("%s_%s".formatted(USER_ID, INITIATIVE_ID)))
+                .thenReturn(Optional.empty());
+
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO_KO_END_DATE);
+
+
+        assertThrows(OnboardingStatusException.class, () -> {
+            onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID);
+        });
+    }
+
 }
