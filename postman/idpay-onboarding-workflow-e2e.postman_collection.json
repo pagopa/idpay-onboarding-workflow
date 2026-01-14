@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "5a935ba1-4497-479c-9f47-53362f90c124",
+		"_postman_id": "427dafda-90ec-4696-b908-425dba8cc602",
 		"name": "Onboarding - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036736",
-		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036736-5a935ba1-4497-479c-9f47-53362f90c124?action=share&source=collection_link&creator=26036736"
+		"_exporter_id": "16161662"
 	},
 	"item": [
 		{
@@ -28,7 +27,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -44,7 +44,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -64,9 +65,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -94,7 +95,8 @@
 															"pm.collectionVariables.set('channel_type', 'web');\r",
 															"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -115,7 +117,8 @@
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -151,11 +154,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/info",
+													"raw": "{{baseUrlIdPay}}/initiative/info",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"info"
 													]
 												},
@@ -194,7 +198,8 @@
 															"pm.collectionVariables.set('startDate', todayP2);\r",
 															"pm.collectionVariables.set('endDate', todayP3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -205,7 +210,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -241,11 +247,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"general"
 													],
@@ -270,7 +277,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -288,7 +296,8 @@
 															"    pm.expect(jsonResponse).have.property(\"elabTimeStamp\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -311,16 +320,18 @@
 														{
 															"key": "file",
 															"type": "file",
-															"src": "./postman/example_fiscal_code.csv"
+															"src": "{{basePath}}/example_fiscal_code.csv"
 														}
 													]
 												},
 												"url": {
-													"raw": "{{baseUrlGroup}}/:initiativeId/upload",
+													"raw": "{{baseUrlIdPay}}/group/initiative/:initiativeId/upload",
 													"host": [
-														"{{baseUrlGroup}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"group",
+														"initiative",
 														":initiativeId",
 														"upload"
 													],
@@ -345,7 +356,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -379,7 +391,8 @@
 															"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 															"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -415,11 +428,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"reward"
 													],
@@ -445,7 +459,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -499,7 +514,8 @@
 															"\r",
 															"pm.collectionVariables.set('body', JSON.stringify(body));"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -535,11 +551,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"refund"
 													],
@@ -588,7 +605,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -606,7 +624,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -626,9 +645,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -650,7 +669,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -659,7 +679,8 @@
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -686,11 +707,12 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdWithWhitelist}}/approved",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdWithWhitelist}}/approved",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdWithWhitelist}}",
 														"approved"
 													]
@@ -712,7 +734,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -730,7 +753,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -750,9 +774,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -775,7 +799,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -806,7 +831,8 @@
 															"}\r",
 															"*/"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -827,11 +853,12 @@
 												"method": "PUT",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdWithWhitelist}}/published",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdWithWhitelist}}/published",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdWithWhitelist}}",
 														"published"
 													]
@@ -855,7 +882,8 @@
 													"});\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -864,7 +892,8 @@
 												"exec": [
 													"setTimeout(()=> {}, 10000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -916,7 +945,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -925,7 +955,8 @@
 												"exec": [
 													"//setTimeout(()=> {}, 20000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -963,12 +994,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -987,7 +1017,8 @@
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -996,7 +1027,8 @@
 												"exec": [
 													"//setTimeout(()=> {}, 20000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -1034,12 +1066,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -1063,7 +1094,8 @@
 													"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_OK', 'ON_EVALUATION']);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -1081,12 +1113,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithWhitelist}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithWhitelist}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithWhitelist}}",
 												"status"
@@ -1112,7 +1143,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1128,7 +1160,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1154,9 +1187,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -1188,7 +1221,8 @@
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1205,7 +1239,8 @@
 															"pm.collectionVariables.set('channel_type', 'web');\r",
 															"pm.collectionVariables.set('channel_contact','https://www.google.it');"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1241,11 +1276,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/info",
+													"raw": "{{baseUrlIdPay}}/initiative/info",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"info"
 													]
 												},
@@ -1283,7 +1319,8 @@
 															"pm.collectionVariables.set('startDate', todayP2);\r",
 															"pm.collectionVariables.set('endDate', todayP3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1294,7 +1331,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1330,11 +1368,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"general"
 													],
@@ -1361,7 +1400,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1388,11 +1428,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/beneficiary",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/beneficiary",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"beneficiary"
 													],
@@ -1417,7 +1458,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1451,7 +1493,8 @@
 															"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 															"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1487,11 +1530,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"reward"
 													],
@@ -1517,7 +1561,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1571,7 +1616,8 @@
 															"\r",
 															"pm.collectionVariables.set('body', JSON.stringify(body));"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1607,11 +1653,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"refund"
 													],
@@ -1640,7 +1687,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1658,7 +1706,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1684,9 +1733,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -1708,7 +1757,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1717,7 +1767,8 @@
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1744,11 +1795,12 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdWithCriteria}}/approved",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdWithCriteria}}/approved",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdWithCriteria}}",
 														"approved"
 													]
@@ -1770,7 +1822,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1788,7 +1841,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1814,9 +1868,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -1839,7 +1893,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -1867,7 +1922,8 @@
 															"}\r",
 															"*/"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -1888,11 +1944,12 @@
 												"method": "PUT",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdWithCriteria}}/published",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdWithCriteria}}/published",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdWithCriteria}}",
 														"published"
 													]
@@ -1916,7 +1973,8 @@
 													"});\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -1925,7 +1983,8 @@
 												"exec": [
 													"setTimeout(()=> {}, 5000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -1977,7 +2036,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -1986,7 +2046,8 @@
 												"exec": [
 													"setTimeout(()=> {}, 10000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -2024,12 +2085,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -2048,7 +2108,8 @@
 													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -2086,12 +2147,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -2110,7 +2170,8 @@
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -2137,12 +2198,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -2169,7 +2229,8 @@
 													"});\r",
 													" },2000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -2187,12 +2248,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithCriteria}}",
 												"status"
@@ -2218,7 +2278,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2234,7 +2295,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2260,9 +2322,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -2292,7 +2354,8 @@
 															"pm.collectionVariables.set('channel_type', 'web');\r",
 															"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2313,7 +2376,8 @@
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2349,11 +2413,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/info",
+													"raw": "{{baseUrlIdPay}}/initiative/info",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"info"
 													]
 												},
@@ -2391,7 +2456,8 @@
 															"pm.collectionVariables.set('startDate', todayP2);\r",
 															"pm.collectionVariables.set('endDate', todayP3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2402,7 +2468,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2438,11 +2505,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"general"
 													],
@@ -2469,7 +2537,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2496,11 +2565,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdWithManualCriteria}}/beneficiary",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdWithManualCriteria}}/beneficiary",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdWithManualCriteria}}",
 														"beneficiary"
 													]
@@ -2519,7 +2589,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2553,7 +2624,8 @@
 															"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 															"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2589,11 +2661,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"reward"
 													],
@@ -2619,7 +2692,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2673,7 +2747,8 @@
 															"\r",
 															"pm.collectionVariables.set('body', JSON.stringify(body));"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2709,11 +2784,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"refund"
 													],
@@ -2742,7 +2818,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2760,7 +2837,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2786,9 +2864,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -2810,7 +2888,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2819,7 +2898,8 @@
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2846,11 +2926,12 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdWithManualCriteria}}/approved",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdWithManualCriteria}}/approved",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdWithManualCriteria}}",
 														"approved"
 													]
@@ -2872,7 +2953,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2890,7 +2972,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2916,9 +2999,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -2941,7 +3024,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -2969,7 +3053,8 @@
 															"}\r",
 															"*/"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -2990,11 +3075,12 @@
 												"method": "PUT",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdWithManualCriteria}}/published",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdWithManualCriteria}}/published",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdWithManualCriteria}}",
 														"published"
 													]
@@ -3018,7 +3104,8 @@
 													"});\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -3027,7 +3114,8 @@
 												"exec": [
 													"setTimeout(() => {}, 5000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -3079,7 +3167,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -3088,7 +3177,8 @@
 												"exec": [
 													"setTimeout(() => {}, 10000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -3126,14 +3216,12 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
-												"onboarding",
-												""
+												"onboarding"
 											]
 										}
 									},
@@ -3150,7 +3238,8 @@
 													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -3188,12 +3277,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -3212,7 +3300,8 @@
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -3239,12 +3328,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -3271,7 +3359,8 @@
 													"});\r",
 													" },2000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -3289,12 +3378,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithManualCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithManualCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithManualCriteria}}",
 												"status"
@@ -3323,7 +3411,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3339,7 +3428,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3365,9 +3455,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -3394,7 +3484,8 @@
 																	"pm.collectionVariables.set('channel_type', 'web');\r",
 																	"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3415,7 +3506,8 @@
 																	"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3451,11 +3543,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/info",
+															"raw": "{{baseUrlIdPay}}/initiative/info",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"info"
 															]
 														},
@@ -3501,7 +3594,8 @@
 																	"pm.collectionVariables.set('startDate', todayP2);\r",
 																	"pm.collectionVariables.set('endDate', todayP3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3512,7 +3606,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3548,11 +3643,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"general"
 															],
@@ -3579,7 +3675,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3606,11 +3703,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/beneficiary",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"beneficiary"
 															]
@@ -3629,7 +3727,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3662,7 +3761,8 @@
 																	"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 																	"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3698,11 +3798,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"reward"
 															],
@@ -3728,7 +3829,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3782,7 +3884,8 @@
 																	"\r",
 																	"pm.collectionVariables.set('body', JSON.stringify(body));"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3818,11 +3921,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"refund"
 															],
@@ -3851,7 +3955,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3869,7 +3974,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3895,9 +4001,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -3919,7 +4025,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3928,7 +4035,8 @@
 																"exec": [
 																	"//setTimeout(function(){}, 20000); //milliseconds"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -3955,11 +4063,12 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/approved",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/approved",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"approved"
 															]
@@ -3981,7 +4090,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -3999,7 +4109,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -4025,9 +4136,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -4050,7 +4161,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -4078,7 +4190,8 @@
 																	"}\r",
 																	"*/"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -4099,11 +4212,12 @@
 														"method": "PUT",
 														"header": [],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/published",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/published",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"published"
 															]
@@ -4127,7 +4241,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -4136,7 +4251,8 @@
 														"exec": [
 															"//setTimeout(()=> {}, 30000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -4188,7 +4304,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -4197,7 +4314,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 10000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -4235,14 +4353,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/",
+													"raw": "{{baseUrlIdPay}}/onboarding",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
-														"onboarding",
-														""
+														"onboarding"
 													]
 												}
 											},
@@ -4259,7 +4375,8 @@
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -4297,12 +4414,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+													"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"initiative"
 													]
@@ -4321,7 +4437,8 @@
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -4348,12 +4465,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/consent",
+													"raw": "{{baseUrlIdPay}}/onboarding/consent",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"consent"
 													]
@@ -4380,7 +4496,8 @@
 															"});\r",
 															" },2000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -4398,12 +4515,11 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
+													"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeId}}/status",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"{{initiativeId}}",
 														"status"
@@ -4421,7 +4537,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -4437,7 +4554,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -4463,9 +4581,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -4503,7 +4621,8 @@
 															"    pm.expect(foundStatusDem).equals(true); \r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -4512,7 +4631,8 @@
 														"exec": [
 															"setTimeout(function(){}, 20000);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -4536,12 +4656,11 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/initiative/{{initiativeId}}/beneficiary/family",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary/family",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"initiative",
 														"{{initiativeId}}",
 														"beneficiary",
@@ -4600,7 +4719,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -4616,7 +4736,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -4642,9 +4763,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -4671,7 +4792,8 @@
 																	"pm.collectionVariables.set('channel_type', 'web');\r",
 																	"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -4692,7 +4814,8 @@
 																	"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -4728,11 +4851,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/info",
+															"raw": "{{baseUrlIdPay}}/initiative/info",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"info"
 															]
 														},
@@ -4778,7 +4902,8 @@
 																	"pm.collectionVariables.set('startDate', todayP2);\r",
 																	"pm.collectionVariables.set('endDate', todayP3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -4789,7 +4914,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -4825,11 +4951,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"general"
 															],
@@ -4856,7 +4983,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -4883,11 +5011,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/beneficiary",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"beneficiary"
 															]
@@ -4906,7 +5035,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -4939,7 +5069,8 @@
 																	"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 																	"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -4975,11 +5106,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"reward"
 															],
@@ -5005,7 +5137,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -5059,7 +5192,8 @@
 																	"\r",
 																	"pm.collectionVariables.set('body', JSON.stringify(body));"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -5095,11 +5229,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"refund"
 															],
@@ -5128,7 +5263,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -5146,7 +5282,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -5172,9 +5309,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -5196,7 +5333,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -5205,7 +5343,8 @@
 																"exec": [
 																	"//setTimeout(function(){}, 20000); //milliseconds"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -5232,11 +5371,12 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/approved",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/approved",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"approved"
 															]
@@ -5258,7 +5398,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -5276,7 +5417,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -5302,9 +5444,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -5327,7 +5469,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -5355,7 +5498,8 @@
 																	"}\r",
 																	"*/"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -5376,11 +5520,12 @@
 														"method": "PUT",
 														"header": [],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/published",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/published",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"published"
 															]
@@ -5404,7 +5549,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -5413,7 +5559,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 5000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -5465,7 +5612,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -5474,7 +5622,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 10000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -5512,12 +5661,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/",
+													"raw": "{{baseUrlIdPay}}/onboarding/",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														""
 													]
@@ -5536,7 +5684,8 @@
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -5574,12 +5723,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+													"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"initiative"
 													]
@@ -5598,7 +5746,8 @@
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -5625,12 +5774,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/consent",
+													"raw": "{{baseUrlIdPay}}/onboarding/consent",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"consent"
 													]
@@ -5657,7 +5805,8 @@
 															"});\r",
 															" },2000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -5675,12 +5824,11 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
+													"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeId}}/status",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"{{initiativeId}}",
 														"status"
@@ -5698,7 +5846,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -5714,7 +5863,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -5740,9 +5890,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -5780,7 +5930,8 @@
 															"    pm.expect(foundStatusDem).equals(false); \r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -5789,7 +5940,8 @@
 														"exec": [
 															"setTimeout(function(){}, 20000);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -5813,12 +5965,11 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/initiative/{{initiativeId}}/beneficiary/family",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary/family",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"initiative",
 														"{{initiativeId}}",
 														"beneficiary",
@@ -5877,7 +6028,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -5893,7 +6045,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -5919,9 +6072,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -5948,7 +6101,8 @@
 																	"pm.collectionVariables.set('channel_type', 'web');\r",
 																	"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -5969,7 +6123,8 @@
 																	"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6005,11 +6160,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/info",
+															"raw": "{{baseUrlIdPay}}/initiative/info",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"info"
 															]
 														},
@@ -6055,7 +6211,8 @@
 																	"pm.collectionVariables.set('startDate', todayP2);\r",
 																	"pm.collectionVariables.set('endDate', todayP3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -6066,7 +6223,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6102,11 +6260,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"general"
 															],
@@ -6133,7 +6292,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6160,11 +6320,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/beneficiary",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"beneficiary"
 															]
@@ -6183,7 +6344,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -6216,7 +6378,8 @@
 																	"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 																	"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6252,11 +6415,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"reward"
 															],
@@ -6282,7 +6446,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -6336,7 +6501,8 @@
 																	"\r",
 																	"pm.collectionVariables.set('body', JSON.stringify(body));"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6372,11 +6538,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"refund"
 															],
@@ -6405,7 +6572,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -6423,7 +6591,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6449,9 +6618,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -6473,7 +6642,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -6482,7 +6652,8 @@
 																"exec": [
 																	"//setTimeout(function(){}, 20000); //milliseconds"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6509,11 +6680,12 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/approved",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/approved",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"approved"
 															]
@@ -6535,7 +6707,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -6553,7 +6726,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6579,9 +6753,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -6604,7 +6778,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -6632,7 +6807,8 @@
 																	"}\r",
 																	"*/"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -6653,11 +6829,12 @@
 														"method": "PUT",
 														"header": [],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/published",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/published",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"published"
 															]
@@ -6681,7 +6858,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -6690,7 +6868,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 90000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -6742,7 +6921,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -6751,7 +6931,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 20000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -6789,12 +6970,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/",
+													"raw": "{{baseUrlIdPay}}/onboarding/",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														""
 													]
@@ -6813,7 +6993,8 @@
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -6851,12 +7032,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+													"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"initiative"
 													]
@@ -6875,7 +7055,8 @@
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -6902,12 +7083,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/consent",
+													"raw": "{{baseUrlIdPay}}/onboarding/consent",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"consent"
 													]
@@ -6934,7 +7114,8 @@
 															"});\r",
 															" },7000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -6943,7 +7124,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 10000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -6961,12 +7143,11 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
+													"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeId}}/status",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"{{initiativeId}}",
 														"status"
@@ -6984,7 +7165,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 5000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -7000,7 +7182,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -7026,9 +7209,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -7066,7 +7249,8 @@
 															"    pm.expect(foundStatusDem).equals(false); \r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -7075,7 +7259,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 30000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -7099,12 +7284,11 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/initiative/{{initiativeId}}/beneficiary/family",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary/family",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"initiative",
 														"{{initiativeId}}",
 														"beneficiary",
@@ -7163,7 +7347,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7179,7 +7364,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7205,9 +7391,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -7234,7 +7420,8 @@
 																	"pm.collectionVariables.set('channel_type', 'web');\r",
 																	"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7255,7 +7442,8 @@
 																	"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7291,11 +7479,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/info",
+															"raw": "{{baseUrlIdPay}}/initiative/info",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"info"
 															]
 														},
@@ -7341,7 +7530,8 @@
 																	"pm.collectionVariables.set('startDate', todayP2);\r",
 																	"pm.collectionVariables.set('endDate', todayP3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7352,7 +7542,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7388,11 +7579,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"general"
 															],
@@ -7419,7 +7611,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7446,11 +7639,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/beneficiary",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"beneficiary"
 															]
@@ -7469,7 +7663,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7502,7 +7697,8 @@
 																	"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 																	"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7538,11 +7734,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"reward"
 															],
@@ -7568,7 +7765,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7622,7 +7820,8 @@
 																	"\r",
 																	"pm.collectionVariables.set('body', JSON.stringify(body));"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7658,11 +7857,12 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+															"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																":initiativeId",
 																"refund"
 															],
@@ -7691,7 +7891,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7709,7 +7910,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7735,9 +7937,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -7759,7 +7961,8 @@
 																	"    pm.response.to.have.status(204);\r",
 																	"});"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7768,7 +7971,8 @@
 																"exec": [
 																	"//setTimeout(function(){}, 20000); //milliseconds"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7795,11 +7999,12 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/approved",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/approved",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"approved"
 															]
@@ -7821,7 +8026,8 @@
 																"exec": [
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7839,7 +8045,8 @@
 																	"//response time is less than 1s\r",
 																	"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7865,9 +8072,9 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrlToken}}/welfare/token/test",
+															"raw": "{{baseUrlIdPay}}/welfare/token/test",
 															"host": [
-																"{{baseUrlToken}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
 																"welfare",
@@ -7890,7 +8097,8 @@
 																	"});\r",
 																	""
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														},
 														{
@@ -7918,7 +8126,8 @@
 																	"}\r",
 																	"*/"
 																],
-																"type": "text/javascript"
+																"type": "text/javascript",
+																"packages": {}
 															}
 														}
 													],
@@ -7939,11 +8148,12 @@
 														"method": "PUT",
 														"header": [],
 														"url": {
-															"raw": "{{baseUrlInitiative}}/{{initiativeId}}/published",
+															"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/published",
 															"host": [
-																"{{baseUrlInitiative}}"
+																"{{baseUrlIdPay}}"
 															],
 															"path": [
+																"initiative",
 																"{{initiativeId}}",
 																"published"
 															]
@@ -7967,7 +8177,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -7976,7 +8187,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 5000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -8028,7 +8240,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -8037,7 +8250,8 @@
 														"exec": [
 															"setTimeout(()=> {}, 15000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -8075,14 +8289,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/",
+													"raw": "{{baseUrlIdPay}}/onboarding",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
-														"onboarding",
-														""
+														"onboarding"
 													]
 												}
 											},
@@ -8099,7 +8311,8 @@
 															"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -8137,12 +8350,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+													"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"initiative"
 													]
@@ -8161,7 +8373,8 @@
 															"    pm.response.to.have.status(202);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -8188,12 +8401,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/consent",
+													"raw": "{{baseUrlIdPay}}/onboarding/consent",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"consent"
 													]
@@ -8220,7 +8432,8 @@
 															"});\r",
 															" },2000)"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -8238,12 +8451,11 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeId}}/status",
+													"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeId}}/status",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"onboarding",
 														"{{initiativeId}}",
 														"status"
@@ -8261,7 +8473,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -8277,7 +8490,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -8303,9 +8517,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -8332,7 +8546,8 @@
 															"    pm.expect(jsonResponse.usersList.length).equals(0);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -8356,12 +8571,11 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/idpay/initiative/{{initiativeId}}/beneficiary/family",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId}}/beneficiary/family",
 													"host": [
-														"{{baseUrl}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
-														"idpay",
 														"initiative",
 														"{{initiativeId}}",
 														"beneficiary",
@@ -8394,7 +8608,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -8403,7 +8618,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -8444,12 +8660,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -8469,7 +8684,8 @@
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -8478,7 +8694,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -8519,12 +8736,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"initiative"
@@ -8549,7 +8765,8 @@
 													"    pm.expect(jsonResponse.status).equals('ONBOARDING_OK');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -8581,12 +8798,11 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{initiativeIdWithWhitelist}}/status",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/{{initiativeIdWithWhitelist}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"{{initiativeIdWithWhitelist}}",
@@ -8725,7 +8941,8 @@
 													"});\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -8734,7 +8951,8 @@
 												"exec": [
 													"//setTimeout(()=> {}, 20000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -8780,12 +8998,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/mil/onboarding/initiatives",
+											"raw": "{{baseUrlIdPay}}/mil/onboarding/initiatives",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"mil",
 												"onboarding",
 												"initiatives"
@@ -8805,7 +9022,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -8848,12 +9066,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/mil/onboarding/",
+											"raw": "{{baseUrlIdPay}}/mil/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"mil",
 												"onboarding",
 												""
@@ -8873,7 +9090,8 @@
 													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -8916,12 +9134,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/mil/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/mil/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"mil",
 												"onboarding",
 												"initiative"
@@ -8941,7 +9158,8 @@
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -8984,12 +9202,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/mil/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/mil/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"mil",
 												"onboarding",
 												"consent"
@@ -9014,7 +9231,8 @@
 													"    pm.expect(jsonResponse.status).to.be.oneOf(['ONBOARDING_OK', 'ON_EVALUATION']);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -9023,7 +9241,8 @@
 												"exec": [
 													"setTimeout(()=> {}, 5000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9069,12 +9288,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/mil/onboarding/{{initiativeIdWithCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/mil/onboarding/{{initiativeIdWithCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"mil",
 												"onboarding",
 												"{{initiativeIdWithCriteria}}",
@@ -9113,7 +9331,8 @@
 													"});\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -9122,7 +9341,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9174,7 +9394,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9212,12 +9433,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -9236,7 +9456,8 @@
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9274,12 +9495,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -9303,7 +9523,8 @@
 													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_SELF_DECLARATION_NOT_VALID\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9330,12 +9551,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -9359,7 +9579,8 @@
 													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9377,12 +9598,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithManualCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithManualCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithManualCriteria}}",
 												"status"
@@ -9476,7 +9696,8 @@
 													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9514,12 +9735,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -9543,7 +9763,8 @@
 													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9570,12 +9791,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -9599,7 +9819,8 @@
 													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9617,12 +9838,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithCriteria}}",
 												"status"
@@ -9711,7 +9931,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9749,12 +9970,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -9773,7 +9993,8 @@
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9811,12 +10032,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -9840,7 +10060,8 @@
 													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_PDND_CONSENT_DENIED\")\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9867,12 +10088,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -9896,7 +10116,8 @@
 													"    pm.expect(jsonResponse.status).equals('ONBOARDING_KO');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -9914,12 +10135,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithCriteria}}",
 												"status"
@@ -10013,7 +10233,8 @@
 													"    pm.expect(jsonResponse.code).to.eql(\"FISCAL_CODE_NOT_VALID\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10051,12 +10272,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -10157,7 +10377,8 @@
 													"    pm.expect(jsonResponse.code).to.eql(\"FISCAL_CODE_NOT_VALID\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10195,12 +10416,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -10288,7 +10508,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10326,12 +10547,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -10351,7 +10571,8 @@
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10389,12 +10610,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -10418,7 +10638,8 @@
 													"    pm.expect(responseJson.code).to.eql(\"ONBOARDING_SELF_DECLARATION_NOT_VALID\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10445,12 +10666,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -10474,7 +10694,8 @@
 													"    pm.expect(jsonResponse.status).equals('ACCEPTED_TC');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10492,12 +10713,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithManualCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithManualCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithManualCriteria}}",
 												"status"
@@ -10586,7 +10806,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10624,12 +10845,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -10653,7 +10873,8 @@
 													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_IN_WHITELIST\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -10691,12 +10912,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -10721,7 +10941,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -10737,7 +10958,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -10763,9 +10985,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -10797,7 +11019,8 @@
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -10814,7 +11037,8 @@
 															"pm.collectionVariables.set('channel_type', 'web');\r",
 															"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -10850,11 +11074,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/info",
+													"raw": "{{baseUrlIdPay}}/initiative/info",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"info"
 													]
 												},
@@ -10892,7 +11117,8 @@
 															"pm.collectionVariables.set('startDate', todayP2);\r",
 															"pm.collectionVariables.set('endDate', todayP3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -10903,7 +11129,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -10939,11 +11166,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"general"
 													],
@@ -10970,7 +11198,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -10997,11 +11226,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/beneficiary",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/beneficiary",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"beneficiary"
 													],
@@ -11026,7 +11256,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11060,7 +11291,8 @@
 															"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 															"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -11096,11 +11328,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"reward"
 													],
@@ -11126,7 +11359,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11180,7 +11414,8 @@
 															"\r",
 															"pm.collectionVariables.set('body', JSON.stringify(body));"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -11216,11 +11451,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"refund"
 													],
@@ -11249,7 +11485,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11267,7 +11504,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -11293,9 +11531,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -11317,7 +11555,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11326,7 +11565,8 @@
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -11353,11 +11593,12 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{NoCriteriaInitiativeId}}/approved",
+													"raw": "{{baseUrlIdPay}}/initiative/{{NoCriteriaInitiativeId}}/approved",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{NoCriteriaInitiativeId}}",
 														"approved"
 													]
@@ -11379,7 +11620,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11397,7 +11639,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -11423,9 +11666,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -11448,7 +11691,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11476,7 +11720,8 @@
 															"}\r",
 															"*/"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -11497,11 +11742,12 @@
 												"method": "PUT",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{NoCriteriaInitiativeId}}/published",
+													"raw": "{{baseUrlIdPay}}/initiative/{{NoCriteriaInitiativeId}}/published",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{NoCriteriaInitiativeId}}",
 														"published"
 													]
@@ -11586,7 +11832,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -11624,12 +11871,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -11648,7 +11894,8 @@
 													"    pm.response.to.have.status(200);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -11686,12 +11933,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -11710,7 +11956,8 @@
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -11737,12 +11984,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent/",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent",
 												""
@@ -11770,7 +12016,8 @@
 													"});\r",
 													" },6000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -11779,7 +12026,8 @@
 												"exec": [
 													"//setTimeout(() => {}, 15000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -11797,12 +12045,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{NoCriteriaInitiativeId}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{NoCriteriaInitiativeId}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{NoCriteriaInitiativeId}}",
 												"status"
@@ -11827,7 +12074,8 @@
 													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_UNSATISFIED_REQUIREMENTS\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -11865,12 +12113,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -11895,7 +12142,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11911,7 +12159,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -11937,9 +12186,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -11971,7 +12220,8 @@
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -11988,7 +12238,8 @@
 															"pm.collectionVariables.set('channel_type', 'web');\r",
 															"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12024,11 +12275,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/info",
+													"raw": "{{baseUrlIdPay}}/initiative/info",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"info"
 													]
 												},
@@ -12066,7 +12318,8 @@
 															"pm.collectionVariables.set('startDate', todayP3);\r",
 															"pm.collectionVariables.set('endDate', todayP4);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12077,7 +12330,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12113,11 +12367,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"general"
 													],
@@ -12144,7 +12399,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12171,11 +12427,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/beneficiary",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/beneficiary",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"beneficiary"
 													],
@@ -12200,7 +12457,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12234,7 +12492,8 @@
 															"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 															"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12270,11 +12529,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"reward"
 													],
@@ -12300,7 +12560,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12354,7 +12615,8 @@
 															"\r",
 															"pm.collectionVariables.set('body', JSON.stringify(body));"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12390,11 +12652,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"refund"
 													],
@@ -12423,7 +12686,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12441,7 +12705,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12467,9 +12732,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -12491,7 +12756,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12500,7 +12766,8 @@
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12527,11 +12794,12 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdNotStarted}}/approved",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdNotStarted}}/approved",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdNotStarted}}",
 														"approved"
 													]
@@ -12553,7 +12821,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12571,7 +12840,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12597,9 +12867,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -12622,7 +12892,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12650,7 +12921,8 @@
 															"}\r",
 															"*/"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12671,11 +12943,12 @@
 												"method": "PUT",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdNotStarted}}/published",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdNotStarted}}/published",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdNotStarted}}",
 														"published"
 													]
@@ -12766,7 +13039,8 @@
 													"});\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -12804,12 +13078,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -12834,7 +13107,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12850,7 +13124,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12876,9 +13151,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -12910,7 +13185,8 @@
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -12927,7 +13203,8 @@
 															"pm.collectionVariables.set('channel_type', 'web');\r",
 															"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -12963,11 +13240,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/info",
+													"raw": "{{baseUrlIdPay}}/initiative/info",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"info"
 													]
 												},
@@ -13005,7 +13283,8 @@
 															"pm.collectionVariables.set('startDate', todayP2);\r",
 															"pm.collectionVariables.set('endDate', todayP3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -13016,7 +13295,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13052,11 +13332,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/general",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"general"
 													],
@@ -13083,7 +13364,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13110,11 +13392,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/beneficiary",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/beneficiary",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"beneficiary"
 													],
@@ -13139,7 +13422,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -13173,7 +13457,8 @@
 															"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
 															"pm.collectionVariables.set('trxRewardLimitValue', 3);"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13209,11 +13494,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/reward",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"reward"
 													],
@@ -13239,7 +13525,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -13293,7 +13580,8 @@
 															"\r",
 															"pm.collectionVariables.set('body', JSON.stringify(body));"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13329,11 +13617,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+													"raw": "{{baseUrlIdPay}}/initiative/:initiativeId/refund",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														":initiativeId",
 														"refund"
 													],
@@ -13362,7 +13651,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -13380,7 +13670,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13406,9 +13697,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -13430,7 +13721,8 @@
 															"    pm.response.to.have.status(204);\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -13439,7 +13731,8 @@
 														"exec": [
 															"//setTimeout(function(){}, 20000); //milliseconds"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13466,11 +13759,12 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdNoBudget}}/approved",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdNoBudget}}/approved",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdNoBudget}}",
 														"approved"
 													]
@@ -13492,7 +13786,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -13510,7 +13805,8 @@
 															"//response time is less than 1s\r",
 															"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13536,9 +13832,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -13561,7 +13857,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -13589,7 +13886,8 @@
 															"}\r",
 															"*/"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -13610,11 +13908,12 @@
 												"method": "PUT",
 												"header": [],
 												"url": {
-													"raw": "{{baseUrlInitiative}}/{{initiativeIdNoBudget}}/published",
+													"raw": "{{baseUrlIdPay}}/initiative/{{initiativeIdNoBudget}}/published",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"{{initiativeIdNoBudget}}",
 														"published"
 													]
@@ -13701,7 +14000,8 @@
 													"\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -13710,7 +14010,8 @@
 												"exec": [
 													"setTimeout(()=> {}, 10000)"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -13748,12 +14049,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -13772,7 +14072,8 @@
 													"    pm.expect(pm.response.code).to.be.oneOf([200,202]);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -13810,12 +14111,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -13834,7 +14134,8 @@
 													"    pm.response.to.have.status(202);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -13843,7 +14144,8 @@
 												"exec": [
 													"setTimeout(()=> {}, 20000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -13870,12 +14172,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -13964,7 +14265,8 @@
 													"});\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -13973,7 +14275,8 @@
 												"exec": [
 													"setTimeout(()=> {}, 10000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14011,12 +14314,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -14100,7 +14402,8 @@
 													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_INITIATIVE_NOT_FOUND\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14138,12 +14441,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -14167,7 +14469,8 @@
 													"    pm.expect(jsonResponse.code).to.equals('ONBOARDING_USER_NOT_ONBOARDED');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14191,12 +14494,11 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/initiative/{{initiativeId - not found}}/beneficiary/family",
+											"raw": "{{baseUrlIdPay}}/initiative/{{initiativeId - not found}}/beneficiary/family",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"initiative",
 												"{{initiativeId - not found}}",
 												"beneficiary",
@@ -14281,7 +14583,8 @@
 													"\r",
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -14290,7 +14593,8 @@
 												"exec": [
 													"setTimeout(() => {}, 20000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14328,12 +14632,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/wallet/{{initiativeIdWithCriteria}}/unsubscribe",
+											"raw": "{{baseUrlIdPay}}/wallet/{{initiativeIdWithCriteria}}/unsubscribe",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"wallet",
 												"{{initiativeIdWithCriteria}}",
 												"unsubscribe"
@@ -14358,7 +14661,8 @@
 													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_USER_UNSUBSCRIBED\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -14367,7 +14671,8 @@
 												"exec": [
 													"setTimeout(() => {}, 10000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14405,12 +14710,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -14434,7 +14738,8 @@
 													"    pm.expect(jsonResponse.status).equals('UNSUBSCRIBED');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -14443,7 +14748,8 @@
 												"exec": [
 													"setTimeout(() => {}, 10000);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14461,12 +14767,11 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/{{initiativeIdWithCriteria}}/status",
+											"raw": "{{baseUrlIdPay}}/onboarding/{{initiativeIdWithCriteria}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"{{initiativeIdWithCriteria}}",
 												"status"
@@ -14551,7 +14856,8 @@
 													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_INVALID_REQUEST\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14589,12 +14895,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -14618,7 +14923,8 @@
 													"    pm.expect(jsonResponse.code).equals(\"ONBOARDING_INVALID_REQUEST\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14656,12 +14962,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"initiative"
 											]
@@ -14685,7 +14990,8 @@
 													"    pm.expect(jsonResponse.code).equals(\"ONBOARDING_INVALID_REQUEST\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14712,12 +15018,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/consent",
+											"raw": "{{baseUrlIdPay}}/onboarding/consent",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												"consent"
 											]
@@ -14742,7 +15047,8 @@
 														"exec": [
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -14758,7 +15064,8 @@
 															"});\r",
 															""
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -14784,9 +15091,9 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlToken}}/welfare/token/test",
+													"raw": "{{baseUrlIdPay}}/welfare/token/test",
 													"host": [
-														"{{baseUrlToken}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
 														"welfare",
@@ -14818,7 +15125,8 @@
 															"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
 															"});"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												},
 												{
@@ -14835,7 +15143,8 @@
 															"pm.collectionVariables.set('channel_type', 'web');\r",
 															"pm.collectionVariables.set('channel_contact', 'https://www.google.it');"
 														],
-														"type": "text/javascript"
+														"type": "text/javascript",
+														"packages": {}
 													}
 												}
 											],
@@ -14871,11 +15180,12 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrlInitiative}}/info",
+													"raw": "{{baseUrlIdPay}}/initiative/info",
 													"host": [
-														"{{baseUrlInitiative}}"
+														"{{baseUrlIdPay}}"
 													],
 													"path": [
+														"initiative",
 														"info"
 													]
 												},
@@ -14956,7 +15266,8 @@
 													"    pm.expect(jsonResponse.code).to.equals(\"ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14994,12 +15305,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/onboarding/",
+											"raw": "{{baseUrlIdPay}}/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"onboarding",
 												""
 											]
@@ -15065,7 +15375,8 @@
 													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_USER_NOT_ONBOARDED\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15074,7 +15385,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15115,12 +15427,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"initiative"
@@ -15145,7 +15456,8 @@
 													"    pm.response.to.have.status(204);\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15158,7 +15470,8 @@
 													"}\r",
 													"pm.collectionVariables.set('vatNumber', vat);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15199,12 +15512,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -15229,7 +15541,8 @@
 													"    pm.expect(jsonResponse.code).equals('ONBOARDING_USER_NOT_IN_WHITELIST');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15238,7 +15551,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15279,12 +15593,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"initiative"
@@ -15309,7 +15622,8 @@
 													"    pm.expect(jsonResponse.status).equals('ONBOARDING_KO');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15318,7 +15632,8 @@
 												"exec": [
 													"pm.collectionVariables.set(\"same_fiscalCode\", pm.variables.replaceIn(\"{{fiscalCode}}\"));"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15350,12 +15665,11 @@
 											}
 										],
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/{{initiativeIdWithWhitelist}}/status",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/{{initiativeIdWithWhitelist}}/status",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"{{initiativeIdWithWhitelist}}",
@@ -15386,7 +15700,8 @@
 													"    pm.expect(jsonResponse.code).equals('FISCAL_CODE_NOT_VALID');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15395,7 +15710,8 @@
 												"exec": [
 													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15436,12 +15752,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -15471,7 +15786,8 @@
 													"    pm.expect(jsonResponse.code).equals('FISCAL_CODE_NOT_VALID');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15488,7 +15804,8 @@
 													"\r",
 													"pm.collectionVariables.set('vatNumberWrong', vat);"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15529,12 +15846,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -15564,7 +15880,8 @@
 													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INVALID_REQUEST');\r",
 													"    });"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15573,7 +15890,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15614,12 +15932,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -15644,7 +15961,8 @@
 													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INVALID_REQUEST');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15653,7 +15971,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15694,12 +16013,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"initiative"
@@ -15729,7 +16047,8 @@
 													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_NOT_FOUND');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15738,7 +16057,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15779,12 +16099,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -15809,7 +16128,8 @@
 													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_NOT_FOUND');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -15818,7 +16138,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -15859,12 +16180,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"initiative"
@@ -16049,7 +16369,8 @@
 													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -16058,7 +16379,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -16099,12 +16421,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -16129,7 +16450,8 @@
 													"    pm.expect(jsonResponse.code).equals('ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED');\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -16138,7 +16460,8 @@
 												"exec": [
 													""
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -16179,12 +16502,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/initiative",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/initiative",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												"initiative"
@@ -16214,7 +16536,8 @@
 													"        pm.expect(responseJson.code).to.eql(\"ONBOARDING_INITIATIVE_NOT_STARTED\");\r",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										},
 										{
@@ -16223,7 +16546,8 @@
 												"exec": [
 													"pm.collectionVariables.set(\"fiscalCode\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -16264,12 +16588,11 @@
 											}
 										},
 										"url": {
-											"raw": "{{baseUrl}}/idpay/hb/onboarding/",
+											"raw": "{{baseUrlIdPay}}/hb/onboarding/",
 											"host": [
-												"{{baseUrl}}"
+												"{{baseUrlIdPay}}"
 											],
 											"path": [
-												"idpay",
 												"hb",
 												"onboarding",
 												""
@@ -16794,6 +17117,10 @@
 		{
 			"key": "terminalId",
 			"value": ""
+		},
+		{
+			"key": "basePath",
+			"value": "./"
 		}
 	]
 }
