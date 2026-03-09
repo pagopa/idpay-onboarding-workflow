@@ -1,6 +1,7 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDetailsDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
@@ -252,4 +253,19 @@ class OnboardingControllerImplTest {
 
     verify(onboardingService).saveOnboarding(consent, channel, userId);
   }
+
+        @Test
+        void onboardingStatusDetails_ok() {
+                String userId = "USER123";
+                OnboardingStatusDetailsDTO dto = new OnboardingStatusDetailsDTO("ONBOARDING_OK", null, null, "FAMILY_1");
+
+                when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, userId)).thenReturn(dto);
+
+                ResponseEntity<OnboardingStatusDetailsDTO> response =
+                                                controller.onboardingStatusDetails(INITIATIVE_ID, userId);
+
+                assertEquals(OK, response.getStatusCode());
+                assertEquals(dto, response.getBody());
+                verify(onboardingService).getOnboardingStatusDetails(INITIATIVE_ID, userId);
+        }
 }

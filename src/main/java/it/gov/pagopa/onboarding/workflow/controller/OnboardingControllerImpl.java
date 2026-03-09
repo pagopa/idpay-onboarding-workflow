@@ -42,6 +42,13 @@ public class OnboardingControllerImpl implements OnboardingController {
   }
 
   @Override
+  public ResponseEntity<OnboardingStatusDetailsDTO> onboardingStatusDetails(String initiativeId, String userId) {
+    OnboardingStatusDetailsDTO onboardingStatusDetailsDTO = onboardingService.getOnboardingStatusDetails(initiativeId,
+      userId);
+    return new ResponseEntity<>(onboardingStatusDetailsDTO, HttpStatus.OK);
+  }
+
+  @Override
   public ResponseEntity<OnboardingAssistanceDTO> onboardingStatusAssistance(String initiativeId, String userId) {
     OnboardingAssistanceDTO onboardingAssistanceDTO = onboardingService.getOnboardingStatusAssistance(initiativeId,
             userId);
