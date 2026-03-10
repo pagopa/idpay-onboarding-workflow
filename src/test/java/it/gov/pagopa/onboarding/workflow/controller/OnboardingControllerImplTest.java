@@ -1,8 +1,28 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
+import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
+import static java.time.LocalDate.MAX;
+import static java.time.LocalDate.MIN;
+import static java.util.Locale.ITALIAN;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.ACCEPTED;
+import static org.springframework.http.HttpStatus.OK;
+
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDetailsDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiTypeDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiTypeValueDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
@@ -11,6 +31,10 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundExce
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,20 +42,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
-import static java.time.LocalDate.MAX;
-import static java.time.LocalDate.MIN;
-import static java.util.Locale.ITALIAN;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.ACCEPTED;
-import static org.springframework.http.HttpStatus.OK;
 
 @ExtendWith(MockitoExtension.class)
 class OnboardingControllerImplTest {
@@ -55,16 +65,16 @@ class OnboardingControllerImplTest {
 
     InitiativeBeneficiaryRuleDTO beneficiaryRuleDTO = new InitiativeBeneficiaryRuleDTO();
     beneficiaryRuleDTO.setSelfDeclarationCriteria(
-            List.of(new SelfCriteriaMultiTypeDTO(
-                    "multi_type",
-                    "test description",
-                    "test sub description",
-                    List.of(new SelfCriteriaMultiTypeValueDTO(
-                        "description",
-                            "subdescription", "1"
-                    )),
-                    ISEE.getDescription()
-            ))
+        List.of(new SelfCriteriaMultiTypeDTO(
+            "multi_type",
+            "test description",
+            "test sub description",
+            List.of(new SelfCriteriaMultiTypeValueDTO(
+                "description",
+                "subdescription", "1"
+            )),
+            ISEE.getDescription()
+        ))
     );
 
     GeneralWebMapper generalWebMapper = new GeneralWebMapper();
@@ -76,17 +86,19 @@ class OnboardingControllerImplTest {
     language.put(ITALIAN.getLanguage(), "it");
     initiativeGeneralDTO.setDescriptionMap(language);
     initiativeGeneralDTO.setFamilyUnitComposition("ANPR");
-    InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO, ACCEPT_LANGUAGE);
-    initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO, initiativeGeneralWebDTO);
+    InitiativeGeneralWebDTO initiativeGeneralWebDTO = generalWebMapper.map(initiativeGeneralDTO,
+        ACCEPT_LANGUAGE);
+    initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO,
+        initiativeGeneralWebDTO);
   }
 
   @Test
   void getInitiativeWeb_ok() {
     when(onboardingService.initiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE))
-            .thenReturn(initiativeWebDTO);
+        .thenReturn(initiativeWebDTO);
 
     ResponseEntity<InitiativeWebDTO> response =
-            controller.getInitiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE);
+        controller.getInitiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE);
 
     assertNotNull(response);
 
@@ -99,11 +111,11 @@ class OnboardingControllerImplTest {
   @Test
   void getInitiativeWeb_ko() {
     when(onboardingService.initiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE))
-            .thenReturn(null);
+        .thenReturn(null);
 
     InitiativeNotFoundException exception = assertThrows(
-            InitiativeNotFoundException.class,
-            () -> controller.getInitiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE)
+        InitiativeNotFoundException.class,
+        () -> controller.getInitiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE)
     );
 
     assertTrue(exception.getMessage().contains(INITIATIVE_ID));
@@ -134,7 +146,6 @@ class OnboardingControllerImplTest {
     String userId = "USER123";
     String channel = "CHANNEL";
 
-
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
     consent.setConfirmedTos(true);
@@ -152,7 +163,6 @@ class OnboardingControllerImplTest {
     String userId = "USER123";
     String channel = "CHANNEL";
 
-
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
     consent.setUserMail("test@mail.com");
@@ -161,9 +171,10 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(true);
 
     doThrow(new TosNotConfirmedException("Terms and Conditions not accepted."))
-            .when(onboardingService).saveOnboarding(consent, channel, userId);
+        .when(onboardingService).saveOnboarding(consent, channel, userId);
 
-    assertThrows(TosNotConfirmedException.class, () -> controller.saveOnboarding(consent, channel, userId));
+    assertThrows(TosNotConfirmedException.class,
+        () -> controller.saveOnboarding(consent, channel, userId));
 
     verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
@@ -173,17 +184,16 @@ class OnboardingControllerImplTest {
     String userId = "USER789";
     String channel = "CHANNEL";
 
-
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_2");
     consent.setConfirmedTos(false);
     consent.setPdndAccept(true);
 
     doThrow(new TosNotConfirmedException("Terms and Conditions not accepted."))
-            .when(onboardingService).saveOnboarding(consent, channel, userId);
+        .when(onboardingService).saveOnboarding(consent, channel, userId);
 
     assertThrows(TosNotConfirmedException.class, () ->
-            controller.saveOnboarding(consent, channel, userId)
+        controller.saveOnboarding(consent, channel, userId)
     );
 
     verify(onboardingService).saveOnboarding(consent, channel, userId);
@@ -195,7 +205,6 @@ class OnboardingControllerImplTest {
     String userId = "USER123";
     String channel = "CHANNEL";
 
-
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
     consent.setUserMail("test@mail.com");
@@ -204,9 +213,10 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(true);
 
     doThrow(new EmailNotMatchedException("Email and confirmation email do not match."))
-            .when(onboardingService).saveOnboarding(consent, channel, userId);
+        .when(onboardingService).saveOnboarding(consent, channel, userId);
 
-    assertThrows(EmailNotMatchedException.class, () -> controller.saveOnboarding(consent, channel, userId));
+    assertThrows(EmailNotMatchedException.class,
+        () -> controller.saveOnboarding(consent, channel, userId));
 
     verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
@@ -217,7 +227,6 @@ class OnboardingControllerImplTest {
     String userId = "USER123";
     String channel = "CHANNEL";
 
-
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_1");
     consent.setUserMail("test@mail.com");
@@ -226,9 +235,10 @@ class OnboardingControllerImplTest {
     consent.setPdndAccept(false);
 
     doThrow(new PDNDConsentDeniedException("PDND Consent denied"))
-            .when(onboardingService).saveOnboarding(consent, channel, userId);
+        .when(onboardingService).saveOnboarding(consent, channel, userId);
 
-    assertThrows(PDNDConsentDeniedException.class, () -> controller.saveOnboarding(consent, channel, userId));
+    assertThrows(PDNDConsentDeniedException.class,
+        () -> controller.saveOnboarding(consent, channel, userId));
 
     verify(onboardingService, times(1)).saveOnboarding(consent, channel, userId);
   }
@@ -238,34 +248,34 @@ class OnboardingControllerImplTest {
     String userId = "USER987";
     String channel = "CHANNEL";
 
-
     ConsentPutDTO consent = new ConsentPutDTO();
     consent.setInitiativeId("INITIATIVE_3");
     consent.setConfirmedTos(true);
     consent.setPdndAccept(false);
 
     doThrow(new PDNDConsentDeniedException("PDND Consent denied"))
-            .when(onboardingService).saveOnboarding(consent, channel, userId);
+        .when(onboardingService).saveOnboarding(consent, channel, userId);
 
     assertThrows(PDNDConsentDeniedException.class, () ->
-            controller.saveOnboarding(consent, channel, userId)
+        controller.saveOnboarding(consent, channel, userId)
     );
 
     verify(onboardingService).saveOnboarding(consent, channel, userId);
   }
 
-        @Test
-        void onboardingStatusDetails_ok() {
-                String userId = "USER123";
-                OnboardingStatusDetailsDTO dto = new OnboardingStatusDetailsDTO("ONBOARDING_OK", null, null, "FAMILY_1");
+  @Test
+  void onboardingStatusDetails_ok() {
+    String userId = "USER123";
+    OnboardingStatusDetailsDTO dto = new OnboardingStatusDetailsDTO("ONBOARDING_OK", null, null,
+        "FAMILY_1");
 
-                when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, userId)).thenReturn(dto);
+    when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, userId)).thenReturn(dto);
 
-                ResponseEntity<OnboardingStatusDetailsDTO> response =
-                                                controller.onboardingStatusDetails(INITIATIVE_ID, userId);
+    ResponseEntity<OnboardingStatusDetailsDTO> response =
+        controller.onboardingStatusDetails(INITIATIVE_ID, userId);
 
-                assertEquals(OK, response.getStatusCode());
-                assertEquals(dto, response.getBody());
-                verify(onboardingService).getOnboardingStatusDetails(INITIATIVE_ID, userId);
-        }
+    assertEquals(OK, response.getStatusCode());
+    assertEquals(dto, response.getBody());
+    verify(onboardingService).getOnboardingStatusDetails(INITIATIVE_ID, userId);
+  }
 }
