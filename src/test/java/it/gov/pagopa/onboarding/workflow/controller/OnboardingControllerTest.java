@@ -184,9 +184,6 @@ class OnboardingControllerTest {
                 .andReturn();
     }
 
-
-
-
     @Test
     void suspend() throws Exception {
         Mockito.doNothing().when(onboardingService).suspend(INITIATIVE_ID, USER_ID);
