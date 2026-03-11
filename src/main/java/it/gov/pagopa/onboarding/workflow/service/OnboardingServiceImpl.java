@@ -172,6 +172,18 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
   @Override
+  public OnboardingStatusDetailsDTO getOnboardingStatusDetails(String initiativeId, String userId) {
+    OnboardingStatusDTO onboardingStatus = getOnboardingStatus(initiativeId, userId);
+    Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
+
+      return new OnboardingStatusDetailsDTO(
+        onboardingStatus.getStatus(),
+        onboardingStatus.getStatusDate(),
+        onboardingStatus.getOnboardingOkDate(),
+        onboarding.getFamilyId());
+  }
+
+  @Override
   public OnboardingAssistanceDTO getOnboardingStatusAssistance(String initiativeId, String userId) {
 
     InitiativeDTO initiativeDTO = getInitiative(initiativeId);

@@ -45,6 +45,17 @@ public interface OnboardingController {
             @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
 
     /**
+     * Returns onboarding status payload required by reward-calculator.
+     *
+     * @param initiativeId initiative identifier
+     * @param userId user identifier
+     * @return onboarding status enriched with familyId when present
+     */
+    @GetMapping("/{initiativeId}/{userId}/status/details")
+    ResponseEntity<OnboardingStatusDetailsDTO> onboardingStatusDetails(
+            @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+    /**
      * Returns the actual onboarding status for assistance api
      *
      * @param initiativeId

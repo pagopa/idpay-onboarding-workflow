@@ -83,6 +83,21 @@ class OnboardingControllerTest {
     }
 
     @Test
+    void getOnboardingStatusDetails_ok() throws Exception {
+
+        OnboardingStatusDetailsDTO onboardingStatusDetailsDTO = new OnboardingStatusDetailsDTO(
+                ACCEPTED_TC, LocalDateTime.now(), null, FAMILY_ID);
+
+        Mockito.when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, USER_ID))
+                .thenReturn(onboardingStatusDetailsDTO);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + "/status/details")
+                                .contentType(APPLICATION_JSON_VALUE).accept(APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    }
+
+    @Test
     void getOnboardingStatus_ko() throws Exception {
 
         Mockito.doThrow(new UserNotOnboardedException(ID_S_NOT_FOUND_MSG, INITIATIVE_ID))
