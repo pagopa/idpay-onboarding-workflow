@@ -120,7 +120,7 @@ class OnboardingControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
     @Test
-    void getOnboardingStatuAssistance_ko() throws Exception {
+    void getOnboardingStatusAssistance_ko() throws Exception {
 
         Mockito.doThrow(new UserNotOnboardedException(ID_S_NOT_FOUND_MSG, INITIATIVE_ID))
                 .when(onboardingService).getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID);
