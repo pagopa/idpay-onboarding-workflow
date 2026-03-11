@@ -3411,10 +3411,10 @@ class OnboardingServiceTest {
         INITIATIVE_DTO.setAdditionalInfo(initiativeAdditionalDTO);
         when(initiativeRestConnector.getInitiativeBeneficiaryView(anyString()))
                 .thenReturn(INITIATIVE_DTO);
-        assertDoesNotThrow(() -> {
-            OnboardingAssistanceDTO response = onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID);
-            assertNotNull(response);
-        });
+        OnboardingAssistanceDTO response = assertDoesNotThrow(
+                () -> onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID)
+        );
+        assertNotNull(response);
     }
 
 
