@@ -3440,7 +3440,7 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void getOnboardingStatusAssistance_OnboardingStatusException_rethrowsException() {
+    void getOnboardingStatusAssistance_onboardingStatusException_rethrowsException() {
 
         when(onboardingRepositoryMock.findById("%s_%s".formatted(USER_ID, INITIATIVE_ID)))
                 .thenReturn(Optional.empty());
