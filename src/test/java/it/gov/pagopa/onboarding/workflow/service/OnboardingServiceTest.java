@@ -1911,6 +1911,27 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void getOnboardingStatusDetails_okWithFamilyId() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ONBOARDING_OK);
+        onboarding.setFamilyId(FAMILY_ID);
+        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setOnboardingOkDate(LocalDateTime.now());
+
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+                .thenReturn(Optional.of(onboarding));
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(INITIATIVE_DTO);
+
+        OnboardingStatusDetailsDTO onboardingStatusDetailsDTO =
+                onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, USER_ID);
+
+        assertEquals(onboarding.getStatus(), onboardingStatusDetailsDTO.status());
+        assertEquals(onboarding.getUpdateDate(), onboardingStatusDetailsDTO.statusDate());
+        assertEquals(onboarding.getOnboardingOkDate(), onboardingStatusDetailsDTO.onboardingOkDate());
+        assertEquals(onboarding.getFamilyId(), onboardingStatusDetailsDTO.familyId());
+    }
+
+    @Test
     void getOnboardingStatus_shouldThrowException_whenStatusIsWaitingList(){
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
