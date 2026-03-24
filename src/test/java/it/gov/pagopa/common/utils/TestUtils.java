@@ -1,8 +1,5 @@
 package it.gov.pagopa.common.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.common.config.JsonConfig;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
@@ -10,6 +7,8 @@ import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.Assertions;
 import org.opentest4j.AssertionFailedError;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -35,7 +34,7 @@ public final class TestUtils {
     /**
      * applications's objectMapper
      */
-    public static ObjectMapper objectMapper = new JsonConfig().objectMapper();
+    public static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * It will assert not null on all o's fields
@@ -84,7 +83,7 @@ public final class TestUtils {
     public static String jsonSerializer(Object value) {
         try {
             return objectMapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException(e);
         }
     }

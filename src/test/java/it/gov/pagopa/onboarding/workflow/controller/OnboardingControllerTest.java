@@ -1,6 +1,5 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
@@ -13,14 +12,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -35,34 +38,39 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = {
-    OnboardingController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+    OnboardingController.class}, excludeAutoConfiguration = { UserDetailsServiceAutoConfiguration .class , SecurityAutoConfiguration.class})
+@AutoConfigureMockMvc(addFilters = false)
 @Import({JsonConfig.class, ServiceExceptionConfig.class})
 class OnboardingControllerTest {
 
-  @MockitoBean
-  OnboardingService onboardingService;
+    @MockitoBean
+    OnboardingService onboardingService;
 
-  @Autowired
-  protected MockMvc mvc;
-  private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
-  private static final String DISABLE_URL = "/disable";
-  private static final String ROLLBACK_URL = "/rollback";
-  private static final String SUSPEND_URL = "/suspend";
-  private static final String READMIT_URL = "/readmit";
-  private static final String FAMILY_URL = "/family";
-  private static final String USER_ID = "TEST_USER_ID";
-  private static final String FAMILY_ID = "TEST_FAMILY_ID";
-  private static final String CF = "TEST_CF";
-  private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final String STATUS = "STATUS";
+
+    @MockitoBean
+    CacheManager cacheManager;
+
+    @Autowired
+    protected MockMvc mvc;
+    private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
+    private static final String DISABLE_URL = "/disable";
+    private static final String ROLLBACK_URL = "/rollback";
+    private static final String SUSPEND_URL = "/suspend";
+    private static final String READMIT_URL = "/readmit";
+    private static final String FAMILY_URL = "/family";
+    private static final String USER_ID = "TEST_USER_ID";
+    private static final String FAMILY_ID = "TEST_FAMILY_ID";
+    private static final String CF = "TEST_CF";
+    private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+    private static final String STATUS = "STATUS";
 
     private static final OnboardingStatusCitizenDTO ONBOARDING_STATUS_CITIZEN_DTO =
             new OnboardingStatusCitizenDTO(USER_ID, STATUS, STATUS, null, "DETAIL_TEST");
-  private static final List<OnboardingStatusCitizenDTO> ONBOARDING_DTO = Collections.singletonList(ONBOARDING_STATUS_CITIZEN_DTO);
-  private static final OnboardingFamilyDetailDTO ONBOARDING_FAMILY_DETAIL_DTO = new OnboardingFamilyDetailDTO(
-          CF, FAMILY_ID, now(), STATUS);
-  static List<OnboardingFamilyDetailDTO> onboardingFamilyDetailDTOList = List.of(ONBOARDING_FAMILY_DETAIL_DTO);
-  private static final OnboardingFamilyDTO FAMILY_DTO = new OnboardingFamilyDTO(onboardingFamilyDetailDTOList);
+    private static final List<OnboardingStatusCitizenDTO> ONBOARDING_DTO = Collections.singletonList(ONBOARDING_STATUS_CITIZEN_DTO);
+    private static final OnboardingFamilyDetailDTO ONBOARDING_FAMILY_DETAIL_DTO = new OnboardingFamilyDetailDTO(
+            CF, FAMILY_ID, now(), STATUS);
+    static List<OnboardingFamilyDetailDTO> onboardingFamilyDetailDTOList = List.of(ONBOARDING_FAMILY_DETAIL_DTO);
+    private static final OnboardingFamilyDTO FAMILY_DTO = new OnboardingFamilyDTO(onboardingFamilyDetailDTOList);
 
     @Test
     void getOnboardingStatus_ok() throws Exception {
