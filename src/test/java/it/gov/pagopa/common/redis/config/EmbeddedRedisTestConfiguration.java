@@ -4,14 +4,13 @@ import it.gov.pagopa.common.utils.TestUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.data.redis.support.collections.RedisProperties;
 import redis.embedded.RedisServer;
 
 @TestConfiguration
 public class EmbeddedRedisTestConfiguration {
     private final RedisServer redisServer;
 
-    public EmbeddedRedisTestConfiguration(RedisProperties redisProperties) {
+    public EmbeddedRedisTestConfiguration() {
         if(TestUtils.availableLocalPort(8080)){
             this.redisServer = new RedisServer(8080);
         } else {
