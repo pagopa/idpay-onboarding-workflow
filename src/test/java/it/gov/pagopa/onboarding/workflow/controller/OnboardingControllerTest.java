@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -38,7 +39,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = {
-    OnboardingController.class}, excludeAutoConfiguration = { UserDetailsServiceAutoConfiguration .class , SecurityAutoConfiguration.class})
+    OnboardingController.class}, excludeAutoConfiguration = { UserDetailsServiceAutoConfiguration .class , SecurityAutoConfiguration.class, JacksonAutoConfiguration.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import({JsonConfig.class, ServiceExceptionConfig.class})
 class OnboardingControllerTest {
