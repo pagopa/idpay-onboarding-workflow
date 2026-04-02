@@ -1,0 +1,33 @@
+package it.gov.pagopa.onboarding.workflow.dto.initiative;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class VerifyDTO {
+
+  @JsonProperty("code")
+  private String code;
+
+  @JsonProperty("verify")
+  private boolean verify;
+
+  @JsonProperty("thersoldCode")
+  private String thersoldCode;
+
+  @JsonProperty("beneficiaryBudgetCentsMin")
+  private long beneficiaryBudgetCentsMin;
+
+  @JsonProperty("beneficiaryBudgetCentsMax")
+  private long beneficiaryBudgetCentsMax;
+
+  @JsonProperty("blockingVerify")
+  private boolean blockingVerify;
+
+
+}

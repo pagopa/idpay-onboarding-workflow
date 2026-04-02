@@ -6,10 +6,7 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaTextDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
@@ -329,17 +326,63 @@ public class OnboardingServiceImpl implements OnboardingService {
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
 
-    boolean verifyIsee = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(SelfConsentMultiDTO.class::isInstance)
-            .map(SelfConsentMultiDTO.class::cast)
-            .anyMatch(dto -> ISEE_CODE.equals(dto.getCode()) && (INTEGER_ONE.equals(dto.getValue()) || isIseeUnder25kLabel(String.valueOf(dto.getValue()))));
-
-    onboardingDTO.setVerifyIsee(verifyIsee);
+    onboardingDTO.setVerifies(createVerifies(initiativeDTO, consentPutDTO));
 
     onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
 
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
+  }
+
+  public List<VerifyDTO> createVerifies(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
+    List<VerifyDTO> verifies = new ArrayList<>();
+
+    // 1. Recupero la lista dei criteri dall'iniziativa
+    List<SelfDeclarationItemsDTO> criteriaList = initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria();
+    // 2. Recupero la lista dei consensi inviati dall'utente
+    List<SelfConsentDTO> userConsents = consentPutDTO.getSelfDeclarationList();
+
+    if (criteriaList == null || userConsents == null) {
+      return verifies;
+    }
+
+    for (SelfDeclarationItemsDTO criteria : criteriaList) {
+      // Controllo se il criterio è di tipo MULTI_CONSENT (SelfCriteriaMultiTypeDTO)
+      if (criteria instanceof SelfCriteriaMultiTypeDTO) {
+        SelfCriteriaMultiTypeDTO multiCriteria = (SelfCriteriaMultiTypeDTO) criteria;
+
+        for (SelfConsentDTO consent : userConsents) {
+          // Controllo se il consenso dell'utente è di tipo MULTI_CONSENT (SelfConsentMultiDTO)
+          if (consent instanceof SelfConsentMultiDTO) {
+            SelfConsentMultiDTO multiConsent = (SelfConsentMultiDTO) consent;
+
+            // Verifico se i codici e i valori coincidono
+            // Nota: multiCriteria.getValue() è una lista di opzioni possibili (SelfCriteriaMultiTypeValueDTO)
+            if (multiCriteria.getCode().equals(multiConsent.getCode())) {
+
+              // Cerco il valore specifico all'interno delle opzioni del criterio
+              for (SelfCriteriaMultiTypeValueDTO option : multiCriteria.getValue()) {
+
+                if (option.getValue().equals(multiConsent.getValue())) {
+                  // Se troviamo la corrispondenza, creiamo il VerifyDTO
+                  VerifyDTO verifyDTO = new VerifyDTO();
+                  verifyDTO.setCode(multiCriteria.getCode());
+                  verifyDTO.setVerify(option.isVerify());
+                  verifyDTO.setThersoldCode(option.getThresholdCode());
+                  verifyDTO.setBeneficiaryBudgetCentsMin(option.getBeneficiaryBudgetCentsMin());
+                  verifyDTO.setBeneficiaryBudgetCentsMax(option.getBeneficiaryBudgetCentsMax());
+                  verifyDTO.setBlockingVerify(option.isBlockingVerify());
+
+                  verifies.add(verifyDTO);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return verifies;
   }
 
   @Override
@@ -679,8 +722,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setAdmissibilityCheckDate(LocalDateTime.now());
     dto.setStatus(status);
     dto.setOnboardingRejectionReasons(List.of());
-    dto.setBeneficiaryBudgetCents(null != initiativeDTO.getGeneral().getBeneficiaryBudget() ? initiativeDTO.getGeneral().getBeneficiaryBudget().multiply(BigDecimal.valueOf(100)).longValue() : null);
-    dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
+ dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
     dto.setServiceId(null != initiativeDTO.getAdditionalInfo() ? initiativeDTO.getAdditionalInfo().getServiceId() : null);
