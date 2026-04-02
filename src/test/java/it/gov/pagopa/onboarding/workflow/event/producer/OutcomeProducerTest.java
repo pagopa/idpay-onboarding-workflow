@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.stream.function.StreamBridge;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
@@ -22,7 +22,7 @@ class OutcomeProducerTest {
     @InjectMocks
     private OutcomeProducer outcomeProducer;
 
-    private static final LocalDate OPERATION_DATE = LocalDate.now();
+    private static final Instant OPERATION_DATE = Instant.now();
     private static final String USER_ID = "USERID";
     private static final String INITIATIVE_ID = "INITIATIVEID";
     private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
@@ -32,7 +32,7 @@ class OutcomeProducerTest {
     void testSendSaveOutcome() {
         EvaluationDTO evaluationDTO =  new EvaluationDTO(
                 USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
-                OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
+                OPERATION_DATE, OPERATION_DATE, List.of(),
                 500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
         outcomeProducer.sendOutcome(evaluationDTO);
         verify(streamBridge).send(Mockito.eq("onboarding-out-0"), Mockito.any(), Mockito.eq(evaluationDTO));

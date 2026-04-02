@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +36,7 @@ class ConsentMapperTest {
     onboarding.setPdndAccept(true);
     onboarding.setTc(true);
     onboarding.setStatus(OnboardingWorkflowConstants.ON_EVALUATION);
-    onboarding.setCriteriaConsensusTimestamp(LocalDateTime.now());
+    onboarding.setCriteriaConsensusTimestamp(Instant.now());
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
 
     assertNotNull(onboardingDTO);

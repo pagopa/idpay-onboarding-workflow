@@ -6,7 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.Instant;
+
 
 @Data
 @Builder
@@ -16,6 +17,6 @@ import java.time.LocalDate;
 public class OnboardingFamilyDetailDTO {
     private String fiscalCode;
     private String familyId;
-    private LocalDate onboardingDate;
+    private Instant onboardingDate;
     private String status;
 }

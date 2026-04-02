@@ -7,7 +7,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +34,7 @@ public interface OnboardingService {
   InitiativeDTO getInitiative(String initiativeId);
   void checkStatus(Onboarding onboarding);
   void checkDates(InitiativeDTO initiativeDTO, Onboarding onboarding);
-  LocalDate getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding);
+  Instant getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding);
   void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding);
   void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId);
   boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText);

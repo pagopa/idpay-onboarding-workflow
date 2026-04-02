@@ -9,8 +9,8 @@
       "initiativeId": "INITIATIVE_ID",
       "status": "PUBLISHED",
       "general": {
-        "startDate": "2023-01-01",
-        "endDate": "2099-01-01",
+        "startDate": "2023-01-01T12:05:00Z",
+        "endDate": "2099-01-01T12:05:00Z",
         "beneficiaryKnown": "false",
         "rankingEnabled" : "false"
       },

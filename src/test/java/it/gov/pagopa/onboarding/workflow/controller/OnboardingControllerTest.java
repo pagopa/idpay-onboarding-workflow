@@ -22,13 +22,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ACCEPTED_TC;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ID_S_NOT_FOUND_MSG;
-import static java.time.LocalDate.now;
+import static java.time.Instant.now;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -71,7 +71,7 @@ class OnboardingControllerTest {
         onboarding.setStatus(ACCEPTED_TC);
 
         OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
-                ACCEPTED_TC, LocalDateTime.now(), null);
+                ACCEPTED_TC, Instant.now(), null);
 
         Mockito.when(onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDTO);
@@ -86,7 +86,7 @@ class OnboardingControllerTest {
     void getOnboardingStatusDetails_ok() throws Exception {
 
         OnboardingStatusDetailsDTO onboardingStatusDetailsDTO = new OnboardingStatusDetailsDTO(
-                ACCEPTED_TC, LocalDateTime.now(), null, FAMILY_ID);
+                ACCEPTED_TC, Instant.now(), null, FAMILY_ID);
 
         Mockito.when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDetailsDTO);
@@ -161,10 +161,10 @@ class OnboardingControllerTest {
     void disableOnboarding_ok() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         UnsubscribeBodyDTO unsubscribeBodyDTO = new UnsubscribeBodyDTO(INITIATIVE_ID, USER_ID,
-                LocalDateTime.now().toString(),true);
+                Instant.now().toString(),true);
 
         Mockito.doNothing().when(onboardingService)
-                .deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString(),true);
+                .deactivateOnboarding(INITIATIVE_ID, USER_ID, Instant.now().toString(),true);
 
         mvc.perform(
                         MockMvcRequestBuilders.delete(BASE_URL + DISABLE_URL)

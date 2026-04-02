@@ -20,7 +20,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +132,7 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
     private Onboarding storeOnboardingRequest(String initiativeId, String userId, String status) {
         Onboarding onboarding = new Onboarding(initiativeId, userId);
         onboarding.setStatus(status);
-        onboarding.setCreationDate(LocalDateTime.now());
+        onboarding.setCreationDate(Instant.now());
         return onboardingRepositorySpy.save(onboarding);
     }
     //endregion
@@ -148,7 +148,7 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
                         out.setUserId(userId);
                         out.setInitiativeId(initiativeId);
                         out.setStatus(OnboardingWorkflowConstants.ONBOARDING_OK);
-                        out.setAdmissibilityCheckDate(LocalDateTime.now());
+                        out.setAdmissibilityCheckDate(Instant.now());
                         out.setFamilyId("FAMILYID");
 
                         storeOnboardingRequest(initiativeId, userId, OnboardingWorkflowConstants.ACCEPTED_TC);
@@ -170,7 +170,7 @@ class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
                         out.setUserId(userId);
                         out.setInitiativeId(initiativeId);
                         out.setStatus(OnboardingWorkflowConstants.ONBOARDING_KO);
-                        out.setAdmissibilityCheckDate(LocalDateTime.now());
+                        out.setAdmissibilityCheckDate(Instant.now());
                         out.setOnboardingRejectionReasons(List.of(
                                 new OnboardingRejectionReason(
                                         "TYPE",

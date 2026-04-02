@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepository {
@@ -47,7 +47,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
   }
 
   public Criteria getCriteria(String initiativeId, String userId, String status,
-      LocalDateTime startDate, LocalDateTime endDate) {
+      Instant startDate, Instant endDate) {
 
     Criteria criteria = Criteria.where(Onboarding.Fields.initiativeId).is(initiativeId);
     if (userId != null) {
@@ -80,7 +80,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
 
   @Override
   public BulkWriteResult disableAllFamilyMembers(
-          String initiativeId, String userId, String familyId, LocalDateTime deactivationTime, Boolean updateFamilyMembers){
+          String initiativeId, String userId, String familyId, Instant deactivationTime, Boolean updateFamilyMembers){
 
 
     Update update = new Update()
@@ -121,7 +121,7 @@ public class OnboardingSpecificRepositoryImpl implements OnboardingSpecificRepos
 
   @Override
   public BulkWriteResult reactivateAllFamilyMembers(
-          String initiativeId, String userId, String familyId, LocalDateTime onboardingOkDate, Boolean updateFamilyMembers) {
+          String initiativeId, String userId, String familyId, Instant onboardingOkDate, Boolean updateFamilyMembers) {
 
     BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Onboarding.class);
 

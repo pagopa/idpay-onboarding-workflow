@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Component
 @AllArgsConstructor
@@ -71,14 +71,14 @@ public class AuditUtilities {
     );
   }
 
-  public void logOnboardingComplete(String userId, String initiativeId, String channel, LocalDateTime date) {
+  public void logOnboardingComplete(String userId, String initiativeId, String channel, Instant date) {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding of the citizen complete", userId, initiativeId, channel, date.toString()
     );
   }
 
-  public void logOnboardingOnEvaluation(String userId, String initiativeId, String channel, LocalDateTime date) {
+  public void logOnboardingOnEvaluation(String userId, String initiativeId, String channel, Instant date) {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding of the citizen on evaluation", userId, initiativeId, channel, date.toString()
@@ -99,7 +99,7 @@ public class AuditUtilities {
     );
   }
 
-  public void logOnboardingKOWhiteList(String userId, String initiativeId, String channel, LocalDateTime date) {
+  public void logOnboardingKOWhiteList(String userId, String initiativeId, String channel, Instant date) {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding failed because the citizen is not allowed to participate to this initiative",
@@ -114,14 +114,14 @@ public class AuditUtilities {
     );
   }
 
-  public void logDeactivate(String userId, String initiativeId, String channel, LocalDateTime date) {
+  public void logDeactivate(String userId, String initiativeId, String channel, Instant date) {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding disabled", userId, initiativeId, channel, date.toString()
     );
   }
 
-  public void logDeactivateKO(String userId, String initiativeId, String channel, LocalDateTime date) {
+  public void logDeactivateKO(String userId, String initiativeId, String channel, Instant date) {
     logAuditString(
             CEF_DATE_PATTERN,
             "Onboarding disabling failed", userId, initiativeId, channel, date.toString()
