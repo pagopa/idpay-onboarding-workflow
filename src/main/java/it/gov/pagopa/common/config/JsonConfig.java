@@ -34,7 +34,7 @@ public class JsonConfig {
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     mapper.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    mapper.setTimeZone(TimeZone.getDefault());
+    mapper.setTimeZone(TimeZone.getTimeZone("UTC"));
     return mapper;
   }
 }
