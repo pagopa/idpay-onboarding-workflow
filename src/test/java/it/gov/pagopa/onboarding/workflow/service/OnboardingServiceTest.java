@@ -47,9 +47,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
@@ -121,7 +119,6 @@ class OnboardingServiceTest {
 
     @Mock
     private InitiativeRestConnectorImpl initiativeRestConnectorImpl;
-
 
     private static final int PAGE_SIZE = 10;
     private static final String INITIATIVE_START_TIME = "07:00:00";
@@ -332,6 +329,7 @@ class OnboardingServiceTest {
         INITIATIVE_DTO_KO.setStatus("CLOSED");
     }
 
+
     @BeforeEach
     void setUp() {
         long delayTime = 100L;
@@ -373,7 +371,6 @@ class OnboardingServiceTest {
         initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
         String initiativeMap = "68dd003ccce8c534d1da22bc,68de7fc681ce9e35a476e985,68dd003ccce8c534d1da22bb,68fb9937f0f9ee401031a0c7,68fb9cb9f0f9ee401031a0c8,68fb9ceaf0f9ee401031a0c9";
-
         onboardingService = Mockito.spy(new OnboardingServiceImpl(
                 PAGE_SIZE,
                 delayTime,
@@ -390,6 +387,7 @@ class OnboardingServiceTest {
                 onboardingRepositoryMock,
                 initiativeWebMapper,
                 generalWebMapper,
+                Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC),
                 initiativeRestConnectorImpl,
                 initiativeMap
         ));
@@ -1081,8 +1079,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1147,8 +1145,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1209,8 +1207,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1276,8 +1274,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1338,8 +1336,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();

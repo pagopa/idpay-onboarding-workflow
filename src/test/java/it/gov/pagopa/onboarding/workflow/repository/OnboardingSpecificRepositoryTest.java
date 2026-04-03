@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.repository;
 
+import it.gov.pagopa.common.config.TimeConfig;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ContextConfiguration(classes = OnboardingSpecificRepositoryImpl.class)
+@ContextConfiguration(classes = {OnboardingSpecificRepositoryImpl.class, TimeConfig.class})
 class OnboardingSpecificRepositoryTest {
 
   @Autowired
   OnboardingSpecificRepository onboardingSpecificRepository;
+
+  @Autowired
+  Clock clock;
 
   @MockitoBean
   MongoTemplate mongoTemplate;
@@ -114,7 +119,7 @@ class OnboardingSpecificRepositoryTest {
     BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
     when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
     Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.disableAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
-            Instant.now(), true));
+            Instant.now(clock), true));
   }
 
   @Test
@@ -122,7 +127,7 @@ class OnboardingSpecificRepositoryTest {
     BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
     when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
     Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.reactivateAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
-            Instant.now(), true));
+            Instant.now(clock), true));
   }
 
   @Test
@@ -130,7 +135,7 @@ class OnboardingSpecificRepositoryTest {
     BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
     when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
     Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.disableAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
-            Instant.now(), false));
+            Instant.now(clock), false));
   }
 
   @Test
@@ -138,7 +143,7 @@ class OnboardingSpecificRepositoryTest {
     BulkOperations bulkOperations = Mockito.mock(BulkOperations.class);
     when(mongoTemplate.bulkOps(Mockito.any(), Mockito.eq(Onboarding.class))).thenReturn(bulkOperations);
     Assertions.assertDoesNotThrow(() -> onboardingSpecificRepository.reactivateAllFamilyMembers(INITIATIVE_ID, USER_ID, "TEST_FAMILY_ID",
-            Instant.now(), false));
+            Instant.now(clock), false));
   }
 
 }

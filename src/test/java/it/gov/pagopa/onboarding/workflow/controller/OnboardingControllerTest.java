@@ -2,6 +2,7 @@ package it.gov.pagopa.onboarding.workflow.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
+import it.gov.pagopa.common.config.TimeConfig;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.onboarding.workflow.config.ServiceExceptionConfig;
 import it.gov.pagopa.onboarding.workflow.dto.*;
@@ -35,7 +36,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = {
-    OnboardingController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+    OnboardingController.class, TimeConfig.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @Import({JsonConfig.class, ServiceExceptionConfig.class})
 class OnboardingControllerTest {
 
@@ -44,6 +45,9 @@ class OnboardingControllerTest {
 
   @Autowired
   protected MockMvc mvc;
+
+  @Autowired
+  protected TimeConfig timeConfig;
   private static final String BASE_URL = "http://localhost:8080/idpay/onboarding";
   private static final String DISABLE_URL = "/disable";
   private static final String ROLLBACK_URL = "/rollback";
@@ -71,7 +75,7 @@ class OnboardingControllerTest {
         onboarding.setStatus(ACCEPTED_TC);
 
         OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
-                ACCEPTED_TC, Instant.now(), null);
+                ACCEPTED_TC, Instant.now(timeConfig.clock()), null);
 
         Mockito.when(onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDTO);
@@ -86,7 +90,7 @@ class OnboardingControllerTest {
     void getOnboardingStatusDetails_ok() throws Exception {
 
         OnboardingStatusDetailsDTO onboardingStatusDetailsDTO = new OnboardingStatusDetailsDTO(
-                ACCEPTED_TC, Instant.now(), null, FAMILY_ID);
+                ACCEPTED_TC, Instant.now(timeConfig.clock()), null, FAMILY_ID);
 
         Mockito.when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDetailsDTO);
@@ -161,10 +165,10 @@ class OnboardingControllerTest {
     void disableOnboarding_ok() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         UnsubscribeBodyDTO unsubscribeBodyDTO = new UnsubscribeBodyDTO(INITIATIVE_ID, USER_ID,
-                Instant.now().toString(),true);
+                Instant.now(timeConfig.clock()).toString(),true);
 
         Mockito.doNothing().when(onboardingService)
-                .deactivateOnboarding(INITIATIVE_ID, USER_ID, Instant.now().toString(),true);
+                .deactivateOnboarding(INITIATIVE_ID, USER_ID, Instant.now(timeConfig.clock()).toString(),true);
 
         mvc.perform(
                         MockMvcRequestBuilders.delete(BASE_URL + DISABLE_URL)
