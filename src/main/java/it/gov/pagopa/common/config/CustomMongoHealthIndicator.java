@@ -1,8 +1,8 @@
 package it.gov.pagopa.common.config;
 
 import org.bson.Document;
-import org.springframework.boot.actuate.health.AbstractHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.health.contributor.AbstractHealthIndicator;
+import org.springframework.boot.health.contributor.Health;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.Assert;
 
@@ -11,8 +11,8 @@ public class CustomMongoHealthIndicator extends AbstractHealthIndicator {
     private final MongoTemplate mongoTemplate;
 
     public CustomMongoHealthIndicator(MongoTemplate mongoTemplate) {
-        super("MongoDB health check failed");
         Assert.notNull(mongoTemplate, "MongoTemplate must not be null");
+        super("MongoDB health check failed");
         this.mongoTemplate = mongoTemplate;
     }
 

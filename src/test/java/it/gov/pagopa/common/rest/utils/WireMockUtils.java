@@ -1,7 +1,6 @@
 package it.gov.pagopa.common.rest.utils;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -23,7 +22,6 @@ public class WireMockUtils {
                 .keyManagerPassword("idpay")
                 .trustStorePath(trustorePath)
                 .trustStorePassword(trustorePassword)
-                .usingFilesUnderClasspath(stubsFolder)
-                .extensions(new ResponseTemplateTransformer.Builder().global(true).build());
+                .usingFilesUnderClasspath(stubsFolder);
     }
 }
