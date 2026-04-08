@@ -1,5 +1,6 @@
 package it.gov.pagopa.onboarding.workflow.event.producer;
 
+import com.azure.spring.messaging.servicebus.support.ServiceBusMessageHeaders;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -20,11 +21,12 @@ public class OnboardingProducer {
     this.binder = binder;
   }
 
-  public void sendSaveConsent(OnboardingDTO onboardingDTO, String sessionId) {
+  public void sendSaveConsent(OnboardingDTO onboardingDTO) {
+    String sessionId = onboardingDTO.getInitiativeId();
 
     Message<OnboardingDTO> message = MessageBuilder
             .withPayload(onboardingDTO)
-            .setHeader("SESSION_ID", sessionId)
+            .setHeader(ServiceBusMessageHeaders.SESSION_ID, sessionId)
             .build();
 
     streamBridge.send("onboarding-out-1", binder, message);
