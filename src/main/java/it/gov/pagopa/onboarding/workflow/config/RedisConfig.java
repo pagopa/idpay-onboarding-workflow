@@ -1,14 +1,14 @@
 package it.gov.pagopa.onboarding.workflow.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
+import org.springframework.boot.cache.autoconfigure.RedisCacheManagerBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 
@@ -18,11 +18,10 @@ public class RedisConfig {
   public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
 
     ObjectMapper mapper = new ObjectMapper();
-    mapper.findAndRegisterModules();
 
-    Jackson2JsonRedisSerializer<InitiativeDTO> serializer = new Jackson2JsonRedisSerializer<>(mapper, InitiativeDTO.class);
+    JacksonJsonRedisSerializer<InitiativeDTO> serializer = new JacksonJsonRedisSerializer<>(mapper, InitiativeDTO.class);
 
-    Jackson2JsonRedisSerializer<InitiativeStatusDTO> statusSerializer = new Jackson2JsonRedisSerializer<>(mapper, InitiativeStatusDTO.class);
+    JacksonJsonRedisSerializer<InitiativeStatusDTO> statusSerializer = new JacksonJsonRedisSerializer<>(mapper, InitiativeStatusDTO.class);
 
     return builder -> builder
         .withCacheConfiguration("initiativeBeneficiaryView",

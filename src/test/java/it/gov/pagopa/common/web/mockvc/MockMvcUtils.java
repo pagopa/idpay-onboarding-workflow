@@ -1,6 +1,5 @@
 package it.gov.pagopa.common.web.mockvc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.common.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ public final class MockMvcUtils {
                 } else {
                     return TestUtils.objectMapper.readValue(body, expectedBodyClass);
                 }
-            } catch (JsonProcessingException | UnsupportedEncodingException e) {
+            } catch (UnsupportedEncodingException e) {
                 throw new IllegalStateException("Cannot read body response!", e);
             }
         } else {
