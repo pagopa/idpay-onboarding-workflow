@@ -336,7 +336,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     onboardingDTO.setVerifyIsee(verifyIsee);
 
-    onboardingProducer.sendSaveConsent(onboardingDTO, consentPutDTO.getInitiativeId());
+    onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
 
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
