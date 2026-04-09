@@ -91,7 +91,7 @@ spring:
         onboarding-out-1:
           binder: servicebus-onboarding
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
-          destination: ${KAFKA_TOPIC_ONBOARDING:idpay_onboarding_request}
+          destination: ${KAFKA_TOPIC_ONBOARDING:idpay_onboarding_request_session}
       kafka:
         binder:
           auto-create-topics: false
