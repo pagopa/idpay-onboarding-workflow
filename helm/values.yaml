@@ -89,7 +89,7 @@ microservice-chart:
     KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG: evh-idpay-onboarding-outcome-idpay-onboarding-outcome-producer-jaas-config-idpay-00
     KAFKA_ONBOARDING_NOTIFICATION_SASL_JAAS_CONFIG: evh-idpay-onboarding-notification-idpay-onboarding-notification-consumer-jaas-config-idpay-00
     KAFKA_COMMANDS_SASL_JAAS_CONFIG: evh-idpay-commands-idpay-commands-consumer-jaas-config-idpay-01
-    SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-producer-sas-key
+    SERVICEBUS_ONBOARDING_CONNECTION_STRING: idpay-onboarding-request-session-producer-sas-key
     REDIS_CONNECTION_URL: idpay-redis-00-primary-connection-url
     PDV_DECRYPT_API_KEY: pdv-api-key
 
