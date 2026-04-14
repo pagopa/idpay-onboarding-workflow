@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.util.CollectionUtils;
 
@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 @Disabled
 class OutcomeConsumerIntegrationTest extends BaseIntegrationTest {
 
-    @SpyBean
+    @MockitoSpyBean
     private OnboardingRepository onboardingRepositorySpy;
 
     @AfterEach

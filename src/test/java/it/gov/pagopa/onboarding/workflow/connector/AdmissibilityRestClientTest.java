@@ -11,8 +11,8 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundExce
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -41,7 +41,7 @@ class AdmissibilityRestClientTest extends BaseWireMockTest{
   @Autowired
   private AdmissibilityRestConnector restConnector;
 
-  @MockBean
+  @MockitoBean
   OnboardingService onboardingService;
 
   @Test
