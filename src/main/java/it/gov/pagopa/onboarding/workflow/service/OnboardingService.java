@@ -2,7 +2,7 @@ package it.gov.pagopa.onboarding.workflow.service;
 
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.VerifyDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
@@ -18,6 +18,7 @@ public interface OnboardingService {
   void putTcConsent(String initiativeId, String userId);
   RequiredCriteriaDTO checkPrerequisites(String initiativeId, String userId, String channel);
   void saveOnboarding(ConsentPutDTO consentPutDTO, String channel, String userId);
+  List<VerifyDTO> createVerifies(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO);
   InitiativeWebDTO initiativeDetail(String initiativeId, Locale acceptLanguage);
   void completeOnboarding(EvaluationDTO evaluationDTO);
   void allowedInitiative(OnboardingNotificationDTO onboardingNotificationDTO);
@@ -38,7 +39,7 @@ public interface OnboardingService {
   void checkBudget(InitiativeDTO initiativeDTO, Onboarding onboarding);
   void selfDeclaration(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO, String userId);
   boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText);
-  void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti);
+  //void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti);
   SelfDeclaration getOrCreateSelfDeclaration(String initiativeId, String userId);
   void handleExistingOnboarding(Onboarding onboarding);
   void validateInput(ConsentPutDTO dto);

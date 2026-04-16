@@ -18,7 +18,6 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
-import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationMultiValues;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationTextValues;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
@@ -29,7 +28,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -334,48 +332,34 @@ public class OnboardingServiceImpl implements OnboardingService {
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
   }
 
+  @Override
   public List<VerifyDTO> createVerifies(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
-    List<VerifyDTO> verifies = new ArrayList<>();
-
-    // 1. Recupero la lista dei criteri dall'iniziativa
-    List<SelfDeclarationItemsDTO> criteriaList = initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria();
-    // 2. Recupero la lista dei consensi inviati dall'utente
-    List<SelfConsentDTO> userConsents = consentPutDTO.getSelfDeclarationList();
-
-    if (criteriaList == null || userConsents == null) {
-      return verifies;
+    if (initiativeDTO == null || initiativeDTO.getBeneficiaryRule() == null ||
+            initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria() == null ||
+            consentPutDTO == null || consentPutDTO.getSelfDeclarationList() == null) {
+      return new ArrayList<>();
     }
 
+    Map<String, String> userConsentsMap = new HashMap<>();
+    for (SelfConsentDTO consent : consentPutDTO.getSelfDeclarationList()) {
+      if (consent instanceof SelfConsentMultiDTO multi) {
+          userConsentsMap.put(multi.getCode(), multi.getValue());
+      }
+    }
+
+    List<VerifyDTO> verifies = new ArrayList<>();
+    List<SelfDeclarationItemsDTO> criteriaList = initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria();
+
     for (SelfDeclarationItemsDTO criteria : criteriaList) {
-      // Controllo se il criterio è di tipo MULTI_CONSENT (SelfCriteriaMultiTypeDTO)
-      if (criteria instanceof SelfCriteriaMultiTypeDTO) {
-        SelfCriteriaMultiTypeDTO multiCriteria = (SelfCriteriaMultiTypeDTO) criteria;
+      if (criteria instanceof SelfCriteriaMultiTypeDTO multiCriteria) {
 
-        for (SelfConsentDTO consent : userConsents) {
-          // Controllo se il consenso dell'utente è di tipo MULTI_CONSENT (SelfConsentMultiDTO)
-          if (consent instanceof SelfConsentMultiDTO) {
-            SelfConsentMultiDTO multiConsent = (SelfConsentMultiDTO) consent;
+          String userValue = userConsentsMap.get(multiCriteria.getCode());
 
-            // Verifico se i codici e i valori coincidono
-            // Nota: multiCriteria.getValue() è una lista di opzioni possibili (SelfCriteriaMultiTypeValueDTO)
-            if (multiCriteria.getCode().equals(multiConsent.getCode())) {
-
-              // Cerco il valore specifico all'interno delle opzioni del criterio
-              for (SelfCriteriaMultiTypeValueDTO option : multiCriteria.getValue()) {
-
-                if (option.getValue().equals(multiConsent.getValue())) {
-                  // Se troviamo la corrispondenza, creiamo il VerifyDTO
-                  VerifyDTO verifyDTO = new VerifyDTO();
-                  verifyDTO.setCode(multiCriteria.getCode());
-                  verifyDTO.setVerify(option.isVerify());
-                  verifyDTO.setThersoldCode(option.getThresholdCode());
-                  verifyDTO.setBeneficiaryBudgetCentsMin(option.getBeneficiaryBudgetCentsMin());
-                  verifyDTO.setBeneficiaryBudgetCentsMax(option.getBeneficiaryBudgetCentsMax());
-                  verifyDTO.setBlockingVerify(option.isBlockingVerify());
-
-                  verifies.add(verifyDTO);
-                }
-              }
+        if (userValue != null) {
+          for (SelfCriteriaMultiTypeValueDTO option : multiCriteria.getValue()) {
+            if (option.getValue().equals(userValue)) {
+              verifies.add(buildVerifyDTO(multiCriteria.getCode(), option));
+              break;
             }
           }
         }
@@ -383,6 +367,17 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     return verifies;
+  }
+
+  private VerifyDTO buildVerifyDTO(String code, SelfCriteriaMultiTypeValueDTO option) {
+    return VerifyDTO.builder()
+            .code(code)
+            .verify(option.isVerify())
+            .thersoldCode(option.getThresholdCode())
+            .beneficiaryBudgetCentsMin(option.getBeneficiaryBudgetCentsMin())
+            .beneficiaryBudgetCentsMax(option.getBeneficiaryBudgetCentsMax())
+            .blockingVerify(option.isBlockingVerify())
+            .build();
   }
 
   @Override
@@ -967,22 +962,23 @@ public class OnboardingServiceImpl implements OnboardingService {
         }
         bool.setValue(true);
       }
-      if (item instanceof SelfCriteriaMultiDTO multi) {
-        multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
-
-        SelfDeclarationMultiValues multiValueToSave = new SelfDeclarationMultiValues(
-                multi.getType(),
-                multi.getDescription(),
-                multi.getValue(),
-                multi.getCode()
-        );
-
-        SelfDeclaration selfDeclarationToSave = getOrCreateSelfDeclaration(initiativeDTO.getInitiativeId(), userId);
-
-        selfDeclarationToSave.getSelfDeclarationMultiValues().add(multiValueToSave);
-
-        selfDeclarationRepository.save(selfDeclarationToSave);
-      }
+      //TODO: cambiare in SelfCriteriaMultiTypeDTO/cancellare l'if
+//      if (item instanceof SelfCriteriaMultiDTO multi) {
+//        multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
+//
+//        SelfDeclarationMultiValues multiValueToSave = new SelfDeclarationMultiValues(
+//                multi.getType(),
+//                multi.getDescription(),
+//                multi.getValue(),
+//                multi.getCode()
+//        );
+//
+//        SelfDeclaration selfDeclarationToSave = getOrCreateSelfDeclaration(initiativeDTO.getInitiativeId(), userId);
+//
+//        selfDeclarationToSave.getSelfDeclarationMultiValues().add(multiValueToSave);
+//
+//        selfDeclarationRepository.save(selfDeclarationToSave);
+//      }
       if (item instanceof SelfCriteriaTextDTO text) {
         String value = selfDeclarationText.get(text.getCode());
         if (value == null) {
@@ -1013,15 +1009,17 @@ public class OnboardingServiceImpl implements OnboardingService {
             != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size();
   }
 
-  @Override
-  public void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti) {
-    String value = selfDeclarationMulti.get(multi.getCode());
-    if (value == null || !multi.getValue().contains(value)) {
-      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), ERROR_SELF_DECLARATION_DENY_AUDIT);
-      throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
-    }
-    multi.setValue(List.of(value));
-  }
+
+    //TODO:verificare il todo sopra
+//  @Override
+//  public void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti) {
+//    String value = selfDeclarationMulti.get(multi.getCode());
+//    if (value == null || !multi.getValue().contains(value)) {
+//      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), ERROR_SELF_DECLARATION_DENY_AUDIT);
+//      throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
+//    }
+//    multi.setValue(List.of(value));
+//  }
 
   @Override
   public SelfDeclaration getOrCreateSelfDeclaration(String initiativeId, String userId) {
