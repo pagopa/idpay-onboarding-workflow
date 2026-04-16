@@ -1,8 +1,8 @@
 package it.gov.pagopa.onboarding.workflow.controller;
 
 import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.ISEE;
-import static java.time.LocalDate.MAX;
-import static java.time.LocalDate.MIN;
+import static java.time.Instant.MAX;
+import static java.time.Instant.MIN;
 import static java.util.Locale.ITALIAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

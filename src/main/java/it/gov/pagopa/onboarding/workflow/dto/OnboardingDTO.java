@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -29,9 +29,9 @@ public class OnboardingDTO {
 
   String channel;
 
-  LocalDateTime tcAcceptTimestamp;
+  Instant tcAcceptTimestamp;
 
-  LocalDateTime criteriaConsensusTimestamp;
+  Instant criteriaConsensusTimestamp;
 
   //New attribute
   String serviceId;

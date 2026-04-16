@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 public class OnboardingStatusDTO {
 
   private String status;
-  private LocalDateTime statusDate;
-  private LocalDateTime onboardingOkDate;
+  private Instant statusDate;
+  private Instant onboardingOkDate;
 
 }
 

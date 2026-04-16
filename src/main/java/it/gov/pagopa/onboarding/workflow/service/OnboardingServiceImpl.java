@@ -33,9 +33,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,17 +56,15 @@ public class OnboardingServiceImpl implements OnboardingService {
   private static final String ISEE_PREFIX_ACCENT   = "S\u00EC, inferiore a 25.000"; // "Sì, inferiore a 25.000"
   private static final String ISEE_PREFIX_ASCII    = "Si, inferiore a 25.000";      // senza accento
   private static final String ISEE_PREFIX_MOJIBAKE = "SÃ¬, inferiore a 25.000";     // accento rotto
-
   private final int pageSize;
   private final long delayTime;
-
   private final String initiativeStartTime;
-
-
   private final OutcomeProducer outcomeProducer;
   private final DecryptRestConnector decryptRestConnector;
   private final InitiativeWebMapper initiativeWebMapper;
   private final GeneralWebMapper generalWebMapper;
+
+  private final Clock clock;
   protected final OnboardingRepository onboardingRepository;
   protected final AuditUtilities auditUtilities;
   protected final Utilities utilities;
@@ -77,8 +74,8 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
   protected final String initiativeConfig;
-
   protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
+
 
   public OnboardingServiceImpl(@Value("${app.delete.paginationSize}") int pageSize,
                                @Value("${app.delete.delayTime}") long delayTime,
@@ -95,7 +92,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                                OnboardingRepository onboardingRepository,
                                InitiativeWebMapper initiativeWebMapper,
                                GeneralWebMapper generalWebMapper,
-                               InitiativeRestConnectorImpl initiativeRestConnectorImpl,
+                               Clock clock, InitiativeRestConnectorImpl initiativeRestConnectorImpl,
                                @Value("${configMap.initiative_ids}") String initiativeConfig
   ){
     this.pageSize = pageSize;
@@ -113,6 +110,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.initiativeRestConnector = initiativeRestConnector;
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
+    this.clock = clock;
     this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
     this.initiativeConfig= initiativeConfig;
   }
@@ -237,12 +235,13 @@ public class OnboardingServiceImpl implements OnboardingService {
       return;
     }
 
-    LocalDateTime localDateTime = LocalDateTime.now();
+
+    Instant instant = Instant.now(clock);
 
     if (onboarding == null) {
       onboarding = new Onboarding(initiativeId, userId);
-      onboarding.setCreationDate(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
+      onboarding.setCreationDate(instant);
+      onboarding.setUpdateDate(instant);
     }
 
     if (!(Boolean.TRUE.equals(initiativeDTO.getGeneral().getRankingEnabled())
@@ -256,8 +255,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     onboarding.setStatus(ACCEPTED_TC);
     onboarding.setTc(true);
-    onboarding.setTcAcceptTimestamp(localDateTime);
-    onboarding.setUpdateDate(localDateTime);
+    onboarding.setTcAcceptTimestamp(instant);
+    onboarding.setUpdateDate(instant);
     onboardingRepository.save(onboarding);
     auditUtilities.logTC(userId, initiativeId, onboarding.getChannel());
     performanceLog(startTime, PUT_TC_CONSENT, userId, initiativeId);
@@ -387,9 +386,9 @@ public class OnboardingServiceImpl implements OnboardingService {
         newOnboarding.setStatus(ONBOARDING_KO);
       }
       newOnboarding.setDetailKO(rejectionReasons);
-      LocalDateTime localDateTime = LocalDateTime.now();
-      newOnboarding.setUpdateDate(localDateTime);
-      newOnboarding.setCreationDate(localDateTime);
+      Instant instant = Instant.now(clock);
+      newOnboarding.setUpdateDate(instant);
+      newOnboarding.setCreationDate(instant);
       newOnboarding.setFamilyId(evaluationDTO.getFamilyId());
       onboardingRepository.save(newOnboarding);
     }
@@ -416,10 +415,10 @@ public class OnboardingServiceImpl implements OnboardingService {
         Onboarding newOnboarding = new Onboarding(onboardingNotificationDTO.getInitiativeId(),
                 onboardingNotificationDTO.getUserId());
         newOnboarding.setStatus(INVITED);
-        LocalDateTime localDateTime = LocalDateTime.now();
-        newOnboarding.setInvitationDate(localDateTime);
-        newOnboarding.setUpdateDate(localDateTime);
-        newOnboarding.setCreationDate(localDateTime);
+        Instant instant = Instant.now(clock);
+        newOnboarding.setInvitationDate(instant);
+        newOnboarding.setUpdateDate(instant);
+        newOnboarding.setCreationDate(instant);
         onboardingRepository.save(newOnboarding);
       }
     }
@@ -432,13 +431,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     long startTime = System.currentTimeMillis();
 
       Onboarding onboarding = findByInitiativeIdAndUserId(initiativeId, userId);
-      LocalDateTime localDeactivationDate = LocalDateTime.parse(deactivationDate);
+      Instant localDeactivationDate = Instant.parse(deactivationDate);
 
       try {
         onboardingRepository.disableAllFamilyMembers(
                 initiativeId, userId, onboarding.getFamilyId(), localDeactivationDate, updateFamilyMembers);
         log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
-        auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
+        auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), Instant.parse(deactivationDate));
         performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
       } catch (Exception e){
         auditUtilities.logDeactivateKO(userId, initiativeId, onboarding.getChannel(), localDeactivationDate);
@@ -535,7 +534,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     try {
       onboarding.setStatus(SUSPENDED);
-      LocalDateTime updateDate = LocalDateTime.now();
+      Instant updateDate = Instant.now(clock);
       onboarding.setUpdateDate(updateDate);
       onboarding.setSuspensionDate(updateDate);
       onboardingRepository.save(onboarding);
@@ -566,7 +565,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
     try {
       onboarding.setStatus(ONBOARDING_OK);
-      LocalDateTime updateDate = LocalDateTime.now();
+      Instant updateDate = Instant.now(clock);
       onboarding.setUpdateDate(updateDate);
       onboarding.setSuspensionDate(null);
       onboardingRepository.save(onboarding);
@@ -599,10 +598,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     List<Onboarding> familyList = onboardingRepository.findByInitiativeIdAndFamilyId(initiativeId, onboarding.getFamilyId());
 
     usersListDecrypted = familyList.stream().map(o -> {
-      LocalDateTime onboardingDate = !ONBOARDING_KO.equals(o.getStatus()) ?
+      Instant onboardingDate = !ONBOARDING_KO.equals(o.getStatus()) ?
               o.getOnboardingOkDate() : o.getOnboardingKODate();
-      return new OnboardingFamilyDetailDTO(decryptCF(o.getUserId()), o.getFamilyId(),
-              (onboardingDate != null ? onboardingDate.toLocalDate() : null), o.getStatus());
+      return new OnboardingFamilyDetailDTO(decryptCF(o.getUserId()), o.getFamilyId(), onboardingDate, o.getStatus());
     }).toList();
 
     onboardingFamilyDecryptDTO.setUsersList(usersListDecrypted);
@@ -610,7 +608,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     return onboardingFamilyDecryptDTO;
   }
 
-  private void setStatus(Onboarding onboarding, String status, LocalDateTime date, String rejectionReasons) {
+  private void setStatus(Onboarding onboarding, String status, Instant date, String rejectionReasons) {
     if (REJECTED.equals(status)) {
       status = ONBOARDING_KO;
     }
@@ -635,7 +633,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         onboarding.setStatus(ELIGIBLE_KO);
       }
     }
-    onboarding.setUpdateDate(LocalDateTime.now());
+    onboarding.setUpdateDate(Instant.now(clock));
     onboardingRepository.save(onboarding);
     auditUtilities.logOnboardingComplete(onboarding.getUserId(), onboarding.getInitiativeId(),
             onboarding.getChannel(), date);
@@ -644,7 +642,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   private void checkFamilyUnit(Onboarding onboarding, InitiativeDTO initiativeDTO) {
     if (BENEFICIARY_TYPE_NF.equals(initiativeDTO.getGeneral().getBeneficiaryType()) &&
             onboarding.getDemandedDate() != null) {
-      setStatus(onboarding, ON_EVALUATION, LocalDateTime.now(), null);
+      setStatus(onboarding, ON_EVALUATION,Instant.now(clock), null);
       outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, JOINED));
     }
   }
@@ -657,12 +655,12 @@ public class OnboardingServiceImpl implements OnboardingService {
       return true;
     }
     if (onboarding.getInvitationDate() == null) {
-      setStatus(onboarding, ONBOARDING_KO, LocalDateTime.now(),
+      setStatus(onboarding, ONBOARDING_KO,Instant.now(clock),
               ERROR_WHITELIST);
-      auditUtilities.logOnboardingKOWhiteList(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(), LocalDateTime.now());
+      auditUtilities.logOnboardingKOWhiteList(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),Instant.now(clock));
       throw new UserNotInWhitelistException(String.format(ERROR_WHITELIST_MSG, initiativeDTO.getInitiativeId()));
     }
-    setStatus(onboarding, ON_EVALUATION, LocalDateTime.now(), null);
+    setStatus(onboarding, ON_EVALUATION,Instant.now(clock), null);
     outcomeProducer.sendOutcome(createEvaluationDto(onboarding, initiativeDTO, ONBOARDING_OK));
     return true;
   }
@@ -676,7 +674,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setUserId(onboarding.getUserId());
     dto.setFamilyId(onboarding.getFamilyId());
     dto.setOrganizationId(initiativeDTO.getOrganizationId());
-    dto.setAdmissibilityCheckDate(LocalDateTime.now());
+    dto.setAdmissibilityCheckDate(Instant.now(clock));
     dto.setStatus(status);
     dto.setOnboardingRejectionReasons(List.of());
     dto.setBeneficiaryBudgetCents(null != initiativeDTO.getGeneral().getBeneficiaryBudget() ? initiativeDTO.getGeneral().getBeneficiaryBudget().multiply(BigDecimal.valueOf(100)).longValue() : null);
@@ -808,47 +806,62 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void checkDates(InitiativeDTO initiativeDTO, Onboarding onboarding) {
-    LocalDateTime requestDateTime = LocalDateTime.now();
-    LocalDate requestDate = LocalDate.now();
+    Instant now = Instant.now(clock);
 
-    LocalDate startDate =
-            (initiativeDTO.getGeneral().getRankingStartDate() != null) ? initiativeDTO.getGeneral()
-                    .getRankingStartDate() : initiativeDTO.getGeneral()
-                    .getStartDate();
+    Instant rawStart = initiativeDTO.getGeneral().getRankingStartDate() != null
+            ? initiativeDTO.getGeneral().getRankingStartDate()
+            : initiativeDTO.getGeneral().getStartDate();
 
     LocalTime startTime = LocalTime.parse(initiativeStartTime);
-    LocalDateTime startDateTime = startDate.atTime(startTime);
 
-    LocalDate endDate = getEndDate(initiativeDTO, onboarding);
+    ZonedDateTime startZdt = ZonedDateTime.ofInstant(rawStart, ZoneId.of("Europe/Rome"))
+            .withHour(startTime.getHour())
+            .withMinute(startTime.getMinute())
+            .withSecond(startTime.getSecond())
+            .withNano(0);
+    Instant startInstant = startZdt.toInstant();
 
-    if (requestDateTime.isBefore(startDateTime)){
-      if(onboarding != null){
-        auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(), onboarding.getUserId(), onboarding.getChannel(),
-                ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT);
+    Instant endInstant = getEndDate(initiativeDTO, onboarding);
+
+    if (now.isBefore(startInstant)) {
+      if (onboarding != null) {
+        auditUtilities.logOnboardingKOWithReason(
+                onboarding.getInitiativeId(),
+                onboarding.getUserId(),
+                onboarding.getChannel(),
+                ERROR_INITIATIVE_NOT_STARTED_MSG_AUDIT
+        );
+      }
+      throw new InitiativeInvalidException(
+              INITIATIVE_NOT_STARTED,
+              String.format(ERROR_INITIATIVE_NOT_STARTED_MSG, initiativeDTO.getInitiativeId())
+      );
     }
-      throw new InitiativeInvalidException(INITIATIVE_NOT_STARTED,
-              String.format(ERROR_INITIATIVE_NOT_STARTED_MSG, initiativeDTO.getInitiativeId()));
-    }
 
-    if (requestDate.isAfter(endDate)){
-      if(onboarding != null) {
-        LocalDateTime localDateTime = LocalDateTime.now();
+    if (now.isAfter(endInstant)) {
+      if (onboarding != null) {
         onboarding.setStatus(ONBOARDING_KO);
-        onboarding.setOnboardingKODate(localDateTime);
-        onboarding.setUpdateDate(localDateTime);
+        onboarding.setOnboardingKODate(now);
+        onboarding.setUpdateDate(now);
         onboarding.setDetailKO(ERROR_INITIATIVE_END);
         onboardingRepository.save(onboarding);
-        auditUtilities.logOnboardingKOWithReason(onboarding.getUserId(), onboarding.getInitiativeId(), onboarding.getChannel(),
-                ERROR_INITIATIVE_END_MSG_AUDIT);
+        auditUtilities.logOnboardingKOWithReason(
+                onboarding.getUserId(),
+                onboarding.getInitiativeId(),
+                onboarding.getChannel(),
+                ERROR_INITIATIVE_END_MSG_AUDIT
+        );
       }
-      throw new InitiativeInvalidException(INITIATIVE_ENDED,
-              String.format(ERROR_INITIATIVE_END_MSG, initiativeDTO.getInitiativeId()));
+      throw new InitiativeInvalidException(
+              INITIATIVE_ENDED,
+              String.format(ERROR_INITIATIVE_END_MSG, initiativeDTO.getInitiativeId())
+      );
     }
   }
 
   @Override
-  public LocalDate getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding) {
-    LocalDate endDate = initiativeDTO.getGeneral()
+  public Instant getEndDate(InitiativeDTO initiativeDTO, Onboarding onboarding) {
+    Instant endDate = initiativeDTO.getGeneral()
             .getEndDate();
 
     if(onboarding != null) {
@@ -877,10 +890,10 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     if(onboarding != null) {
-      LocalDateTime localDateTime = LocalDateTime.now();
+      Instant instant = Instant.now(clock);
       onboarding.setStatus(ONBOARDING_KO);
-      onboarding.setOnboardingKODate(localDateTime);
-      onboarding.setUpdateDate(localDateTime);
+      onboarding.setOnboardingKODate(instant);
+      onboarding.setUpdateDate(instant);
       onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
       onboardingRepository.save(onboarding);
       auditUtilities.logOnboardingKOWithReason(onboarding.getInitiativeId(),
@@ -1037,7 +1050,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     onboarding.setPdndAccept(dto.isPdndAccept());
     onboarding.setTc(dto.getConfirmedTos());
 
-    LocalDateTime now = LocalDateTime.now();
+    Instant now = Instant.now(clock);
     onboarding.setCriteriaConsensusTimestamp(now);
     onboarding.setTcAcceptTimestamp(now);
     onboarding.setUpdateDate(now);

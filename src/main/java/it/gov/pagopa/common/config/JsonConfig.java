@@ -32,7 +32,7 @@ public class JsonConfig {
                     incl.withValueInclusion(JsonInclude.Include.NON_NULL)
                             .withContentInclusion(JsonInclude.Include.NON_NULL)
             )
-            .defaultTimeZone(TimeZone.getDefault())
+            .defaultTimeZone(TimeZone.getTimeZone("UTC"))
             .build();
   }
 

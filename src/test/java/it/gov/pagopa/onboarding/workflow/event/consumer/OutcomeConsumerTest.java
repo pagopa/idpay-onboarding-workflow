@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -24,7 +24,7 @@ class OutcomeConsumerTest {
     private OutcomeConsumer outcomeConsumer;
 
     private Consumer<EvaluationDTO> consumerCommands;
-    private static final LocalDate OPERATION_DATE = LocalDate.now();
+    private static final Instant OPERATION_INSTANT = Instant.now();
     private static final String USER_ID = "USERID";
     private static final String INITIATIVE_ID = "INITIATIVEID";
     private static final String INITIATIVE_REWARD_TYPE_DISCOUNT = "DISCOUNT";
@@ -38,8 +38,8 @@ class OutcomeConsumerTest {
     @Test
     void testConsumerCommands() {
         EvaluationDTO evaluationDTO =  new EvaluationDTO(
-                USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
-                OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
+                USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_INSTANT, INITIATIVE_ID, OnboardingWorkflowConstants.ONBOARDING_OK,
+                OPERATION_INSTANT,OPERATION_INSTANT, List.of(),
                 500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
         consumerCommands.accept(evaluationDTO);
         verify(onboardingService).completeOnboarding(evaluationDTO);
