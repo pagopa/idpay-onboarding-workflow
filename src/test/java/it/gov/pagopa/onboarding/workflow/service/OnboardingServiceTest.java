@@ -3107,18 +3107,43 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void testSelfDeclaration_WhenCriteriaPresent_ShouldProcessAndSave() {
+    void testSelfDeclaration_WhenMultiCriteriaPresent_ShouldProcessAndSave() {
+        String criteriaCode = ISEE.getDescription();
+
+        InitiativeBeneficiaryRuleDTO rule = new InitiativeBeneficiaryRuleDTO();
+        rule.setSelfDeclarationCriteria(List.of(new SelfCriteriaMultiTypeDTO(
+                "multi_type",
+                "test description",
+                "test sub description",
+                List.of(new SelfCriteriaMultiTypeValueDTO(
+                        "Sì, inferiore a 25k",
+                        "subdescription",
+                        "1",
+                        false,
+                        null,
+                        null,
+                        null,
+                        false
+                )),
+                criteriaCode
+        )));
+        initiativeDTO.setBeneficiaryRule(rule);
+
         ConsentPutDTO consentPutDTO = new ConsentPutDTO();
-        SelfConsentBoolDTO selfDecl = new SelfConsentBoolDTO();
-        selfDecl.setCode(ISEE.name());
-        selfDecl.setAccepted(true);
-        consentPutDTO.setSelfDeclarationList(List.of(selfDecl));
+        SelfConsentMultiDTO multiDecl = new SelfConsentMultiDTO();
+        multiDecl.setCode(criteriaCode);
+        multiDecl.setValue("1");
+        multiDecl.setType("multi_consent");
+
+        consentPutDTO.setSelfDeclarationList(List.of(multiDecl));
 
         String userId = "USER123";
 
         onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, userId);
 
-        verify(selfDeclarationRepository, never()).save(any(SelfDeclaration.class));
+        verify(selfDeclarationRepository, times(1)).save(any(SelfDeclaration.class));
+
+        verify(auditUtilities, never()).logOnboardingKOInitiativeId(anyString(), anyString());
     }
 
     @Test
