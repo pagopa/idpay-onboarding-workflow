@@ -332,39 +332,49 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public List<VerifyDTO> createVerifies(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
-    if (initiativeDTO == null || initiativeDTO.getBeneficiaryRule() == null ||
-            initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria() == null ||
-            consentPutDTO == null || consentPutDTO.getSelfDeclarationList() == null) {
+    if (isInputInvalid(initiativeDTO, consentPutDTO)) {
       return new ArrayList<>();
     }
 
-    Map<String, String> userConsentsMap = new HashMap<>();
-    for (SelfConsentDTO consent : consentPutDTO.getSelfDeclarationList()) {
+    Map<String, String> userConsentsMap = extractUserConsents(consentPutDTO.getSelfDeclarationList());
+
+    return initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().stream()
+            .filter(SelfCriteriaMultiTypeDTO.class::isInstance)
+            .map(SelfCriteriaMultiTypeDTO.class::cast)
+            .map(criteria -> findMatchingVerify(criteria, userConsentsMap))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
+  }
+
+  private boolean isInputInvalid(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
+    return initiativeDTO == null ||
+            initiativeDTO.getBeneficiaryRule() == null ||
+            initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria() == null ||
+            consentPutDTO == null ||
+            consentPutDTO.getSelfDeclarationList() == null;
+  }
+
+  private Map<String, String> extractUserConsents(List<SelfConsentDTO> selfDeclarationList) {
+    Map<String, String> consentsMap = new HashMap<>();
+    for (SelfConsentDTO consent : selfDeclarationList) {
       if (consent instanceof SelfConsentMultiDTO multi) {
-          userConsentsMap.put(multi.getCode(), multi.getValue());
+        consentsMap.put(multi.getCode(), multi.getValue());
       }
     }
+    return consentsMap;
+  }
 
-    List<VerifyDTO> verifies = new ArrayList<>();
-    List<SelfDeclarationItemsDTO> criteriaList = initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria();
-
-    for (SelfDeclarationItemsDTO criteria : criteriaList) {
-      if (criteria instanceof SelfCriteriaMultiTypeDTO multiCriteria) {
-
-          String userValue = userConsentsMap.get(multiCriteria.getCode());
-
-        if (userValue != null) {
-          for (SelfCriteriaMultiTypeValueDTO option : multiCriteria.getValue()) {
-            if (option.getValue().equals(userValue)) {
-              verifies.add(buildVerifyDTO(multiCriteria.getCode(), option));
-              break;
-            }
-          }
-        }
-      }
+  private Optional<VerifyDTO> findMatchingVerify(SelfCriteriaMultiTypeDTO criteria, Map<String, String> userConsentsMap) {
+    String userValue = userConsentsMap.get(criteria.getCode());
+    if (userValue == null) {
+      return Optional.empty();
     }
 
-    return verifies;
+    return criteria.getValue().stream()
+            .filter(option -> option.getValue().equals(userValue))
+            .findFirst()
+            .map(option -> buildVerifyDTO(criteria.getCode(), option));
   }
 
   private VerifyDTO buildVerifyDTO(String code, SelfCriteriaMultiTypeValueDTO option) {
