@@ -18,6 +18,7 @@ import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
+import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationMultiValues;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclarationTextValues;
 import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
@@ -49,9 +50,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
-  private static final String ISEE_PREFIX_ACCENT   = "S\u00EC, inferiore a 25.000"; // "Sì, inferiore a 25.000"
-  private static final String ISEE_PREFIX_ASCII    = "Si, inferiore a 25.000";      // senza accento
-  private static final String ISEE_PREFIX_MOJIBAKE = "SÃ¬, inferiore a 25.000";     // accento rotto
 
   private final int pageSize;
   private final long delayTime;
@@ -934,17 +932,17 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     Map<String, Boolean> selfDeclarationBool = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(item -> item.getClass().equals(SelfConsentBoolDTO.class))
+            .filter(SelfConsentBoolDTO.class::isInstance)
             .map(SelfConsentBoolDTO.class::cast)
             .collect(Collectors.toMap(SelfConsentBoolDTO::getCode, SelfConsentBoolDTO::isAccepted));
 
     Map<String, String> selfDeclarationMulti = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(item -> item.getClass().equals(SelfConsentMultiDTO.class))
+            .filter(SelfConsentMultiDTO.class::isInstance)
             .map(SelfConsentMultiDTO.class::cast)
             .collect(Collectors.toMap(SelfConsentMultiDTO::getCode, SelfConsentMultiDTO::getValue));
 
     Map<String, String> selfDeclarationText = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(item -> item.getClass().equals(SelfConsentTextDTO.class))
+            .filter(SelfConsentTextDTO.class::isInstance)
             .map(SelfConsentTextDTO.class::cast)
             .collect(Collectors.toMap(SelfConsentTextDTO::getCode, SelfConsentTextDTO::getValue));
 
@@ -962,23 +960,23 @@ public class OnboardingServiceImpl implements OnboardingService {
         }
         bool.setValue(true);
       }
-      //TODO: cambiare in SelfCriteriaMultiTypeDTO/cancellare l'if
-//      if (item instanceof SelfCriteriaMultiDTO multi) {
-//        multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
-//
-//        SelfDeclarationMultiValues multiValueToSave = new SelfDeclarationMultiValues(
-//                multi.getType(),
-//                multi.getDescription(),
-//                multi.getValue(),
-//                multi.getCode()
-//        );
-//
-//        SelfDeclaration selfDeclarationToSave = getOrCreateSelfDeclaration(initiativeDTO.getInitiativeId(), userId);
-//
-//        selfDeclarationToSave.getSelfDeclarationMultiValues().add(multiValueToSave);
-//
-//        selfDeclarationRepository.save(selfDeclarationToSave);
-//      }
+
+      if (item instanceof SelfCriteriaMultiTypeDTO multi) {
+        multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
+
+        SelfDeclarationMultiValues multiValueToSave = new SelfDeclarationMultiValues(
+                multi.getType(),
+                multi.getDescription(),
+                multi.getValue(),
+                multi.getCode()
+        );
+
+        SelfDeclaration selfDeclarationToSave = getOrCreateSelfDeclaration(initiativeDTO.getInitiativeId(), userId);
+
+        selfDeclarationToSave.getSelfDeclarationMultiValues().add(multiValueToSave);
+
+        selfDeclarationRepository.save(selfDeclarationToSave);
+      }
       if (item instanceof SelfCriteriaTextDTO text) {
         String value = selfDeclarationText.get(text.getCode());
         if (value == null) {
@@ -1010,16 +1008,25 @@ public class OnboardingServiceImpl implements OnboardingService {
   }
 
 
-    //TODO:verificare il todo sopra
-//  @Override
-//  public void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti) {
-//    String value = selfDeclarationMulti.get(multi.getCode());
-//    if (value == null || !multi.getValue().contains(value)) {
-//      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), ERROR_SELF_DECLARATION_DENY_AUDIT);
-//      throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
-//    }
-//    multi.setValue(List.of(value));
-//  }
+  @Override
+  public void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiTypeDTO multi, Map<String, String> selfDeclarationMulti) {
+    String value = selfDeclarationMulti.get(multi.getCode());
+    List<String> values = new ArrayList<>();
+    for(SelfCriteriaMultiTypeValueDTO selfValue : multi.getValue()){
+      values.add(selfValue.getValue());
+    }
+    if (value == null || !values.contains(value)) {
+      auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), ERROR_SELF_DECLARATION_DENY_AUDIT);
+      throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
+    }
+    SelfCriteriaMultiTypeValueDTO multiTypeValueDTO = new SelfCriteriaMultiTypeValueDTO();
+    for(SelfCriteriaMultiTypeValueDTO selfValue : multi.getValue()){
+      if(value.equals(selfValue.getValue())){
+        multiTypeValueDTO = selfValue;
+      }
+    }
+    multi.setValue(List.of(multiTypeValueDTO));
+  }
 
   @Override
   public SelfDeclaration getOrCreateSelfDeclaration(String initiativeId, String userId) {
@@ -1100,14 +1107,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   private String sanitize(String input) {
     if (input == null) return "null";
     return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
-  }
-
-  private boolean isIseeUnder25kLabel(String raw) {
-    if (raw == null) return false;
-    String s = raw.stripLeading();
-    return s.startsWith(ISEE_PREFIX_ACCENT)
-            || s.startsWith(ISEE_PREFIX_ASCII)
-            || s.startsWith(ISEE_PREFIX_MOJIBAKE);
   }
 
 }
