@@ -19,8 +19,8 @@ public class VerifyDTO {
   @JsonProperty("verify")
   private boolean verify;
 
-  @JsonProperty("thersoldCode")
-  private String thersoldCode;
+  @JsonProperty("thresholdCode")
+  private String thresholdCode;
 
   @JsonProperty("beneficiaryBudgetCentsMin")
   private long beneficiaryBudgetCentsMin;
