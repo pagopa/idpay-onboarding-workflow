@@ -381,7 +381,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     return VerifyDTO.builder()
             .code(code)
             .verify(option.isVerify())
-            .thersoldCode(option.getThresholdCode())
+            .thresholdCode(option.getThresholdCode())
             .beneficiaryBudgetCentsMin(option.getBeneficiaryBudgetCentsMin())
             .beneficiaryBudgetCentsMax(option.getBeneficiaryBudgetCentsMax())
             .blockingVerify(option.isBlockingVerify())
