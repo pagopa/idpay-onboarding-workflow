@@ -344,7 +344,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       log.info("[ONBOARDING] Message sent for user {}", sanitizeString(userId));
     } catch (Exception e) {
       log.error("[ONBOARDING] Error sending message for user {}. Status is ON_EVALUATION but workflow not notified.", sanitizeString(userId), e);
-      throw new RuntimeException("Messaging error, please try again", e);
+      throw new OnboardingMessagingException("Error while notifying the onboarding workflow", e);
     }
 
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
