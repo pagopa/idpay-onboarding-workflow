@@ -336,8 +336,16 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     onboardingDTO.setVerifyIsee(verifyIsee);
 
-    onboardingProducer.sendSaveConsent(onboardingDTO);
     onboardingRepository.save(onboarding);
+    log.info("[ONBOARDING] Onboarding record saved for user {} and initiative {}", sanitizeString(userId), sanitizeString(onboarding.getInitiativeId()));
+
+    try {
+      onboardingProducer.sendSaveConsent(onboardingDTO);
+      log.info("[ONBOARDING] Message sent for user {}", sanitizeString(userId));
+    } catch (Exception e) {
+      log.error("[ONBOARDING] Error sending message for user {}. Status is ON_EVALUATION but workflow not notified.", sanitizeString(userId), e);
+      throw new RuntimeException("Messaging error, please try again", e);
+    }
 
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
   }
@@ -996,6 +1004,23 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public void handleExistingOnboarding(Onboarding onboarding) {
+    if (ON_EVALUATION.equals(onboarding.getStatus())) {
+      log.info("[ONBOARDING] User {} already in ON_EVALUATION. Attempting to re-send message for resilience.", sanitizeString(onboarding.getUserId()));
+
+      OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
+      InitiativeDTO initiativeDTO = getInitiative(onboarding.getInitiativeId());
+      onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
+
+      try {
+        onboardingProducer.sendSaveConsent(onboardingDTO);
+        log.info("[ONBOARDING] Resilience: Message re-sent for user {}", sanitizeString(onboarding.getUserId()));
+      } catch (Exception e) {
+        log.error("[ONBOARDING] Resilience: Error re-sending message for user {}", sanitizeString(onboarding.getUserId()), e);
+        throw new RuntimeException("Messaging error during retry, please try again", e);
+      }
+      return;
+    }
+
     if (STATUS_IDEMPOTENT.contains(onboarding.getStatus())) {
       return;
     }

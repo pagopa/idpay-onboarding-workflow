@@ -1361,6 +1361,84 @@ class OnboardingServiceTest {
         assertEquals(String.format(ERROR_BUDGET_TERMINATED_MSG, initiativeId), resultException.getMessage());
 
     }
+
+    @Test
+    void testSaveOnboarding_shouldThrowException_whenProducerFails() {
+        String initiativeId = INITIATIVE_ID;
+        String userId = "USER_FAIL";
+        String channel = CHANNEL;
+
+        ConsentPutDTO consent = new ConsentPutDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+        consent.setSelfDeclarationList(new ArrayList<>());
+
+        doReturn(null).when(onboardingService).findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        InitiativeDTO initiativeTestDTO = initiativeDTO;
+        if (initiativeTestDTO.getBeneficiaryRule() == null) {
+            initiativeTestDTO.setBeneficiaryRule(new InitiativeBeneficiaryRuleDTO());
+        }
+
+        initiativeTestDTO.getBeneficiaryRule().setAutomatedCriteria(new ArrayList<>());
+        initiativeTestDTO.getBeneficiaryRule().setSelfDeclarationCriteria(new ArrayList<>());
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId)).thenReturn(initiativeTestDTO);
+
+        InitiativeStatusDTO initiativeStatus = InitiativeStatusDTO.builder()
+                .status(PUBLISHED)
+                .budgetAvailable(true)
+                .build();
+        when(admissibilityRestConnector.getInitiativeStatus(initiativeId)).thenReturn(initiativeStatus);
+
+        when(consentMapper.map(any())).thenReturn(OnboardingDTO.builder().build());
+
+        doThrow(new RuntimeException("Kafka error")).when(onboardingProducer).sendSaveConsent(any());
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> onboardingService.saveOnboarding(consent, channel, userId));
+
+        assertEquals("Messaging error, please try again", exception.getMessage());
+
+        verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
+    }
+
+    @Test
+    void testHandleExistingOnboarding_shouldResendMessage_whenStatusIsOnEvaluation() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+
+        OnboardingDTO onboardingDTO = OnboardingDTO.builder()
+                .initiativeId(INITIATIVE_ID)
+                .userId(USER_ID)
+                .status(ON_EVALUATION)
+                .build();
+        when(consentMapper.map(onboarding)).thenReturn(onboardingDTO);
+
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(initiativeDTO);
+
+        onboardingService.handleExistingOnboarding(onboarding);
+
+        verify(onboardingProducer, times(1)).sendSaveConsent(any(OnboardingDTO.class));
+
+        verify(utilities, never()).throwOnboardingKOException(any(), any());
+    }
+
+    @Test
+    void testHandleExistingOnboarding_shouldThrowException_whenResendFails() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+
+        when(consentMapper.map(onboarding)).thenReturn(OnboardingDTO.builder().build());
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(initiativeDTO);
+
+        doThrow(new RuntimeException("Service Bus Connection Error")).when(onboardingProducer).sendSaveConsent(any());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> onboardingService.handleExistingOnboarding(onboarding));
+
+        assertTrue(exception.getMessage().contains("Messaging error during retry"));
+    }
     //enregion
 
     @Test
