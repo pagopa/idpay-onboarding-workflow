@@ -1399,7 +1399,7 @@ class OnboardingServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> onboardingService.saveOnboarding(consent, channel, userId));
 
-        assertEquals("Messaging error, please try again", exception.getMessage());
+        assertEquals("Error while notifying the onboarding workflow", exception.getMessage());
 
         verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
     }
