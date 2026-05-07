@@ -1016,7 +1016,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         log.info("[ONBOARDING] Resilience: Message re-sent for user {}", sanitizeString(onboarding.getUserId()));
       } catch (Exception e) {
         log.error("[ONBOARDING] Resilience: Error re-sending message for user {}", sanitizeString(onboarding.getUserId()), e);
-        throw new RuntimeException("Messaging error during retry, please try again", e);
+        throw new OnboardingMessagingException("Messaging error during retry, please try again", e);
       }
       return;
     }
