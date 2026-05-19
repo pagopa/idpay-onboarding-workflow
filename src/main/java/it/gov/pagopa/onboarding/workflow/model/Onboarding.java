@@ -5,7 +5,7 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @FieldNameConstants
@@ -42,24 +42,23 @@ public class Onboarding {
 
   private Boolean pdndAccept;
 
-  private LocalDateTime tcAcceptTimestamp;
+  private Instant tcAcceptTimestamp;
 
-  private LocalDateTime criteriaConsensusTimestamp;
+  private Instant criteriaConsensusTimestamp;
 
-  private LocalDateTime requestDeactivationDate;
+  private Instant requestDeactivationDate;
 
-  private LocalDateTime invitationDate;
-  private LocalDateTime demandedDate;
+  private Instant invitationDate;
+  private Instant demandedDate;
 
-  private LocalDateTime onboardingOkDate;
+  private Instant onboardingOkDate;
 
-  private LocalDateTime onboardingKODate;
+  private Instant onboardingKODate;
 
-  private LocalDateTime updateDate;
+  private Instant updateDate;
 
-  private LocalDateTime creationDate;
-  private LocalDateTime suspensionDate;
-
+  private Instant creationDate;
+  private Instant suspensionDate;
   private String name;
   private String surname;
 

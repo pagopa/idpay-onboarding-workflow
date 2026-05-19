@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 class AuditUtilitiesTest {
 
@@ -14,13 +14,13 @@ class AuditUtilitiesTest {
   private static final String CHANNEL = "CHANNEL";
   private static final String USER_ID = "TEST_USER_ID";
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
-  private static final LocalDateTime DATE = LocalDateTime.now();
+  private static final Instant DATE = Instant.now();
 
   private final AuditUtilities auditUtilities = new AuditUtilities();
   private MemoryAppender memoryAppender;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("AUDIT");
     memoryAppender = new MemoryAppender();
     memoryAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());

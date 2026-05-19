@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -17,8 +17,8 @@ public class OnboardingStatusCitizenFilterDTO {
 
   private String userId;
   @DateTimeFormat(iso = ISO.DATE_TIME)
-  private LocalDateTime startDate;
-  private LocalDateTime endDate;
+  private Instant startDate;
+  private Instant endDate;
   private String status;
 
 }

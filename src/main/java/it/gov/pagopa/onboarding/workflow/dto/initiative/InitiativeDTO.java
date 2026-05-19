@@ -6,7 +6,7 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.rule.reward.InitiativeRe
 import it.gov.pagopa.onboarding.workflow.dto.initiative.rule.trx.InitiativeTrxConditionsDTO;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * InitiativeDTO
@@ -27,10 +27,10 @@ public class InitiativeDTO   {
   private String status;
 
   @JsonProperty("creationDate")
-  private LocalDateTime creationDate;
+  private Instant creationDate;
 
   @JsonProperty("updateDate")
-  private LocalDateTime updateDate;
+  private Instant updateDate;
 
   @JsonProperty("general")
   private InitiativeGeneralDTO general;

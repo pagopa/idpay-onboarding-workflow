@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Map;
 
 @Data
@@ -30,16 +30,16 @@ public class InitiativeGeneralDTO   {
   private BigDecimal beneficiaryBudgetMax;
 
   @JsonProperty("startDate")
-  private LocalDate startDate;
+  private Instant startDate;
 
   @JsonProperty("endDate")
-  private LocalDate endDate;
+  private Instant endDate;
 
   @JsonProperty("rankingStartDate")
-  private LocalDate rankingStartDate;
+  private Instant rankingStartDate;
 
   @JsonProperty("rankingEndDate")
-  private LocalDate rankingEndDate;
+  private Instant rankingEndDate;
 
   @JsonProperty("rankingEnabled")
   private Boolean rankingEnabled;

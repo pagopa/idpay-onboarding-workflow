@@ -27,8 +27,8 @@ import it.gov.pagopa.onboarding.workflow.repository.OnboardingRepository;
 import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
+import jakarta.validation.constraints.NotNull;
 import org.bson.BsonDocument;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,8 +47,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -62,7 +62,7 @@ import static it.gov.pagopa.onboarding.workflow.enums.SelfCriteriaMultiTypeCode.
 import static it.gov.pagopa.onboarding.workflow.service.OnboardingServiceImpl.sanitizeString;
 import static java.lang.Boolean.TRUE;
 import static java.math.BigDecimal.*;
-import static java.time.LocalDate.*;
+import static java.time.Instant.*;
 import static java.util.Locale.ITALIAN;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -119,7 +119,9 @@ class OnboardingServiceTest {
 
     @Mock
     private InitiativeRestConnectorImpl initiativeRestConnectorImpl;
-
+    
+    
+    private static final Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
 
     private static final int PAGE_SIZE = 10;
     private static final String INITIATIVE_START_TIME = "07:00:00";
@@ -132,7 +134,7 @@ class OnboardingServiceTest {
     private static final Locale ACCEPT_LANGUAGE = ITALIAN;
 
     private static final String FAMILY_ID = "TEST_FAMILY_ID";
-    private static final LocalDate OPERATION_DATE = now();
+    private static final Instant OPERATION_DATE = now();
     private static final String SERVICE_ID = "SERVICE_ID";
     private static final String INITIATIVE_NAME = "INITIATIVE_NAME";
     private static final String ORGANIZATION_NAME = "TEST_ORGANIZATION_NAME";
@@ -149,12 +151,12 @@ class OnboardingServiceTest {
     private static final EvaluationDTO EVALUATION_DTO =
             new EvaluationDTO(
                     USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_OK,
-                    OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(), List.of(),
+                    OPERATION_DATE, OPERATION_DATE, List.of(),
                     500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
     private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO_OUT_OF_RANKING =
             new EvaluationDTO(
                     USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_KO,
-                    OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
+                    OPERATION_DATE, OPERATION_DATE,
                     List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null),
                             new OnboardingRejectionReason(OUT_OF_RANKING, "CITIZEN_OUT_OF_RANKING", null, null, null)),
                     500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
@@ -162,7 +164,7 @@ class OnboardingServiceTest {
     private static final EvaluationDTO EVALUATION_DTO_ONBOARDING_KO =
             new EvaluationDTO(
                     USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_KO,
-                    OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
+                    OPERATION_DATE, OPERATION_DATE,
                     List.of(new OnboardingRejectionReason(INVALID_INITIATIVE, INVALID_INITIATIVE, null, null, null)),
                     500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID);
 
@@ -225,44 +227,44 @@ class OnboardingServiceTest {
         CITIZEN_STATUS_DTO_KO.setStatus(false);
 
         GENERAL.setBeneficiaryKnown(false);
-        GENERAL.setStartDate(MIN);
-        GENERAL.setEndDate(MAX);
+        GENERAL.setStartDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
+        GENERAL.setEndDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
         GENERAL.setBudget(BUDGET);
         GENERAL.setBeneficiaryBudget(BENEFICIARY_BUDGET);
         GENERAL.setRankingEnabled(Boolean.FALSE);
 
         GENERAL_RANKING.setBeneficiaryKnown(false);
-        GENERAL_RANKING.setStartDate(MIN);
-        GENERAL_RANKING.setEndDate(MAX);
-        GENERAL_RANKING.setRankingStartDate(MIN);
-        GENERAL_RANKING.setRankingEndDate(MAX);
+        GENERAL_RANKING.setStartDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
+        GENERAL_RANKING.setEndDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
+        GENERAL_RANKING.setRankingStartDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
+        GENERAL_RANKING.setRankingEndDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
         GENERAL_RANKING.setBudget(BUDGET);
         GENERAL_RANKING.setBeneficiaryBudget(BENEFICIARY_BUDGET);
         GENERAL_RANKING.setRankingEnabled(TRUE);
 
         GENERAL_WHITELIST.setBeneficiaryKnown(true);
-        GENERAL_WHITELIST.setStartDate(MIN);
-        GENERAL_WHITELIST.setEndDate(MAX);
+        GENERAL_WHITELIST.setStartDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
+        GENERAL_WHITELIST.setEndDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
         GENERAL_WHITELIST.setBudget(BUDGET);
         GENERAL_WHITELIST.setBeneficiaryBudget(BENEFICIARY_BUDGET);
 
         GENERAL_KO_START_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_START_DATE.setStartDate(MAX);
-        GENERAL_KO_START_DATE.setEndDate(MAX);
+        GENERAL_KO_START_DATE.setStartDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
+        GENERAL_KO_START_DATE.setEndDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
 
         GENERAL_KO_RANKING_START_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_RANKING_START_DATE.setRankingStartDate(MAX);
-        GENERAL_KO_RANKING_START_DATE.setRankingEndDate(MAX);
+        GENERAL_KO_RANKING_START_DATE.setRankingStartDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
+        GENERAL_KO_RANKING_START_DATE.setRankingEndDate(Instant.now(clock).plus(365, ChronoUnit.DAYS));
 
         ADDITIONAL_DTO_WHITELIST.setServiceId(INITIATIVE_ID);
 
         GENERAL_KO_END_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_END_DATE.setStartDate(MIN);
-        GENERAL_KO_END_DATE.setEndDate(MIN);
+        GENERAL_KO_END_DATE.setStartDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
+        GENERAL_KO_END_DATE.setEndDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
 
         GENERAL_KO_RANKING_END_DATE.setBeneficiaryKnown(false);
-        GENERAL_KO_RANKING_END_DATE.setRankingStartDate(MIN);
-        GENERAL_KO_RANKING_END_DATE.setRankingEndDate(MIN);
+        GENERAL_KO_RANKING_END_DATE.setRankingStartDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
+        GENERAL_KO_RANKING_END_DATE.setRankingEndDate(Instant.now(clock).minus(365, ChronoUnit.DAYS));
 
         INITIATIVE_BENEFICIARY_RULE_DTO.setSelfDeclarationCriteria(
                 List.of(new SelfCriteriaBoolDTO("boolean", "", "",  true, "1"),
@@ -330,16 +332,17 @@ class OnboardingServiceTest {
         INITIATIVE_DTO_KO.setStatus("CLOSED");
     }
 
+
     @BeforeEach
     void setUp() {
         long delayTime = 100L;
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = now();
-        general.setStartDate(today.minusDays(1));
-        general.setEndDate(today.plusDays(1));
+        Instant today = now(clock);
+        general.setStartDate(today.minus(1,ChronoUnit.DAYS));
+        general.setEndDate(today.plus(1,ChronoUnit.DAYS));
         general.setRankingStartDate(today);
-        general.setRankingEndDate(today.plusDays(2));
+        general.setRankingEndDate(today.plus(2, ChronoUnit.DAYS));
         general.setBeneficiaryKnown(false);
         general.setBudget(valueOf(1000));
         general.setBeneficiaryBudget(valueOf(100));
@@ -371,7 +374,6 @@ class OnboardingServiceTest {
         initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
         String initiativeMap = "68dd003ccce8c534d1da22bc,68de7fc681ce9e35a476e985,68dd003ccce8c534d1da22bb,68fb9937f0f9ee401031a0c7,68fb9cb9f0f9ee401031a0c8,68fb9ceaf0f9ee401031a0c9";
-
         onboardingService = Mockito.spy(new OnboardingServiceImpl(
                 PAGE_SIZE,
                 delayTime,
@@ -388,6 +390,7 @@ class OnboardingServiceTest {
                 onboardingRepositoryMock,
                 initiativeWebMapper,
                 generalWebMapper,
+                clock,
                 initiativeRestConnectorImpl,
                 initiativeMap
         ));
@@ -396,8 +399,8 @@ class OnboardingServiceTest {
         generalWebMapper = new GeneralWebMapper();
 
         InitiativeGeneralDTO initiativeGeneralDTO = new InitiativeGeneralDTO();
-        initiativeGeneralDTO.setStartDate(MIN);
-        initiativeGeneralDTO.setEndDate(MAX);
+        initiativeGeneralDTO.setStartDate(Instant.parse("2030-01-01T00:00:00Z"));
+        initiativeGeneralDTO.setEndDate(Instant.parse("2030-12-31T23:59:59Z"));
 
         Map<String, String> language = new HashMap<>();
         language.put(ITALIAN.getLanguage(), "it");
@@ -527,11 +530,11 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        Instant today = Instant.now(clock);
         general.setStartDate(today);
-        general.setEndDate(today.plusDays(1));
+        general.setEndDate(today.plus(1,ChronoUnit.DAYS));
         general.setRankingStartDate(today);
-        general.setRankingEndDate(today.plusDays(2));
+        general.setRankingEndDate(today.plus(2,ChronoUnit.DAYS));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
         initiativeTestDTO.setGeneral(general);
@@ -661,11 +664,11 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = now();
+        Instant today = now();
         general.setStartDate(today);
-        general.setEndDate(today.plusDays(1));
+        general.setEndDate(today.plus(1,ChronoUnit.DAYS));
         general.setRankingStartDate(today);
-        general.setRankingEndDate(today.plusDays(2));
+        general.setRankingEndDate(today.plus(2,ChronoUnit.DAYS));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(valueOf(1000));
         initiativeTestDTO.setGeneral(general);
@@ -718,11 +721,11 @@ class OnboardingServiceTest {
         initiativeDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = now();
+        Instant today = now();
         general.setStartDate(today);
-        general.setEndDate(today.plusDays(1));
+        general.setEndDate(today.plus(1, ChronoUnit.DAYS));
         general.setRankingStartDate(today);
-        general.setRankingEndDate(today.plusDays(2));
+        general.setRankingEndDate(today.plus(2, ChronoUnit.DAYS));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(valueOf(1000));
         initiativeDTO.setGeneral(general);
@@ -876,11 +879,11 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = LocalDate.now();
+        Instant today = Instant.now(clock);
         general.setStartDate(today);
-        general.setEndDate(today.plusDays(1));
+        general.setEndDate(today.plus(1,ChronoUnit.DAYS));
         general.setRankingStartDate(today);
-        general.setRankingEndDate(today.plusDays(2));
+        general.setRankingEndDate(today.plus(2,ChronoUnit.DAYS));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(BigDecimal.valueOf(1000));
         initiativeTestDTO.setGeneral(general);
@@ -944,11 +947,11 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = now();
+        Instant today = now();
         general.setStartDate(today);
-        general.setEndDate(today.plusDays(1));
+        general.setEndDate(today.plus(1,ChronoUnit.DAYS));
         general.setRankingStartDate(today);
-        general.setRankingEndDate(today.plusDays(2));
+        general.setRankingEndDate(today.plus(2,ChronoUnit.DAYS));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(valueOf(1000));
         initiativeTestDTO.setGeneral(general);
@@ -1010,11 +1013,11 @@ class OnboardingServiceTest {
         initiativeDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        LocalDate today = now();
+        Instant today = now();
         general.setStartDate(today);
-        general.setEndDate(today.plusDays(1));
+        general.setEndDate(today.plus(1,ChronoUnit.DAYS));
         general.setRankingStartDate(today);
-        general.setRankingEndDate(today.plusDays(2));
+        general.setRankingEndDate(today.plus(2,ChronoUnit.DAYS));
         general.setBeneficiaryKnown(false);
         general.setBeneficiaryBudget(valueOf(1000));
         initiativeDTO.setGeneral(general);
@@ -1079,8 +1082,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1145,8 +1148,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1207,8 +1210,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1274,8 +1277,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1336,8 +1339,8 @@ class OnboardingServiceTest {
         initiativeTestDTO.setBeneficiaryRule(ruleDTO);
 
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
-        general.setRankingStartDate(LocalDate.of(2025, 1, 1));
-        general.setRankingEndDate(LocalDate.of(2025, 12, 31));
+        general.setRankingStartDate(LocalDate.of(2025, 1, 1).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
+        general.setRankingEndDate(LocalDate.of(2025, 12, 31).atStartOfDay(ZoneId.of("Europe/Rome")).toInstant());
         initiativeTestDTO.setGeneral(general);
 
         InitiativeAdditionalDTO additional = new InitiativeAdditionalDTO();
@@ -1459,7 +1462,7 @@ class OnboardingServiceTest {
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
             onboarding.setStatus(ACCEPTED_TC);
-            onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+            onboarding.setTcAcceptTimestamp(Instant.now(clock));
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
@@ -1487,8 +1490,8 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setStatus(ONBOARDING_KO);
-            onboarding.setOnboardingKODate(LocalDateTime.now());
-            onboarding.setUpdateDate(LocalDateTime.now());
+            onboarding.setOnboardingKODate(Instant.now(clock));
+            onboarding.setUpdateDate(Instant.now(clock));
             onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
             return onboarding;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1521,8 +1524,8 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setStatus(ONBOARDING_KO);
-            onboarding.setOnboardingKODate(LocalDateTime.now());
-            onboarding.setUpdateDate(LocalDateTime.now());
+            onboarding.setOnboardingKODate(Instant.now(clock));
+            onboarding.setUpdateDate(Instant.now(clock));
             onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
             return onboarding;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1554,8 +1557,8 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setStatus(ONBOARDING_KO);
-            onboarding.setOnboardingKODate(LocalDateTime.now());
-            onboarding.setUpdateDate(LocalDateTime.now());
+            onboarding.setOnboardingKODate(Instant.now(clock));
+            onboarding.setUpdateDate(Instant.now(clock));
             onboarding.setDetailKO(ERROR_BUDGET_TERMINATED);
             return onboarding;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
@@ -1586,7 +1589,7 @@ class OnboardingServiceTest {
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
             onboarding.setStatus(ACCEPTED_TC);
-            onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+            onboarding.setTcAcceptTimestamp(Instant.now(clock));
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
@@ -1611,7 +1614,7 @@ class OnboardingServiceTest {
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
             onboarding.setStatus(ACCEPTED_TC);
-            onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+            onboarding.setTcAcceptTimestamp(Instant.now(clock));
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
@@ -1640,7 +1643,7 @@ class OnboardingServiceTest {
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
             onboarding.setStatus(ACCEPTED_TC);
-            onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+            onboarding.setTcAcceptTimestamp(Instant.now(clock));
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
@@ -1665,7 +1668,7 @@ class OnboardingServiceTest {
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
             onboarding.setStatus(ACCEPTED_TC);
-            onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+            onboarding.setTcAcceptTimestamp(Instant.now(clock));
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
         onboardingService.putTcConsent(onboarding.getInitiativeId(), onboarding.getUserId());
@@ -1685,12 +1688,12 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
-        LocalDate nowLocalDate = now();
+        Instant nowInstant = now();
         InitiativeDTO initiative = initiativeDetailDTO(BENEFICIARY_TYPE_NF,
-                nowLocalDate.minusDays(25),
-                nowLocalDate.minusDays(20),
-                nowLocalDate.minusDays(10),
-                nowLocalDate.plusDays(20));
+                nowInstant.minus(25,ChronoUnit.DAYS),
+                nowInstant.minus(20,ChronoUnit.DAYS),
+                nowInstant.minus(10,ChronoUnit.DAYS),
+                nowInstant.plus(20,ChronoUnit.DAYS));
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
                 .thenReturn(initiative);
@@ -1698,7 +1701,7 @@ class OnboardingServiceTest {
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setTc(true);
             onboarding.setStatus(ACCEPTED_TC);
-            onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+            onboarding.setTcAcceptTimestamp(Instant.now(clock));
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
@@ -1716,12 +1719,12 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
 
-        LocalDate nowLocalDate = now();
+        Instant nowInstant = now();
         InitiativeDTO initiative = initiativeDetailDTO(BENEFICIARY_TYPE_NF,
-                nowLocalDate.minusDays(25),
-                nowLocalDate.minusDays(20),
-                nowLocalDate.minusDays(10),
-                nowLocalDate.plusDays(20));
+                nowInstant.minus(25,ChronoUnit.DAYS),
+                nowInstant.minus(20,ChronoUnit.DAYS),
+                nowInstant.minus(10,ChronoUnit.DAYS),
+                nowInstant.plus(20,ChronoUnit.DAYS));
 
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
                 .thenReturn(initiative);
@@ -1742,7 +1745,7 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setTc(true);
         onboarding.setStatus(ACCEPTED_TC);
-        onboarding.setTcAcceptTimestamp(LocalDateTime.now());
+        onboarding.setTcAcceptTimestamp(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(
@@ -1810,8 +1813,8 @@ class OnboardingServiceTest {
     void getOnboardingStatus_ok() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ONBOARDING_OK);
-        onboarding.setUpdateDate(LocalDateTime.now());
-        onboarding.setOnboardingOkDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
+        onboarding.setOnboardingOkDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -1894,7 +1897,7 @@ class OnboardingServiceTest {
     void getOnboardingStatus_nullOnboardingOkDate() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
-        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -1911,7 +1914,7 @@ class OnboardingServiceTest {
     void getOnboardingStatus_shouldReturnFamilyUnitAlreadyJoined_whenStatusIsJoined() {
         Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
         onboarding.setStatus("JOINED");
-        LocalDateTime statusDate = LocalDateTime.now();
+        Instant statusDate = Instant.now(clock);
         onboarding.setUpdateDate(statusDate);
         onboarding.setOnboardingOkDate(null);
 
@@ -1929,7 +1932,7 @@ class OnboardingServiceTest {
     void getOnboardingStatus_shouldReturnUserNotOnboarded_whenStatusIsUnsubscribed() {
         Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
         onboarding.setStatus("UNSUBSCRIBED");
-        LocalDateTime statusDate = LocalDateTime.now();
+        Instant statusDate = Instant.now(clock);
         onboarding.setUpdateDate(statusDate);
         onboarding.setOnboardingOkDate(null);
 
@@ -1948,7 +1951,7 @@ class OnboardingServiceTest {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID,USER_ID);
         onboarding.setStatus("ONBOARDING_KO");
         onboarding.setDetailKO("BUDGET_TERMINATED");
-        LocalDateTime statusDate = LocalDateTime.now();
+        Instant statusDate = Instant.now(clock);
         onboarding.setUpdateDate(statusDate);
         onboarding.setOnboardingOkDate(null);
 
@@ -1967,8 +1970,8 @@ class OnboardingServiceTest {
     void getOnboardingStatus_okWhenStatusOnEvaluation() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
-        onboarding.setUpdateDate(LocalDateTime.now());
-        onboarding.setOnboardingOkDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
+        onboarding.setOnboardingOkDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -1993,8 +1996,8 @@ class OnboardingServiceTest {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ONBOARDING_OK);
         onboarding.setFamilyId(FAMILY_ID);
-        onboarding.setUpdateDate(LocalDateTime.now());
-        onboarding.setOnboardingOkDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
+        onboarding.setOnboardingOkDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -2013,7 +2016,7 @@ class OnboardingServiceTest {
     void getOnboardingStatus_shouldThrowException_whenStatusIsWaitingList(){
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
-        LocalDateTime statusDate = LocalDateTime.now();
+        Instant statusDate = Instant.now(clock);
         onboarding.setUpdateDate(statusDate);
         onboarding.setOnboardingOkDate(null);
 
@@ -2039,7 +2042,7 @@ class OnboardingServiceTest {
         Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
         onboarding.setStatus("ONBOARDING_KO");
         onboarding.setDetailKO("INITIATIVE_END");
-        LocalDateTime statusDate = LocalDateTime.now();
+        Instant statusDate = Instant.now(clock);
         onboarding.setUpdateDate(statusDate);
         onboarding.setOnboardingOkDate(null);
 
@@ -2061,7 +2064,7 @@ class OnboardingServiceTest {
 //    void getOnboardingStatus_shouldThrowException_whenStatusUnsubscribed() {
 //        Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
 //        onboarding.setStatus("UNSUBSCRIBED");
-//        LocalDateTime statusDate = LocalDateTime.now();
+//        Instant statusDate = Instant.now(clock);
 //        onboarding.setUpdateDate(statusDate);
 //        onboarding.setOnboardingOkDate(null);
 //
@@ -2143,7 +2146,7 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
-        onboarding.setInvitationDate(LocalDateTime.now());
+        onboarding.setInvitationDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -2269,7 +2272,6 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
-
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
@@ -2408,7 +2410,7 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
-        onboarding.setDemandedDate(LocalDateTime.now());
+        onboarding.setDemandedDate(Instant.now(clock));
         INITIATIVE_DTO.getGeneral().setBeneficiaryType(BENEFICIARY_TYPE_NF);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -2430,7 +2432,7 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
-        onboarding.setDemandedDate(LocalDateTime.now());
+        onboarding.setDemandedDate(Instant.now(clock));
         INITIATIVE_DTO.getGeneral().setBeneficiaryType(BENEFICIARY_TYPE_NF);
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
@@ -2453,18 +2455,20 @@ class OnboardingServiceTest {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ACCEPTED_TC);
         onboarding.setTc(true);
-        onboarding.setDemandedDate(LocalDateTime.now());
+        onboarding.setDemandedDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
-        LocalDate localDateNow = now();
+        Instant instant = now();
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
                 .thenReturn(initiativeDetailDTO(BENEFICIARY_TYPE_NF,
-                        localDateNow.minusDays(30),
-                        localDateNow.minusDays(20),
-                        localDateNow.plusDays(2),
-                        localDateNow.plusDays(25)));
+                        instant.minus(30,ChronoUnit.DAYS),
+                        instant.minus(20,ChronoUnit.DAYS),
+                        instant.plus(2,ChronoUnit.DAYS),
+                        instant.plus(25,ChronoUnit.DAYS)
+                )
+            );
 
         Mockito.doAnswer(invocationOnMock -> {
             onboarding.setChannel(CHANNEL);
@@ -2483,13 +2487,15 @@ class OnboardingServiceTest {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
 
-        LocalDate localDateNow = now();
+        Instant instant = now();
         when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID))
                 .thenReturn(initiativeDetailDTO(BENEFICIARY_TYPE_NF,
-                        localDateNow.minusDays(30),
-                        localDateNow.minusDays(20),
-                        localDateNow.plusDays(2),
-                        localDateNow.plusDays(25)));
+                        instant.minus(30,ChronoUnit.DAYS),
+                        instant.minus(20,ChronoUnit.DAYS),
+                        instant.plus(2,ChronoUnit.DAYS),
+                        instant.plus(25,ChronoUnit.DAYS)
+                     )
+                );
 
         try {
             onboardingService.checkPrerequisites(INITIATIVE_ID, USER_ID, CHANNEL);
@@ -2626,12 +2632,12 @@ class OnboardingServiceTest {
 
         Mockito.doAnswer(
                         invocationOnMock -> {
-                            onboarding.setRequestDeactivationDate(LocalDateTime.now());
+                            onboarding.setRequestDeactivationDate(Instant.now(clock));
                             onboarding.setStatus(STATUS_UNSUBSCRIBED);
                             return null;
                         })
                 .when(onboardingRepositoryMock).disableAllFamilyMembers(eq(INITIATIVE_ID), eq(USER_ID), eq(FAMILY_ID),any(), any());
-        onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, LocalDateTime.now().toString(), true);
+        onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, Instant.now(clock).toString(), true);
         assertNotNull(onboarding.getRequestDeactivationDate());
         assertEquals(STATUS_UNSUBSCRIBED, onboarding.getStatus());
     }
@@ -2640,7 +2646,7 @@ class OnboardingServiceTest {
     void deactivateOnboarding_ko() {
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.empty());
-        String date = LocalDateTime.now().toString();
+        String date = Instant.now(clock).toString();
         try {
             onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, date, true);
             fail();
@@ -2659,7 +2665,7 @@ class OnboardingServiceTest {
 
         Mockito.doThrow(new RuntimeException("test"))
                 .when(onboardingRepositoryMock).disableAllFamilyMembers(eq(INITIATIVE_ID), eq(USER_ID), eq(FAMILY_ID),any(),eq(true));
-        String nowDateString = LocalDateTime.now().toString();
+        String nowDateString = Instant.now(clock).toString();
         assertThrows(UserUnsubscribedException.class, () ->
                 onboardingService.deactivateOnboarding(INITIATIVE_ID, USER_ID, nowDateString, true));
 
@@ -2670,7 +2676,7 @@ class OnboardingServiceTest {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(STATUS_UNSUBSCRIBED);
         onboarding.setFamilyId("FAM1");
-        onboarding.setOnboardingOkDate(LocalDateTime.now());
+        onboarding.setOnboardingOkDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboarding));
@@ -2708,7 +2714,7 @@ class OnboardingServiceTest {
     void getOnboardingStatusList_ok() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
-        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
         List<Onboarding> onboardingList = List.of(onboarding);
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
@@ -2754,7 +2760,7 @@ class OnboardingServiceTest {
     void getOnboardingStatusList_shouldInvokeCountLambda() {
         final Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
-        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
         onboarding.setFamilyId(FAMILY_ID);
         onboarding.setDetail("detail");
         List<Onboarding> onboardingList = List.of(onboarding);
@@ -2795,7 +2801,7 @@ class OnboardingServiceTest {
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
-        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
                 .thenReturn(List.of(onboarding));
@@ -2836,9 +2842,9 @@ class OnboardingServiceTest {
         Mockito.doAnswer(invocation -> {
             Onboarding saved = invocation.getArgument(0, Onboarding.class);
             saved.setStatus("CREATED");
-            saved.setInvitationDate(LocalDateTime.now());
-            saved.setUpdateDate(LocalDateTime.now());
-            saved.setCreationDate(LocalDateTime.now());
+            saved.setInvitationDate(Instant.now(clock));
+            saved.setUpdateDate(Instant.now(clock));
+            saved.setCreationDate(Instant.now(clock));
             return null;
         }).when(onboardingRepositoryMock).save(any(Onboarding.class));
 
@@ -2947,7 +2953,7 @@ class OnboardingServiceTest {
         final Onboarding onboardingOk = new Onboarding(INITIATIVE_ID, USER_ID);
         onboardingOk.setFamilyId(FAMILY_ID);
         onboardingOk.setStatus(ONBOARDING_OK);
-        onboardingOk.setOnboardingOkDate(LocalDateTime.now().minusDays(2));
+        onboardingOk.setOnboardingOkDate(Instant.now(clock).minus(2,ChronoUnit.DAYS));
 
         final Onboarding onboardingDemanded = new Onboarding(INITIATIVE_ID, "USER_ID_2");
         onboardingDemanded.setFamilyId(FAMILY_ID);
@@ -2967,7 +2973,7 @@ class OnboardingServiceTest {
 
         assertEquals(PII, onboardingFamilyDTO.getUsersList().getFirst().getFiscalCode());
         assertEquals(onboardingOk.getFamilyId(), onboardingFamilyDTO.getUsersList().getFirst().getFamilyId());
-        assertEquals(onboardingOk.getOnboardingOkDate().toLocalDate(), onboardingFamilyDTO.getUsersList().get(0).getOnboardingDate());
+        assertEquals(onboardingOk.getOnboardingOkDate(), onboardingFamilyDTO.getUsersList().get(0).getOnboardingDate());
         assertEquals(onboardingOk.getStatus(), onboardingFamilyDTO.getUsersList().get(0).getStatus());
 
         assertEquals("PII_2", onboardingFamilyDTO.getUsersList().get(1).getFiscalCode());
@@ -2982,7 +2988,7 @@ class OnboardingServiceTest {
         final Onboarding onboardingKo = new Onboarding(INITIATIVE_ID, USER_ID);
         onboardingKo.setFamilyId(FAMILY_ID);
         onboardingKo.setStatus(ONBOARDING_KO);
-        onboardingKo.setOnboardingKODate(LocalDateTime.now());
+        onboardingKo.setOnboardingKODate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboardingKo));
@@ -2996,7 +3002,7 @@ class OnboardingServiceTest {
 
         assertEquals(PII, onboardingFamilyDTO.getUsersList().getFirst().getFiscalCode());
         assertEquals(onboardingKo.getFamilyId(), onboardingFamilyDTO.getUsersList().getFirst().getFamilyId());
-        assertEquals(onboardingKo.getOnboardingKODate().toLocalDate(), onboardingFamilyDTO.getUsersList().getFirst().getOnboardingDate());
+        assertEquals(onboardingKo.getOnboardingKODate(), onboardingFamilyDTO.getUsersList().getFirst().getOnboardingDate());
         assertEquals(onboardingKo.getStatus(), onboardingFamilyDTO.getUsersList().getFirst().getStatus());
 
     }
@@ -3005,7 +3011,7 @@ class OnboardingServiceTest {
     void getFamilyUnitComposition_ok_noFamilyId() {
         final Onboarding onboardingKo = new Onboarding(INITIATIVE_ID, USER_ID);
         onboardingKo.setStatus(ONBOARDING_KO);
-        onboardingKo.setOnboardingKODate(LocalDateTime.now());
+        onboardingKo.setOnboardingKODate(Instant.now(clock));
 
         List<OnboardingFamilyDetailDTO> usersList = new ArrayList<>();
         OnboardingFamilyDTO onboardingFamilyExpected = new OnboardingFamilyDTO(usersList);
@@ -3024,7 +3030,7 @@ class OnboardingServiceTest {
         final Onboarding onboardingOk = new Onboarding(INITIATIVE_ID, USER_ID);
         onboardingOk.setFamilyId(FAMILY_ID);
         onboardingOk.setStatus(ONBOARDING_OK);
-        onboardingOk.setOnboardingOkDate(LocalDateTime.now().minusDays(2));
+        onboardingOk.setOnboardingOkDate(Instant.now(clock).minus(2,ChronoUnit.DAYS));
 
         when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
                 .thenReturn(Optional.of(onboardingOk));
@@ -3052,7 +3058,7 @@ class OnboardingServiceTest {
         QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
                 .entityId(INITIATIVE_ID)
                 .operationType(operationType)
-                .operationTime(LocalDateTime.now())
+                .operationTime(Instant.now(clock))
                 .build();
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
@@ -3097,10 +3103,10 @@ class OnboardingServiceTest {
     }
 
     private InitiativeDTO initiativeDetailDTO(String beneficiaryType,
-                                              LocalDate startRankingDate,
-                                              LocalDate endRankingDate,
-                                              @NotNull LocalDate startDate,
-                                              @NotNull LocalDate endDate) {
+                                              Instant startRankingDate,
+                                              Instant endRankingDate,
+                                              @NotNull Instant startDate,
+                                              @NotNull Instant endDate) {
         InitiativeDTO initiative = new InitiativeDTO();
         InitiativeGeneralDTO general = new InitiativeGeneralDTO();
 
@@ -3454,7 +3460,7 @@ class OnboardingServiceTest {
         Onboarding onboarding = new Onboarding(USER_ID, INITIATIVE_ID);
         onboarding.setChannel("WEB");
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now(clock);
 
         when(onboardingRepositoryMock.save(any(Onboarding.class))).thenReturn(onboarding);
 
@@ -3463,7 +3469,7 @@ class OnboardingServiceTest {
                     "setStatus",
                     Onboarding.class,
                     String.class,
-                    LocalDateTime.class,
+                    Instant.class,
                     String.class
             );
             method.setAccessible(true);
@@ -3501,7 +3507,7 @@ class OnboardingServiceTest {
     void getOnboardingStatusAssistance_ok() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
-        onboarding.setUpdateDate(LocalDateTime.now());
+        onboarding.setUpdateDate(Instant.now(clock));
 
         when(onboardingRepositoryMock.findById("%s_%s".formatted(USER_ID,INITIATIVE_ID)))
                 .thenReturn(Optional.of(onboarding));

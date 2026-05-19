@@ -6,8 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -21,13 +20,13 @@ public class EvaluationDTO {
   @NotEmpty
   private String initiativeId;
   private String initiativeName;
-  private LocalDate initiativeEndDate;
+  private Instant initiativeEndDate;
   private String organizationId;
   @NotEmpty
   private String status;
   @NotNull
-  private LocalDateTime admissibilityCheckDate;
-  private LocalDateTime criteriaConsensusTimestamp;
+  private Instant admissibilityCheckDate;
+  private Instant criteriaConsensusTimestamp;
   @NotNull
   private List<OnboardingRejectionReason> onboardingRejectionReasons;
   private Long beneficiaryBudgetCents;

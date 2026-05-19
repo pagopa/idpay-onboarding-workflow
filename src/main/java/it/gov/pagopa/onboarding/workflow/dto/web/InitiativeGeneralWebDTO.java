@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -30,16 +30,16 @@ public class InitiativeGeneralWebDTO {
   private BigDecimal beneficiaryBudget;
 
   @JsonProperty("startDate")
-  private LocalDate startDate;
+  private Instant startDate;
 
   @JsonProperty("endDate")
-  private LocalDate endDate;
+  private Instant endDate;
 
   @JsonProperty("rankingStartDate")
-  private LocalDate rankingStartDate;
+  private Instant rankingStartDate;
 
   @JsonProperty("rankingEndDate")
-  private LocalDate rankingEndDate;
+  private Instant rankingEndDate;
 
   @JsonProperty("rankingEnabled")
   private Boolean rankingEnabled;
