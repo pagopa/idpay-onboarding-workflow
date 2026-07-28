@@ -1,11 +1,13 @@
 package it.gov.pagopa.onboarding.workflow.dto;
 
+import it.gov.pagopa.onboarding.workflow.dto.initiative.VerifyDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -19,7 +21,7 @@ public class OnboardingDTO {
 
   Boolean tc;
 
-  Boolean verifyIsee;
+  List<VerifyDTO> verifies;
 
   String status;
 
@@ -39,5 +41,6 @@ public class OnboardingDTO {
   String name;
 
   String surname;
+
 
 }
