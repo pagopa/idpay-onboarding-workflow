@@ -17,6 +17,7 @@ import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.OK;
 
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
+import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDetailsDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
@@ -31,6 +32,8 @@ import it.gov.pagopa.onboarding.workflow.exception.custom.InitiativeNotFoundExce
 import it.gov.pagopa.onboarding.workflow.exception.custom.PDNDConsentDeniedException;
 import it.gov.pagopa.onboarding.workflow.exception.custom.TosNotConfirmedException;
 import it.gov.pagopa.onboarding.workflow.service.OnboardingService;
+
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -96,6 +99,48 @@ class OnboardingControllerImplTest {
         ACCEPT_LANGUAGE);
     initiativeWebDTO = new InitiativeWebDTO(additionalDTO, beneficiaryRuleDTO,
         initiativeGeneralWebDTO);
+  }
+
+  @Test
+  void onboardingStatus_ok() {
+    String userId = "USER123";
+    LocalDateTime now = LocalDateTime.now();
+    OnboardingStatusDTO statusDTO = OnboardingStatusDTO.builder()
+            .status("ONBOARDED")
+            .statusDate(now)
+            .onboardingOkDate(now)
+            .build();
+
+    when(onboardingService.getOnboardingStatus(INITIATIVE_ID, userId)).thenReturn(statusDTO);
+
+    ResponseEntity<OnboardingStatusDTO> response = controller.onboardingStatus(INITIATIVE_ID, userId);
+
+    assertNotNull(response);
+    assertEquals(OK, response.getStatusCode());
+    assertEquals(statusDTO, response.getBody());
+    assertNotNull(response.getBody().getOnboardingOkDate());
+    verify(onboardingService).getOnboardingStatus(INITIATIVE_ID, userId);
+  }
+
+  @Test
+  void onboardingStatus_okWithNullOnboardingOkDate() {
+    String userId = "USER123";
+    LocalDateTime now = LocalDateTime.now();
+    OnboardingStatusDTO statusDTO = OnboardingStatusDTO.builder()
+            .status("ON_EVALUATION")
+            .statusDate(now)
+            .onboardingOkDate(null)
+            .build();
+
+    when(onboardingService.getOnboardingStatus(INITIATIVE_ID, userId)).thenReturn(statusDTO);
+
+    ResponseEntity<OnboardingStatusDTO> response = controller.onboardingStatus(INITIATIVE_ID, userId);
+
+    assertNotNull(response);
+    assertEquals(OK, response.getStatusCode());
+    assertEquals(statusDTO, response.getBody());
+    assertEquals("ON_EVALUATION", response.getBody().getStatus());
+    verify(onboardingService).getOnboardingStatus(INITIATIVE_ID, userId);
   }
 
   @Test
