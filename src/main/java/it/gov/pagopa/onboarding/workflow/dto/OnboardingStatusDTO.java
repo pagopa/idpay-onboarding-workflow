@@ -12,12 +12,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OnboardingStatusDTO {
 
   private String status;
   private LocalDateTime statusDate;
-
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   private LocalDateTime onboardingOkDate;
 
 }
