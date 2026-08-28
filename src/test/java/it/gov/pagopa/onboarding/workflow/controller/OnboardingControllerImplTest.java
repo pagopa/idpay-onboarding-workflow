@@ -330,3 +330,4 @@ class OnboardingControllerImplTest {
     verify(onboardingService).getOnboardingStatusDetails(INITIATIVE_ID, userId);
   }
 }
+
