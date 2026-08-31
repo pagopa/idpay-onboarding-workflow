@@ -153,15 +153,20 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new OnboardingStatusException(e.getCode(), e.getMessage());
     }
 
-    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
+    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}",
+            sanitize(userId),
             sanitize(initiativeId),
             sanitize(status));
 
-    return new OnboardingStatusDTO(
-            status,
-            onboarding.getUpdateDate(),
-            onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null
-    );
+    OnboardingStatusDTO.OnboardingStatusDTOBuilder dtoBuilder = OnboardingStatusDTO.builder()
+            .status(status)
+            .statusDate(onboarding.getUpdateDate());
+
+    if (onboarding.getOnboardingOkDate() != null) {
+      dtoBuilder.onboardingOkDate(onboarding.getOnboardingOkDate());
+    }
+
+    return dtoBuilder.build();
   }
 
   @Override
@@ -494,7 +499,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
         auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
         performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
-      } catch (Exception e){
+      } catch (Exception _){
         auditUtilities.logDeactivateKO(userId, initiativeId, onboarding.getChannel(), localDeactivationDate);
         performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
         log.info("[SUSPENSION] User deactivation from the initiative {} is failed", sanitizeString(initiativeId));
@@ -596,7 +601,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logSuspension(userId, initiativeId);
       log.info("[SUSPENSION] User is suspended from the initiative {}", sanitizedInitiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
-    } catch (Exception e){
+    } catch (Exception _){
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is failed", sanitizedInitiativeId);
@@ -627,7 +632,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logReadmission(userId, initiativeId);
       log.info("[READMISSION] User is readmitted to the initiative {}", sanitizedInitiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
-    } catch (Exception e){
+    } catch (Exception _){
       auditUtilities.logReadmissionKO(userId, initiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is failed", sanitizedInitiativeId);
