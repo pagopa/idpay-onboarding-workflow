@@ -393,11 +393,11 @@ public class OnboardingServiceImpl implements OnboardingService {
   private VerifyDTO buildVerifyDTO(String code, SelfCriteriaMultiTypeValueDTO option) {
     return VerifyDTO.builder()
             .code(code)
-            .verify(option.isVerify())
+            .verify(Boolean.TRUE.equals(option.getVerify()) ? Boolean.TRUE : Boolean.FALSE)
             .thresholdCode(option.getThresholdCode())
             .beneficiaryBudgetCentsMin(option.getBeneficiaryBudgetCentsMin())
             .beneficiaryBudgetCentsMax(option.getBeneficiaryBudgetCentsMax())
-            .blockingVerify(option.isBlockingVerify())
+            .blockingVerify(Boolean.TRUE.equals(option.getBlockingVerify()) ? Boolean.TRUE : Boolean.FALSE)
             .build();
   }
 
