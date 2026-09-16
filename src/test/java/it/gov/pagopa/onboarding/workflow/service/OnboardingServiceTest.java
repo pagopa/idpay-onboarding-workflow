@@ -415,7 +415,7 @@ class OnboardingServiceTest {
     //region InitiativeDetail
     @Test
     void initiativeDetailExists() {
-        when(onboardingService.getInitiative(INITIATIVE_ID)).thenReturn(initiativeDTO);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(initiativeDTO);
         when(initiativeWebMapper.map(eq(initiativeDTO), any())).thenReturn(initiativeWebDTO);
 
         InitiativeWebDTO result = onboardingService.initiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE);
@@ -423,20 +423,18 @@ class OnboardingServiceTest {
         assertNotNull(result);
         assertEquals(initiativeWebDTO, result);
 
-        verify(onboardingService, times(1)).getInitiative(INITIATIVE_ID);
+        verify(initiativeRestConnector, times(1)).getInitiativeBeneficiaryView(INITIATIVE_ID);
         verify(initiativeWebMapper, times(1)).map(eq(initiativeDTO), any());
     }
 
 
     @Test
     void initiativeDetailDoesNotExist() {
-        when(onboardingService.getInitiative(INITIATIVE_ID)).thenReturn(null);
+        when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(null);
 
-        InitiativeWebDTO result = onboardingService.initiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE);
+        assertThrows(InitiativeNotFoundException.class, () -> onboardingService.initiativeDetail(INITIATIVE_ID, ACCEPT_LANGUAGE));
 
-        assertNull(result);
-
-        verify(onboardingService, times(1)).getInitiative(INITIATIVE_ID);
+        verify(initiativeRestConnector, times(1)).getInitiativeBeneficiaryView(INITIATIVE_ID);
         verifyNoInteractions(initiativeWebMapper);
     }
 

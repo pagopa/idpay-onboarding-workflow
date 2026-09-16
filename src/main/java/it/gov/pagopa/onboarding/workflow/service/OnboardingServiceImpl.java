@@ -847,7 +847,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
     }else {
       log.warn("[GET_INITIATIVE] initiativeDTO is null for id {}", sanitizedInitiativeId);
-      return null;
+      throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, null);
     }
 
   }
