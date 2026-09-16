@@ -17,7 +17,7 @@ public class SelfCriteriaMultiTypeValueDTO {
 
   private String value;
 
-  private boolean verify;
+  private Boolean verify;
 
   private String thresholdCode;
 
@@ -25,6 +25,6 @@ public class SelfCriteriaMultiTypeValueDTO {
 
   private Long beneficiaryBudgetCentsMax;
 
-  private boolean blockingVerify;
+  private Boolean blockingVerify;
 
 }
