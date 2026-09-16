@@ -3630,4 +3630,52 @@ class OnboardingServiceTest {
         });
     }
 
+    @ParameterizedTest
+    @MethodSource("buildVerifyDTOCases")
+    void buildVerifyDTO_shouldMapBoxedBooleansSafely(Boolean verifyInput,
+                                                     Boolean blockingVerifyInput,
+                                                     boolean expectedVerify,
+                                                     boolean expectedBlockingVerify) {
+        SelfCriteriaMultiTypeValueDTO option = SelfCriteriaMultiTypeValueDTO.builder()
+                .description("desc")
+                .subDescription("sub")
+                .value("1")
+                .verify(verifyInput)
+                .thresholdCode("TS001")
+                .beneficiaryBudgetCentsMin(10L)
+                .beneficiaryBudgetCentsMax(20L)
+                .blockingVerify(blockingVerifyInput)
+                .build();
+
+        VerifyDTO result;
+        try {
+            Method method = OnboardingServiceImpl.class.getDeclaredMethod(
+                    "buildVerifyDTO",
+                    String.class,
+                    SelfCriteriaMultiTypeValueDTO.class
+            );
+            method.setAccessible(true);
+            result = (VerifyDTO) method.invoke(onboardingService, ISEE_CODE, option);
+        } catch (Exception e) {
+            fail("Reflection invocation failed: " + e.getMessage());
+            return;
+        }
+
+        assertNotNull(result);
+        assertEquals(ISEE_CODE, result.getCode());
+        assertEquals(expectedVerify, result.isVerify());
+        assertEquals("TS001", result.getThresholdCode());
+        assertEquals(10L, result.getBeneficiaryBudgetCentsMin());
+        assertEquals(20L, result.getBeneficiaryBudgetCentsMax());
+        assertEquals(expectedBlockingVerify, result.isBlockingVerify());
+    }
+
+    private static Stream<Arguments> buildVerifyDTOCases() {
+        return Stream.of(
+                Arguments.of(Boolean.TRUE, Boolean.TRUE, true, true),
+                Arguments.of(Boolean.FALSE, Boolean.FALSE, false, false),
+                Arguments.of(null, null, false, false)
+        );
+    }
+
 }
