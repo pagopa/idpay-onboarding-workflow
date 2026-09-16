@@ -22,7 +22,7 @@ public class InitiativeWebMapper {
 
   }
 
-  private static @Nullable InitiativeBeneficiaryRuleDTO updateBeneficiaryRuleWeb(InitiativeDTO initiativeDTO) {
+  private InitiativeBeneficiaryRuleDTO updateBeneficiaryRuleWeb(InitiativeDTO initiativeDTO) {
     InitiativeBeneficiaryRuleDTO beneficiaryRule = initiativeDTO.getBeneficiaryRule();
 
     if (beneficiaryRule != null && beneficiaryRule.getSelfDeclarationCriteria() != null) {
