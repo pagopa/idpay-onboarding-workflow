@@ -45,7 +45,15 @@ class InitiativeWebMapperTest {
                 "BOOL_CODE"
         );
 
-        beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>(List.of(multiTypeCriteria, boolCriteria)));
+        SelfCriteriaInformativeDTO informativeCriteria = SelfCriteriaInformativeDTO.builder()
+                .type("informative")
+                .code("ADE")
+                .description("Canone TV")
+                .organization("Agenzia delle Entrate")
+                .value("Descrizione estesa del requisito")
+                .build();
+
+        beneficiaryRule.setSelfDeclarationCriteria(new ArrayList<>(List.of(multiTypeCriteria, boolCriteria, informativeCriteria)));
         initiativeDTO.setBeneficiaryRule(beneficiaryRule);
 
         InitiativeWebDTO result = initiativeWebMapper.map(initiativeDTO, null);
@@ -66,10 +74,13 @@ class InitiativeWebMapperTest {
                 assertNotNull(bool.getDescription());
                 assertNotNull(bool.getSubDescription());
                 assertNotNull(bool.getValue());
+            } else if (criteria instanceof SelfCriteriaInformativeDTO informative) {
+                assertEquals("informative", informative.getType());
+                assertEquals("ADE", informative.getCode());
+                assertEquals("Canone TV", informative.getDescription());
+                assertEquals("Agenzia delle Entrate", informative.getOrganization());
+                assertEquals("Descrizione estesa del requisito", informative.getValue());
             }
         });
     }
 }
-
-
-
