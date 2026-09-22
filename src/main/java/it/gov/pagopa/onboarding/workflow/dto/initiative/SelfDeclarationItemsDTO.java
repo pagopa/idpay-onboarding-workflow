@@ -11,7 +11,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = SelfCriteriaTextDTO.class, name = "text"),
     @JsonSubTypes.Type(value = SelfCriteriaBoolDTO.class, name = "boolean"),
-    @JsonSubTypes.Type(value = SelfCriteriaMultiTypeDTO.class, name = "multi_consent")
+    @JsonSubTypes.Type(value = SelfCriteriaMultiTypeDTO.class, name = "multi_consent"),
+    @JsonSubTypes.Type(value = SelfCriteriaInformativeDTO.class, name = "informative")
 })
 public interface SelfDeclarationItemsDTO {
 
