@@ -3432,6 +3432,43 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void sizeCheck_informativeCriteriaExcluded_ShouldNotCountAsConsent() {
+        // BND-1884: informative criteria are read-only and must not be counted as user consents
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(
+                new SelfCriteriaBoolDTO("boolean", "desc", "subDescr", true, "CODE1"),
+                new SelfCriteriaInformativeDTO("informative", "ADE", "Canone TV",
+                        "Agenzia delle Entrate", "Descrizione estesa del requisito")
+        ));
+
+        Map<String, Boolean> selfDeclarationBool = Map.of("CODE1", true);
+
+        boolean result = onboardingService.sizeCheck(initiativeDTO, selfDeclarationBool,
+                Collections.emptyMap(), Collections.emptyMap());
+
+        assertFalse(result);
+    }
+
+    @Test
+    void testSelfDeclaration_WithInformativeCriteria_ShouldNotThrow() {
+        // BND-1884: regression guard - an initiative with an informative criterion must onboard without SelfDeclarationCrtieriaException
+        initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(
+                new SelfCriteriaBoolDTO("boolean", "desc", "subDescr", true, "CODE1"),
+                new SelfCriteriaInformativeDTO("informative", "ADE", "Canone TV",
+                        "Agenzia delle Entrate", "Descrizione estesa del requisito")
+        ));
+
+        SelfConsentBoolDTO consentBool = new SelfConsentBoolDTO();
+        consentBool.setCode("CODE1");
+        consentBool.setAccepted(true);
+        ConsentPutDTO consentPutDTO = new ConsentPutDTO();
+        consentPutDTO.setSelfDeclarationList(List.of(consentBool));
+
+        assertDoesNotThrow(() -> onboardingService.selfDeclaration(initiativeDTO, consentPutDTO, "USER123"));
+
+        verify(selfDeclarationRepository, never()).save(any());
+    }
+
+    @Test
     void testSelfDeclaration_SizeCheckFails_ShouldThrowExceptionAndAudit() {
         initiativeDTO.getBeneficiaryRule().setSelfDeclarationCriteria(List.of(
                 new SelfCriteriaBoolDTO("bool1", "desc", "subDescr", true, "CODE1")

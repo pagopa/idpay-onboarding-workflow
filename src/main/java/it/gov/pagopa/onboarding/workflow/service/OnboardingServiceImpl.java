@@ -1026,8 +1026,12 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText) {
+    // BND-1884: informative criteria are read-only (no user consent) and must be excluded from the consent size check
+    long consentableCriteriaSize = initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().stream()
+            .filter(criteria -> !(criteria instanceof SelfCriteriaInformativeDTO))
+            .count();
     return selfDeclarationBool.size() + selfDeclarationMulti.size() + selfDeclarationText.size()
-            != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size();
+            != consentableCriteriaSize;
   }
 
 
