@@ -8,6 +8,7 @@ import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.dto.notification.NotificationQueueDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
@@ -15,6 +16,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
+import it.gov.pagopa.onboarding.workflow.event.producer.NotificationProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
@@ -58,6 +60,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
 
   private final OutcomeProducer outcomeProducer;
+  private final NotificationProducer notificationProducer;
   private final DecryptRestConnector decryptRestConnector;
   private final InitiativeWebMapper initiativeWebMapper;
   private final GeneralWebMapper generalWebMapper;
@@ -80,6 +83,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                                ConsentMapper consentMapper,
                                OnboardingProducer onboardingProducer,
                                OutcomeProducer outcomeProducer,
+                               NotificationProducer notificationProducer,
                                InitiativeRestConnector initiativeRestConnector,
                                DecryptRestConnector decryptRestConnector,
                                AdmissibilityRestConnector admissibilityRestConnector,
@@ -95,6 +99,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.delayTime = delayTime;
     this.initiativeStartTime = initiativeStartTime;
     this.outcomeProducer = outcomeProducer;
+    this.notificationProducer = notificationProducer;
     this.decryptRestConnector = decryptRestConnector;
     this.initiativeWebMapper = initiativeWebMapper;
     this.generalWebMapper = generalWebMapper;
@@ -551,13 +556,18 @@ public class OnboardingServiceImpl implements OnboardingService {
     for (Onboarding o : validOnboardings) {
       InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
       String initiativeName = initiative.getInitiativeName();
-      String serviceId = initiative.getAdditionalInfo().getServiceId();
+      String serviceId = initiative.getAdditionalInfo() != null ? initiative.getAdditionalInfo().getServiceId() : null;
+      String status = shouldBeWaitingList(o) ? ON_WAITING_LIST : ON_EVALUATION;
 
-        dtoList.add(new OnboardingStatusCitizenDTO(
+      if (ON_WAITING_LIST.equals(status) && !Boolean.TRUE.equals(o.getWaitingListNotified())) {
+        notifyWaitingListIfNeeded(o, serviceId);
+      }
+
+      dtoList.add(new OnboardingStatusCitizenDTO(
               initiativeName,
               serviceId,
               o.getInitiativeId(),
-                ON_WAITING_LIST,
+              status,
               o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY
       ));
     }
@@ -567,10 +577,29 @@ public class OnboardingServiceImpl implements OnboardingService {
     return dtoList;
   }
 
+  private void notifyWaitingListIfNeeded(Onboarding onboarding, String serviceId) {
+    try {
+      NotificationQueueDTO notificationQueueDTO = buildNotificationQueueDTO(onboarding, serviceId);
+
+      if (!notificationProducer.sendNotification(notificationQueueDTO)) {
+        log.warn("[ONBOARDING] Failed to publish waiting list notification for user {} and initiative {}",
+                sanitizeString(onboarding.getUserId()), sanitizeString(onboarding.getInitiativeId()));
+        return;
+      }
+
+      onboarding.setWaitingListNotified(Boolean.TRUE);
+      onboardingRepository.save(onboarding);
+    } catch (Exception e) {
+      log.error("[ONBOARDING] Error while publishing waiting list notification for user {} and initiative {}",
+              sanitizeString(onboarding.getUserId()), sanitizeString(onboarding.getInitiativeId()), e);
+    }
+  }
+
+
   @Override
   public boolean shouldBeWaitingList(Onboarding o) {
     InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(o.getInitiativeId());
-    return ON_EVALUATION.equals(o.getStatus()) && !initiativeStatusDTO.isResidualBudgetAvailable();
+    return ON_EVALUATION.equals(o.getStatus()) && (initiativeStatusDTO == null || !initiativeStatusDTO.isResidualBudgetAvailable());
   }
 
   public static String sanitizeString(String str){
@@ -1153,5 +1182,15 @@ public class OnboardingServiceImpl implements OnboardingService {
     return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
   }
 
-}
+  private NotificationQueueDTO buildNotificationQueueDTO(Onboarding onboarding, String serviceId) {
+    return NotificationQueueDTO.builder()
+            .operationType("ONBOARDING")
+            .userId(onboarding.getUserId())
+            .initiativeId(onboarding.getInitiativeId())
+            .serviceId(serviceId)
+            .status(ON_WAITING_LIST)
+            .build();
+  }
 
+
+}

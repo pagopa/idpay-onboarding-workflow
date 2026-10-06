@@ -68,6 +68,13 @@ spring:
               binder:
                 brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
                 configuration.sasl.jaas.config: ${KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG:}
+        kafka-notification:
+          type: kafka
+          environment:
+            spring.cloud.stream.kafka:
+              binder:
+                brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
+                configuration.sasl.jaas.config: ${KAFKA_NOTIFICATION_SASL_JAAS_CONFIG:}
       bindings:
         consumerOutcome-in-0:
           binder: kafka-outcome
@@ -92,6 +99,10 @@ spring:
           binder: servicebus-onboarding
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_ONBOARDING:idpay_onboarding_request_session}
+        notificationRequest-out-0:
+          binder: kafka-notification
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_NOTIFICATION:idpay-notification-request}
       kafka:
         binder:
           auto-create-topics: false
