@@ -23,11 +23,9 @@ public class InitiativeGeneralDTO   {
   @JsonProperty("beneficiaryKnown")
   private Boolean beneficiaryKnown;
 
-  @JsonProperty("beneficiaryBudget")
-  private BigDecimal beneficiaryBudget;
+  @JsonProperty("beneficiaryBudgetFixedCents")
+  private BigDecimal beneficiaryBudgetFixedCents;
 
-  @JsonProperty("beneficiaryBudgetMax")
-  private BigDecimal beneficiaryBudgetMax;
 
   @JsonProperty("startDate")
   private LocalDate startDate;
@@ -47,5 +45,7 @@ public class InitiativeGeneralDTO   {
   @JsonProperty("descriptionMap")
   @Valid
   private Map<String, String> descriptionMap;
+
+
 
 }

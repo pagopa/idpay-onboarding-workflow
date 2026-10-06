@@ -3,7 +3,6 @@ package it.gov.pagopa.onboarding.workflow.dto.mapper;
 import it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfDeclarationItemsDTO;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import org.junit.jupiter.api.Test;
@@ -30,8 +29,7 @@ class ConsentMapperTest {
   @Test
   void map_ok() {
     List<SelfDeclarationItemsDTO> selfConsent = List.of(
-        new SelfCriteriaBoolDTO("boolean", "descr", "subDescr", true, "1"),
-        new SelfCriteriaMultiDTO("multi", "descr", "subDescr", List.of("Value"), "2"));
+        new SelfCriteriaBoolDTO("boolean", "descr", "subDescr", true, "1"));
     final Onboarding onboarding = new Onboarding(INITIATIVE_ID_OK, USER_ID_OK);
     onboarding.setPdndAccept(true);
     onboarding.setTc(true);

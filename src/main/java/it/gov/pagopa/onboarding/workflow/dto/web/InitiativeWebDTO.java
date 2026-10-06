@@ -5,7 +5,7 @@ import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-
+import lombok.Data;
 
 
 /**
@@ -13,6 +13,7 @@ import lombok.Builder;
  */
 @Builder
 @AllArgsConstructor
+@Data
 public class InitiativeWebDTO {
 
 

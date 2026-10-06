@@ -6,10 +6,7 @@ import it.gov.pagopa.onboarding.workflow.connector.admissibility.AdmissibilityRe
 import it.gov.pagopa.onboarding.workflow.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaBoolDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaMultiDTO;
-import it.gov.pagopa.onboarding.workflow.dto.initiative.SelfCriteriaTextDTO;
+import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
@@ -32,7 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -54,9 +50,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
-  private static final String ISEE_PREFIX_ACCENT   = "S\u00EC, inferiore a 25.000"; // "Sì, inferiore a 25.000"
-  private static final String ISEE_PREFIX_ASCII    = "Si, inferiore a 25.000";      // senza accento
-  private static final String ISEE_PREFIX_MOJIBAKE = "SÃ¬, inferiore a 25.000";     // accento rotto
 
   private final int pageSize;
   private final long delayTime;
@@ -160,15 +153,20 @@ public class OnboardingServiceImpl implements OnboardingService {
       throw new OnboardingStatusException(e.getCode(), e.getMessage());
     }
 
-    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}", sanitize(userId),
+    log.info("[ONBOARDING_STATUS] Onboarding status for user {} on initiative {} is: {}",
+            sanitize(userId),
             sanitize(initiativeId),
             sanitize(status));
 
-    return new OnboardingStatusDTO(
-            status,
-            onboarding.getUpdateDate(),
-            onboarding.getOnboardingOkDate() != null ? onboarding.getOnboardingOkDate() : null
-    );
+    OnboardingStatusDTO.OnboardingStatusDTOBuilder dtoBuilder = OnboardingStatusDTO.builder()
+            .status(status)
+            .statusDate(onboarding.getUpdateDate());
+
+    if (onboarding.getOnboardingOkDate() != null) {
+      dtoBuilder.onboardingOkDate(onboarding.getOnboardingOkDate());
+    }
+
+    return dtoBuilder.build();
   }
 
   @Override
@@ -329,12 +327,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     OnboardingDTO onboardingDTO = consentMapper.map(onboarding);
     onboardingDTO.setServiceId(initiativeDTO.getAdditionalInfo().getServiceId());
 
-    boolean verifyIsee = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(SelfConsentMultiDTO.class::isInstance)
-            .map(SelfConsentMultiDTO.class::cast)
-            .anyMatch(dto -> ISEE_CODE.equals(dto.getCode()) && (INTEGER_ONE.equals(dto.getValue()) || isIseeUnder25kLabel(String.valueOf(dto.getValue()))));
-
-    onboardingDTO.setVerifyIsee(verifyIsee);
+    onboardingDTO.setVerifies(createVerifies(initiativeDTO, consentPutDTO));
 
     onboardingRepository.save(onboarding);
     log.info("[ONBOARDING] Onboarding record saved for user {} and initiative {}", sanitizeString(userId), sanitizeString(onboarding.getInitiativeId()));
@@ -348,6 +341,64 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     performanceLog(startTime, "SAVE_CONSENT", userId, initiativeDTO.getInitiativeId());
+  }
+
+  @Override
+  public List<VerifyDTO> createVerifies(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
+    if (isInputInvalid(initiativeDTO, consentPutDTO)) {
+      return new ArrayList<>();
+    }
+
+    Map<String, String> userConsentsMap = extractUserConsents(consentPutDTO.getSelfDeclarationList());
+
+    return initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().stream()
+            .filter(SelfCriteriaMultiTypeDTO.class::isInstance)
+            .map(SelfCriteriaMultiTypeDTO.class::cast)
+            .map(criteria -> findMatchingVerify(criteria, userConsentsMap))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
+  }
+
+  private boolean isInputInvalid(InitiativeDTO initiativeDTO, ConsentPutDTO consentPutDTO) {
+    return initiativeDTO == null ||
+            initiativeDTO.getBeneficiaryRule() == null ||
+            initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria() == null ||
+            consentPutDTO == null ||
+            consentPutDTO.getSelfDeclarationList() == null;
+  }
+
+  private Map<String, String> extractUserConsents(List<SelfConsentDTO> selfDeclarationList) {
+    Map<String, String> consentsMap = new HashMap<>();
+    for (SelfConsentDTO consent : selfDeclarationList) {
+      if (consent instanceof SelfConsentMultiDTO multi) {
+        consentsMap.put(multi.getCode(), multi.getValue());
+      }
+    }
+    return consentsMap;
+  }
+
+  private Optional<VerifyDTO> findMatchingVerify(SelfCriteriaMultiTypeDTO criteria, Map<String, String> userConsentsMap) {
+    String userValue = userConsentsMap.get(criteria.getCode());
+    if (userValue == null) {
+      return Optional.empty();
+    }
+
+    return criteria.getValue().stream()
+            .filter(option -> option.getValue().equals(userValue))
+            .findFirst()
+            .map(option -> buildVerifyDTO(criteria.getCode(), option));
+  }
+
+  private VerifyDTO buildVerifyDTO(String code, SelfCriteriaMultiTypeValueDTO option) {
+    return VerifyDTO.builder()
+            .code(code)
+            .verify(Boolean.TRUE.equals(option.getVerify()) ? Boolean.TRUE : Boolean.FALSE)
+            .thresholdCode(option.getThresholdCode())
+            .beneficiaryBudgetCentsMin(option.getBeneficiaryBudgetCentsMin())
+            .beneficiaryBudgetCentsMax(option.getBeneficiaryBudgetCentsMax())
+            .blockingVerify(Boolean.TRUE.equals(option.getBlockingVerify()) ? Boolean.TRUE : Boolean.FALSE)
+            .build();
   }
 
   @Override
@@ -448,7 +499,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         log.info("[DEACTIVATE_ONBOARDING] Onboarding disabled, date: {}", sanitize(deactivationDate));
         auditUtilities.logDeactivate(userId, initiativeId, onboarding.getChannel(), LocalDateTime.parse(deactivationDate));
         performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
-      } catch (Exception e){
+      } catch (Exception _){
         auditUtilities.logDeactivateKO(userId, initiativeId, onboarding.getChannel(), localDeactivationDate);
         performanceLog(startTime, "DEACTIVATE_ONBOARDING", userId, initiativeId);
         log.info("[SUSPENSION] User deactivation from the initiative {} is failed", sanitizeString(initiativeId));
@@ -550,7 +601,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logSuspension(userId, initiativeId);
       log.info("[SUSPENSION] User is suspended from the initiative {}", sanitizedInitiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
-    } catch (Exception e){
+    } catch (Exception _){
       auditUtilities.logSuspensionKO(userId, initiativeId);
       performanceLog(startTime, SUSPENSION, userId, initiativeId);
       log.info("[SUSPENSION] User suspension from the initiative {} is failed", sanitizedInitiativeId);
@@ -581,7 +632,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       auditUtilities.logReadmission(userId, initiativeId);
       log.info("[READMISSION] User is readmitted to the initiative {}", sanitizedInitiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
-    } catch (Exception e){
+    } catch (Exception _){
       auditUtilities.logReadmissionKO(userId, initiativeId);
       performanceLog(startTime, READMISSION, userId, initiativeId);
       log.info("[READMISSION] User readmission to the initiative {} is failed", sanitizedInitiativeId);
@@ -687,8 +738,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     dto.setAdmissibilityCheckDate(LocalDateTime.now());
     dto.setStatus(status);
     dto.setOnboardingRejectionReasons(List.of());
-    dto.setBeneficiaryBudgetCents(null != initiativeDTO.getGeneral().getBeneficiaryBudget() ? initiativeDTO.getGeneral().getBeneficiaryBudget().multiply(BigDecimal.valueOf(100)).longValue() : null);
-    dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
+ dto.setInitiativeRewardType(initiativeDTO.getInitiativeRewardType());
     dto.setOrganizationName(initiativeDTO.getOrganizationName());
     dto.setIsLogoPresent(initiativeDTO.getIsLogoPresent());
     dto.setServiceId(null != initiativeDTO.getAdditionalInfo() ? initiativeDTO.getAdditionalInfo().getServiceId() : null);
@@ -797,7 +847,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       }
     }else {
       log.warn("[GET_INITIATIVE] initiativeDTO is null for id {}", sanitizedInitiativeId);
-      return null;
+      throw new InitiativeNotFoundException(String.format(INITIATIVE_NOT_FOUND_MSG, initiativeId), true, null);
     }
 
   }
@@ -905,17 +955,17 @@ public class OnboardingServiceImpl implements OnboardingService {
     }
 
     Map<String, Boolean> selfDeclarationBool = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(item -> item.getClass().equals(SelfConsentBoolDTO.class))
+            .filter(SelfConsentBoolDTO.class::isInstance)
             .map(SelfConsentBoolDTO.class::cast)
             .collect(Collectors.toMap(SelfConsentBoolDTO::getCode, SelfConsentBoolDTO::isAccepted));
 
     Map<String, String> selfDeclarationMulti = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(item -> item.getClass().equals(SelfConsentMultiDTO.class))
+            .filter(SelfConsentMultiDTO.class::isInstance)
             .map(SelfConsentMultiDTO.class::cast)
             .collect(Collectors.toMap(SelfConsentMultiDTO::getCode, SelfConsentMultiDTO::getValue));
 
     Map<String, String> selfDeclarationText = consentPutDTO.getSelfDeclarationList().stream()
-            .filter(item -> item.getClass().equals(SelfConsentTextDTO.class))
+            .filter(SelfConsentTextDTO.class::isInstance)
             .map(SelfConsentTextDTO.class::cast)
             .collect(Collectors.toMap(SelfConsentTextDTO::getCode, SelfConsentTextDTO::getValue));
 
@@ -933,7 +983,8 @@ public class OnboardingServiceImpl implements OnboardingService {
         }
         bool.setValue(true);
       }
-      if (item instanceof SelfCriteriaMultiDTO multi) {
+
+      if (item instanceof SelfCriteriaMultiTypeDTO multi) {
         multiCriteriaCheck(initiativeDTO, multi, selfDeclarationMulti);
 
         SelfDeclarationMultiValues multiValueToSave = new SelfDeclarationMultiValues(
@@ -975,18 +1026,33 @@ public class OnboardingServiceImpl implements OnboardingService {
 
   @Override
   public boolean sizeCheck(InitiativeDTO initiativeDTO, Map<String, Boolean> selfDeclarationBool, Map<String, String> selfDeclarationMulti, Map<String, String> selfDeclarationText) {
+    // BND-1884: informative criteria are read-only (no user consent) and must be excluded from the consent size check
+    long consentableCriteriaSize = initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().stream()
+            .filter(criteria -> !(criteria instanceof SelfCriteriaInformativeDTO))
+            .count();
     return selfDeclarationBool.size() + selfDeclarationMulti.size() + selfDeclarationText.size()
-            != initiativeDTO.getBeneficiaryRule().getSelfDeclarationCriteria().size();
+            != consentableCriteriaSize;
   }
 
+
   @Override
-  public void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiDTO multi, Map<String, String> selfDeclarationMulti) {
+  public void multiCriteriaCheck(InitiativeDTO initiativeDTO, SelfCriteriaMultiTypeDTO multi, Map<String, String> selfDeclarationMulti) {
     String value = selfDeclarationMulti.get(multi.getCode());
-    if (value == null || !multi.getValue().contains(value)) {
+    List<String> values = new ArrayList<>();
+    for(SelfCriteriaMultiTypeValueDTO selfValue : multi.getValue()){
+      values.add(selfValue.getValue());
+    }
+    if (value == null || !values.contains(value)) {
       auditUtilities.logOnboardingKOInitiativeId(initiativeDTO.getInitiativeId(), ERROR_SELF_DECLARATION_DENY_AUDIT);
       throw new SelfDeclarationCrtieriaException(String.format(ERROR_SELF_DECLARATION_NOT_VALID_MSG, initiativeDTO.getInitiativeId()));
     }
-    multi.setValue(List.of(value));
+    SelfCriteriaMultiTypeValueDTO multiTypeValueDTO = new SelfCriteriaMultiTypeValueDTO();
+    for(SelfCriteriaMultiTypeValueDTO selfValue : multi.getValue()){
+      if(value.equals(selfValue.getValue())){
+        multiTypeValueDTO = selfValue;
+      }
+    }
+    multi.setValue(List.of(multiTypeValueDTO));
   }
 
   @Override
@@ -1085,14 +1151,6 @@ public class OnboardingServiceImpl implements OnboardingService {
   private String sanitize(String input) {
     if (input == null) return "null";
     return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
-  }
-
-  private boolean isIseeUnder25kLabel(String raw) {
-    if (raw == null) return false;
-    String s = raw.stripLeading();
-    return s.startsWith(ISEE_PREFIX_ACCENT)
-            || s.startsWith(ISEE_PREFIX_ASCII)
-            || s.startsWith(ISEE_PREFIX_MOJIBAKE);
   }
 
 }
