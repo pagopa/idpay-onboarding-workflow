@@ -2847,7 +2847,7 @@ class OnboardingServiceTest {
         assertNotNull(response);
         assertEquals(1, response.size());
         assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
-        assertNull(onboarding.getWaitingListNotified());
+        assertFalse(onboarding.getWaitingListNotified());
         verify(onboardingRepositoryMock, never()).save(any(Onboarding.class));
         verify(notificationProducer, times(1)).sendNotification(any(NotificationQueueDTO.class));
     }

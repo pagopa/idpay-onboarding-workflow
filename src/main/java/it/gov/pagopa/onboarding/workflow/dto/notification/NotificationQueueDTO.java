@@ -15,5 +15,6 @@ public class NotificationQueueDTO {
   private String initiativeId;
   private String serviceId;
   private String status;
+  private String initiativeName;
 }
 

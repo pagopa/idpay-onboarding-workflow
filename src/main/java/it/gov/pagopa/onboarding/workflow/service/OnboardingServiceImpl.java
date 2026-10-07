@@ -560,7 +560,7 @@ public class OnboardingServiceImpl implements OnboardingService {
       String status = shouldBeWaitingList(o) ? ON_WAITING_LIST : ON_EVALUATION;
 
       if (ON_WAITING_LIST.equals(status) && !Boolean.TRUE.equals(o.getWaitingListNotified())) {
-        notifyWaitingListIfNeeded(o, serviceId);
+        notifyWaitingListIfNeeded(o, initiative);
       }
 
       dtoList.add(new OnboardingStatusCitizenDTO(
@@ -577,9 +577,9 @@ public class OnboardingServiceImpl implements OnboardingService {
     return dtoList;
   }
 
-  private void notifyWaitingListIfNeeded(Onboarding onboarding, String serviceId) {
+  private void notifyWaitingListIfNeeded(Onboarding onboarding, InitiativeDTO initiative) {
     try {
-      NotificationQueueDTO notificationQueueDTO = buildNotificationQueueDTO(onboarding, serviceId);
+      NotificationQueueDTO notificationQueueDTO = buildNotificationQueueDTO(onboarding, initiative);
 
       if (!notificationProducer.sendNotification(notificationQueueDTO)) {
         log.warn("[ONBOARDING] Failed to publish waiting list notification for user {} and initiative {}",
@@ -1182,12 +1182,13 @@ public class OnboardingServiceImpl implements OnboardingService {
     return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
   }
 
-  private NotificationQueueDTO buildNotificationQueueDTO(Onboarding onboarding, String serviceId) {
+  private NotificationQueueDTO buildNotificationQueueDTO(Onboarding onboarding, InitiativeDTO initiative) {
     return NotificationQueueDTO.builder()
             .operationType("ONBOARDING")
             .userId(onboarding.getUserId())
             .initiativeId(onboarding.getInitiativeId())
-            .serviceId(serviceId)
+            .serviceId(initiative.getAdditionalInfo() != null ? initiative.getAdditionalInfo().getServiceId() : null)
+            .initiativeName(initiative.getInitiativeName())
             .status(ON_WAITING_LIST)
             .build();
   }
