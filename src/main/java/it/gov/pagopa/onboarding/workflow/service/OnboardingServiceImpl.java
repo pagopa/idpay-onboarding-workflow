@@ -27,6 +27,7 @@ import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final InitiativeRestConnector initiativeRestConnector;
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
-  protected final String initiativeConfig;
+  protected final List<String> initiativeIds;
 
   protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
 
@@ -112,7 +113,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
     this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
-    this.initiativeConfig= initiativeConfig;
+
+    this.initiativeIds = Arrays.stream(initiativeConfig.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toList();
   }
 
   @Override
@@ -534,24 +539,8 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
-    List<String> initiativeIds = Arrays.stream(initiativeConfig.split(","))
-            .map(String::trim)
-            .filter(s -> !s.isEmpty())
-            .toList();
 
-    List<Onboarding> validOnboardings = new ArrayList<>();
-
-    for (String initiativeId : initiativeIds) {
-      String id = userId + "_" + initiativeId;
-      Criteria criteria = Criteria.where("_id").is(id);
-      List<Onboarding> onboardings = onboardingRepository.findByFilter(criteria);
-
-      for (Onboarding onboarding : onboardings) {
-        if (ON_EVALUATION.equals(onboarding.getStatus())) {
-          validOnboardings.add(onboarding);
-        }
-      }
-    }
+    List<Onboarding> validOnboardings = retrieveOnboardingsForAllowedInitiatives(userId);
 
     for (Onboarding o : validOnboardings) {
       InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
@@ -575,6 +564,23 @@ public class OnboardingServiceImpl implements OnboardingService {
     performanceLog(startTime, "GET_USER_INITIATIVE_STATUS", userId, null);
 
     return dtoList;
+  }
+
+  private List<Onboarding> retrieveOnboardingsForAllowedInitiatives(String userId) {
+    List<Onboarding> validOnboardings = new ArrayList<>();
+
+    for (String initiativeId : initiativeIds) {
+      String id = userId + "_" + initiativeId;
+      Criteria criteria = Criteria.where("_id").is(id);
+      List<Onboarding> onboardings = onboardingRepository.findByFilter(criteria);
+
+      for (Onboarding onboarding : onboardings) {
+        if (ON_EVALUATION.equals(onboarding.getStatus())) {
+          validOnboardings.add(onboarding);
+        }
+      }
+    }
+    return validOnboardings;
   }
 
   private void notifyWaitingListIfNeeded(Onboarding onboarding, InitiativeDTO initiative) {

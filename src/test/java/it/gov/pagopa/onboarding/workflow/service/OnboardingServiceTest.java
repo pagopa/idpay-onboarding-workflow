@@ -2804,7 +2804,7 @@ class OnboardingServiceTest {
 
     @Test
     void getOnboardingStatusList_shouldSetWaitingListAndNotifyOnceOnBudgetExhaustion() {
-        ReflectionTestUtils.setField(onboardingService, "initiativeConfig", INITIATIVE_ID);
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
@@ -2828,7 +2828,7 @@ class OnboardingServiceTest {
 
     @Test
     void getOnboardingStatusList_shouldNotMarkWaitingListAsNotifiedWhenPublishFails() {
-        ReflectionTestUtils.setField(onboardingService, "initiativeConfig", INITIATIVE_ID);
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
@@ -2871,7 +2871,7 @@ class OnboardingServiceTest {
 
     @Test
     void getOnboardingStatusList_shouldFilterOnEvaluationStatus() {
-        ReflectionTestUtils.setField(onboardingService, "initiativeConfig", INITIATIVE_ID);
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
@@ -3565,7 +3565,7 @@ class OnboardingServiceTest {
 
     @Test
     void getOnboardingStatusList_shouldSkipNonOnEvaluation() {
-        ReflectionTestUtils.setField(onboardingService, "initiativeConfig", INITIATIVE_ID);
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus("JOINED");
