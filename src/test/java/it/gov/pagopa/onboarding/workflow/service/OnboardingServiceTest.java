@@ -20,6 +20,8 @@ import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
+import it.gov.pagopa.onboarding.workflow.event.producer.NotificationProducer;
+import it.gov.pagopa.onboarding.workflow.dto.notification.NotificationQueueDTO;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
@@ -114,6 +116,8 @@ class OnboardingServiceTest {
 
     @Mock
     private OutcomeProducer outcomeProducer;
+    @Mock
+    private NotificationProducer notificationProducer;
     @Mock
     private DecryptRestConnector decryptRestConnector;
 
@@ -384,6 +388,7 @@ class OnboardingServiceTest {
                 consentMapper,
                 onboardingProducer,
                 outcomeProducer,
+                notificationProducer,
                 initiativeRestConnector,
                 decryptRestConnector,
                 admissibilityRestConnector,
@@ -2798,6 +2803,56 @@ class OnboardingServiceTest {
     }
 
     @Test
+    void getOnboardingStatusList_shouldSetWaitingListAndNotifyOnceOnBudgetExhaustion() {
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
+
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+        onboarding.setUpdateDate(LocalDateTime.now());
+
+        when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
+                .thenReturn(List.of(onboarding));
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+                .thenReturn(InitiativeStatusDTO.builder().status(PUBLISHED).residualBudgetAvailable(false).build());
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
+        when(notificationProducer.sendNotification(any())).thenReturn(true);
+
+        List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
+
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
+        verify(notificationProducer, times(1)).sendNotification(any(NotificationQueueDTO.class));
+    }
+
+    @Test
+    void getOnboardingStatusList_shouldNotMarkWaitingListAsNotifiedWhenPublishFails() {
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
+
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        onboarding.setStatus(ON_EVALUATION);
+        onboarding.setUpdateDate(LocalDateTime.now());
+
+        when(onboardingRepositoryMock.findByFilter(any(Criteria.class)))
+                .thenReturn(List.of(onboarding));
+        when(admissibilityRestConnector.getInitiativeStatus(INITIATIVE_ID))
+                .thenReturn(InitiativeStatusDTO.builder().status(PUBLISHED).residualBudgetAvailable(false).build());
+        when(initiativeRestConnectorImpl.getInitiativeBeneficiaryView(anyString()))
+                .thenReturn(INITIATIVE_DTO);
+        when(notificationProducer.sendNotification(any())).thenReturn(false);
+
+        List<OnboardingStatusCitizenDTO> response = onboardingService.getOnboardingStatusList(USER_ID);
+
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(ON_WAITING_LIST, response.getFirst().getStatus());
+        assertFalse(onboarding.getWaitingListNotified());
+        verify(onboardingRepositoryMock, never()).save(any(Onboarding.class));
+        verify(notificationProducer, times(1)).sendNotification(any(NotificationQueueDTO.class));
+    }
+
+    @Test
     void shouldBeWaitingList_shouldReturnFalse_whenBudgetAvailable() {
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
@@ -2816,7 +2871,7 @@ class OnboardingServiceTest {
 
     @Test
     void getOnboardingStatusList_shouldFilterOnEvaluationStatus() {
-        ReflectionTestUtils.setField(onboardingService, "initiativeConfig", INITIATIVE_ID);
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus(ON_EVALUATION);
@@ -3510,7 +3565,7 @@ class OnboardingServiceTest {
 
     @Test
     void getOnboardingStatusList_shouldSkipNonOnEvaluation() {
-        ReflectionTestUtils.setField(onboardingService, "initiativeConfig", INITIATIVE_ID);
+        ReflectionTestUtils.setField(onboardingService, "initiativeIds", List.of(INITIATIVE_ID));
 
         Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
         onboarding.setStatus("JOINED");
