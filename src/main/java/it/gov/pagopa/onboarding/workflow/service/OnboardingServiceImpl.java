@@ -8,6 +8,7 @@ import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.admissibility.InitiativeStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.*;
 import it.gov.pagopa.onboarding.workflow.dto.mapper.ConsentMapper;
+import it.gov.pagopa.onboarding.workflow.dto.notification.NotificationQueueDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeGeneralWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.InitiativeWebDTO;
 import it.gov.pagopa.onboarding.workflow.dto.web.mapper.GeneralWebMapper;
@@ -15,6 +16,7 @@ import it.gov.pagopa.onboarding.workflow.dto.web.mapper.InitiativeWebMapper;
 import it.gov.pagopa.onboarding.workflow.enums.AutomatedCriteria;
 import it.gov.pagopa.onboarding.workflow.event.producer.OnboardingProducer;
 import it.gov.pagopa.onboarding.workflow.event.producer.OutcomeProducer;
+import it.gov.pagopa.onboarding.workflow.event.producer.NotificationProducer;
 import it.gov.pagopa.onboarding.workflow.exception.custom.*;
 import it.gov.pagopa.onboarding.workflow.model.Onboarding;
 import it.gov.pagopa.onboarding.workflow.model.SelfDeclaration;
@@ -25,6 +27,7 @@ import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
@@ -58,6 +61,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
 
   private final OutcomeProducer outcomeProducer;
+  private final NotificationProducer notificationProducer;
   private final DecryptRestConnector decryptRestConnector;
   private final InitiativeWebMapper initiativeWebMapper;
   private final GeneralWebMapper generalWebMapper;
@@ -69,7 +73,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   protected final InitiativeRestConnector initiativeRestConnector;
   protected final AdmissibilityRestConnector admissibilityRestConnector;
   protected final SelfDeclarationRepository selfDeclarationRepository;
-  protected final String initiativeConfig;
+  protected final List<String> initiativeIds;
 
   protected final InitiativeRestConnectorImpl initiativeRestConnectorImpl;
 
@@ -80,6 +84,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                                ConsentMapper consentMapper,
                                OnboardingProducer onboardingProducer,
                                OutcomeProducer outcomeProducer,
+                               NotificationProducer notificationProducer,
                                InitiativeRestConnector initiativeRestConnector,
                                DecryptRestConnector decryptRestConnector,
                                AdmissibilityRestConnector admissibilityRestConnector,
@@ -95,6 +100,7 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.delayTime = delayTime;
     this.initiativeStartTime = initiativeStartTime;
     this.outcomeProducer = outcomeProducer;
+    this.notificationProducer = notificationProducer;
     this.decryptRestConnector = decryptRestConnector;
     this.initiativeWebMapper = initiativeWebMapper;
     this.generalWebMapper = generalWebMapper;
@@ -107,7 +113,11 @@ public class OnboardingServiceImpl implements OnboardingService {
     this.admissibilityRestConnector = admissibilityRestConnector;
     this.selfDeclarationRepository = selfDeclarationRepository;
     this.initiativeRestConnectorImpl = initiativeRestConnectorImpl;
-    this.initiativeConfig= initiativeConfig;
+
+    this.initiativeIds = Arrays.stream(initiativeConfig.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toList();
   }
 
   @Override
@@ -529,11 +539,34 @@ public class OnboardingServiceImpl implements OnboardingService {
 
     List<OnboardingStatusCitizenDTO> dtoList = new ArrayList<>();
 
-    List<String> initiativeIds = Arrays.stream(initiativeConfig.split(","))
-            .map(String::trim)
-            .filter(s -> !s.isEmpty())
-            .toList();
 
+    List<Onboarding> validOnboardings = retrieveOnboardingsForAllowedInitiatives(userId);
+
+    for (Onboarding o : validOnboardings) {
+      InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
+      String initiativeName = initiative.getInitiativeName();
+      String serviceId = initiative.getAdditionalInfo() != null ? initiative.getAdditionalInfo().getServiceId() : null;
+      String status = shouldBeWaitingList(o) ? ON_WAITING_LIST : ON_EVALUATION;
+
+      if (ON_WAITING_LIST.equals(status) && !Boolean.TRUE.equals(o.getWaitingListNotified())) {
+        notifyWaitingListIfNeeded(o, initiative);
+      }
+
+      dtoList.add(new OnboardingStatusCitizenDTO(
+              initiativeName,
+              serviceId,
+              o.getInitiativeId(),
+              status,
+              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY
+      ));
+    }
+
+    performanceLog(startTime, "GET_USER_INITIATIVE_STATUS", userId, null);
+
+    return dtoList;
+  }
+
+  private List<Onboarding> retrieveOnboardingsForAllowedInitiatives(String userId) {
     List<Onboarding> validOnboardings = new ArrayList<>();
 
     for (String initiativeId : initiativeIds) {
@@ -547,30 +580,32 @@ public class OnboardingServiceImpl implements OnboardingService {
         }
       }
     }
-
-    for (Onboarding o : validOnboardings) {
-      InitiativeDTO initiative = initiativeRestConnectorImpl.getInitiativeBeneficiaryView(o.getInitiativeId());
-      String initiativeName = initiative.getInitiativeName();
-      String serviceId = initiative.getAdditionalInfo().getServiceId();
-
-        dtoList.add(new OnboardingStatusCitizenDTO(
-              initiativeName,
-              serviceId,
-              o.getInitiativeId(),
-                ON_WAITING_LIST,
-              o.getUpdateDate() != null ? o.getUpdateDate().toString() : EMPTY
-      ));
-    }
-
-    performanceLog(startTime, "GET_USER_INITIATIVE_STATUS", userId, null);
-
-    return dtoList;
+    return validOnboardings;
   }
+
+  private void notifyWaitingListIfNeeded(Onboarding onboarding, InitiativeDTO initiative) {
+    try {
+      NotificationQueueDTO notificationQueueDTO = buildNotificationQueueDTO(onboarding, initiative);
+
+      if (!notificationProducer.sendNotification(notificationQueueDTO)) {
+        log.warn("[ONBOARDING] Failed to publish waiting list notification for user {} and initiative {}",
+                sanitizeString(onboarding.getUserId()), sanitizeString(onboarding.getInitiativeId()));
+        return;
+      }
+
+      onboarding.setWaitingListNotified(Boolean.TRUE);
+      onboardingRepository.save(onboarding);
+    } catch (Exception e) {
+      log.error("[ONBOARDING] Error while publishing waiting list notification for user {} and initiative {}",
+              sanitizeString(onboarding.getUserId()), sanitizeString(onboarding.getInitiativeId()), e);
+    }
+  }
+
 
   @Override
   public boolean shouldBeWaitingList(Onboarding o) {
     InitiativeStatusDTO initiativeStatusDTO = admissibilityRestConnector.getInitiativeStatus(o.getInitiativeId());
-    return ON_EVALUATION.equals(o.getStatus()) && !initiativeStatusDTO.isResidualBudgetAvailable();
+    return ON_EVALUATION.equals(o.getStatus()) && (initiativeStatusDTO == null || !initiativeStatusDTO.isResidualBudgetAvailable());
   }
 
   public static String sanitizeString(String str){
@@ -1153,5 +1188,16 @@ public class OnboardingServiceImpl implements OnboardingService {
     return input.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
   }
 
-}
+  private NotificationQueueDTO buildNotificationQueueDTO(Onboarding onboarding, InitiativeDTO initiative) {
+    return NotificationQueueDTO.builder()
+            .operationType("ONBOARDING")
+            .userId(onboarding.getUserId())
+            .initiativeId(onboarding.getInitiativeId())
+            .serviceId(initiative.getAdditionalInfo() != null ? initiative.getAdditionalInfo().getServiceId() : null)
+            .initiativeName(initiative.getInitiativeName())
+            .status(ON_WAITING_LIST)
+            .build();
+  }
 
+
+}
