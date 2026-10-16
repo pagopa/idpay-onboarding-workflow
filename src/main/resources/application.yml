@@ -68,6 +68,13 @@ spring:
               binder:
                 brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
                 configuration.sasl.jaas.config: ${KAFKA_OUTCOME_OUT_SASL_JAAS_CONFIG:}
+        kafka-notification:
+          type: kafka
+          environment:
+            spring.cloud.stream.kafka:
+              binder:
+                brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
+                configuration.sasl.jaas.config: ${KAFKA_NOTIFICATION_SASL_JAAS_CONFIG:}
       bindings:
         consumerOutcome-in-0:
           binder: kafka-outcome
@@ -92,6 +99,10 @@ spring:
           binder: servicebus-onboarding
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_ONBOARDING:idpay_onboarding_request_session}
+        notificationRequest-out-0:
+          binder: kafka-notification
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_NOTIFICATION:idpay-notification-request}
       kafka:
         binder:
           auto-create-topics: false
@@ -144,6 +155,14 @@ spring:
                   max.ms: ${KAFKA_COMMANDS_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
                   ms: ${KAFKA_COMMANDS_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
           onboarding-out-0:
+            producer:
+              configuration:
+                connections.max.idle.ms: ${KAFKA_ONBOARDING_CONNECTION_MAX_IDLE_TIME:180000}
+                retry.backoff.ms: ${KAFKA_ONBOARDING_KAFKA_RETRY_MS:${KAFKA_RETRY_MS:10000}}
+                linger.ms: ${KAFKA_ONBOARDING_LINGER_MS:${KAFKA_LINGER_MS:2}}
+                batch.size: ${KAFKA_ERONBOARDING_BATCH_SIZE:${KAFKA_BATCH_SIZE:16384}}
+                metadata.max.idle.ms: ${KAFKA_ONBOARDING_METADATA_MAX_IDLE_MS:${KAFKA_METADATA_MAX_IDLE_MS:180000}}
+          notificationRequest-out-0:
             producer:
               configuration:
                 connections.max.idle.ms: ${KAFKA_ONBOARDING_CONNECTION_MAX_IDLE_TIME:180000}
