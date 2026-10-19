@@ -65,4 +65,6 @@ public class Onboarding {
 
   private String detail;
 
+  private Boolean waitingListNotified = Boolean.FALSE;
+
 }
