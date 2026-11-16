@@ -38,12 +38,16 @@ public class OnboardingWorkflowConstants {
   public static final String ERROR_BUDGET_TERMINATED = "BUDGET_TERMINATED";
   public static final String ERROR_WHITELIST = "NOT_IN_WHITELIST";
   public static final String ERROR_TECHNICAL = "TECHNICAL_ERROR";
+  public static final String ERROR_USER_BONUS_ALREADY_USED = "USER_BONUS_ALREADY_USED";
+  public static final String ERROR_FAMILY_BONUS_ALREADY_USED = "FAMILY_BONUS_ALREADY_USED";
+
   public static final class ExceptionMessage {
     public static final String ERROR_DISABLING_STATUS_MSG = "It is not possible to disable the user on initiative [%s]";
     public static final String ERROR_SUSPENSION_STATUS_MSG = "It is not possible to suspend the user on initiative [%s]";
     public static final String ERROR_READMIT_STATUS_MSG = "It is not possible to readmit the user on initiative [%s]";
     public static final String ERROR_MAX_NUMBER_FOR_PAGE_MSG = "Max number for page allowed: 15";
 
+    public static final String USER_BONUS_ALREADY_USED_MSG = "Non puoi aderire all’iniziativa Bonus Decoder perché hai già usufruito del bonus in passato.";
     public static final String TECHNICAL_ERROR_MSG = "Onboarding to initiative [%s] failed";
     public static final String UNSATISFIED_REQUIREMENTS_MSG = "The current user does not satisfy the requirements set for the initiative [%s]";
     public static final String ERROR_BUDGET_TERMINATED_MSG = "Budget exhausted for initiative [%s]";
@@ -78,6 +82,7 @@ public class OnboardingWorkflowConstants {
     public static final String SUSPENSION_NOT_ALLOWED = "ONBOARDING_SUSPENSION_NOT_ALLOWED_FOR_USER_STATUS";
     public static final String READMISSION_NOT_ALLOWED = "ONBOARDING_READMISSION_NOT_ALLOWED_FOR_USER_STATUS";
 
+    public static final String USER_BONUS_ALREADY_USED = "ONBOARDING_USER_BONUS_ALREADY_USED";
     public static final String USER_NOT_IN_WHITELIST = "ONBOARDING_USER_NOT_IN_WHITELIST";
     public static final String INITIATIVE_NOT_STARTED = "ONBOARDING_INITIATIVE_NOT_STARTED";
     public static final String INITIATIVE_ENDED = "ONBOARDING_INITIATIVE_ENDED";

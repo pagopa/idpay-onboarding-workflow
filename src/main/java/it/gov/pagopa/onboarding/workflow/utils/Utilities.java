@@ -26,6 +26,9 @@ public class Utilities {
                     OnboardingWorkflowConstants.ERROR_WHITELIST_MSG_AUDIT;
             case OnboardingWorkflowConstants.ERROR_TECHNICAL ->
                     OnboardingWorkflowConstants.TECHNICAL_ERROR_MSG_AUDIT;
+            case OnboardingWorkflowConstants.ERROR_USER_BONUS_ALREADY_USED,
+                 OnboardingWorkflowConstants.ERROR_FAMILY_BONUS_ALREADY_USED ->
+                    OnboardingWorkflowConstants.ExceptionMessage.USER_BONUS_ALREADY_USED_MSG;
             default -> OnboardingWorkflowConstants.GENERIC_REJECTION_ERROR_MSG_AUDIT;
         };
     }
@@ -44,6 +47,10 @@ public class Utilities {
                     throw new UserNotInWhitelistException(String.format(ERROR_WHITELIST_MSG, initiativeId));
             case OnboardingWorkflowConstants.ERROR_TECHNICAL ->
                     throw new InitiativeOnboardingException(TECHNICAL_ERROR, String.format(TECHNICAL_ERROR_MSG, initiativeId));
+            case OnboardingWorkflowConstants.ERROR_USER_BONUS_ALREADY_USED ->
+                    throw new InitiativeOnboardingException(USER_BONUS_ALREADY_USED, USER_BONUS_ALREADY_USED_MSG);
+            case OnboardingWorkflowConstants.ERROR_FAMILY_BONUS_ALREADY_USED ->
+                    throw new InitiativeOnboardingException(FAMILY_UNIT_ALREADY_JOINED, String.format(UNSATISFIED_REQUIREMENTS_MSG, initiativeId));
             default -> throw new InitiativeOnboardingException(UNSATISFIED_REQUIREMENTS, String.format(UNSATISFIED_REQUIREMENTS_MSG, initiativeId));
         }
     }

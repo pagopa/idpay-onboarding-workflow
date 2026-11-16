@@ -19,6 +19,7 @@ import static org.springframework.http.HttpStatus.OK;
 import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDetailsDTO;
+import it.gov.pagopa.onboarding.workflow.dto.TechnicalUsersCensusDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
@@ -328,6 +329,17 @@ class OnboardingControllerImplTest {
     assertEquals(OK, response.getStatusCode());
     assertEquals(dto, response.getBody());
     verify(onboardingService).getOnboardingStatusDetails(INITIATIVE_ID, userId);
+  }
+
+  @Test
+  void technicalUsersCensus_ShouldCallServiceAndReturnOk() {
+    String initiativeId = "INITIATIVE_1";
+    TechnicalUsersCensusDTO censusDTO = new TechnicalUsersCensusDTO(List.of("RSSMRA80A01H501U", "VRGNLA80A01H501W"));
+
+    ResponseEntity<Void> response = controller.technicalUsersCensus(initiativeId, censusDTO);
+
+    assertEquals(OK, response.getStatusCode());
+    verify(onboardingService, times(1)).technicalUsersCensus(initiativeId, censusDTO.getUserIds());
   }
 }
 

@@ -27,7 +27,6 @@ import it.gov.pagopa.onboarding.workflow.repository.SelfDeclarationRepository;
 import it.gov.pagopa.onboarding.workflow.utils.AuditUtilities;
 import it.gov.pagopa.onboarding.workflow.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
@@ -53,6 +52,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String GET_ONBOARDING_FAMILY = "GET_ONBOARDING_FAMILY";
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
+  public static final String TECHNICAL_USERS_CENSUS = "TECHNICAL_USERS_CENSUS";
 
   private final int pageSize;
   private final long delayTime;
@@ -308,6 +308,10 @@ public class OnboardingServiceImpl implements OnboardingService {
     long startTime = System.currentTimeMillis();
 
     Onboarding onboarding = findOnboardingByInitiativeIdAndUserId(consentPutDTO.getInitiativeId(), userId);
+
+    if (onboarding != null && ONBOARDING_KO.equals(onboarding.getStatus())) {
+        checkStatus(onboarding);
+    }
 
     if (onboarding != null && !USER_UNSUBSCRIBED.contains(onboarding.getStatus())) {
       handleExistingOnboarding(onboarding);
@@ -1199,5 +1203,37 @@ public class OnboardingServiceImpl implements OnboardingService {
             .build();
   }
 
+    @Override
+    public void technicalUsersCensus(String initiativeId, List<String> userIds) {
+        long startTime = System.currentTimeMillis();
+        log.info("[TECHNICAL_USERS_CENSUS] Starting census for initiative {}", sanitizeString(initiativeId));
+
+        for (String userId : userIds) {
+            try {
+                if (userId != null && !userId.isBlank()) {
+                    String onboardingId = Onboarding.buildId(initiativeId, userId);
+                    Onboarding onboarding = onboardingRepository.findById(onboardingId).orElse(null);
+
+                    LocalDateTime now = LocalDateTime.now();
+                    if (onboarding == null) {
+                        onboarding = new Onboarding(initiativeId, userId);
+                        onboarding.setCreationDate(now);
+                    }
+
+                    onboarding.setStatus(ONBOARDING_KO);
+                    onboarding.setDetailKO(ERROR_USER_BONUS_ALREADY_USED);
+                    onboarding.setOnboardingKODate(now);
+                    onboarding.setUpdateDate(now);
+
+                    onboardingRepository.save(onboarding);
+                    log.info("[TECHNICAL_USERS_CENSUS] Processed user successfully for initiative {}", sanitizeString(initiativeId));
+                }
+            } catch (Exception e) {
+                log.error("[TECHNICAL_USERS_CENSUS] Error processing user for initiative {}", sanitizeString(initiativeId), e);
+            }
+        }
+
+        performanceLog(startTime, TECHNICAL_USERS_CENSUS, null, initiativeId);
+    }
 
 }
