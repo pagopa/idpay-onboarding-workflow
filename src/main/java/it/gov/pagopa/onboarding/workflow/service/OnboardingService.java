@@ -51,4 +51,5 @@ public interface OnboardingService {
 
   OnboardingAssistanceDTO getOnboardingStatusAssistance(String initiativeId, String userId);
   OnboardingStatusDetailsDTO getOnboardingStatusDetails(String initiativeId, String userId);
+  void technicalUsersCensus(String initiativeId, List<String> fiscalCodes);
 }

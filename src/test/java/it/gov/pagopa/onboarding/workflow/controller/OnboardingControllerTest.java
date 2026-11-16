@@ -241,4 +241,21 @@ class OnboardingControllerTest {
                 .andReturn();
     }
 
+    @Test
+    void technicalUsersCensus_ok() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        TechnicalUsersCensusDTO requestDTO = new TechnicalUsersCensusDTO(List.of("RSSMRA80A01H501U"));
+
+        Mockito.doNothing().when(onboardingService)
+                .technicalUsersCensus(Mockito.eq(INITIATIVE_ID), Mockito.anyList());
+
+        mvc.perform(
+                        MockMvcRequestBuilders.post(BASE_URL + "/" + INITIATIVE_ID + "/technical/users")
+                                .contentType(APPLICATION_JSON_VALUE)
+                                .content(objectMapper.writeValueAsString(requestDTO))
+                                .accept(APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+    }
+
 }

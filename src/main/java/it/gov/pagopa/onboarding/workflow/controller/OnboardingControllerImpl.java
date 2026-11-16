@@ -98,5 +98,11 @@ public class OnboardingControllerImpl implements OnboardingController {
     OnboardingFamilyDTO onboardingFamilyDTO = onboardingService.getfamilyUnitComposition(initiativeId, userId);
     return new ResponseEntity<>(onboardingFamilyDTO, HttpStatus.OK);
   }
+
+  @Override
+  public ResponseEntity<Void> technicalUsersCensus(String initiativeId, TechnicalUsersCensusDTO body) {
+    onboardingService.technicalUsersCensus(initiativeId, body.getUserIds());
+    return ResponseEntity.ok().build();
+  }
   
 }
