@@ -16,10 +16,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.OK;
 
-import it.gov.pagopa.onboarding.workflow.dto.ConsentPutDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDTO;
-import it.gov.pagopa.onboarding.workflow.dto.OnboardingStatusDetailsDTO;
-import it.gov.pagopa.onboarding.workflow.dto.TechnicalUsersCensusDTO;
+import it.gov.pagopa.onboarding.workflow.dto.*;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeAdditionalDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeBeneficiaryRuleDTO;
 import it.gov.pagopa.onboarding.workflow.dto.initiative.InitiativeGeneralDTO;
@@ -340,6 +337,30 @@ class OnboardingControllerImplTest {
 
     assertEquals(OK, response.getStatusCode());
     verify(onboardingService, times(1)).technicalUsersCensus(initiativeId, censusDTO.getUserIds());
+  }
+
+  @Test
+  void checkPastOnboardingsSeries_ShouldCallServiceAndReturnOk() {
+    String initiativeId = "INITIATIVE_1";
+    CheckPastOnboardingsSeriesReqDTO requestDTO = new CheckPastOnboardingsSeriesReqDTO(List.of("USER1", "USER2"));
+
+    CheckPastOnboardingsSeriesResDTO expectedResponse = CheckPastOnboardingsSeriesResDTO.builder()
+            .pastOnboardings(List.of(
+                    new CheckPastOnboardingsSeriesResElemDTO("USER1", true),
+                    new CheckPastOnboardingsSeriesResElemDTO("USER2", false)
+            ))
+            .build();
+
+    when(onboardingService.checkPastOnboardingsSeries(initiativeId, requestDTO.getUserIds()))
+            .thenReturn(expectedResponse);
+
+    ResponseEntity<CheckPastOnboardingsSeriesResDTO> response =
+            controller.checkPastOnboardingsSeries(initiativeId, requestDTO);
+
+    assertNotNull(response);
+    assertEquals(OK, response.getStatusCode());
+    assertEquals(expectedResponse, response.getBody());
+    verify(onboardingService, times(1)).checkPastOnboardingsSeries(initiativeId, requestDTO.getUserIds());
   }
 }
 

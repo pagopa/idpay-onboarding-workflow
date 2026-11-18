@@ -3891,4 +3891,33 @@ class OnboardingServiceTest {
         verify(onboardingRepositoryMock, never()).save(any());
     }
 
+    @Test
+    void checkPastOnboardingsSeries_ok() {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> userIds = List.of("USER1", "USER2");
+
+        Onboarding onboarding = new Onboarding(initiativeId, "USER1");
+        onboarding.setStatus(ONBOARDING_KO);
+        onboarding.setDetailKO(ERROR_USER_BONUS_ALREADY_USED);
+
+        when(onboardingRepositoryMock.findByInitiativeIdAndUserIdInAndStatusAndDetailKO(
+                initiativeId, userIds, ONBOARDING_KO, ERROR_USER_BONUS_ALREADY_USED))
+                .thenReturn(List.of(onboarding));
+
+        CheckPastOnboardingsSeriesResDTO result = onboardingService.checkPastOnboardingsSeries(initiativeId, userIds);
+
+        assertNotNull(result);
+        assertNotNull(result.getPastOnboardings());
+        assertEquals(2, result.getPastOnboardings().size());
+
+        assertEquals("USER1", result.getPastOnboardings().get(0).getUserId());
+        assertTrue(result.getPastOnboardings().get(0).isOnboarded());
+
+        assertEquals("USER2", result.getPastOnboardings().get(1).getUserId());
+        assertFalse(result.getPastOnboardings().get(1).isOnboarded());
+
+        verify(onboardingRepositoryMock, times(1))
+                .findByInitiativeIdAndUserIdInAndStatusAndDetailKO(initiativeId, userIds, ONBOARDING_KO, ERROR_USER_BONUS_ALREADY_USED);
+    }
+
 }

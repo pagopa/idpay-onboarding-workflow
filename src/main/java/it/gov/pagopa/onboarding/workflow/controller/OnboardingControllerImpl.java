@@ -104,5 +104,11 @@ public class OnboardingControllerImpl implements OnboardingController {
     onboardingService.technicalUsersCensus(initiativeId, body.getUserIds());
     return ResponseEntity.ok().build();
   }
+
+  @Override
+  public ResponseEntity<CheckPastOnboardingsSeriesResDTO> checkPastOnboardingsSeries(String initiativeId, CheckPastOnboardingsSeriesReqDTO body) {
+    CheckPastOnboardingsSeriesResDTO result = onboardingService.checkPastOnboardingsSeries(initiativeId, body.getUserIds());
+    return ResponseEntity.ok(result);
+  }
   
 }
