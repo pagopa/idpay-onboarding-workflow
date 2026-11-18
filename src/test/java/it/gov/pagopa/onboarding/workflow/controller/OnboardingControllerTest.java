@@ -258,4 +258,26 @@ class OnboardingControllerTest {
                 .andReturn();
     }
 
+    @Test
+    void checkPastOnboardingsSeries_ok() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        CheckPastOnboardingsSeriesReqDTO requestDTO = new CheckPastOnboardingsSeriesReqDTO(List.of("USER1"));
+        CheckPastOnboardingsSeriesResDTO responseDTO = CheckPastOnboardingsSeriesResDTO.builder()
+                .pastOnboardings(List.of(
+                        new CheckPastOnboardingsSeriesResElemDTO("USER1", true)
+                ))
+                .build();
+
+        Mockito.when(onboardingService.checkPastOnboardingsSeries(Mockito.eq(INITIATIVE_ID), Mockito.anyList()))
+                .thenReturn(responseDTO);
+
+        mvc.perform(
+                        MockMvcRequestBuilders.post(BASE_URL + "/" + INITIATIVE_ID + "/check-past-onboardings-series")
+                                .contentType(APPLICATION_JSON_VALUE)
+                                .content(objectMapper.writeValueAsString(requestDTO))
+                                .accept(APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+    }
+
 }

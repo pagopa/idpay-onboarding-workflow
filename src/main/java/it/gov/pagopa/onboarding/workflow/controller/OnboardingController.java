@@ -121,4 +121,9 @@ public interface OnboardingController {
     ResponseEntity<Void> technicalUsersCensus(
             @PathVariable("initiativeId") String initiativeId,
             @Valid @RequestBody TechnicalUsersCensusDTO body);
+
+    @PostMapping("/{initiativeId}/check-past-onboardings-series")
+    ResponseEntity<CheckPastOnboardingsSeriesResDTO> checkPastOnboardingsSeries(
+            @PathVariable("initiativeId") String initiativeId,
+            @Valid @RequestBody CheckPastOnboardingsSeriesReqDTO body);
 }

@@ -53,6 +53,7 @@ public class OnboardingServiceImpl implements OnboardingService {
   public static final String EMPTY = "";
   public static final String COMMA_DELIMITER = ",";
   public static final String TECHNICAL_USERS_CENSUS = "TECHNICAL_USERS_CENSUS";
+  public static final String CHECK_PAST_ONBOARDINGS = "CHECK_PAST_ONBOARDINGS";
 
   private final int pageSize;
   private final long delayTime;
@@ -1234,6 +1235,36 @@ public class OnboardingServiceImpl implements OnboardingService {
         }
 
         performanceLog(startTime, TECHNICAL_USERS_CENSUS, null, initiativeId);
+    }
+
+    @Override
+    public CheckPastOnboardingsSeriesResDTO checkPastOnboardingsSeries(String initiativeId, List<String> userIds) {
+        long startTime = System.currentTimeMillis();
+        log.info("[CHECK_PAST_ONBOARDINGS] Checking past onboardings for initiative {}", sanitizeString(initiativeId));
+
+        List<Onboarding> onboardings = onboardingRepository.findByInitiativeIdAndUserIdInAndStatusAndDetailKO(
+                initiativeId,
+                userIds,
+                ONBOARDING_KO,
+                ERROR_USER_BONUS_ALREADY_USED
+        );
+
+        Set<String> matchedUserIds = onboardings.stream()
+                .map(Onboarding::getUserId)
+                .collect(Collectors.toSet());
+
+        List<CheckPastOnboardingsSeriesResElemDTO> pastOnboardings = userIds.stream()
+                .map(userId -> CheckPastOnboardingsSeriesResElemDTO.builder()
+                        .userId(userId)
+                        .onboarded(matchedUserIds.contains(userId))
+                        .build())
+                .toList();
+
+        performanceLog(startTime, CHECK_PAST_ONBOARDINGS, null, initiativeId);
+
+        return CheckPastOnboardingsSeriesResDTO.builder()
+                .pastOnboardings(pastOnboardings)
+                .build();
     }
 
 }
