@@ -33,7 +33,10 @@ import java.util.List;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ACCEPTED_TC;
 import static it.gov.pagopa.onboarding.workflow.constants.OnboardingWorkflowConstants.ExceptionMessage.ID_S_NOT_FOUND_MSG;
 import static java.time.LocalDate.now;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -82,7 +85,7 @@ class OnboardingControllerTest {
         OnboardingStatusDTO onboardingStatusDTO = new OnboardingStatusDTO(
                 ACCEPTED_TC, LocalDateTime.now(), null);
 
-        Mockito.when(onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID))
+        when(onboardingService.getOnboardingStatus(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDTO);
 
         mvc.perform(
@@ -97,7 +100,7 @@ class OnboardingControllerTest {
         OnboardingStatusDetailsDTO onboardingStatusDetailsDTO = new OnboardingStatusDetailsDTO(
                 ACCEPTED_TC, LocalDateTime.now(), null, FAMILY_ID);
 
-        Mockito.when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, USER_ID))
+        when(onboardingService.getOnboardingStatusDetails(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDetailsDTO);
 
         mvc.perform(
@@ -135,7 +138,7 @@ class OnboardingControllerTest {
 
         OnboardingAssistanceDTO onboardingStatusDTO = new OnboardingAssistanceDTO();
 
-        Mockito.when(onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID))
+        when(onboardingService.getOnboardingStatusAssistance(INITIATIVE_ID, USER_ID))
                 .thenReturn(onboardingStatusDTO);
 
         mvc.perform(
@@ -197,7 +200,7 @@ class OnboardingControllerTest {
 
     @Test
     void onboarding_status_list_ok() throws Exception {
-        Mockito.when(onboardingService.getOnboardingStatusList(USER_ID))
+        when(onboardingService.getOnboardingStatusList(USER_ID))
                 .thenReturn(ONBOARDING_DTO);
 
         mvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/user/{userId}/initiative/status", USER_ID)
@@ -231,7 +234,7 @@ class OnboardingControllerTest {
 
     @Test
     void familyUnitComposition() throws Exception {
-        Mockito.when(
+        when(
                 onboardingService.getfamilyUnitComposition(INITIATIVE_ID, USER_ID)).thenReturn(FAMILY_DTO);
         mvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + "/" + INITIATIVE_ID + "/" + USER_ID + FAMILY_URL)
@@ -247,7 +250,7 @@ class OnboardingControllerTest {
         TechnicalUsersCensusDTO requestDTO = new TechnicalUsersCensusDTO(List.of("RSSMRA80A01H501U"));
 
         Mockito.doNothing().when(onboardingService)
-                .technicalUsersCensus(Mockito.eq(INITIATIVE_ID), Mockito.anyList());
+                .technicalUsersCensus(eq(INITIATIVE_ID), anyList());
 
         mvc.perform(
                         MockMvcRequestBuilders.post(BASE_URL + "/" + INITIATIVE_ID + "/technical/users")
@@ -268,7 +271,7 @@ class OnboardingControllerTest {
                 ))
                 .build();
 
-        Mockito.when(onboardingService.checkPastOnboardingsSeries(Mockito.eq(INITIATIVE_ID), Mockito.anyList()))
+        when(onboardingService.checkPastOnboardingsSeries(eq(INITIATIVE_ID), anyList()))
                 .thenReturn(responseDTO);
 
         mvc.perform(

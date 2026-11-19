@@ -3920,4 +3920,20 @@ class OnboardingServiceTest {
                 .findByInitiativeIdAndUserIdInAndStatusAndDetailKO(initiativeId, userIds, ONBOARDING_KO, ERROR_USER_BONUS_ALREADY_USED);
     }
 
+    @ParameterizedTest
+    @MethodSource("invalidUserIds")
+    void technicalUsersCensus_skipsNullOrBlankUserId(String invalidUserId) {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> userIds = Collections.singletonList(invalidUserId);
+
+        assertDoesNotThrow(() -> onboardingService.technicalUsersCensus(initiativeId, userIds));
+
+        verify(onboardingRepositoryMock, never()).findById(any());
+        verify(onboardingRepositoryMock, never()).save(any());
+    }
+
+    private static Stream<String> invalidUserIds() {
+        return Stream.of(null, "", "   ");
+    }
+
 }
