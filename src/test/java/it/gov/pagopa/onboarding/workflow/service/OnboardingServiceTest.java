@@ -3768,4 +3768,172 @@ class OnboardingServiceTest {
         );
     }
 
+    @Test
+    void technicalUsersCensus_ok() {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> fiscalCodes = List.of("RSSMRA80A01H501U", "VRGNLA80A01H501W");
+
+        assertDoesNotThrow(() -> onboardingService.technicalUsersCensus(initiativeId, fiscalCodes));
+    }
+
+    @Test
+    void completeOnboarding_ko_userBonusAlreadyUsed() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+                .thenReturn(Optional.of(onboarding));
+
+        EvaluationDTO evaluationDTO = new EvaluationDTO(
+                USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_KO,
+                OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
+                List.of(new OnboardingRejectionReason("USER_BONUS_ALREADY_USED", "ONBOARDING_USER_BONUS_ALREADY_USED", null, null, null)),
+                500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID
+        );
+
+        onboardingService.completeOnboarding(evaluationDTO);
+
+        assertEquals(ONBOARDING_KO, onboarding.getStatus());
+        assertEquals("ONBOARDING_USER_BONUS_ALREADY_USED", onboarding.getDetailKO());
+    }
+
+    @Test
+    void completeOnboarding_ko_familyUnitAlreadyJoined() {
+        Onboarding onboarding = new Onboarding(INITIATIVE_ID, USER_ID);
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(INITIATIVE_ID, USER_ID)))
+                .thenReturn(Optional.of(onboarding));
+
+        EvaluationDTO evaluationDTO = new EvaluationDTO(
+                USER_ID, null, INITIATIVE_ID, INITIATIVE_ID, OPERATION_DATE, INITIATIVE_ID, ONBOARDING_KO,
+                OPERATION_DATE.atStartOfDay(), OPERATION_DATE.atStartOfDay(),
+                List.of(new OnboardingRejectionReason("FAMILY_UNIT_ALREADY_JOINED", "ONBOARDING_FAMILY_UNIT_ALREADY_JOINED", null, null, null)),
+                500L, INITIATIVE_REWARD_TYPE_DISCOUNT, ORGANIZATION_NAME, false, SERVICE_ID
+        );
+
+        onboardingService.completeOnboarding(evaluationDTO);
+
+        assertEquals(ONBOARDING_KO, onboarding.getStatus());
+        assertEquals("ONBOARDING_FAMILY_UNIT_ALREADY_JOINED", onboarding.getDetailKO());
+    }
+
+    @Test
+    void technicalUsersCensus_ok_newOnboarding() {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> userIds = List.of("RSSMRA80A01H501U");
+
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(initiativeId, "RSSMRA80A01H501U")))
+                .thenReturn(Optional.empty());
+
+        when(onboardingRepositoryMock.save(any(Onboarding.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertDoesNotThrow(() -> onboardingService.technicalUsersCensus(initiativeId, userIds));
+
+        verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
+    }
+
+    @Test
+    void technicalUsersCensus_ok_existingOnboarding() {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> userIds = List.of("RSSMRA80A01H501U");
+
+        Onboarding existingOnboarding = new Onboarding(initiativeId, "RSSMRA80A01H501U");
+        existingOnboarding.setStatus("ACCEPTED_TC");
+
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(initiativeId, "RSSMRA80A01H501U")))
+                .thenReturn(Optional.of(existingOnboarding));
+
+        when(onboardingRepositoryMock.save(any(Onboarding.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertDoesNotThrow(() -> onboardingService.technicalUsersCensus(initiativeId, userIds));
+
+        verify(onboardingRepositoryMock, times(1)).save(any(Onboarding.class));
+        assertEquals(ONBOARDING_KO, existingOnboarding.getStatus());
+        assertEquals(ERROR_USER_BONUS_ALREADY_USED, existingOnboarding.getDetailKO());
+    }
+
+    @Test
+    void technicalUsersCensus_withException() {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> userIds = List.of("RSSMRA80A01H501U");
+
+        when(onboardingRepositoryMock.findById(Onboarding.buildId(initiativeId, "RSSMRA80A01H501U")))
+                .thenThrow(new RuntimeException("Database error"));
+
+        assertDoesNotThrow(() -> onboardingService.technicalUsersCensus(initiativeId, userIds));
+
+        verify(onboardingRepositoryMock, never()).save(any(Onboarding.class));
+    }
+
+    @Test
+    void testSaveOnboarding_CallsCheckStatus_WhenStatusIsOnboardingKo() {
+        String initiativeId = "TEST_INITIATIVE";
+        String userId = "USER123";
+        String channel = "CHANNEL";
+
+        ConsentPutDTO consent = new ConsentPutDTO();
+        consent.setInitiativeId(initiativeId);
+        consent.setConfirmedTos(true);
+        consent.setPdndAccept(true);
+
+        Onboarding onboarding = new Onboarding(initiativeId, userId);
+        onboarding.setStatus(ONBOARDING_KO);
+
+        doReturn(onboarding).when(onboardingService)
+                .findOnboardingByInitiativeIdAndUserId(initiativeId, userId);
+
+        doNothing().when(onboardingService).checkStatus(any());
+        doNothing().when(onboardingService).handleExistingOnboarding(any());
+
+        onboardingService.saveOnboarding(consent, channel, userId);
+
+        verify(onboardingService, times(1)).checkStatus(onboarding);
+        verify(onboardingService, times(1)).handleExistingOnboarding(onboarding);
+        verify(onboardingRepositoryMock, never()).save(any());
+    }
+
+    @Test
+    void checkPastOnboardingsSeries_ok() {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> userIds = List.of("USER1", "USER2");
+
+        Onboarding onboarding = new Onboarding(initiativeId, "USER1");
+        onboarding.setStatus(ONBOARDING_KO);
+        onboarding.setDetailKO(ERROR_USER_BONUS_ALREADY_USED);
+
+        when(onboardingRepositoryMock.findByInitiativeIdAndUserIdInAndStatusAndDetailKO(
+                initiativeId, userIds, ONBOARDING_KO, ERROR_USER_BONUS_ALREADY_USED))
+                .thenReturn(List.of(onboarding));
+
+        CheckPastOnboardingsSeriesResDTO result = onboardingService.checkPastOnboardingsSeries(initiativeId, userIds);
+
+        assertNotNull(result);
+        assertNotNull(result.getPastOnboardings());
+        assertEquals(2, result.getPastOnboardings().size());
+
+        assertEquals("USER1", result.getPastOnboardings().get(0).getUserId());
+        assertTrue(result.getPastOnboardings().get(0).isOnboarded());
+
+        assertEquals("USER2", result.getPastOnboardings().get(1).getUserId());
+        assertFalse(result.getPastOnboardings().get(1).isOnboarded());
+
+        verify(onboardingRepositoryMock, times(1))
+                .findByInitiativeIdAndUserIdInAndStatusAndDetailKO(initiativeId, userIds, ONBOARDING_KO, ERROR_USER_BONUS_ALREADY_USED);
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidUserIds")
+    void technicalUsersCensus_skipsNullOrBlankUserId(String invalidUserId) {
+        String initiativeId = "TEST_INITIATIVE_ID";
+        List<String> userIds = Collections.singletonList(invalidUserId);
+
+        assertDoesNotThrow(() -> onboardingService.technicalUsersCensus(initiativeId, userIds));
+
+        verify(onboardingRepositoryMock, never()).findById(any());
+        verify(onboardingRepositoryMock, never()).save(any());
+    }
+
+    private static Stream<String> invalidUserIds() {
+        return Stream.of(null, "", "   ");
+    }
+
 }

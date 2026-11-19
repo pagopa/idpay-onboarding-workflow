@@ -100,4 +100,32 @@ class UtilitiesTest {
         assertEquals(UNSATISFIED_REQUIREMENTS, exception.getCode());
     }
 
+    @Test
+    void detailUserBonusAlreadyUsed(){
+        String message = utilities.getMessageOnboardingKO(OnboardingWorkflowConstants.ERROR_USER_BONUS_ALREADY_USED);
+        assertEquals(OnboardingWorkflowConstants.ExceptionMessage.USER_BONUS_ALREADY_USED_MSG, message);
+    }
+
+    @Test
+    void detailFamilyBonusAlreadyUsed(){
+        String message = utilities.getMessageOnboardingKO(OnboardingWorkflowConstants.ERROR_FAMILY_BONUS_ALREADY_USED);
+        assertEquals(OnboardingWorkflowConstants.ExceptionMessage.USER_BONUS_ALREADY_USED_MSG, message);
+    }
+
+    @Test
+    void userBonusAlreadyUsedException(){
+        InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
+                () -> utilities.throwOnboardingKOException(OnboardingWorkflowConstants.ERROR_USER_BONUS_ALREADY_USED, INITIATIVE_ID));
+
+        assertEquals(USER_BONUS_ALREADY_USED, exception.getCode());
+    }
+
+    @Test
+    void familyBonusAlreadyUsedException(){
+        InitiativeOnboardingException exception = assertThrows(InitiativeOnboardingException.class,
+                () -> utilities.throwOnboardingKOException(OnboardingWorkflowConstants.ERROR_FAMILY_BONUS_ALREADY_USED, INITIATIVE_ID));
+
+        assertEquals(FAMILY_UNIT_ALREADY_JOINED, exception.getCode());
+    }
+
 }
