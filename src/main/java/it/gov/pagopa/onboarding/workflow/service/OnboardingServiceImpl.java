@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1215,7 +1216,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                     String onboardingId = Onboarding.buildId(initiativeId, userId);
                     Onboarding onboarding = onboardingRepository.findById(onboardingId).orElse(null);
 
-                    LocalDateTime now = LocalDateTime.now();
+                    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
                     if (onboarding == null) {
                         onboarding = new Onboarding(initiativeId, userId);
                         onboarding.setCreationDate(now);
