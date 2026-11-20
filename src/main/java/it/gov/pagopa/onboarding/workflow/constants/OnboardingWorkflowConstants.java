@@ -47,7 +47,7 @@ public class OnboardingWorkflowConstants {
     public static final String ERROR_READMIT_STATUS_MSG = "It is not possible to readmit the user on initiative [%s]";
     public static final String ERROR_MAX_NUMBER_FOR_PAGE_MSG = "Max number for page allowed: 15";
 
-    public static final String USER_BONUS_ALREADY_USED_MSG = "Non puoi aderire all’iniziativa Bonus Decoder perché hai già usufruito del bonus in passato.";
+    public static final String USER_BONUS_ALREADY_USED_MSG = "Non puoi aderire all’iniziativa [%s] perché hai già usufruito del bonus in passato.";
     public static final String TECHNICAL_ERROR_MSG = "Onboarding to initiative [%s] failed";
     public static final String UNSATISFIED_REQUIREMENTS_MSG = "The current user does not satisfy the requirements set for the initiative [%s]";
     public static final String ERROR_BUDGET_TERMINATED_MSG = "Budget exhausted for initiative [%s]";
