@@ -14,4 +14,6 @@ public interface OnboardingRepository extends MongoRepository<Onboarding, String
   int countByInitiativeIdAndStatus(String initiativeId, String status);
 
   List<Onboarding> deleteByInitiativeId(String initiativeId);
+
+  List<Onboarding> findByInitiativeIdAndUserIdInAndStatusAndDetailKO(String initiativeId, List<String> userIds, String status, String detailKO);
 }

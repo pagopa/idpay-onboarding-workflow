@@ -116,4 +116,14 @@ public interface OnboardingController {
     @GetMapping("/{initiativeId}/{userId}/family")
     ResponseEntity<OnboardingFamilyDTO> familyUnitComposition(
             @PathVariable("initiativeId") String initiativeId, @PathVariable("userId") String userId);
+
+    @PostMapping("/{initiativeId}/technical/users")
+    ResponseEntity<Void> technicalUsersCensus(
+            @PathVariable("initiativeId") String initiativeId,
+            @Valid @RequestBody TechnicalUsersCensusDTO body);
+
+    @PostMapping("/{initiativeId}/check-past-onboardings-series")
+    ResponseEntity<CheckPastOnboardingsSeriesResDTO> checkPastOnboardingsSeries(
+            @PathVariable("initiativeId") String initiativeId,
+            @Valid @RequestBody CheckPastOnboardingsSeriesReqDTO body);
 }
